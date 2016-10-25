@@ -153,7 +153,7 @@ sub commandHandler {
 		my @dirs = File::Spec->splitdir($directories);
 		
 		if ($dirs[-2] eq $profile) {
-			message "[profiles] Unloading '".$filename."' from '".$profile."'\n";
+			message "[profiles] Unloading file '".$filename."' from old profile '".$profile."'\n";
 			$reloadFiles{$file->{'index'}} = $filename;
 		}
 	}
@@ -167,12 +167,12 @@ sub commandHandler {
 		next unless -f File::Spec->catdir($new_profile_folder, $filename);
 		next if ($filename =~ /^\./);
 		foreach my $file (@{$Settings::files->getItems}) {
-			next if ($file->{'type'} != 0);
+			next if ($file->{'type'} != Settings::CONTROL_FILE_TYPE);
 			next if (exists $reloadFiles{$file->{'index'}});
 			my $name = $file->{'autoSearch'} == 1 ? $file->{'name'} : $file->{'internalName'};
 			if ($name eq $filename) {
 				$reloadFiles{$file->{'index'}} = $filename;
-				message "[profiles] Unloading '".$filename."' other control folder\n";
+				message "[profiles] Found control file '".$filename."' in new profile '".$new_profile."'\n";
 			}
 		}
 	}
@@ -196,7 +196,7 @@ sub commandHandler {
 	
 	Settings::loadFiles(\@files, $progressHandler);
 	
-	message "[profiles] Loading over, profile '".$new_profile."' loaded\n", "system";
+	message "[profiles] Loading finished, profile '".$new_profile."' loaded\n", "system";
 	$profile = $new_profile;
 }
 
