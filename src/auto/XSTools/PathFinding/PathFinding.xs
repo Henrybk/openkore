@@ -225,6 +225,7 @@ PathFinding_run(session, solution_array)
 
 			while (currentNode.x != session->startX || currentNode.y != session->startY)
 			{
+
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
 				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
@@ -266,4 +267,5 @@ PathFinding_DESTROY(session)
 	PREINIT:
 		session = (PathFinding) 0; /* shut up compiler warning */
 	CODE:
+
 		CalcPath_destroy (session);
