@@ -158,9 +158,9 @@ PathFinding_runref(session)
 
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
 				
-				av_unshift(array, 1);
+				av_unshift(results, 1);
 
-				av_store(array, 0, newRV((SV *)rh));
+				av_store(results, 0, newRV((SV *)rh));
 				
 				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
 			}
