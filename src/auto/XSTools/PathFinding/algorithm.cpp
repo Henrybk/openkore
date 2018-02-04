@@ -55,7 +55,7 @@ calcKey (Node* infoAdress)
 }
 
 int
-first_key_bigger_than_second_key (int first[2], int second[2])
+first_key_bigger_than_second_key (unsigned int first[2], unsigned int second[2])
 {
 	if (first[0] > second[0] || (first[0] == second[0] && first[1] > second[1])) {
 		return 1;
@@ -155,7 +155,7 @@ openListRemove (CalcPath_session *session, Node* infoAdress)
 }
 
 void 
-reajustOpenListItem (CalcPath_session *session, Node* infoAdress, int oldkey[2])
+reajustOpenListItem (CalcPath_session *session, Node* infoAdress, unsigned int oldkey[2])
 {
     int currentIndex = infoAdress->openListIndex;
 	session->openList[currentIndex].key = infoAdress->key;

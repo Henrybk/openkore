@@ -46,7 +46,7 @@ CalcPath_session *CalcPath_new ();
 
 void calcKey(Node* cell);
 
-int first_key_bigger_than_second_key(int first[2], int second[2]);
+int first_key_bigger_than_second_key(unsigned int first[2], unsigned int second[2]);
 
 int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int avoidWalls);
 
