@@ -136,7 +136,8 @@ openListAdd (CalcPath_session *session, Node* infoAdress)
 	int currentIndex = session->openListSize;
     session->openList[currentIndex].x = infoAdress->x;
     session->openList[currentIndex].y = infoAdress->y;
-    session->openList[currentIndex].key = infoAdress->key;
+    session->openList[currentIndex].key[0] = infoAdress->key[0];
+    session->openList[currentIndex].key[1] = infoAdress->key[1];
     infoAdress->openListIndex = currentIndex;
 	infoAdress->isInOpenList = 1;
 	session->openListSize++;
@@ -158,7 +159,8 @@ void
 reajustOpenListItem (CalcPath_session *session, Node* infoAdress, unsigned int oldkey[2])
 {
     int currentIndex = infoAdress->openListIndex;
-	session->openList[currentIndex].key = infoAdress->key;
+    session->openList[currentIndex].key[0] = infoAdress->key[0];
+    session->openList[currentIndex].key[1] = infoAdress->key[1];
 	if (first_key_bigger_than_second_key(oldkey, infoAdress->key)) {
 		openListAdjustUp(session, infoAdress);
 	} else {
@@ -286,7 +288,7 @@ get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode)
 	Node nextNode;
 	nextNode.rhs = INFINITE;
 	
-	Node* infoAdress;
+	Node infoAdress;
 	int i;
 	for (i = -1; i <= 1; i++)
 	{
@@ -295,9 +297,9 @@ get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode)
 		{
 			if (i == 0 && j == 0){ continue; }
 			
-			infoAdress = &session->currentMap[((currentNode.y + j) * session->width) + (currentNode.x + i)];
+			infoAdress = session->currentMap[((currentNode.y + j) * session->width) + (currentNode.x + i)];
 			
-			if (infoAdress->rhs < nextNode.rhs) {
+			if (infoAdress.rhs < nextNode.rhs) {
 				nextNode = infoAdress;
 			}
 		}

@@ -58,7 +58,7 @@ void openListAdd (CalcPath_session *session, Node* infoAdress);
 
 void openListRemove (CalcPath_session *session, Node* infoAdress);
 
-void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, int oldkey[2]);
+void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, unsigned int oldkey[2]);
 
 Node* openListGetLowest (CalcPath_session *session);
 
