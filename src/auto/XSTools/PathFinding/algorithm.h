@@ -29,10 +29,10 @@ typedef struct {
 	unsigned long time_max;
 	unsigned int width;
 	unsigned int height;
-	int startX;
-	int startY;
-	int endX;
-	int endY;
+	unsigned int startX;
+	unsigned int startY;
+	unsigned int endX;
+	unsigned int endY;
 	int initialized;
 	int run;
 	int size;
