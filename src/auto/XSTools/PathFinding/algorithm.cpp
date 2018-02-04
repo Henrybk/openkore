@@ -284,11 +284,11 @@ CalcPath_pathStep (CalcPath_session *session)
 	}
 }
 
-Node *
-get_lowest_neighbor_sum_node (CalcPath_session *session, Node* currentNode)
+Node
+get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode)
 {
-	Node* nextNode;
-	nextNode->rhs = INFINITE;
+	Node nextNode;
+	nextNode.rhs = INFINITE;
 	
 	Node* infoAdress;
 	int i;
@@ -301,7 +301,7 @@ get_lowest_neighbor_sum_node (CalcPath_session *session, Node* currentNode)
 			
 			infoAdress = &session->currentMap[((currentNode->y + j) * session->width) + (currentNode->x + i)];
 			
-			if (infoAdress->rhs < nextNode->rhs) {
+			if (infoAdress->rhs < nextNode.rhs) {
 				nextNode = infoAdress;
 			}
 		}

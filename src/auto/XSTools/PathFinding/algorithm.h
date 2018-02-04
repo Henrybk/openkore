@@ -66,7 +66,7 @@ void reconstruct_path(CalcPath_session *session, Node* currentNode);
 
 int CalcPath_pathStep (CalcPath_session *session);
 
-Node* get_lowest_neighbor_sum_node (CalcPath_session *session, Node* currentNode);
+Node get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode);
  
 CalcPath_session *CalcPath_init (CalcPath_session *session);
 
