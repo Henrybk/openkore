@@ -187,7 +187,6 @@ CalcPath_pathStep (CalcPath_session *session)
 	
 	if (!session->run) {
 		session->run = 1;
-		session->solution_size = 0;
 		session->size = session->height * session->width;
 		session->openListSize = 0;
 		session->openList = (TypeList*) malloc(session->size * sizeof(TypeList));
@@ -200,9 +199,6 @@ CalcPath_pathStep (CalcPath_session *session)
 	Node* infoAdress;
 	int indexNeighbor = 0;
 	int nodeList;
-	
-	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
-	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
 	
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
@@ -299,7 +295,7 @@ get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode)
 		{
 			if (i == 0 && j == 0){ continue; }
 			
-			infoAdress = &session->currentMap[((currentNode->y + j) * session->width) + (currentNode->x + i)];
+			infoAdress = &session->currentMap[((currentNode.y + j) * session->width) + (currentNode.x + i)];
 			
 			if (infoAdress->rhs < nextNode.rhs) {
 				nextNode = infoAdress;
