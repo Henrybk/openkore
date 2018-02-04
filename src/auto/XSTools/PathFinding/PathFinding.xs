@@ -104,18 +104,14 @@ PathFinding_run(session, r_array)
 			AV *array;
 			int size;
 
-			size = session->solution_size;
 			array = (AV *) SvRV (r_array);
-			if (av_len (array) > size)
-				av_clear (array);
-			
-			av_extend (array, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
 
 			while (currentNode.x != session->startX || currentNode.y != session->startY)
 			{
-
+				size++;
+				
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
 				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
@@ -126,7 +122,7 @@ PathFinding_run(session, r_array)
 
 				av_store(array, 0, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[(currentNode.parentY * session->width) + currentNode.parentX];
+				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
 			}
 			
 			RETVAL = size;
@@ -151,24 +147,22 @@ PathFinding_runref(session)
 			AV * results;
 
 			results = (AV *)sv_2mortal((SV *)newAV());
-			av_extend(results, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
 			
 			while (currentNode.x != session->startX || currentNode.y != session->startY)
 			{
-
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
 				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
 
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
 				
-				av_unshift(results, 1);
+				av_unshift(array, 1);
 
-				av_store(results, 0, newRV((SV *)rh));
-
-				currentNode = session->currentMap[(currentNode.parentY * session->width) + currentNode.parentX];
+				av_store(array, 0, newRV((SV *)rh));
+				
+				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
 			}
 			
 			RETVAL = newRV((SV *)results);
@@ -191,7 +185,18 @@ PathFinding_runcount(session)
 
 			RETVAL = -1;
 		} else if (status > 0) {
-			RETVAL = (int) session->solution_size;
+			int size;
+			
+			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
+
+			while (currentNode.x != session->startX || currentNode.y != session->startY)
+			{
+				size++;
+				
+				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
+			}
+			
+			RETVAL = size;
 
 		} else
 			RETVAL = 0;

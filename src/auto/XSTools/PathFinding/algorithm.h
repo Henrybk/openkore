@@ -6,27 +6,27 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct Nodes{
-    unsigned short x;
-    unsigned short y;
-    unsigned short parentX;
-    unsigned short parentY;
-	unsigned int whichlist : 2;
+	unsigned short x;
+	unsigned short y;
+	
+	bool isInOpenList;
 	unsigned int openListIndex;
+	
 	unsigned int g;
 	unsigned short h;
-	unsigned int f;
+	unsigned int rhs;
+	unsigned int key[2];
 } Node;
 
 typedef struct {
-    int x;
-    int y;
-    int f;
+    unsigned short x;
+    unsigned short y;
+    unsigned int key[2];
 } TypeList;
 
 typedef struct {
-	int avoidWalls;
+	bool avoidWalls;
 	unsigned long time_max;
-	int solution_size;
 	unsigned int width;
 	unsigned int height;
 	int startX;
@@ -44,17 +44,29 @@ typedef struct {
 
 CalcPath_session *CalcPath_new ();
 
+void calcKey(Node* cell);
+
+int first_key_bigger_than_second_key(int[2] first, int[2] second);
+
 int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int avoidWalls);
+
+void openListAdjustUp (CalcPath_session *session, Node* infoAdress);
+
+void openListAdjustDown (CalcPath_session *session, Node* infoAdress);
 
 void openListAdd (CalcPath_session *session, Node* infoAdress);
 
-void reajustOpenListItem (CalcPath_session *session, Node* infoAdress);
+void openListRemove (CalcPath_session *session, Node* infoAdress);
+
+void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, int[2] oldkey);
 
 Node* openListGetLowest (CalcPath_session *session);
 
 void reconstruct_path(CalcPath_session *session, Node* currentNode);
 
 int CalcPath_pathStep (CalcPath_session *session);
+
+Node* get_lowest_neighbor_sum_node (CalcPath_session *session, Node* currentNode);
  
 CalcPath_session *CalcPath_init (CalcPath_session *session);
 

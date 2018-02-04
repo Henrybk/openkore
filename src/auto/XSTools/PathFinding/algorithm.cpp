@@ -10,13 +10,10 @@ extern "C" {
 
 #define DIAGONAL 14
 #define ORTOGONAL 10
-#define NONE 0
-#define OPEN 1
-#define CLOSED 2
-#define PATH 3
 #define LCHILD(currentIndex) 2 * currentIndex + 1
 #define RCHILD(currentIndex) 2 * currentIndex + 2
 #define PARENT(currentIndex) (int)floor((currentIndex - 1) / 2)
+#define INFINITE  10000000
 
 #ifdef WIN32
 	#include <windows.h>
@@ -50,8 +47,24 @@ CalcPath_new ()
 	return session;
 }
 
+void
+calcKey (Node* infoAdress)
+{
+	infoAdress->key[1] = ((infoAdress->g > infoAdress->rhs) ? infoAdress->rhs : infoAdress->g);
+	infoAdress->key[0] = infoAdress->key[1] + infoAdress->h;
+}
+
+int
+first_key_bigger_than_second_key (int[2] first, int[2] second)
+{
+	if (first[0] > second[0] || (first[0] == second[0] && first[1] > second[1])) {
+		return 1;
+	}
+	return 0;
+}
+
 int 
-heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int avoidWalls)
+heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY, int avoidWalls)
 {
     int xDistance = abs(currentX - goalX);
     int yDistance = abs(currentY - goalY);
@@ -68,16 +81,12 @@ heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int av
 //Openlist is a binary heap of min-heap type
 
 void 
-openListAdd (CalcPath_session *session, Node* infoAdress)
+openListAdjustUp (CalcPath_session *session, Node* infoAdress)
 {
-	int currentIndex = session->openListSize;
-    session->openList[currentIndex].x = infoAdress->x;
-    session->openList[currentIndex].y = infoAdress->y;
-    session->openList[currentIndex].f = infoAdress->f;
-    infoAdress->openListIndex = currentIndex;
-    TypeList Temporary;
+	int currentIndex = infoAdress->openListIndex;
+	TypeList Temporary;
     while (PARENT(currentIndex) >= 0) {
-        if (session->openList[PARENT(currentIndex)].f > session->openList[currentIndex].f) {
+		if (first_key_bigger_than_second_key(session->openList[PARENT(currentIndex)].key, session->openList[currentIndex].key)) {
             Temporary = session->openList[currentIndex];
             session->openList[currentIndex] = session->openList[PARENT(currentIndex)];
             session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
@@ -89,69 +98,80 @@ openListAdd (CalcPath_session *session, Node* infoAdress)
 }
 
 void 
-reajustOpenListItem (CalcPath_session *session, Node* infoAdress)
+openListAdjustDown (CalcPath_session *session, Node* infoAdress)
+{
+	int currentIndex = infoAdress->openListIndex;
+	TypeList Temporary;
+	int lowestChildIndex = 0;
+	while (LCHILD(currentIndex) < session->openListSize - 2) {
+		//There are 2 children
+		if (RCHILD(currentIndex) <= session->openListSize - 2) {
+			if (first_key_bigger_than_second_key(session->openList[RCHILD(currentIndex)].key, session->openList[LCHILD(currentIndex)].key)) {
+				lowestChildIndex = LCHILD(currentIndex);
+			} else {
+				lowestChildIndex = RCHILD(currentIndex);
+			}
+		} else {
+			//There is 1 children
+			if (LCHILD(currentIndex) <= session->openListSize - 2) {
+				lowestChildIndex = LCHILD(currentIndex);
+			} else {
+				break;
+			}
+		}
+		if (first_key_bigger_than_second_key(session->openList[currentIndex].key, session->openList[lowestChildIndex].key)) {
+			Temporary = session->openList[currentIndex];
+			session->openList[currentIndex] = session->openList[lowestChildIndex];
+			session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
+			session->openList[lowestChildIndex] = Temporary;
+			session->currentMap[(session->openList[lowestChildIndex].y * session->width) + session->openList[lowestChildIndex].x].openListIndex = lowestChildIndex;
+			currentIndex = lowestChildIndex;
+		} else { break; }
+	}
+}
+
+void 
+openListAdd (CalcPath_session *session, Node* infoAdress)
+{
+	int currentIndex = session->openListSize;
+    session->openList[currentIndex].x = infoAdress->x;
+    session->openList[currentIndex].y = infoAdress->y;
+    session->openList[currentIndex].key = infoAdress->key;
+    infoAdress->openListIndex = currentIndex;
+	infoAdress->isInOpenList = 1;
+	session->openListSize++;
+    openListAdjustUp(session, infoAdress);
+}
+
+void 
+openListRemove (CalcPath_session *session, Node* infoAdress)
+{
+	int currentIndex = infoAdress->openListIndex;
+	session->openList[currentIndex] = session->openList[session->openListSize-1];
+    session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
+	infoAdress->isInOpenList = 0;
+	session->openListSize--;
+    openListAdjustDown(session, infoAdress);
+}
+
+void 
+reajustOpenListItem (CalcPath_session *session, Node* infoAdress, int[2] oldkey)
 {
     int currentIndex = infoAdress->openListIndex;
-    session->openList[currentIndex].f = infoAdress->f;
-    TypeList Temporary;
-    while (PARENT(currentIndex) >= 0) {
-        if (session->openList[PARENT(currentIndex)].f > session->openList[currentIndex].f) {
-            Temporary = session->openList[currentIndex];
-            session->openList[currentIndex] = session->openList[PARENT(currentIndex)];
-            session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
-            session->openList[PARENT(currentIndex)] = Temporary;
-            infoAdress->openListIndex = PARENT(currentIndex);
-            currentIndex = PARENT(currentIndex);
-        } else { break; }
-    }
+	session->openList[currentIndex].key = infoAdress->key;
+	if (first_key_bigger_than_second_key(oldkey, infoAdress->key)) {
+		openListAdjustUp(session, infoAdress);
+	} else {
+		openListAdjustDown(session, infoAdress);
+	}
 }
 
 Node* 
 openListGetLowest (CalcPath_session *session)
 {
     Node* lowestNode = &session->currentMap[(session->openList[0].y * session->width) + session->openList[0].x];
-    session->openList[0] = session->openList[session->openListSize-1];
-    session->currentMap[(session->openList[0].y * session->width) + session->openList[0].x].openListIndex = 0;
-    int lowestChildIndex = 0;
-    int currentIndex = 0;
-    TypeList Temporary;
-    while (LCHILD(currentIndex) < session->openListSize - 2) {
-        //There are 2 children
-        if (RCHILD(currentIndex) <= session->openListSize - 2) {
-            if (session->openList[RCHILD(currentIndex)].f <= session->openList[LCHILD(currentIndex)].f) {
-                lowestChildIndex = RCHILD(currentIndex);
-            } else {
-                lowestChildIndex = LCHILD(currentIndex);
-            }
-        } else {
-            //There is 1 children
-            if (LCHILD(currentIndex) <= session->openListSize - 2) {
-                lowestChildIndex = LCHILD(currentIndex);
-            } else {
-                break;
-            }
-        }
-        if (session->openList[currentIndex].f > session->openList[lowestChildIndex].f) {
-            Temporary = session->openList[currentIndex];
-            session->openList[currentIndex] = session->openList[lowestChildIndex];
-            session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
-            session->openList[lowestChildIndex] = Temporary;
-            session->currentMap[(session->openList[lowestChildIndex].y * session->width) + session->openList[lowestChildIndex].x].openListIndex = lowestChildIndex;
-            currentIndex = lowestChildIndex;
-        } else { break; }
-    }
+    openListRemove(session, lowestNode);
     return lowestNode;
-}
-
-void 
-reconstruct_path(CalcPath_session *session, Node* currentNode)
-{
-	while (currentNode->x != session->startX || currentNode->y != session->startY)
-    {
-        session->currentMap[(currentNode->parentY * session->width) + currentNode->parentX].whichlist = PATH;
-        currentNode = &session->currentMap[(currentNode->parentY * session->width) + currentNode->parentX];
-        session->solution_size++;
-    }
 }
 
 int 
@@ -162,27 +182,42 @@ CalcPath_pathStep (CalcPath_session *session)
 		return -2;
 	}
 	
+	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
+	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
+	
 	if (!session->run) {
 		session->run = 1;
 		session->solution_size = 0;
 		session->size = session->height * session->width;
-		session->openListSize = 1;
+		session->openListSize = 0;
 		session->openList = (TypeList*) malloc(session->size * sizeof(TypeList));
-		session->openList[0].x = session->startX;
-		session->openList[0].y = session->startY;
+		
+		calcKey(start);
+		openListAdd (session, start);
 	}
 	
 	Node* currentNode;
 	Node* infoAdress;
-	unsigned int Gscore = 0;
 	int indexNeighbor = 0;
 	int nodeList;
 	
-	int next = 0;
+	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
+	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
 	
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
-    while (session->openListSize > 0) {
+	
+    while (1) {
+		
+		// No path exists
+		if (session->openListSize == 0) {
+			return -1;
+		}
+		
+		// Path found
+		if (first_key_bigger_than_second_key(goal->key, session->openList[0].key) || goal->g != goal->rhs) {
+			return 1;
+		}
 		
 		loop++;
 		if (loop == 100) {
@@ -192,24 +227,13 @@ CalcPath_pathStep (CalcPath_session *session)
 				loop = 0;
 		}
 		
-        //get lowest F score member of openlist and delete it from it
-		if (next > 0) {
-			currentNode = &session->currentMap[next];
-			next = 0;
-		} else {
-			currentNode = openListGetLowest (session);
-		}
+        // get lowest key score member of openlist and delete it from it, shrinks openListSize
+		currentNode = openListGetLowest (session);
 		
-        session->openListSize--;
-
-        //add currentNode to closedList
-        currentNode->whichlist = CLOSED;
-
-		//if current is the goal, return the path.
-		if (currentNode->x == session->endX && currentNode->y == session->endY) {
-            //return path
-            reconstruct_path(session, currentNode);
-			return 1;
+		if (currentNode->g > currentNode->rhs) {
+			currentNode->g = currentNode->rhs;
+		} else {
+			currentNode->g = INFINITE;
 		}
 		
 		int i;
@@ -230,8 +254,6 @@ CalcPath_pathStep (CalcPath_session *session)
 				
 				infoAdress = &session->currentMap[current];
 				
-				if (infoAdress->whichlist == CLOSED) { continue; }
-				
 				int distanceFromCurrent;
 				if (i != 0 && j != 0) {
 				   if (session->map[(currentNode->y * session->width) + x] == 0 || session->map[(y * session->width) + currentNode->x] == 0){ continue; }
@@ -243,37 +265,48 @@ CalcPath_pathStep (CalcPath_session *session)
 					distanceFromCurrent += session->map[current];
 				}
 				
-				Gscore = currentNode->g + distanceFromCurrent;
+				infoAdress->h = heuristic_cost_estimate(infoAdress->x, infoAdress->y, session->endX, session->endY, session->avoidWalls);
 				
-				if (infoAdress->whichlist == NONE) {
-					infoAdress->x = x;
-					infoAdress->y = y;
-					infoAdress->parentX = currentNode->x;
-					infoAdress->parentY = currentNode->y;
-					infoAdress->g = Gscore;
-					infoAdress->h = heuristic_cost_estimate(infoAdress->x, infoAdress->y, session->endX, session->endY, session->avoidWalls);
-					infoAdress->f = infoAdress->g + infoAdress->h;
-					if (next == 0 && infoAdress->f == currentNode->f) {
-						infoAdress->whichlist = CLOSED;
-						next = current;
-					} else {
-						infoAdress->whichlist = OPEN;
-						openListAdd (session, infoAdress);
-						session->openListSize++;
-					}
-				} else {
-					if (Gscore < infoAdress->g) {
-						infoAdress->parentX = currentNode->x;
-						infoAdress->parentY = currentNode->y;
-						infoAdress->g = Gscore;
-						infoAdress->f = infoAdress->g + infoAdress->h;
-						reajustOpenListItem (session, infoAdress);
-					}
+				if (session->startY != y || session->startX != x) {
+					infoAdress->rhs = currentNode->g + distanceFromCurrent;
+				}
+				
+				if (infoAdress->isInOpenList) {
+					openListRemove(session, infoAdress);
+				}
+				
+				if (infoAdress->g != infoAdress->rhs) {
+					calcKey(infoAdress);
+					openListAdd (session, infoAdress);
 				}
 			}
 		}
 	}
-	return -1;
+}
+
+Node *
+get_lowest_neighbor_sum_node (CalcPath_session *session, Node* currentNode)
+{
+	Node* nextNode;
+	nextNode->rhs = INFINITE;
+	
+	Node* infoAdress;
+	int i;
+	for (i = -1; i <= 1; i++)
+	{
+		int j;
+		for (j = -1; j <= 1; j++)
+		{
+			if (i == 0 && j == 0){ continue; }
+			
+			infoAdress = &session->currentMap[((currentNode->y + j) * session->width) + (currentNode->x + i)];
+			
+			if (infoAdress->rhs < nextNode->rhs) {
+				nextNode = infoAdress;
+			}
+		}
+	}
+	return nextNode;
 }
 
 // Create a new pathfinding session, or reset an existing session.
@@ -282,11 +315,23 @@ CalcPath_pathStep (CalcPath_session *session)
 CalcPath_session *
 CalcPath_init (CalcPath_session *session)
 {
-	session->currentMap[(session->startY * session->width) + session->startX].x = session->startX;
-	session->currentMap[(session->startY * session->width) + session->startX].y = session->startY;
-	session->currentMap[(session->startY * session->width) + session->startX].g = 0;
-	session->currentMap[(session->endY * session->width) + session->endX].x = session->endX;
-	session->currentMap[(session->endY * session->width) + session->endX].y = session->endY;
+	
+	unsigned int x = 0;
+	unsigned int y = 0;
+	
+	int current;
+	for (y = 0; y < session->height; y++) {
+		for (x = 0; x < session->width; x++) {
+			current = (y * session->width) + x;
+			session->currentMap[current].x = x;
+			session->currentMap[current].y = y;
+			session->currentMap[current].isInOpenList = 0;
+			session->currentMap[current].g = INFINITE;
+			session->currentMap[current].rhs = INFINITE;
+		}
+	}
+	
+	session->currentMap[(session->startY * session->width) + session->startX].rhs = 0;
 	
 	session->initialized = 1;
 	
@@ -306,7 +351,6 @@ CalcPath_destroy (CalcPath_session *session)
 	}
 
 	free (session);
-
 }
 
 #ifdef __cplusplus
