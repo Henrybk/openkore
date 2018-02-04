@@ -46,7 +46,7 @@ CalcPath_session *CalcPath_new ();
 
 void calcKey(Node* cell);
 
-int first_key_bigger_than_second_key(int[2] first, int[2] second);
+int first_key_bigger_than_second_key(int first[2], int second[2]);
 
 int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int avoidWalls);
 
@@ -58,7 +58,7 @@ void openListAdd (CalcPath_session *session, Node* infoAdress);
 
 void openListRemove (CalcPath_session *session, Node* infoAdress);
 
-void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, int[2] oldkey);
+void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, int oldkey[2]);
 
 Node* openListGetLowest (CalcPath_session *session);
 
