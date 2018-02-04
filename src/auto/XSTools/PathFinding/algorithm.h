@@ -6,8 +6,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct Nodes{
-	unsigned short x;
-	unsigned short y;
+	unsigned int x;
+	unsigned int y;
 	
 	bool isInOpenList;
 	unsigned int openListIndex;
@@ -19,8 +19,8 @@ typedef struct Nodes{
 } Node;
 
 typedef struct {
-    unsigned short x;
-    unsigned short y;
+    unsigned int x;
+    unsigned int y;
     unsigned int key[2];
 } TypeList;
 
