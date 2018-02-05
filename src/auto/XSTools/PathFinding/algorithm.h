@@ -8,6 +8,7 @@ extern "C" {
 typedef struct Nodes{
 	unsigned int x;
 	unsigned int y;
+	unsigned int nodeAdress;
 	
 	bool isInOpenList;
 	unsigned int openListIndex;
@@ -16,6 +17,8 @@ typedef struct Nodes{
 	unsigned short h;
 	unsigned int rhs;
 	unsigned int key[2];
+	
+	unsigned int predecessor;
 } Node;
 
 typedef struct {
@@ -33,6 +36,7 @@ typedef struct {
 	unsigned int startY;
 	unsigned int endX;
 	unsigned int endY;
+	int solution_size;
 	int initialized;
 	int run;
 	int size;
@@ -62,11 +66,17 @@ void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, unsigned 
 
 Node* openListGetLowest (CalcPath_session *session);
 
-void reconstruct_path(CalcPath_session *session, Node* currentNode);
+void updateNode (CalcPath_session *session, Node* infoAdress);
+
+int getValidNode (CalcPath_session *session, unsigned int x, unsigned int y);
+
+int getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* infoAdress);
+
+void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 
 int CalcPath_pathStep (CalcPath_session *session);
 
-Node get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode);
+Node get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode);
  
 CalcPath_session *CalcPath_init (CalcPath_session *session);
 

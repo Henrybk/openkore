@@ -172,8 +172,69 @@ Node*
 openListGetLowest (CalcPath_session *session)
 {
     Node* lowestNode = &session->currentMap[(session->openList[0].y * session->width) + session->openList[0].x];
-    openListRemove(session, lowestNode);
     return lowestNode;
+}
+
+void 
+updateNode (CalcPath_session *session, Node* infoAdress)
+{
+	
+	if (infoAdress->g != infoAdress->rhs) {
+		if (infoAdress->isInOpenList) {
+			unsigned int oldkey[2];
+			oldkey[0] = infoAdress->key[0];
+			oldkey[1] = infoAdress->key[1];
+			calcKey(infoAdress);
+			reajustOpenListItem(session, infoAdress, oldkey);
+		} else {
+			calcKey(infoAdress);
+			openListAdd (session, infoAdress);
+		}
+		
+	} else if (infoAdress->isInOpenList) {
+		openListRemove(session, infoAdress);
+	}
+}
+
+int
+getValidNode (CalcPath_session *session, unsigned int x, unsigned int y)
+{
+	if (x >= session->width || y >= session->height || x < 0 || y < 0){ return -1; }
+	
+	int current = (y * session->width) + x;
+	
+	if (session->map[current] == 0){ return -1; }
+	
+	return current;
+}
+
+int 
+getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* infoAdress)
+{
+	int distanceFromCurrent;
+	if (currentNode->y != infoAdress->y && currentNode->x != infoAdress->y) {
+		if (session->map[(currentNode->y * session->width) + infoAdress->x] == 0 || session->map[(infoAdress->y * session->width) + currentNode->x] == 0){ return -1; }
+		distanceFromCurrent = DIAGONAL;
+	} else {
+		distanceFromCurrent = ORTOGONAL;
+	}
+	if (session->avoidWalls) {
+		distanceFromCurrent += session->map[(infoAdress->y * session->width) + infoAdress->x];
+	}
+	return distanceFromCurrent;
+}
+
+void 
+reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
+{
+	Node* currentNode = &session->currentMap[goal->nodeAdress];
+	
+	session->solution_size = 0;
+	while (currentNode->nodeAdress != start->nodeAdress)
+    {
+        currentNode = &session->currentMap[currentNode->predecessor];
+        session->solution_size++;
+    }
 }
 
 int 
@@ -199,8 +260,11 @@ CalcPath_pathStep (CalcPath_session *session)
 	
 	Node* currentNode;
 	Node* infoAdress;
-	int indexNeighbor = 0;
-	int nodeList;
+	
+	int i;
+	int j;
+	int current;
+	int distanceFromCurrent;
 	
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
@@ -214,11 +278,12 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		// Path found
 		if (first_key_bigger_than_second_key(goal->key, session->openList[0].key) || goal->g != goal->rhs) {
+			reconstruct_path(session, goal, start);
 			return 1;
 		}
 		
 		loop++;
-		if (loop == 100) {
+		if (loop == 10) {
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else
@@ -230,52 +295,54 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		if (currentNode->g > currentNode->rhs) {
 			currentNode->g = currentNode->rhs;
+			openListRemove(session, currentNode);
+			
+			for (i = -1; i <= 1; i++)
+			{
+				for (j = -1; j <= 1; j++)
+				{
+					if (i == 0 && j == 0) { continue; }
+					current = getValidNode(session, (currentNode->x + i), (currentNode->y + j));
+
+					if (current < 0) { continue; }
+
+					infoAdress = &session->currentMap[current];
+
+					distanceFromCurrent = getDistanceFromCurrent(session, currentNode, infoAdress);
+
+					if (distanceFromCurrent < 0) { continue; }
+					
+					if (infoAdress->h == 0) {
+						infoAdress->h = heuristic_cost_estimate(infoAdress->x, infoAdress->y, session->endX, session->endY, session->avoidWalls);
+					}
+					
+					if (infoAdress->rhs > (currentNode->g + distanceFromCurrent)) {
+						infoAdress->predecessor = currentNode->nodeAdress;
+						infoAdress->rhs = currentNode->g + distanceFromCurrent;
+						updateNode(session, infoAdress);
+					}
+				}
+			}
+			
+			
 		} else {
 			currentNode->g = INFINITE;
-		}
-		
-		int i;
-		for (i = -1; i <= 1; i++)
-		{
-			int j;
-			for (j = -1; j <= 1; j++)
+			for (i = -1; i <= 1; i++)
 			{
-				if (i == 0 && j == 0){ continue; }
-				unsigned int x = currentNode->x + i;
-				unsigned int y = currentNode->y + j;
-				
-				if (x >= session->width || y >= session->height || x < 0 || y < 0){ continue; }
-				
-				int current = (y * session->width) + x;
-				
-				if (session->map[current] == 0){ continue; }
-				
-				infoAdress = &session->currentMap[current];
-				
-				int distanceFromCurrent;
-				if (i != 0 && j != 0) {
-				   if (session->map[(currentNode->y * session->width) + x] == 0 || session->map[(y * session->width) + currentNode->x] == 0){ continue; }
-					distanceFromCurrent = DIAGONAL;
-				} else {
-					distanceFromCurrent = ORTOGONAL;
-				}
-				if (session->avoidWalls) {
-					distanceFromCurrent += session->map[current];
-				}
-				
-				infoAdress->h = heuristic_cost_estimate(infoAdress->x, infoAdress->y, session->endX, session->endY, session->avoidWalls);
-				
-				if (session->startY != y || session->startX != x) {
-					infoAdress->rhs = currentNode->g + distanceFromCurrent;
-				}
-				
-				if (infoAdress->isInOpenList) {
-					openListRemove(session, infoAdress);
-				}
-				
-				if (infoAdress->g != infoAdress->rhs) {
-					calcKey(infoAdress);
-					openListAdd (session, infoAdress);
+				for (j = -1; j <= 1; j++)
+				{
+					current = getValidNode(session, (currentNode->x + i), (currentNode->y + j));
+
+					if (current < 0) { continue; }
+
+					infoAdress = &session->currentMap[current];
+					
+					if (infoAdress->nodeAdress != start->nodeAdress && infoAdress->predecessor == currentNode->nodeAdress) {
+						Node lowest = get_lowest_neighbor_rhs(session, *infoAdress);
+						infoAdress->predecessor = lowest.nodeAdress;
+						infoAdress->rhs = lowest.g + (getDistanceFromCurrent(session, &lowest, infoAdress));
+					}
+					updateNode(session, infoAdress);
 				}
 			}
 		}
@@ -283,7 +350,7 @@ CalcPath_pathStep (CalcPath_session *session)
 }
 
 Node
-get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode)
+get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode)
 {
 	Node nextNode;
 	nextNode.rhs = INFINITE;
@@ -297,7 +364,15 @@ get_lowest_neighbor_sum_node (CalcPath_session *session, Node currentNode)
 		{
 			if (i == 0 && j == 0){ continue; }
 			
-			infoAdress = session->currentMap[((currentNode.y + j) * session->width) + (currentNode.x + i)];
+			int current = getValidNode(session, (currentNode.x + i), (currentNode.y + j));
+			
+			if (current < 0) { continue; }
+			
+			infoAdress = session->currentMap[current];
+			
+			int distanceFromCurrent = getDistanceFromCurrent(session, &currentNode, &infoAdress);
+
+			if (distanceFromCurrent < 0) { continue; }
 			
 			if (infoAdress.rhs < nextNode.rhs) {
 				nextNode = infoAdress;
@@ -323,7 +398,7 @@ CalcPath_init (CalcPath_session *session)
 			current = (y * session->width) + x;
 			session->currentMap[current].x = x;
 			session->currentMap[current].y = y;
-			session->currentMap[current].isInOpenList = 0;
+			session->currentMap[current].nodeAdress = current;
 			session->currentMap[current].g = INFINITE;
 			session->currentMap[current].rhs = INFINITE;
 		}

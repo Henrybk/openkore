@@ -104,14 +104,17 @@ PathFinding_run(session, r_array)
 			AV *array;
 			int size;
 
-			array = (AV *) SvRV (r_array);
+			size = session->solution_size;
+ 			array = (AV *) SvRV (r_array);
+			if (av_len (array) > size)
+				av_clear (array);
+			
+			av_extend (array, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
 
 			while (currentNode.x != session->startX || currentNode.y != session->startY)
 			{
-				size++;
-				
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
 				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
@@ -122,7 +125,7 @@ PathFinding_run(session, r_array)
 
 				av_store(array, 0, newRV((SV *)rh));
 				
-				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
+				currentNode = session->currentMap[currentNode.predecessor];
 			}
 			
 			RETVAL = size;
@@ -147,6 +150,7 @@ PathFinding_runref(session)
 			AV * results;
 
 			results = (AV *)sv_2mortal((SV *)newAV());
+			av_extend(results, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
 			
@@ -162,7 +166,7 @@ PathFinding_runref(session)
 
 				av_store(results, 0, newRV((SV *)rh));
 				
-				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
+				currentNode = session->currentMap[currentNode.predecessor];
 			}
 			
 			RETVAL = newRV((SV *)results);
@@ -185,18 +189,7 @@ PathFinding_runcount(session)
 
 			RETVAL = -1;
 		} else if (status > 0) {
-			int size;
-			
-			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
-
-			while (currentNode.x != session->startX || currentNode.y != session->startY)
-			{
-				size++;
-				
-				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
-			}
-			
-			RETVAL = size;
+			RETVAL = (int) session->solution_size;
 
 		} else
 			RETVAL = 0;
