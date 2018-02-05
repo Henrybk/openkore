@@ -216,6 +216,7 @@ PathFinding_runref(session)
 			AV * results;
 
 			results = (AV *)sv_2mortal((SV *)newAV());
+			av_extend(results, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
 
@@ -254,18 +255,7 @@ PathFinding_runcount(session)
 
 			RETVAL = -1;
 		} else if (status > 0) {
-			int size;
-			
-			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
-
-			while (currentNode.x != session->startX || currentNode.y != session->startY)
-			{
-				size++;
-				
-				currentNode = get_lowest_neighbor_sum_node(session, currentNode);
-			}
-			
-			RETVAL = size;
+			RETVAL = (int) session->solution_size;
 
 		} else
 			RETVAL = 0;

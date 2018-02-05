@@ -294,6 +294,68 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 	printf("[test] pathstep 06\n");
 }
 
+void 
+updateNode (CalcPath_session *session, Node* infoAdress)
+{
+	
+	if (infoAdress->g != infoAdress->rhs) {
+		if (infoAdress->isInOpenList) {
+			unsigned int oldkey[2];
+			oldkey[0] = infoAdress->key[0];
+			oldkey[1] = infoAdress->key[1];
+			calcKey(infoAdress);
+			reajustOpenListItem(session, infoAdress, oldkey);
+		} else {
+			calcKey(infoAdress);
+			openListAdd (session, infoAdress);
+		}
+		
+	} else if (infoAdress->isInOpenList) {
+		openListRemove(session, infoAdress);
+	}
+}
+
+int
+getValidNode (CalcPath_session *session, unsigned int x, unsigned int y)
+{
+	if (x >= session->width || y >= session->height || x < 0 || y < 0){ return -1; }
+	
+	int current = (y * session->width) + x;
+	
+	if (session->map[current] == 0){ return -1; }
+	
+	return current;
+}
+
+int 
+getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* infoAdress)
+{
+	int distanceFromCurrent;
+	if (currentNode->y != infoAdress->y && currentNode->x != infoAdress->y) {
+		if (session->map[(currentNode->y * session->width) + infoAdress->x] == 0 || session->map[(infoAdress->y * session->width) + currentNode->x] == 0){ return -1; }
+		distanceFromCurrent = DIAGONAL;
+	} else {
+		distanceFromCurrent = ORTOGONAL;
+	}
+	if (session->avoidWalls) {
+		distanceFromCurrent += session->map[(infoAdress->y * session->width) + infoAdress->x];
+	}
+	return distanceFromCurrent;
+}
+
+void 
+reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
+{
+	Node* currentNode = &session->currentMap[goal->nodeAdress];
+	
+	session->solution_size = 0;
+	while (currentNode->nodeAdress != start->nodeAdress)
+    {
+        currentNode = &session->currentMap[currentNode->predecessor];
+        session->solution_size++;
+    }
+}
+
 int 
 CalcPath_pathStep (CalcPath_session *session)
 {
@@ -371,7 +433,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		// Timer count
 		loop++;
-		if (loop == 100) {
+		if (loop == 10) {
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else
