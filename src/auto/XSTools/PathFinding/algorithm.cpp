@@ -283,7 +283,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
 		loop++;
-		if (loop == 10) {
+		if (loop == 100) {
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else
