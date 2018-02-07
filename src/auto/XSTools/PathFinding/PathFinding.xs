@@ -125,7 +125,7 @@ PathFinding_run(session, r_array)
 
 				av_store(array, 0, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[currentNode.predecessor];
+				currentNode = session->currentMap[currentNode.sucessor];
 			}
 			
 			RETVAL = size;
@@ -166,7 +166,7 @@ PathFinding_runref(session)
 
 				av_store(results, 0, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[currentNode.predecessor];
+				currentNode = session->currentMap[currentNode.sucessor];
 			}
 			
 			RETVAL = newRV((SV *)results);

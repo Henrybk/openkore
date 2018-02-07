@@ -19,7 +19,7 @@ typedef struct {
 	unsigned short h;
 	unsigned int rhs;
 	
-	unsigned int predecessor;
+	unsigned int sucessor;
 } Node;
 
 typedef struct {
@@ -34,7 +34,7 @@ typedef struct {
 	int solution_size;
 	int initialized;
 	int run;
-	unsigned int openListSize;
+	int openListSize;
 	unsigned int k;
 	
 	unsigned int *openList;
