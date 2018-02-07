@@ -301,7 +301,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
 		// Path found
-		if (first_key_bigger_than_second_key(goal->key1, goal->key2, session->currentMap[session->openList[0]].key1, session->currentMap[session->openList[0]].key2) || goal->g != goal->rhs) {
+		if (first_key_bigger_than_second_key(start->key1, start->key2, session->currentMap[session->openList[0]].key1, session->currentMap[session->openList[0]].key2) || start->g != start->rhs) {
 			reconstruct_path(session, goal, start);
 			return 1;
 		}
