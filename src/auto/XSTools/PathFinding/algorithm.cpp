@@ -344,12 +344,12 @@ getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neig
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
-	Node* currentNode = goal;
+	Node* currentNode = start;
 	
 	session->solution_size = 0;
-	while (currentNode->nodeAdress != start->nodeAdress)
+	while (currentNode->nodeAdress != goal->nodeAdress)
     {
-        currentNode = &session->currentMap[currentNode->predecessor];
+        currentNode = &session->currentMap[currentNode->sucessor];
         session->solution_size++;
     }
 }

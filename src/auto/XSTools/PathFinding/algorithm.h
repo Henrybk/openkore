@@ -35,7 +35,7 @@ typedef struct {
 	int solution_size;
 	int initialized;
 	int run;
-	unsigned int openListSize;
+	int openListSize;
 	unsigned int k;
 	
 	unsigned int *openList;
