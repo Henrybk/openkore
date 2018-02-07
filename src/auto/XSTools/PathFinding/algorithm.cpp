@@ -295,23 +295,21 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 }
 
 void 
-updateNode (CalcPath_session *session, Node* infoAdress)
+updateNode (CalcPath_session *session, Node* node)
 {
-	
-	if (infoAdress->g != infoAdress->rhs) {
-		if (infoAdress->isInOpenList) {
-			unsigned int oldkey[2];
-			oldkey[0] = infoAdress->key[0];
-			oldkey[1] = infoAdress->key[1];
-			calcKey(infoAdress);
-			reajustOpenListItem(session, infoAdress, oldkey);
+	if (node->g != node->rhs) {
+		if (node->isInOpenList) {
+			int* keys = calcKey(node, session->k);
+			reajustOpenListItem(session, node, keys[0], keys[1]);
 		} else {
-			calcKey(infoAdress);
-			openListAdd (session, infoAdress);
+			int* keys = calcKey(node, session->k);
+			node->key1 = keys[0];
+			node->key2 = keys[1];
+			openListAdd (session, node);
 		}
 		
-	} else if (infoAdress->isInOpenList) {
-		openListRemove(session, infoAdress);
+	} else if (node->isInOpenList) {
+		openListRemove(session, node);
 	}
 }
 
@@ -328,17 +326,17 @@ getValidNode (CalcPath_session *session, unsigned int x, unsigned int y)
 }
 
 int 
-getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* infoAdress)
+getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neighbor)
 {
 	int distanceFromCurrent;
-	if (currentNode->y != infoAdress->y && currentNode->x != infoAdress->y) {
-		if (session->map[(currentNode->y * session->width) + infoAdress->x] == 0 || session->map[(infoAdress->y * session->width) + currentNode->x] == 0){ return -1; }
+	if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
+		if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ return -1; }
 		distanceFromCurrent = DIAGONAL;
 	} else {
 		distanceFromCurrent = ORTOGONAL;
 	}
 	if (session->avoidWalls) {
-		distanceFromCurrent += session->map[(infoAdress->y * session->width) + infoAdress->x];
+		distanceFromCurrent += session->map[neighbor->nodeAdress];
 	}
 	return distanceFromCurrent;
 }
@@ -346,7 +344,7 @@ getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* info
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
-	Node* currentNode = &session->currentMap[goal->nodeAdress];
+	Node* currentNode = goal;
 	
 	session->solution_size = 0;
 	while (currentNode->nodeAdress != start->nodeAdress)
