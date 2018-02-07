@@ -301,7 +301,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
 		// Path found
-		if (first_key_bigger_than_second_key(goal->key, session->openList[0].key) || goal->g != goal->rhs) {
+		if (first_key_bigger_than_second_key(goal->key1, goal->key2, session->currentMap[session->openList[0]].key1, session->currentMap[session->openList[0]].key2) || goal->g != goal->rhs) {
 			reconstruct_path(session, goal, start);
 			return 1;
 		}
@@ -320,7 +320,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		keys = calcKey(currentNode, session->k);
 		
 		if (first_key_bigger_than_second_key(keys[0], keys[1], currentNode->key1, currentNode->key2)) {
-			reajustOpenListItem(session, node, keys[0], keys[1]);
+			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
 			
 		} else if (currentNode->g > currentNode->rhs) {
 			currentNode->g = currentNode->rhs;
