@@ -5,10 +5,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct Nodes{
+typedef struct {
 	unsigned int x;
 	unsigned int y;
 	unsigned int nodeAdress;
+	unsigned int key1;
+	unsigned int key2;
 	
 	bool isInOpenList;
 	unsigned int openListIndex;
@@ -16,16 +18,9 @@ typedef struct Nodes{
 	unsigned int g;
 	unsigned short h;
 	unsigned int rhs;
-	unsigned int key[2];
 	
 	unsigned int predecessor;
 } Node;
-
-typedef struct {
-    unsigned int x;
-    unsigned int y;
-    unsigned int key[2];
-} TypeList;
 
 typedef struct {
 	bool avoidWalls;
@@ -39,38 +34,39 @@ typedef struct {
 	int solution_size;
 	int initialized;
 	int run;
-	int size;
 	int openListSize;
-	TypeList* openList;
+	unsigned int k;
+	
+	unsigned int *openList;
 	const char *map;
 	Node *currentMap;
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();
 
-void calcKey(Node* cell);
+unsigned int* calcKey (Node* node, unsigned int k);
 
-int first_key_bigger_than_second_key(unsigned int first[2], unsigned int second[2]);
+int first_key_bigger_than_second_key (unsigned int first_key1, unsigned int first_key2, unsigned int second_key1, unsigned int second_key2);
 
-int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int avoidWalls);
+int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls);
 
-void openListAdjustUp (CalcPath_session *session, Node* infoAdress);
+void openListAdjustUp (CalcPath_session *session, Node* node);
 
-void openListAdjustDown (CalcPath_session *session, Node* infoAdress);
+void openListAdjustDown (CalcPath_session *session, Node* node);
 
-void openListAdd (CalcPath_session *session, Node* infoAdress);
+void openListAdd (CalcPath_session *session, Node* node);
 
-void openListRemove (CalcPath_session *session, Node* infoAdress);
+void openListRemove (CalcPath_session *session, Node* node);
 
-void reajustOpenListItem (CalcPath_session *session, Node* infoAdress, unsigned int oldkey[2]);
+void reajustOpenListItem (CalcPath_session *session, Node* node, unsigned int newkey1, unsigned int newkey2);
 
 Node* openListGetLowest (CalcPath_session *session);
 
-void updateNode (CalcPath_session *session, Node* infoAdress);
+void updateNode (CalcPath_session *session, Node* node);
 
 int getValidNode (CalcPath_session *session, unsigned int x, unsigned int y);
 
-int getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* infoAdress);
+int getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neighbor);
 
 void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 

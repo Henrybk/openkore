@@ -47,27 +47,29 @@ CalcPath_new ()
 	return session;
 }
 
-void
-calcKey (Node* infoAdress)
+unsigned int*
+calcKey (Node* node, unsigned int k)
 {
-	infoAdress->key[1] = ((infoAdress->g > infoAdress->rhs) ? infoAdress->rhs : infoAdress->g);
-	infoAdress->key[0] = infoAdress->key[1] + infoAdress->h;
+	static unsigned int key[2];
+    key[1] = ((node->g > node->rhs) ? node->rhs : node->g);
+	key[0] = key[1] + node->h + k;
+    return key;
 }
 
 int
-first_key_bigger_than_second_key (unsigned int first[2], unsigned int second[2])
+first_key_bigger_than_second_key (unsigned int first_key1, unsigned int first_key2, unsigned int second_key1, unsigned int second_key2)
 {
-	if (first[0] > second[0] || (first[0] == second[0] && first[1] > second[1])) {
+	if (first_key1 > second_key1 || (first_key1 == second_key1 && first_key2 > second_key2)) {
 		return 1;
 	}
 	return 0;
 }
 
 int 
-heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY, int avoidWalls)
+heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls)
 {
-    int xDistance = abs(currentX - goalX);
-    int yDistance = abs(currentY - goalY);
+    int xDistance = abs(currentX - startX);
+    int yDistance = abs(currentY - startY);
     
     int hScore = (ORTOGONAL * (xDistance + yDistance)) + ((DIAGONAL - (2 * ORTOGONAL)) * ((xDistance > yDistance) ? yDistance : xDistance));
     
@@ -81,118 +83,136 @@ heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY, int a
 //Openlist is a binary heap of min-heap type
 
 void 
-openListAdjustUp (CalcPath_session *session, Node* infoAdress)
+openListAdjustUp (CalcPath_session *session, Node* node)
 {
-	int currentIndex = infoAdress->openListIndex;
-	TypeList Temporary;
-    while (PARENT(currentIndex) >= 0) {
-		if (first_key_bigger_than_second_key(session->openList[PARENT(currentIndex)].key, session->openList[currentIndex].key)) {
+	int currentIndex = node->openListIndex;
+	int nextIndex = PARENT(currentIndex);
+	
+	unsigned int Temporary;
+	Node* nextNode;
+	
+    while (nextIndex >= 0) {
+		nextNode = &session->currentMap[nextIndex];
+		if (first_key_bigger_than_second_key(nextNode.key1, nextNode.key1, node.key1, node.key2)) {
             Temporary = session->openList[currentIndex];
-            session->openList[currentIndex] = session->openList[PARENT(currentIndex)];
-            session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
-            session->openList[PARENT(currentIndex)] = Temporary;
-            infoAdress->openListIndex = PARENT(currentIndex);
-            currentIndex = PARENT(currentIndex);
+			
+            session->openList[currentIndex] = session->openList[nextIndex];
+            nextNode.openListIndex = currentIndex;
+			
+            session->openList[nextIndex] = Temporary;
+            node->openListIndex = nextIndex;
+			
+			currentIndex = nextIndex;
+			nextIndex = PARENT(currentIndex);
         } else { break; }
     }
 }
 
 void 
-openListAdjustDown (CalcPath_session *session, Node* infoAdress)
+openListAdjustDown (CalcPath_session *session, Node* node)
 {
-	int currentIndex = infoAdress->openListIndex;
-	TypeList Temporary;
-	int lowestChildIndex = 0;
-	while (LCHILD(currentIndex) < session->openListSize - 2) {
+	int currentIndex = node->openListIndex;
+	int nextIndex = 0;
+	
+	unsigned int Temporary;
+	Node* nextNode;
+	
+	unsigned int rightChild = RCHILD(currentIndex);
+	unsigned int leftChild = LCHILD(currentIndex);
+	
+	while (leftChild < session->openListSize - 2) {
+		
 		//There are 2 children
-		if (RCHILD(currentIndex) <= session->openListSize - 2) {
-			if (first_key_bigger_than_second_key(session->openList[RCHILD(currentIndex)].key, session->openList[LCHILD(currentIndex)].key)) {
-				lowestChildIndex = LCHILD(currentIndex);
+		if (rightChild <= session->openListSize - 2) {
+			if (first_key_bigger_than_second_key(session->currentMap[session->openList[rightChild]].key1, session->currentMap[session->openList[rightChild]].key2, session->currentMap[session->openList[leftChild]].key1, session->currentMap[session->openList[leftChild]].key2)) {
+				nextIndex = leftChild;
 			} else {
-				lowestChildIndex = RCHILD(currentIndex);
+				nextIndex = rightChild;
 			}
+		
+		//There is 1 children
 		} else {
-			//There is 1 children
-			if (LCHILD(currentIndex) <= session->openListSize - 2) {
-				lowestChildIndex = LCHILD(currentIndex);
+			if (leftChild <= session->openListSize - 2) {
+				nextIndex = leftChild;
 			} else {
 				break;
 			}
 		}
-		if (first_key_bigger_than_second_key(session->openList[currentIndex].key, session->openList[lowestChildIndex].key)) {
+		
+		nextNode = &session->currentMap[nextIndex];
+		
+		if (first_key_bigger_than_second_key(node.key, nextNode.key)) {
 			Temporary = session->openList[currentIndex];
-			session->openList[currentIndex] = session->openList[lowestChildIndex];
-			session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
-			session->openList[lowestChildIndex] = Temporary;
-			session->currentMap[(session->openList[lowestChildIndex].y * session->width) + session->openList[lowestChildIndex].x].openListIndex = lowestChildIndex;
-			currentIndex = lowestChildIndex;
+			
+			session->openList[currentIndex] = session->openList[nextIndex];
+			nextNode.openListIndex = currentIndex;
+			
+			session->openList[nextIndex] = Temporary;
+			node.openListIndex = nextIndex;
+			
+			currentIndex = nextIndex;
 		} else { break; }
 	}
 }
 
 void 
-openListAdd (CalcPath_session *session, Node* infoAdress)
+openListAdd (CalcPath_session *session, Node* node)
 {
 	int currentIndex = session->openListSize;
-    session->openList[currentIndex].x = infoAdress->x;
-    session->openList[currentIndex].y = infoAdress->y;
-    session->openList[currentIndex].key[0] = infoAdress->key[0];
-    session->openList[currentIndex].key[1] = infoAdress->key[1];
-    infoAdress->openListIndex = currentIndex;
-	infoAdress->isInOpenList = 1;
+    session->openList[currentIndex] = node->nodeAdress;
+    node->openListIndex = currentIndex;
+	node->isInOpenList = 1;
 	session->openListSize++;
-    openListAdjustUp(session, infoAdress);
+    openListAdjustUp(session, node);
 }
 
 void 
-openListRemove (CalcPath_session *session, Node* infoAdress)
+openListRemove (CalcPath_session *session, Node* node)
 {
-	int currentIndex = infoAdress->openListIndex;
-	session->openList[currentIndex] = session->openList[session->openListSize-1];
-    session->currentMap[(session->openList[currentIndex].y * session->width) + session->openList[currentIndex].x].openListIndex = currentIndex;
-	infoAdress->isInOpenList = 0;
+	int currentIndex = node->openListIndex;
+	node->isInOpenList = 0;
 	session->openListSize--;
-    openListAdjustDown(session, infoAdress);
+	session->openList[currentIndex] = session->openList[session->openListSize];
+    session->currentMap[session->openList[currentIndex]].openListIndex = currentIndex;
+    openListAdjustDown(session, node);
 }
 
 void 
-reajustOpenListItem (CalcPath_session *session, Node* infoAdress, unsigned int oldkey[2])
+reajustOpenListItem (CalcPath_session *session, Node* node, unsigned int newkey1, unsigned int newkey2)
 {
-    int currentIndex = infoAdress->openListIndex;
-    session->openList[currentIndex].key[0] = infoAdress->key[0];
-    session->openList[currentIndex].key[1] = infoAdress->key[1];
-	if (first_key_bigger_than_second_key(oldkey, infoAdress->key)) {
-		openListAdjustUp(session, infoAdress);
+    int currentIndex = node->openListIndex;
+	if (first_key_bigger_than_second_key(node->key1, node->key2, newkey1, newkey2)) {
+		node->key1 = newkey1;
+		node->key2 = newkey2;
+		openListAdjustUp(session, node);
 	} else {
-		openListAdjustDown(session, infoAdress);
+		openListAdjustDown(session, node);
 	}
 }
 
 Node* 
 openListGetLowest (CalcPath_session *session)
 {
-    Node* lowestNode = &session->currentMap[(session->openList[0].y * session->width) + session->openList[0].x];
+    Node* lowestNode = &session->currentMap[session->openList[0]];
     return lowestNode;
 }
 
 void 
-updateNode (CalcPath_session *session, Node* infoAdress)
+updateNode (CalcPath_session *session, Node* node)
 {
-	
-	if (infoAdress->g != infoAdress->rhs) {
-		if (infoAdress->isInOpenList) {
-			unsigned int oldkey[2];
-			oldkey[0] = infoAdress->key[0];
-			oldkey[1] = infoAdress->key[1];
-			calcKey(infoAdress);
-			reajustOpenListItem(session, infoAdress, oldkey);
+	if (node->g != node->rhs) {
+		if (node->isInOpenList) {
+			int* keys = calcKey(node, session->k);
+			reajustOpenListItem(session, node, keys[0], keys[1]);
 		} else {
-			calcKey(infoAdress);
-			openListAdd (session, infoAdress);
+			int* keys = calcKey(node, session->k);
+			node->key1 = keys[0];
+			node->key2 = keys[1];
+			openListAdd (session, node);
 		}
 		
-	} else if (infoAdress->isInOpenList) {
-		openListRemove(session, infoAdress);
+	} else if (node->isInOpenList) {
+		openListRemove(session, node);
 	}
 }
 
@@ -209,17 +229,17 @@ getValidNode (CalcPath_session *session, unsigned int x, unsigned int y)
 }
 
 int 
-getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* infoAdress)
+getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neighbor)
 {
 	int distanceFromCurrent;
-	if (currentNode->y != infoAdress->y && currentNode->x != infoAdress->y) {
-		if (session->map[(currentNode->y * session->width) + infoAdress->x] == 0 || session->map[(infoAdress->y * session->width) + currentNode->x] == 0){ return -1; }
+	if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
+		if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ return -1; }
 		distanceFromCurrent = DIAGONAL;
 	} else {
 		distanceFromCurrent = ORTOGONAL;
 	}
 	if (session->avoidWalls) {
-		distanceFromCurrent += session->map[(infoAdress->y * session->width) + infoAdress->x];
+		distanceFromCurrent += session->map[neighbor->nodeAdress];
 	}
 	return distanceFromCurrent;
 }
@@ -227,7 +247,7 @@ getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* info
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
-	Node* currentNode = &session->currentMap[goal->nodeAdress];
+	Node* currentNode = goal;
 	
 	session->solution_size = 0;
 	while (currentNode->nodeAdress != start->nodeAdress)
@@ -248,18 +268,22 @@ CalcPath_pathStep (CalcPath_session *session)
 	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
 	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
 	
+	int* keys;
+	
 	if (!session->run) {
 		session->run = 1;
-		session->size = session->height * session->width;
 		session->openListSize = 0;
-		session->openList = (TypeList*) malloc(session->size * sizeof(TypeList));
+		session->openList = (unsigned int*) malloc((session->height * session->width) * sizeof(unsigned int));
 		
-		calcKey(start);
-		openListAdd (session, start);
+		goal->h = heuristic_cost_estimate(goal->x, goal->y, start->x, start->y, session->avoidWalls);
+		keys = calcKey(goal, session->k);
+		goal->key1 = keys[0];
+		goal->key2 = keys[1];
+		openListAdd (session, goal);
 	}
 	
 	Node* currentNode;
-	Node* infoAdress;
+	Node* neighbor;
 	
 	int i;
 	int j;
@@ -293,7 +317,12 @@ CalcPath_pathStep (CalcPath_session *session)
         // get lowest key score member of openlist and delete it from it, shrinks openListSize
 		currentNode = openListGetLowest (session);
 		
-		if (currentNode->g > currentNode->rhs) {
+		keys = calcKey(currentNode, session->k);
+		
+		if (first_key_bigger_than_second_key(keys[0], keys[1], currentNode->key1, currentNode->key2)) {
+			reajustOpenListItem(session, node, keys[0], keys[1]);
+			
+		} else if (currentNode->g > currentNode->rhs) {
 			currentNode->g = currentNode->rhs;
 			openListRemove(session, currentNode);
 			
@@ -306,20 +335,20 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					if (current < 0) { continue; }
 
-					infoAdress = &session->currentMap[current];
+					neighbor = &session->currentMap[current];
 
-					distanceFromCurrent = getDistanceFromCurrent(session, currentNode, infoAdress);
+					distanceFromCurrent = getDistanceFromCurrent(session, currentNode, neighbor);
 
 					if (distanceFromCurrent < 0) { continue; }
 					
-					if (infoAdress->h == 0) {
-						infoAdress->h = heuristic_cost_estimate(infoAdress->x, infoAdress->y, session->endX, session->endY, session->avoidWalls);
+					if (neighbor->h == 0) {
+						neighbor->h = heuristic_cost_estimate(neighbor->x, neighbor->y, start->x, start->y, session->avoidWalls);
 					}
 					
-					if (infoAdress->rhs > (currentNode->g + distanceFromCurrent)) {
-						infoAdress->predecessor = currentNode->nodeAdress;
-						infoAdress->rhs = currentNode->g + distanceFromCurrent;
-						updateNode(session, infoAdress);
+					if (neighbor->nodeAdress != goal->nodeAdress && neighbor->rhs > (currentNode->g + distanceFromCurrent)) {
+						neighbor->predecessor = currentNode->nodeAdress;
+						neighbor->rhs = currentNode->g + distanceFromCurrent;
+						updateNode(session, neighbor);
 					}
 				}
 			}
@@ -335,14 +364,18 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					if (current < 0) { continue; }
 
-					infoAdress = &session->currentMap[current];
+					neighbor = &session->currentMap[current];
 					
-					if (infoAdress->nodeAdress != start->nodeAdress && infoAdress->predecessor == currentNode->nodeAdress) {
-						Node lowest = get_lowest_neighbor_rhs(session, *infoAdress);
-						infoAdress->predecessor = lowest.nodeAdress;
-						infoAdress->rhs = lowest.g + (getDistanceFromCurrent(session, &lowest, infoAdress));
+					distanceFromCurrent = getDistanceFromCurrent(session, currentNode, neighbor);
+
+					if (distanceFromCurrent < 0) { continue; }
+					
+					if (neighbor->nodeAdress != goal->nodeAdress && neighbor->predecessor == currentNode->nodeAdress) {
+						Node lowest = get_lowest_neighbor_rhs(session, *neighbor);
+						neighbor->predecessor = lowest.nodeAdress;
+						neighbor->rhs = lowest.g + (getDistanceFromCurrent(session, &lowest, neighbor));
 					}
-					updateNode(session, infoAdress);
+					updateNode(session, neighbor);
 				}
 			}
 		}
@@ -355,7 +388,7 @@ get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode)
 	Node nextNode;
 	nextNode.rhs = INFINITE;
 	
-	Node infoAdress;
+	Node neighbor;
 	int i;
 	for (i = -1; i <= 1; i++)
 	{
@@ -368,14 +401,14 @@ get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode)
 			
 			if (current < 0) { continue; }
 			
-			infoAdress = session->currentMap[current];
+			neighbor = session->currentMap[current];
 			
-			int distanceFromCurrent = getDistanceFromCurrent(session, &currentNode, &infoAdress);
+			int distanceFromCurrent = getDistanceFromCurrent(session, &currentNode, &neighbor);
 
 			if (distanceFromCurrent < 0) { continue; }
 			
-			if (infoAdress.rhs < nextNode.rhs) {
-				nextNode = infoAdress;
+			if (neighbor.rhs < nextNode.rhs) {
+				nextNode = neighbor;
 			}
 		}
 	}
@@ -404,8 +437,9 @@ CalcPath_init (CalcPath_session *session)
 		}
 	}
 	
-	session->currentMap[(session->startY * session->width) + session->startX].rhs = 0;
+	session->currentMap[(session->endY * session->width) + session->endX].rhs = 0;
 	
+	session->k = 0;
 	session->initialized = 1;
 	
 	return session;
