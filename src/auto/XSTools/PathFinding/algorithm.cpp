@@ -93,11 +93,11 @@ openListAdjustUp (CalcPath_session *session, Node* node)
 	
     while (nextIndex >= 0) {
 		nextNode = &session->currentMap[nextIndex];
-		if (first_key_bigger_than_second_key(nextNode.key1, nextNode.key1, node.key1, node.key2)) {
+		if (first_key_bigger_than_second_key(nextNode->key1, nextNode->key1, node->key1, node->key2)) {
             Temporary = session->openList[currentIndex];
 			
             session->openList[currentIndex] = session->openList[nextIndex];
-            nextNode.openListIndex = currentIndex;
+            nextNode->openListIndex = currentIndex;
 			
             session->openList[nextIndex] = Temporary;
             node->openListIndex = nextIndex;
@@ -141,14 +141,14 @@ openListAdjustDown (CalcPath_session *session, Node* node)
 		
 		nextNode = &session->currentMap[nextIndex];
 		
-		if (first_key_bigger_than_second_key(node.key, nextNode.key)) {
+		if (first_key_bigger_than_second_key(node->key, nextNode->key)) {
 			Temporary = session->openList[currentIndex];
 			
 			session->openList[currentIndex] = session->openList[nextIndex];
-			nextNode.openListIndex = currentIndex;
+			nextNode->openListIndex = currentIndex;
 			
 			session->openList[nextIndex] = Temporary;
-			node.openListIndex = nextIndex;
+			node->openListIndex = nextIndex;
 			
 			currentIndex = nextIndex;
 		} else { break; }
