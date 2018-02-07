@@ -111,9 +111,9 @@ PathFinding_run(session, r_array)
 			
 			av_extend (array, session->solution_size);
 			
-			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
+			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
 
-			while (currentNode.x != session->startX || currentNode.y != session->startY)
+			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
@@ -152,9 +152,9 @@ PathFinding_runref(session)
 			results = (AV *)sv_2mortal((SV *)newAV());
 			av_extend(results, session->solution_size);
 			
-			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
-			
-			while (currentNode.x != session->startX || currentNode.y != session->startY)
+			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
+
+			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
