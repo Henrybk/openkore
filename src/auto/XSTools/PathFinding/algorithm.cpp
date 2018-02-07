@@ -302,7 +302,7 @@ updateNode (CalcPath_session *session, Node* node)
 			int* keys = calcKey(node, session->k);
 			reajustOpenListItem(session, node, keys[0], keys[1]);
 		} else {
-			int* keys = calcKey(node, session->k);
+			unsigned int* keys = calcKey(node, session->k);
 			node->key1 = keys[0];
 			node->key2 = keys[1];
 			openListAdd (session, node);
