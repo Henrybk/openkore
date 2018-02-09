@@ -313,34 +313,6 @@ updateNode (CalcPath_session *session, Node* node)
 	}
 }
 
-int
-getValidNode (CalcPath_session *session, unsigned int x, unsigned int y)
-{
-	if (x >= session->width || y >= session->height || x < 0 || y < 0){ return -1; }
-	
-	int current = (y * session->width) + x;
-	
-	if (session->map[current] == 0){ return -1; }
-	
-	return current;
-}
-
-int 
-getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neighbor)
-{
-	int distanceFromCurrent;
-	if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
-		if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ return -1; }
-		distanceFromCurrent = DIAGONAL;
-	} else {
-		distanceFromCurrent = ORTOGONAL;
-	}
-	if (session->avoidWalls) {
-		distanceFromCurrent += session->map[neighbor->nodeAdress];
-	}
-	return distanceFromCurrent;
-}
-
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
