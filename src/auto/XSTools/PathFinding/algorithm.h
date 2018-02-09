@@ -46,13 +46,7 @@ CalcPath_session *CalcPath_new ();
 
 unsigned int* calcKey (Node* node, unsigned int k);
 
-int first_key_bigger_than_second_key (unsigned int first_key1, unsigned int first_key2, unsigned int second_key1, unsigned int second_key2);
-
 int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls);
-
-void openListAdjustUp (CalcPath_session *session, Node* node);
-
-void openListAdjustDown (CalcPath_session *session, Node* node);
 
 void openListAdd (CalcPath_session *session, Node* node);
 
@@ -63,10 +57,6 @@ void reajustOpenListItem (CalcPath_session *session, Node* node, unsigned int ne
 Node* openListGetLowest (CalcPath_session *session);
 
 void updateNode (CalcPath_session *session, Node* node);
-
-int getValidNode (CalcPath_session *session, unsigned int x, unsigned int y);
-
-int getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neighbor);
 
 void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 

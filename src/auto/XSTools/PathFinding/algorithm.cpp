@@ -56,15 +56,6 @@ calcKey (Node* node, unsigned int k)
     return key;
 }
 
-int
-first_key_bigger_than_second_key (unsigned int first_key1, unsigned int first_key2, unsigned int second_key1, unsigned int second_key2)
-{
-	if (first_key1 > second_key1 || (first_key1 == second_key1 && first_key2 > second_key2)) {
-		return 1;
-	}
-	return 0;
-}
-
 int 
 heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls)
 {
@@ -83,9 +74,14 @@ heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int
 //Openlist is a binary heap of min-heap type
 
 void 
-openListAdjustUp (CalcPath_session *session, Node* node)
+openListAdd (CalcPath_session *session, Node* node)
 {
-	int currentIndex = node->openListIndex;
+	int currentIndex = session->openListSize;
+    session->openList[currentIndex] = node->nodeAdress;
+    node->openListIndex = currentIndex;
+	node->isInOpenList = 1;
+	session->openListSize++;
+	
 	int nextIndex = PARENT(currentIndex);
 	
 	unsigned int Temporary;
@@ -93,7 +89,7 @@ openListAdjustUp (CalcPath_session *session, Node* node)
 	
     while (nextIndex >= 0) {
 		nextNode = &session->currentMap[session->openList[nextIndex]];
-		if (first_key_bigger_than_second_key(nextNode->key1, nextNode->key2, node->key1, node->key2)) {
+		if (nextNode->key1 > node->key1 || (nextNode->key1 == node->key1 && nextNode->key2 > node->key2)) {
 			Temporary = session->openList[currentIndex];
 			
             session->openList[currentIndex] = session->openList[nextIndex];
@@ -109,9 +105,16 @@ openListAdjustUp (CalcPath_session *session, Node* node)
 }
 
 void 
-openListAdjustDown (CalcPath_session *session, Node* node)
+openListRemove (CalcPath_session *session, Node* node)
 {
 	int currentIndex = node->openListIndex;
+	node->isInOpenList = 0;
+	session->openListSize--;
+	session->openList[currentIndex] = session->openList[session->openListSize];
+    session->currentMap[session->openList[currentIndex]].openListIndex = currentIndex;
+	
+	node = &session->currentMap[session->openList[currentIndex]];
+	
 	int nextIndex = 0;
 	
 	unsigned int Temporary;
@@ -124,7 +127,7 @@ openListAdjustDown (CalcPath_session *session, Node* node)
 		
 		//There are 2 children
 		if (rightChild <= session->openListSize - 2) {
-			if (first_key_bigger_than_second_key(session->currentMap[session->openList[rightChild]].key1, session->currentMap[session->openList[rightChild]].key2, session->currentMap[session->openList[leftChild]].key1, session->currentMap[session->openList[leftChild]].key2)) {
+			if (session->currentMap[session->openList[rightChild]].key1 > session->currentMap[session->openList[leftChild]].key1 || (session->currentMap[session->openList[rightChild]].key1 == session->currentMap[session->openList[leftChild]].key1 && session->currentMap[session->openList[rightChild]].key2 > session->currentMap[session->openList[leftChild]].key2)) {
 				nextIndex = leftChild;
 			} else {
 				nextIndex = rightChild;
@@ -141,7 +144,7 @@ openListAdjustDown (CalcPath_session *session, Node* node)
 		
 		nextNode = &session->currentMap[session->openList[nextIndex]];
 		
-		if (first_key_bigger_than_second_key(node->key1, node->key2, nextNode->key1, nextNode->key2)) {
+		if (node->key1 > nextNode->key1 || (node->key1 == nextNode->key1 && node->key2 > nextNode->key2)) {
 			Temporary = session->openList[currentIndex];
 			
 			session->openList[currentIndex] = session->openList[nextIndex];
@@ -158,37 +161,76 @@ openListAdjustDown (CalcPath_session *session, Node* node)
 }
 
 void 
-openListAdd (CalcPath_session *session, Node* node)
-{
-	int currentIndex = session->openListSize;
-    session->openList[currentIndex] = node->nodeAdress;
-    node->openListIndex = currentIndex;
-	node->isInOpenList = 1;
-	session->openListSize++;
-    openListAdjustUp(session, node);
-}
-
-void 
-openListRemove (CalcPath_session *session, Node* node)
-{
-	int currentIndex = node->openListIndex;
-	node->isInOpenList = 0;
-	session->openListSize--;
-	session->openList[currentIndex] = session->openList[session->openListSize];
-    session->currentMap[session->openList[currentIndex]].openListIndex = currentIndex;
-    openListAdjustDown(session, &session->currentMap[session->openList[currentIndex]]);
-}
-
-void 
 reajustOpenListItem (CalcPath_session *session, Node* node, unsigned int newkey1, unsigned int newkey2)
 {
     int currentIndex = node->openListIndex;
-	if (first_key_bigger_than_second_key(node->key1, node->key2, newkey1, newkey2)) {
+	if (node->key1 > newkey1 || (node->key1 == newkey1 && node->key2 > newkey2)) {
 		node->key1 = newkey1;
 		node->key2 = newkey2;
-		openListAdjustUp(session, node);
+		int nextIndex = PARENT(currentIndex);
+	
+		unsigned int Temporary;
+		Node* nextNode;
+
+		while (nextIndex >= 0) {
+			nextNode = &session->currentMap[session->openList[nextIndex]];
+			if (nextNode->key1 > node->key1 || (nextNode->key1 == node->key1 && nextNode->key2 > node->key2)) {
+				Temporary = session->openList[currentIndex];
+
+				session->openList[currentIndex] = session->openList[nextIndex];
+				nextNode->openListIndex = currentIndex;
+
+				session->openList[nextIndex] = Temporary;
+				node->openListIndex = nextIndex;
+
+				currentIndex = nextIndex;
+				nextIndex = PARENT(currentIndex);
+			} else { break; }
+		}
 	} else {
-		openListAdjustDown(session, node);
+		int nextIndex = 0;
+
+		unsigned int Temporary;
+		Node* nextNode;
+
+		int rightChild = RCHILD(currentIndex);
+		int leftChild = LCHILD(currentIndex);
+
+		while (leftChild < session->openListSize - 2) {
+
+			//There are 2 children
+			if (rightChild <= session->openListSize - 2) {
+				if (session->currentMap[session->openList[rightChild]].key1 > session->currentMap[session->openList[leftChild]].key1 || (session->currentMap[session->openList[rightChild]].key1 == session->currentMap[session->openList[leftChild]].key1 && session->currentMap[session->openList[rightChild]].key2 > session->currentMap[session->openList[leftChild]].key2)) {
+					nextIndex = leftChild;
+				} else {
+					nextIndex = rightChild;
+				}
+
+			//There is 1 children
+			} else {
+				if (leftChild <= session->openListSize - 2) {
+					nextIndex = leftChild;
+				} else {
+					break;
+				}
+			}
+
+			nextNode = &session->currentMap[session->openList[nextIndex]];
+
+			if (node->key1 > nextNode->key1 || (node->key1 == nextNode->key1 && node->key2 > nextNode->key2)) {
+				Temporary = session->openList[currentIndex];
+
+				session->openList[currentIndex] = session->openList[nextIndex];
+				nextNode->openListIndex = currentIndex;
+
+				session->openList[nextIndex] = Temporary;
+				node->openListIndex = nextIndex;
+
+				currentIndex = nextIndex;
+				rightChild = RCHILD(currentIndex);
+				leftChild = LCHILD(currentIndex);
+			} else { break; }
+		}
 	}
 }
 
@@ -216,34 +258,6 @@ updateNode (CalcPath_session *session, Node* node)
 	} else if (node->isInOpenList) {
 		openListRemove(session, node);
 	}
-}
-
-int
-getValidNode (CalcPath_session *session, unsigned int x, unsigned int y)
-{
-	if (x >= session->width || y >= session->height || x < 0 || y < 0){ return -1; }
-	
-	int current = (y * session->width) + x;
-	
-	if (session->map[current] == 0){ return -1; }
-	
-	return current;
-}
-
-int 
-getDistanceFromCurrent (CalcPath_session *session, Node* currentNode, Node* neighbor)
-{
-	int distanceFromCurrent;
-	if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
-		if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ return -1; }
-		distanceFromCurrent = DIAGONAL;
-	} else {
-		distanceFromCurrent = ORTOGONAL;
-	}
-	if (session->avoidWalls) {
-		distanceFromCurrent += session->map[neighbor->nodeAdress];
-	}
-	return distanceFromCurrent;
 }
 
 void 
@@ -303,7 +317,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
 		// Path found
-		if (first_key_bigger_than_second_key(start->key1, start->key2, session->currentMap[session->openList[0]].key1, session->currentMap[session->openList[0]].key2) || start->g != start->rhs) {
+		if (start->key1 > session->currentMap[session->openList[0]].key1 || (start->key1 == session->currentMap[session->openList[0]].key1 && start->key2 > session->currentMap[session->openList[0]].key2)) {
 			reconstruct_path(session, goal, start);
 			return 1;
 		}
@@ -321,7 +335,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		keys = calcKey(currentNode, session->k);
 		
-		if (first_key_bigger_than_second_key(keys[0], keys[1], currentNode->key1, currentNode->key2)) {
+		if (keys[0] > currentNode->key1 || (keys[0] == currentNode->key1 && keys[1] > currentNode->key2)) {
 			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
 			
 		} else if (currentNode->g > currentNode->rhs) {
@@ -333,15 +347,27 @@ CalcPath_pathStep (CalcPath_session *session)
 				for (j = -1; j <= 1; j++)
 				{
 					if (i == 0 && j == 0) { continue; }
-					current = getValidNode(session, (currentNode->x + i), (currentNode->y + j));
+					int x = currentNode->x + i;
+					int y = currentNode->y + j;
+					
+					if (x >= session->width || y >= session->height || x < 0 || y < 0) { continue; }
+	
+					int current = (y * session->width) + x;
 
-					if (current < 0) { continue; }
+					if (session->map[current] == 0) { continue; }
 
 					neighbor = &session->currentMap[current];
-
-					distanceFromCurrent = getDistanceFromCurrent(session, currentNode, neighbor);
-
-					if (distanceFromCurrent < 0) { continue; }
+					
+					int distanceFromCurrent;
+					if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
+						if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ continue; }
+						distanceFromCurrent = DIAGONAL;
+					} else {
+						distanceFromCurrent = ORTOGONAL;
+					}
+					if (session->avoidWalls) {
+						distanceFromCurrent += session->map[neighbor->nodeAdress];
+					}
 					
 					if (neighbor->h == 0) {
 						neighbor->h = heuristic_cost_estimate(neighbor->x, neighbor->y, start->x, start->y, session->avoidWalls);
@@ -365,20 +391,44 @@ CalcPath_pathStep (CalcPath_session *session)
 				for (j = -1; j <= 1; j++)
 				{
 					if (i == 0 && j == 0) { continue; }
-					current = getValidNode(session, (currentNode->x + i), (currentNode->y + j));
+					int x = currentNode->x + i;
+					int y = currentNode->y + j;
+					
+					if (x >= session->width || y >= session->height || x < 0 || y < 0) { continue; }
+	
+					int current = (y * session->width) + x;
 
-					if (current < 0) { continue; }
+					if (session->map[current] == 0) { continue; }
 
 					neighbor = &session->currentMap[current];
 					
-					distanceFromCurrent = getDistanceFromCurrent(session, currentNode, neighbor);
-
-					if (distanceFromCurrent < 0) { continue; }
+					int distanceFromCurrent;
+					if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
+						if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ continue; }
+						distanceFromCurrent = DIAGONAL;
+					} else {
+						distanceFromCurrent = ORTOGONAL;
+					}
+					if (session->avoidWalls) {
+						distanceFromCurrent += session->map[neighbor->nodeAdress];
+					}
 					
 					if (neighbor->nodeAdress != goal->nodeAdress && neighbor->sucessor == currentNode->nodeAdress) {
 						Node lowest = get_lowest_neighbor_rhs(session, *neighbor);
 						neighbor->sucessor = lowest.nodeAdress;
-						neighbor->rhs = lowest.g + (getDistanceFromCurrent(session, &lowest, neighbor));
+						
+						int distanceFromCurrent2;
+						if (lowest.y != neighbor->y && lowest.x != neighbor->y) {
+							if (session->map[(lowest.y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + lowest.x] == 0){ continue; }
+							distanceFromCurrent2 = DIAGONAL;
+						} else {
+							distanceFromCurrent2 = ORTOGONAL;
+						}
+						if (session->avoidWalls) {
+							distanceFromCurrent2 += session->map[neighbor->nodeAdress];
+						}
+						
+						neighbor->rhs = lowest.g + distanceFromCurrent2;
 					}
 					updateNode(session, neighbor);
 				}
@@ -401,16 +451,27 @@ get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode)
 		for (j = -1; j <= 1; j++)
 		{
 			if (i == 0 && j == 0){ continue; }
-			
-			int current = getValidNode(session, (currentNode.x + i), (currentNode.y + j));
-			
-			if (current < 0) { continue; }
+			int x = currentNode.x + i;
+			int y = currentNode.y + j;
+				
+			if (x >= session->width || y >= session->height || x < 0 || y < 0) { continue; }
+
+			int current = (y * session->width) + x;
+
+			if (session->map[current] == 0) { continue; }
 			
 			neighbor = session->currentMap[current];
 			
-			int distanceFromCurrent = getDistanceFromCurrent(session, &currentNode, &neighbor);
-
-			if (distanceFromCurrent < 0) { continue; }
+			int distanceFromCurrent;
+			if (currentNode.y != neighbor.y && currentNode.x != neighbor.y) {
+				if (session->map[(currentNode.y * session->width) + neighbor.x] == 0 || session->map[(neighbor.y * session->width) + currentNode.x] == 0){ continue; }
+				distanceFromCurrent = DIAGONAL;
+			} else {
+				distanceFromCurrent = ORTOGONAL;
+			}
+			if (session->avoidWalls) {
+				distanceFromCurrent += session->map[neighbor.nodeAdress];
+			}
 			
 			if (neighbor.rhs < nextNode.rhs) {
 				nextNode = neighbor;
