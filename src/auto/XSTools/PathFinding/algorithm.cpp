@@ -359,7 +359,7 @@ CalcPath_pathStep (CalcPath_session *session)
 					neighbor = &session->currentMap[current];
 					
 					int distanceFromCurrent;
-					if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
+					if (i != 0 && j != 0) {
 						if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ continue; }
 						distanceFromCurrent = DIAGONAL;
 					} else {
@@ -403,7 +403,7 @@ CalcPath_pathStep (CalcPath_session *session)
 					neighbor = &session->currentMap[current];
 					
 					int distanceFromCurrent;
-					if (currentNode->y != neighbor->y && currentNode->x != neighbor->y) {
+					if (i != 0 && j != 0) {
 						if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ continue; }
 						distanceFromCurrent = DIAGONAL;
 					} else {
@@ -418,7 +418,7 @@ CalcPath_pathStep (CalcPath_session *session)
 						neighbor->sucessor = lowest.nodeAdress;
 						
 						int distanceFromCurrent2;
-						if (lowest.y != neighbor->y && lowest.x != neighbor->y) {
+						if (lowest.y != neighbor->y && lowest.x != neighbor->x) {
 							if (session->map[(lowest.y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + lowest.x] == 0){ continue; }
 							distanceFromCurrent2 = DIAGONAL;
 						} else {
@@ -463,7 +463,7 @@ get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode)
 			neighbor = session->currentMap[current];
 			
 			int distanceFromCurrent;
-			if (currentNode.y != neighbor.y && currentNode.x != neighbor.y) {
+			if (i != 0 && j != 0) {
 				if (session->map[(currentNode.y * session->width) + neighbor.x] == 0 || session->map[(neighbor.y * session->width) + currentNode.x] == 0){ continue; }
 				distanceFromCurrent = DIAGONAL;
 			} else {
