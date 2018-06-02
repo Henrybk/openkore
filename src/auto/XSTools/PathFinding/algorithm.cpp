@@ -402,14 +402,12 @@ CalcPath_pathStep (CalcPath_session *session)
 		// Path found
 		if (!((start->key1 > currentNode->key1 || (start->key1 == currentNode->key1 && start->key2 > currentNode->key2)) || start->rhs > start->g)) {
 			reconstruct_path(session, goal, start);
-			printf("Test pathStep path found after\n");
 			return 1;
 		}
 		
 		// Timer count
 		loop++;
-		if (loop == 30) {
-			return 0;
+		if (loop == 100) {
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else
@@ -469,7 +467,6 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
 					if (neighborNode->rhs > (currentNode->g + distanceFromCurrent)) {
-						printf("[1] New sucessor of node %d %d is => node %d %d\n", neighborNode->x, neighborNode->y, currentNode->x, currentNode->y);
 						neighborNode->sucessor = currentNode->nodeAdress;
 						neighborNode->rhs = currentNode->g + distanceFromCurrent;
 						updateNode(session, neighborNode);
