@@ -16,7 +16,6 @@ typedef struct {
 	unsigned int openListIndex;
 	
 	unsigned int g;
-	unsigned short h;
 	unsigned int rhs;
 	
 	unsigned int sucessor;
@@ -38,14 +37,14 @@ typedef struct {
 	unsigned int k;
 	
 	unsigned int *openList;
-	const char *map;
+	unsigned char *map;
 	Node *currentMap;
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();
 
-unsigned int* calcKey (Node* node, unsigned int k);
-
+unsigned int* calcKey (Node* node, unsigned int startX, unsigned int startY, bool avoidWalls, unsigned int k);
+	
 int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls);
 
 void openListAdd (CalcPath_session *session, Node* node);
@@ -62,9 +61,11 @@ void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 
 int CalcPath_pathStep (CalcPath_session *session);
 
-Node get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode);
+void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
  
 CalcPath_session *CalcPath_init (CalcPath_session *session);
+
+void updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, int new_weight);
 
 void CalcPath_destroy (CalcPath_session *session);
 

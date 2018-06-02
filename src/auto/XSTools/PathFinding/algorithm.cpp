@@ -48,11 +48,16 @@ CalcPath_new ()
 }
 
 unsigned int*
-calcKey (Node* node, unsigned int k)
+calcKey (Node* node, unsigned int startX, unsigned int startY, bool avoidWalls, unsigned int k)
 {
 	static unsigned int key[2];
+	
     key[1] = ((node->g > node->rhs) ? node->rhs : node->g);
-	key[0] = key[1] + node->h + k;
+	
+	unsigned short h = heuristic_cost_estimate(node->x, node->y, startX, startY, avoidWalls);
+	
+	key[0] = key[1] + h + k;
+	
     return key;
 }
 
@@ -164,6 +169,8 @@ void
 reajustOpenListItem (CalcPath_session *session, Node* node, unsigned int newkey1, unsigned int newkey2)
 {
     int currentIndex = node->openListIndex;
+	
+	// Node got ligher, so we ajust it up
 	if (node->key1 > newkey1 || (node->key1 == newkey1 && node->key2 > newkey2)) {
 		node->key1 = newkey1;
 		node->key2 = newkey2;
@@ -187,7 +194,12 @@ reajustOpenListItem (CalcPath_session *session, Node* node, unsigned int newkey1
 				nextIndex = PARENT(currentIndex);
 			} else { break; }
 		}
+	
+	// Node got heavier, so we ajust it down
 	} else {
+		// Dont really know abut the 2 next lines
+		node->key1 = newkey1;
+		node->key2 = newkey2;
 		int nextIndex = 0;
 
 		unsigned int Temporary;
@@ -246,10 +258,10 @@ updateNode (CalcPath_session *session, Node* node)
 {
 	if (node->g != node->rhs) {
 		if (node->isInOpenList) {
-			unsigned int* keys = calcKey(node, session->k);
+			unsigned int* keys = calcKey(node, session->startX, session->startY, session->avoidWalls, session->k);
 			reajustOpenListItem(session, node, keys[0], keys[1]);
 		} else {
-			unsigned int* keys = calcKey(node, session->k);
+			unsigned int* keys = calcKey(node, session->startX, session->startY, session->avoidWalls, session->k);
 			node->key1 = keys[0];
 			node->key2 = keys[1];
 			openListAdd (session, node);
@@ -263,10 +275,14 @@ updateNode (CalcPath_session *session, Node* node)
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
-	Node* currentNode = start;
+	Node* currentNode;
+	
+	int current;
+	
+	currentNode = start;
 	
 	session->solution_size = 0;
-	while (currentNode->nodeAdress != goal->nodeAdress)
+	while (currentNode->nodeAdress != goal->nodeAdress && session->solution_size < 15)
     {
         currentNode = &session->currentMap[currentNode->sucessor];
         session->solution_size++;
@@ -276,7 +292,6 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 int 
 CalcPath_pathStep (CalcPath_session *session)
 {
-	
 	if (!session->initialized) {
 		return -2;
 	}
@@ -290,55 +305,71 @@ CalcPath_pathStep (CalcPath_session *session)
 		session->run = 1;
 		session->openListSize = 0;
 		session->openList = (unsigned int*) malloc((session->height * session->width) * sizeof(unsigned int));
-		
-		goal->h = heuristic_cost_estimate(goal->x, goal->y, start->x, start->y, session->avoidWalls);
-		keys = calcKey(goal, session->k);
+
+		keys = calcKey(goal, session->startX, session->startY, session->avoidWalls, session->k);
 		goal->key1 = keys[0];
 		goal->key2 = keys[1];
 		openListAdd (session, goal);
 	}
 	
 	Node* currentNode;
-	Node* neighbor;
+	Node* neighborNode;
 	
 	int i;
 	int j;
-	int current;
+	
+	unsigned int neighbor_x;
+	unsigned int neighbor_y;
+	int neighbor_adress;
 	int distanceFromCurrent;
 	
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
 	
+	
+	keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
+	start->key1 = keys[0];
+	start->key2 = keys[1];
+	
     while (1) {
-		
 		// No path exists
 		if (session->openListSize == 0) {
 			return -1;
 		}
 		
+        // get lowest key score member of openlist and delete it from it, shrinks openListSize
+		currentNode = openListGetLowest (session);
+		
+		keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
+		start->key1 = keys[0];
+		start->key2 = keys[1];
+		
+		keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
+
+		if (!((start->key1 > currentNode->key1 || (start->key1 == currentNode->key1 && start->key2 > currentNode->key2)) || start->rhs > start->g)) {
 		// Path found
-		if (start->key1 > session->currentMap[session->openList[0]].key1 || (start->key1 == session->currentMap[session->openList[0]].key1 && start->key2 > session->currentMap[session->openList[0]].key2)) {
+		//if (currentNode->nodeAdress == start->nodeAdress) {
+			printf("Test pathStep path found before\n");
 			reconstruct_path(session, goal, start);
+			printf("Test pathStep path found after\n");
 			return 1;
 		}
 		
 		loop++;
-		if (loop == 100) {
+		if (loop == 30) {
+			return 0;
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else
 				loop = 0;
 		}
 		
-        // get lowest key score member of openlist and delete it from it, shrinks openListSize
-		currentNode = openListGetLowest (session);
-		
-		keys = calcKey(currentNode, session->k);
-		
 		if (keys[0] > currentNode->key1 || (keys[0] == currentNode->key1 && keys[1] > currentNode->key2)) {
+			printf("Reajusting => oldkey1: %d - oldkey2: %d - newkey1: %d - newkey2: %d\n", currentNode->key1, currentNode->key2, keys[0], keys[1]);
 			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
 			
 		} else if (currentNode->g > currentNode->rhs) {
+			printf("Removing\n");
 			currentNode->g = currentNode->rhs;
 			openListRemove(session, currentNode);
 			
@@ -346,139 +377,152 @@ CalcPath_pathStep (CalcPath_session *session)
 			{
 				for (j = -1; j <= 1; j++)
 				{
-					if (i == 0 && j == 0) { continue; }
-					int x = currentNode->x + i;
-					int y = currentNode->y + j;
-					
-					if (x >= session->width || y >= session->height || x < 0 || y < 0) { continue; }
-	
-					int current = (y * session->width) + x;
+					if (i == 0 && j == 0) {
+						continue;
+					}
+					neighbor_x = currentNode->x + i;
+					neighbor_y = currentNode->y + j;
 
-					if (session->map[current] == 0) { continue; }
+					if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+						continue;
+					}
 
-					neighbor = &session->currentMap[current];
-					
-					int distanceFromCurrent;
+					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
+
+					if (session->map[neighbor_adress] == 0) {
+						continue;
+					}
+
+					neighborNode = &session->currentMap[neighbor_adress];
+
 					if (i != 0 && j != 0) {
-						if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ continue; }
+						if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+							continue;
+						}
 						distanceFromCurrent = DIAGONAL;
 					} else {
 						distanceFromCurrent = ORTOGONAL;
 					}
+
 					if (session->avoidWalls) {
-						distanceFromCurrent += session->map[neighbor->nodeAdress];
+						distanceFromCurrent += session->map[neighborNode->nodeAdress];
 					}
-					
-					if (neighbor->h == 0) {
-						neighbor->h = heuristic_cost_estimate(neighbor->x, neighbor->y, start->x, start->y, session->avoidWalls);
+
+					if (neighbor_x == session->endX && neighbor_y == session->endY) {
+						continue;
 					}
-					
-					if (neighbor->nodeAdress != goal->nodeAdress && neighbor->rhs > (currentNode->g + distanceFromCurrent)) {
-						neighbor->sucessor = currentNode->nodeAdress;
-						neighbor->rhs = currentNode->g + distanceFromCurrent;
-						updateNode(session, neighbor);
+
+					if (neighborNode->rhs > (currentNode->g + distanceFromCurrent)) {
+						printf("[1] New sucessor of node %d %d is => node %d %d\n", neighborNode->x, neighborNode->y, currentNode->x, currentNode->y);
+						neighborNode->sucessor = currentNode->nodeAdress;
+						neighborNode->rhs = currentNode->g + distanceFromCurrent;
+						updateNode(session, neighborNode);
 					}
 				}
 			}
 			
 			
 		} else {
-			updateNode(session, currentNode);
+			printf("Updating\n");
 			
 			currentNode->g = INFINITE;
+			updateNode(session, currentNode);
+			
 			for (i = -1; i <= 1; i++)
 			{
 				for (j = -1; j <= 1; j++)
 				{
-					if (i == 0 && j == 0) { continue; }
-					int x = currentNode->x + i;
-					int y = currentNode->y + j;
-					
-					if (x >= session->width || y >= session->height || x < 0 || y < 0) { continue; }
-	
-					int current = (y * session->width) + x;
+					if (i == 0 && j == 0) {
+						continue;
+					}
+					neighbor_x = currentNode->x + i;
+					neighbor_y = currentNode->y + j;
 
-					if (session->map[current] == 0) { continue; }
+					if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+						continue;
+					}
 
-					neighbor = &session->currentMap[current];
+					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
+
+					if (session->map[neighbor_adress] == 0) {
+						continue;
+					}
+
+					neighborNode = &session->currentMap[neighbor_adress];
 					
-					int distanceFromCurrent;
-					if (i != 0 && j != 0) {
-						if (session->map[(currentNode->y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + currentNode->x] == 0){ continue; }
-						distanceFromCurrent = DIAGONAL;
-					} else {
-						distanceFromCurrent = ORTOGONAL;
-					}
-					if (session->avoidWalls) {
-						distanceFromCurrent += session->map[neighbor->nodeAdress];
+					if (neighbor_x == session->endX && neighbor_y == session->endY) {
+						continue;
 					}
 					
-					if (neighbor->nodeAdress != goal->nodeAdress && neighbor->sucessor == currentNode->nodeAdress) {
-						Node lowest = get_lowest_neighbor_rhs(session, *neighbor);
-						neighbor->sucessor = lowest.nodeAdress;
-						
-						int distanceFromCurrent2;
-						if (lowest.y != neighbor->y && lowest.x != neighbor->x) {
-							if (session->map[(lowest.y * session->width) + neighbor->x] == 0 || session->map[(neighbor->y * session->width) + lowest.x] == 0){ continue; }
-							distanceFromCurrent2 = DIAGONAL;
-						} else {
-							distanceFromCurrent2 = ORTOGONAL;
-						}
-						if (session->avoidWalls) {
-							distanceFromCurrent2 += session->map[neighbor->nodeAdress];
-						}
-						
-						neighbor->rhs = lowest.g + distanceFromCurrent2;
+					if (neighborNode->sucessor == currentNode->nodeAdress) {
+						get_new_neighbor_sucessor(session, neighborNode);
 					}
-					updateNode(session, neighbor);
 				}
 			}
 		}
 	}
 }
 
-Node
-get_lowest_neighbor_rhs (CalcPath_session *session, Node currentNode)
+void
+get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 {
-	Node nextNode;
-	nextNode.rhs = INFINITE;
+	currentNode->rhs = INFINITE;
 	
-	Node neighbor;
+	Node* neighborNode;
+	
 	int i;
+	int j;
+	
+	unsigned int neighbor_x;
+	unsigned int neighbor_y;
+	int neighbor_adress;
+	int distanceFromCurrent;
+	
 	for (i = -1; i <= 1; i++)
 	{
-		int j;
-		for (j = -1; j <= 1; j++)
-		{
-			if (i == 0 && j == 0){ continue; }
-			int x = currentNode.x + i;
-			int y = currentNode.y + j;
+		for (j = -1; j <= 1; j++) {
+			if (i == 0 && j == 0) {
+				continue;
+			}
+			neighbor_x = currentNode->x + i;
+			neighbor_y = currentNode->y + j;
 				
-			if (x >= session->width || y >= session->height || x < 0 || y < 0) { continue; }
+			if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+				continue;
+			}
+	
+			neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-			int current = (y * session->width) + x;
+			if (session->map[neighbor_adress] == 0) {
+				continue;
+			}
 
-			if (session->map[current] == 0) { continue; }
+			neighborNode = &session->currentMap[neighbor_adress];
 			
-			neighbor = session->currentMap[current];
-			
-			int distanceFromCurrent;
 			if (i != 0 && j != 0) {
-				if (session->map[(currentNode.y * session->width) + neighbor.x] == 0 || session->map[(neighbor.y * session->width) + currentNode.x] == 0){ continue; }
+				if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+					continue;
+				}
 				distanceFromCurrent = DIAGONAL;
 			} else {
 				distanceFromCurrent = ORTOGONAL;
 			}
+			
 			if (session->avoidWalls) {
-				distanceFromCurrent += session->map[neighbor.nodeAdress];
+				distanceFromCurrent += session->map[neighborNode->nodeAdress];
 			}
 			
-			if (neighbor.rhs < nextNode.rhs) {
-				nextNode = neighbor;
+			if (neighbor_x == session->endX && neighbor_y == session->endY) {
+				continue;
+			}
+			
+			if (currentNode->rhs > neighborNode->g + distanceFromCurrent) {
+				currentNode->rhs = neighborNode->g + distanceFromCurrent;
+				currentNode->sucessor = neighbor_adress;
 			}
 		}
 	}
-	return nextNode;
+	updateNode(session, currentNode);
 }
 
 // Create a new pathfinding session, or reset an existing session.
@@ -509,6 +553,129 @@ CalcPath_init (CalcPath_session *session)
 	session->initialized = 1;
 	
 	return session;
+}
+
+void
+updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, int new_weight)
+{
+	int current = (y * session->width) + x;
+	
+	int old_weight = session->map[current];
+	
+	int change = new_weight - old_weight;
+	
+	session->map[current] = new_weight;
+	
+	Node* currentNode = &session->currentMap[current];
+	
+	//TODO: should we do this trick no never updatade cells we hanven't reached yet?
+	if (currentNode->rhs == INFINITE) {
+		return;
+	}
+	
+	//TODO: should we change rhs and g values?
+	currentNode->rhs = currentNode->rhs + change;
+	currentNode->g = currentNode->g + change;
+	
+	Node* neighborNode;
+	
+	int i;
+	int j;
+	
+	unsigned int neighbor_x;
+	unsigned int neighbor_y;
+	int neighbor_adress;
+	int distanceFromCurrent;
+	
+	if (old_weight > new_weight) {
+		for (i = -1; i <= 1; i++)
+		{
+			for (j = -1; j <= 1; j++)
+			{
+				if (i == 0 && j == 0) {
+					continue;
+				}
+				neighbor_x = x + i;
+				neighbor_y = y + j;
+					
+				if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+					continue;
+				}
+	
+				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
+
+				if (session->map[neighbor_adress] == 0) {
+					continue;
+				}
+
+				neighborNode = &session->currentMap[neighbor_adress];
+				
+				if (i != 0 && j != 0) {
+					if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+						continue;
+					}
+					distanceFromCurrent = DIAGONAL;
+				} else {
+					distanceFromCurrent = ORTOGONAL;
+				}
+				
+				if (session->avoidWalls) {
+					distanceFromCurrent += session->map[neighborNode->nodeAdress];
+				}
+				
+				if (neighbor_x == session->endX && neighbor_y == session->endY) {
+					continue;
+				}
+				
+				if (neighborNode->rhs > (currentNode->g + distanceFromCurrent)) {
+					neighborNode->sucessor = currentNode->nodeAdress;
+					printf("[3] New sucessor of node %d %d is => node %d %d\n", neighborNode->x, neighborNode->y, currentNode->x, currentNode->y);
+					neighborNode->rhs = currentNode->g + distanceFromCurrent;
+					updateNode(session, neighborNode);
+				}
+			}
+		}
+	} else {
+		for (i = -1; i <= 1; i++)
+		{
+			for (j = -1; j <= 1; j++)
+			{
+				if (i == 0 && j == 0) {
+					continue;
+				}
+				neighbor_x = x + i;
+				neighbor_y = y + j;
+
+				if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+					continue;
+				}
+
+				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
+				
+				if (session->map[neighbor_adress] == 0) {
+					continue;
+				}
+
+				neighborNode = &session->currentMap[neighbor_adress];
+				
+				if (i != 0 && j != 0) {
+					if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+						continue;
+					}
+				}
+					
+				if (neighbor_x == session->endX && neighbor_y == session->endY) {
+					continue;
+				}
+					
+				if (neighborNode->sucessor == currentNode->nodeAdress) {
+					get_new_neighbor_sucessor(session, neighborNode);
+				}
+			}
+		}
+	}
+	
+	updateNode(session, currentNode);
 }
 
 void
