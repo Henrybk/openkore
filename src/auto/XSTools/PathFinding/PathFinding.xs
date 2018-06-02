@@ -146,7 +146,6 @@ PathFinding_update_cell(session, newstX, newstY, r_array)
 				ref_weight = hv_fetch (hash, "weight", 6, 0);
 				weight = SvIV(*ref_weight);
 				
-				printf("x is %d -- y is %d -- weight is %d\n", x, y, weight);
 				updateChangedMap(session, x, y, weight);
 			}
 		}
@@ -159,20 +158,16 @@ PathFinding_run(session, r_array)
 	PREINIT:
 		int status;
 	CODE:
-		printf("Test run 01\n");
 		if (!r_array || !SvOK (r_array) || SvTYPE (r_array) != SVt_RV || SvTYPE (SvRV (r_array)) != SVt_PVAV) {
 			croak ("PathFinding::run(session, r_array): r_array must be a reference to an array\n");
 			XSRETURN_IV (-1);
 		}
-		printf("Test run 02\n");
 
 		status = CalcPath_pathStep (session);
 		if (status < 0) {
 			RETVAL = -1;
-			printf("Test run 03\n");
 
 		} else if (status > 0) {
-			printf("Test run 04\n");
 			AV *array;
 			int size;
 
@@ -184,7 +179,6 @@ PathFinding_run(session, r_array)
 			av_extend (array, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
-			printf("Test run 05\n");
 
 			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
@@ -200,7 +194,6 @@ PathFinding_run(session, r_array)
 				
 				currentNode = session->currentMap[currentNode.sucessor];
 			}
-			printf("Test run 06\n");
 			RETVAL = size;
 
 		} else {
