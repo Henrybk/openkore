@@ -316,10 +316,14 @@ updateNode (CalcPath_session *session, Node* node)
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
-	Node* currentNode = start;
+	Node* currentNode;
+	
+	int current;
+	
+	currentNode = start;
 	
 	session->solution_size = 0;
-	while (currentNode->nodeAdress != goal->nodeAdress)
+	while (currentNode->nodeAdress != goal->nodeAdress && session->solution_size < 15)
     {
         currentNode = &session->currentMap[currentNode->sucessor];
         session->solution_size++;
@@ -398,12 +402,14 @@ CalcPath_pathStep (CalcPath_session *session)
 		// Path found
 		if (!((start->key1 > currentNode->key1 || (start->key1 == currentNode->key1 && start->key2 > currentNode->key2)) || start->rhs > start->g)) {
 			reconstruct_path(session, goal, start);
+			printf("Test pathStep path found after\n");
 			return 1;
 		}
 		
 		// Timer count
 		loop++;
-		if (loop == 100) {
+		if (loop == 30) {
+			return 0;
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else

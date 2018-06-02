@@ -161,12 +161,14 @@ PathFinding_run(session, r_array)
 			croak ("PathFinding::run(session, r_array): r_array must be a reference to an array\n");
 			XSRETURN_IV (-1);
 		}
+		printf("Test run 02\n");
 
 		printf("[test] pathstep 00-0\n");
 		status = CalcPath_pathStep (session);
 		printf("[test] pathstep 00-1\n");
 		if (status < 0) {
 			RETVAL = -1;
+			printf("Test run 03\n");
 
 		} else if (status > 0) {
 			printf("[test] pathstep 00-2\n");
@@ -181,6 +183,7 @@ PathFinding_run(session, r_array)
 			av_extend (array, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
+			printf("Test run 05\n");
 
 			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
