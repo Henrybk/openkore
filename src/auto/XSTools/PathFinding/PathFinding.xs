@@ -188,9 +188,7 @@ PathFinding_run(session, r_array)
 
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
 				
-				av_unshift(array, 1);
-
-				av_store(array, 0, newRV((SV *)rh));
+				av_push(array, newRV((SV *)rh));
 				
 				currentNode = session->currentMap[currentNode.sucessor];
 			}
