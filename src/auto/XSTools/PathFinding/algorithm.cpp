@@ -316,14 +316,10 @@ updateNode (CalcPath_session *session, Node* node)
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
-	Node* currentNode;
-	
-	int current;
-	
-	currentNode = start;
+	Node* currentNode = start;
 	
 	session->solution_size = 0;
-	while (currentNode->nodeAdress != goal->nodeAdress && session->solution_size < 15)
+	while (currentNode->nodeAdress != goal->nodeAdress)
     {
         currentNode = &session->currentMap[currentNode->sucessor];
         session->solution_size++;
