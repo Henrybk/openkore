@@ -349,7 +349,8 @@ INIT:
 	STRLEN len;
 	int i, x, y;
 	int dist, val;
-	unsigned char *c_weightMap, *data;
+	unsigned char *c_weightMap
+	unsigned long *data;
 CODE:
 	if (!SvOK (distMap))
 		XSRETURN_UNDEF;
@@ -361,17 +362,16 @@ CODE:
 	/* Simplify the raw map data. Each byte in the raw map data
 	   represents a block on the field, but only some bytes are
 	   interesting to pathfinding. */
-	New (0, data, len, unsigned char);
-	Copy (c_weightMap, data, len, unsigned char);
+	New (0, data, len, unsigned long);
 	
-	int distance_to_weight[5] = { 0, 70, 60, 30, 20 };
+	long distance_to_weight[5] = { 0, 70, 60, 30, 20 };
+	long fill_weight = 10;
 	int max_distance = 4;
-	int fill_weight = 10;
 
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			i = y * width + x; // i: cell to examine
-			dist = data[i]; // dist: dist of i from wall
+			dist = c_weightMap[i]; // dist: dist of i from wall
 			
 			if (dist > max_distance) {
 				data[i] = fill_weight;
@@ -381,6 +381,6 @@ CODE:
 		}
 	}
 
-	RETVAL = newSVpv ((const char *) data, len);
+	RETVAL = newSVpv ((const long *) data, len);
 OUTPUT:
 	RETVAL

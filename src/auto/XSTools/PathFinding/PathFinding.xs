@@ -47,7 +47,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		unsigned int time_max
 	
 	PREINIT:
-		unsigned char *data = NULL;
+		unsigned long *data = NULL;
 	
 	CODE:
 		
@@ -63,7 +63,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		
 		/* Sanity check the weight_map parameter and get the weight_map data */
         if (weight_map && SvOK (weight_map))
-            data = (unsigned char *) SvPV_nolen (derefPV (weight_map));
+            data = (unsigned long *) SvPV_nolen (derefPV (weight_map));
         if (!data)
             croak("The 'weight_map' parameter must be a valid scalar.\n");
 		

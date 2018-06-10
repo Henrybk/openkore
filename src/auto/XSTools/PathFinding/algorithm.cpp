@@ -317,7 +317,7 @@ CalcPath_pathStep (CalcPath_session *session)
 	unsigned int neighbor_x;
 	unsigned int neighbor_y;
 	int neighbor_adress;
-	int distanceFromCurrent;
+	unsigned long distanceFromCurrent;
 	
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
@@ -473,7 +473,7 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 	unsigned int neighbor_x;
 	unsigned int neighbor_y;
 	int neighbor_adress;
-	int distanceFromCurrent;
+	unsigned long distanceFromCurrent;
 	
 	// Get all neighbors
 	for (i = -1; i <= 1; i++)
@@ -556,13 +556,13 @@ CalcPath_init (CalcPath_session *session)
 
 // Updates a block weight
 void
-updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, int new_weight)
+updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, unsigned long new_weight)
 {
 	int current = (y * session->width) + x;
 	
-	int old_weight = session->map[current];
+	unsigned long old_weight = session->map[current];
 	
-	int change = new_weight - old_weight;
+	unsigned long change = new_weight - old_weight;
 	
 	session->map[current] = new_weight;
 	
@@ -585,7 +585,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, int
 	unsigned int neighbor_x;
 	unsigned int neighbor_y;
 	int neighbor_adress;
-	int distanceFromCurrent;
+	unsigned long distanceFromCurrent;
 	
 	// If cell got ligher it may have new sucessors
 	if (old_weight > new_weight) {
