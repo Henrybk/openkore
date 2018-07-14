@@ -114,6 +114,7 @@ openListRemove (CalcPath_session *session, Node* node)
 {
 	int currentIndex = node->openListIndex;
 	node->isInOpenList = 0;
+	node->openListIndex = 0;
 	session->openListSize--;
 	session->openList[currentIndex] = session->openList[session->openListSize];
     session->currentMap[session->openList[currentIndex]].openListIndex = currentIndex;
@@ -277,23 +278,36 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
 	Node* currentNode = start;
 	
+	
+	printf("[test] pathstep 05\n");
+	
+	printf("[test] Path from %d %d to %d %d\n", session->startX, session->startY, session->endX, session->endY);
+	
 	session->solution_size = 0;
-	while (currentNode->nodeAdress != goal->nodeAdress)
+	while (currentNode->nodeAdress != goal->nodeAdress && session->solution_size < 20)
     {
+		printf("[test] pathstep 05.1 || size: %d || node %d %d || sucessor %d %d\n", session->solution_size, currentNode->x, currentNode->y, session->currentMap[currentNode->sucessor].x, session->currentMap[currentNode->sucessor].y);
         currentNode = &session->currentMap[currentNode->sucessor];
-        session->solution_size++;
+		session->solution_size++;
     }
+	
+	printf("[test] pathstep 06\n");
 }
 
 int 
 CalcPath_pathStep (CalcPath_session *session)
 {
+	
+	printf("[test] pathstep 00-3\n");
 	if (!session->initialized) {
 		return -2;
 	}
-	
+	printf("[test] pathstep 00-4\n");
 	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
+	printf("[test] pathstep 00-5\n");
 	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
+	
+	printf("[test] pathstep 00\n");
 	
 	unsigned int* keys;
 	
@@ -307,6 +321,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		goal->key2 = keys[1];
 		openListAdd (session, goal);
 	}
+	printf("[test] pathstep 01\n");
 	
 	Node* currentNode;
 	Node* neighborNode;
@@ -322,10 +337,12 @@ CalcPath_pathStep (CalcPath_session *session)
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
 	
+	printf("[test] pathstep 02\n");
 	
 	keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
 	start->key1 = keys[0];
 	start->key2 = keys[1];
+	printf("[test] pathstep 03\n");
 	
     while (1) {
 		// No path exists
@@ -341,6 +358,10 @@ CalcPath_pathStep (CalcPath_session *session)
 		start->key2 = keys[1];
 		
 		keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
+		
+		printf("Before loop %d startNode   => %d %d - g: %d - rhs: %d - key1: %d - key2: %d - km: %d\n", (loop+1), start->x, start->y, start->g, start->rhs, start->key1, start->key2, session->k);
+		
+		printf("Before loop %d currentNode => %d %d - g: %d - rhs: %d - key1: %d - key2: %d - new-key1: %d - new-key2: %d - h: %d\n", (loop+1), currentNode->x, currentNode->y, currentNode->g, currentNode->rhs, currentNode->key1, currentNode->key2, keys[0], keys[1], heuristic_cost_estimate(currentNode->x, currentNode->y, start->x, start->y, 1));
 
 		// Path found
 		if (!((start->key1 > currentNode->key1 || (start->key1 == currentNode->key1 && start->key2 > currentNode->key2)) || start->rhs > start->g)) {
@@ -358,10 +379,12 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
 		if (keys[0] > currentNode->key1 || (keys[0] == currentNode->key1 && keys[1] > currentNode->key2)) {
+			printf("Node key is bigger than it should be, reajusting\n");
 			// Node should be lower in priority queue than it is now, downgrade it
 			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
 			
 		} else if (currentNode->g > currentNode->rhs) {
+			printf("Node is overconsistent, expanding\n");
 			// Node is overconsistent, expand it and remove it from piority queue
 			currentNode->g = currentNode->rhs;
 			openListRemove(session, currentNode);
@@ -383,14 +406,14 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-					if (session->map[neighbor_adress] == 0) {
+					neighborNode = &session->currentMap[neighbor_adress];
+
+					if (neighborNode->weight == 0) {
 						continue;
 					}
 
-					neighborNode = &session->currentMap[neighbor_adress];
-
 					if (i != 0 && j != 0) {
-						if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+						if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
 							continue;
 						}
 						distanceFromCurrent = DIAGONAL;
@@ -399,7 +422,7 @@ CalcPath_pathStep (CalcPath_session *session)
 					}
 
 					if (session->avoidWalls) {
-						distanceFromCurrent += session->map[neighborNode->nodeAdress];
+						distanceFromCurrent += neighborNode->weight;
 					}
 
 					if (neighbor_x == session->endX && neighbor_y == session->endY) {
@@ -408,6 +431,7 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
 					if (neighborNode->rhs > (currentNode->g + distanceFromCurrent)) {
+						printf("[1] New sucessor of node %d %d is => node %d %d\n", neighborNode->x, neighborNode->y, currentNode->x, currentNode->y);
 						neighborNode->sucessor = currentNode->nodeAdress;
 						neighborNode->rhs = currentNode->g + distanceFromCurrent;
 						updateNode(session, neighborNode);
@@ -417,8 +441,8 @@ CalcPath_pathStep (CalcPath_session *session)
 			
 			
 		} else {
+			printf("Node is underconsistent\n");
 			// Node is underconsistent, recalculate all the rhs values and sucessors of all cells that have this Node set as their sucessor
-			
 			currentNode->g = INFINITE;
 			updateNode(session, currentNode);
 			
@@ -439,11 +463,11 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-					if (session->map[neighbor_adress] == 0) {
+					neighborNode = &session->currentMap[neighbor_adress];
+
+					if (neighborNode->weight == 0) {
 						continue;
 					}
-
-					neighborNode = &session->currentMap[neighbor_adress];
 					
 					if (neighbor_x == session->endX && neighbor_y == session->endY) {
 						continue;
@@ -456,13 +480,20 @@ CalcPath_pathStep (CalcPath_session *session)
 				}
 			}
 		}
+		printf("After loop %d currentNode => %d %d - g: %d - rhs: %d - key1: %d - key2: %d\n", loop, currentNode->x, currentNode->y, currentNode->g, currentNode->rhs, currentNode->key1, currentNode->key2);
+		printf("\n");
 	}
+	
+	printf("[test] pathstep 04\n");
 }
 
 // Get the neighbor with the least distance + weight and set it as the new sucessor
 void
 get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 {
+	
+	unsigned int initial_rhs = currentNode->rhs;
+	
 	currentNode->rhs = INFINITE;
 	
 	Node* neighborNode;
@@ -491,14 +522,14 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 	
 			neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-			if (session->map[neighbor_adress] == 0) {
+			neighborNode = &session->currentMap[neighbor_adress];
+
+			if (neighborNode->weight == 0) {
 				continue;
 			}
-
-			neighborNode = &session->currentMap[neighbor_adress];
 			
 			if (i != 0 && j != 0) {
-				if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+				if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
 					continue;
 				}
 				distanceFromCurrent = DIAGONAL;
@@ -507,7 +538,7 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 			}
 			
 			if (session->avoidWalls) {
-				distanceFromCurrent += session->map[neighborNode->nodeAdress];
+				distanceFromCurrent += currentNode->weight;
 			}
 			
 			if (neighbor_x == session->endX && neighbor_y == session->endY) {
@@ -516,11 +547,17 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 			
 			// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
 			if (currentNode->rhs > neighborNode->g + distanceFromCurrent) {
+				printf("[2] Sucessor of node %d %d changed to %d %d (g: %d | rhs: %d | key1 %d | key2: %d) from %d %d (g: %d | rhs: %d)\n", currentNode->x, currentNode->y, neighborNode->x, neighborNode->y, neighborNode->g, neighborNode->rhs, neighborNode->key1, neighborNode->key2, session->currentMap[currentNode->sucessor].x, session->currentMap[currentNode->sucessor].y, session->currentMap[currentNode->sucessor].g, session->currentMap[currentNode->sucessor].rhs);
 				currentNode->rhs = neighborNode->g + distanceFromCurrent;
 				currentNode->sucessor = neighbor_adress;
 			}
 		}
 	}
+	
+	if (initial_rhs > currentNode->rhs) {
+		printf("[ERROR] Node %d %d was used in get_new_neighbor_sucessor and its rhs value got lower. (before: %u  ||  after: %u  || weight: %lu)\n", currentNode->x, currentNode->y, initial_rhs, currentNode->rhs, currentNode->weight);
+	}
+	
 	updateNode(session, currentNode);
 }
 
@@ -528,7 +565,7 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 // Resetting is preferred over destroying and creating, because it saves
 // unnecessary memory allocations, thus improving performance.
 CalcPath_session *
-CalcPath_init (CalcPath_session *session)
+CalcPath_init (CalcPath_session *session, unsigned char *map)
 {
 	
 	unsigned int x = 0;
@@ -540,6 +577,7 @@ CalcPath_init (CalcPath_session *session)
 			current = (y * session->width) + x;
 			session->currentMap[current].x = x;
 			session->currentMap[current].y = y;
+			session->currentMap[current].weight = map[current];
 			session->currentMap[current].nodeAdress = current;
 			session->currentMap[current].g = INFINITE;
 			session->currentMap[current].rhs = INFINITE;
@@ -556,26 +594,28 @@ CalcPath_init (CalcPath_session *session)
 
 // Updates a block weight
 void
-updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, unsigned long new_weight)
+updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight)
 {
 	int current = (y * session->width) + x;
 	
-	unsigned long old_weight = session->map[current];
-	
-	unsigned long change = new_weight - old_weight;
-	
-	session->map[current] = new_weight;
-	
 	Node* currentNode = &session->currentMap[current];
 	
-	//TODO: should we do this trick no never updatade cells we hanven't reached yet?
-	if (currentNode->rhs == INFINITE) {
+	unsigned long old_weight = currentNode->weight;
+	
+	unsigned long new_weight = old_weight + delta_weight;
+	
+	printf("update map %d %d || from %lu to %lu  || delta_weight %ld\n", x, y, old_weight, new_weight, delta_weight);
+	
+	currentNode->weight = new_weight;
+	
+	//TODO: should we do this trick no never updatade cells we haven't reached yet?
+	if (currentNode->rhs == INFINITE || (session->endX == currentNode->x && session->endY == currentNode->y)) {
 		return;
 	}
 	
 	//TODO: should we change rhs and g values?
-	currentNode->rhs = currentNode->rhs + change;
-	currentNode->g = currentNode->g + change;
+	currentNode->rhs = currentNode->rhs + delta_weight;
+	currentNode->g = currentNode->g + delta_weight;
 	
 	Node* neighborNode;
 	
@@ -606,14 +646,14 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, uns
 	
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-				if (session->map[neighbor_adress] == 0) {
+				neighborNode = &session->currentMap[neighbor_adress];
+
+				if (neighborNode->weight == 0) {
 					continue;
 				}
-
-				neighborNode = &session->currentMap[neighbor_adress];
 				
 				if (i != 0 && j != 0) {
-					if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+					if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
 						continue;
 					}
 					distanceFromCurrent = DIAGONAL;
@@ -622,7 +662,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, uns
 				}
 				
 				if (session->avoidWalls) {
-					distanceFromCurrent += session->map[neighborNode->nodeAdress];
+					distanceFromCurrent += neighborNode->weight;
 				}
 				
 				if (neighbor_x == session->endX && neighbor_y == session->endY) {
@@ -631,6 +671,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, uns
 				
 				// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
 				if (neighborNode->rhs > (currentNode->g + distanceFromCurrent)) {
+					printf("[3] New sucessor of node %d %d is => node %d %d\n", neighborNode->x, neighborNode->y, currentNode->x, currentNode->y);
 					neighborNode->sucessor = currentNode->nodeAdress;
 					neighborNode->rhs = currentNode->g + distanceFromCurrent;
 					updateNode(session, neighborNode);
@@ -656,15 +697,15 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, uns
 				}
 
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
-				
-				if (session->map[neighbor_adress] == 0) {
-					continue;
-				}
 
 				neighborNode = &session->currentMap[neighbor_adress];
+
+				if (neighborNode->weight == 0) {
+					continue;
+				}
 				
 				if (i != 0 && j != 0) {
-					if (session->map[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map[(neighborNode->y * session->width) + currentNode->x] == 0) {
+					if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
 						continue;
 					}
 				}

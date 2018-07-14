@@ -47,7 +47,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		unsigned int time_max
 	
 	PREINIT:
-		unsigned long *data = NULL;
+		unsigned char *data = NULL;
 	
 	CODE:
 		
@@ -63,13 +63,10 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		
 		/* Sanity check the weight_map parameter and get the weight_map data */
         if (weight_map && SvOK (weight_map))
-            data = (unsigned long *) SvPV_nolen (derefPV (weight_map));
-        if (!data)
-            croak("The 'weight_map' parameter must be a valid scalar.\n");
+            data = (unsigned char *) SvPV_nolen (derefPV (weight_map));
 		
 		session->width = width;
 		session->height = height;
-		session->map = data;
 		
 		session->currentMap = (Node*) calloc(session->height * session->width, sizeof(Node));
 		
@@ -81,7 +78,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		session->avoidWalls = avoidWalls;
 		session->time_max = time_max;
 		
-		CalcPath_init (session);
+		CalcPath_init (session, data);
 
 
 void
@@ -158,16 +155,21 @@ PathFinding_run(session, r_array)
 	PREINIT:
 		int status;
 	CODE:
+		printf("[test] pathstep 00-000\n");
 		if (!r_array || !SvOK (r_array) || SvTYPE (r_array) != SVt_RV || SvTYPE (SvRV (r_array)) != SVt_PVAV) {
+			printf("[test] pathstep 00-001\n");
 			croak ("PathFinding::run(session, r_array): r_array must be a reference to an array\n");
 			XSRETURN_IV (-1);
 		}
 
+		printf("[test] pathstep 00-0\n");
 		status = CalcPath_pathStep (session);
+		printf("[test] pathstep 00-1\n");
 		if (status < 0) {
 			RETVAL = -1;
 
 		} else if (status > 0) {
+			printf("[test] pathstep 00-2\n");
 			AV *array;
 			int size;
 

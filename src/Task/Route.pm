@@ -101,6 +101,8 @@ sub new {
 	} else {$self->{avoidWalls} = 0;}
 	$self->{solution} = [];
 	$self->{stage} = '';
+	$self->{pathfinding} = new PathFinding;
+	$self->{unresolvedChanges} = [];
 
 	# Watch for map change events. Pass a weak reference to ourselves in order
 	# to avoid circular references (memory leaks).
@@ -165,7 +167,7 @@ sub iterate {
 	} elsif ($self->{stage} eq '') {
 		my $pos = calcPosition($self->{actor});
 		my $begin = time;
-		if ($self->getRoute($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+		if ($self->getRouteInternal($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
 			$self->{stage} = 'Route Solution Ready';
 			debug "Route $self->{actor} Solution Ready!\n", "route";
 
@@ -236,7 +238,42 @@ sub iterate {
 
 			Plugins::callHook('route', {status => 'success'});
 			$self->setDone();
+		
+		} elsif (@{$self->{unresolvedChanges}} > 0) {
+			my $begin = time;
+			
+			my $message = "Run Solution is : (start --> ";
+	
+			foreach my $step (@{$self->{solution}}) {
+				$message .= "\"".$step->{x}." ".$step->{y}."\"";
+			} continue {
+				$message .= " --> ";
+			}
+			
+			$message .= "end)\n";
+			
+			print "We are on location $cur_x $cur_y\n";
+			
+			print $message;
 
+			$self->{solution} = [];
+			$self->{stage} = '';
+			if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+				$self->{stage} = 'Route Solution Ready';
+				$self->{unresolvedChanges} = [];
+				debug "Recalculated Route $self->{actor} Solution Ready!\n", "route";
+
+				if (time - $begin < 0.01) {
+					# Optimization: immediately go to the next stage if we
+					# spent neglible time in this step.
+					$self->iterate();
+				}
+
+			} else {
+				debug "Something's wrong; there is no path to " . $field->baseName . "($self->{dest}{pos}{x},$self->{dest}{pos}{y}).\n", "debug";
+				$self->setError(CANNOT_CALCULATE_ROUTE, "Unable to calculate a route.");
+			}
+			
 		} elsif ($self->{old_x} == $cur_x && $self->{old_y} == $cur_y && timeOut($self->{time_step}, 3)) {
 			# We tried to move for 3 seconds, but we are still on the same spot,
 			# decrease step size.
@@ -318,7 +355,9 @@ sub iterate {
 				# But first, check whether the distance of the next point isn't abnormally large.
 				# If it is, then we've moved to an unexpected place. This could be caused by auto-attack,
 				# for example.
-				my %nextPos = (x => $self->{new_x}, y => $self->{new_y});
+				my %nextPos = (x => $pos->{x}, y => $pos->{y});
+				print "pos x: ".$self->{new_x}." - pos y: ".$self->{new_y}." - new x: ".$self->{new_x}." - new y: ".$self->{new_y}."\n";
+				print "distance: ".distance(\%nextPos, $pos)." -- route step: ".$config{$self->{actor}{configPrefix}.'route_step'}."\n";
 				if (distance(\%nextPos, $pos) > ($config{$self->{actor}{configPrefix}.'route_step'} * 2)) {
 					debug "Route $self->{actor} - movement interrupted: reset route\n", "route";
 					$self->{stage} = '';
@@ -360,10 +399,77 @@ sub iterate {
 	}
 }
 
-sub resetRoute {
-	my ($self) = @_;
-	$self->{solution} = [];
-	$self->{stage} = '';
+sub addChanges {
+	my ($class, $newChanges) = @_;
+	
+	push(@{$class->{unresolvedChanges}}, @{$newChanges});
+}
+
+sub clean_changes {
+	my ($self, $unresolvedChanges) = @_;
+	
+	my %changes_hash;
+	foreach my $change (@{$unresolvedChanges}) {
+		my $x = $change->{x};
+		my $y = $change->{y};
+		my $changed = $change->{weight};
+		$changes_hash{$x}{$y} += $changed;
+	}
+	
+	my @rebuilt_array;
+	foreach my $x_keys (keys %changes_hash) {
+		foreach my $y_keys (keys %{$changes_hash{$x_keys}}) {
+			next if ($changes_hash{$x_keys}{$y_keys} == 0);
+			push(@rebuilt_array, { x => $x_keys, y => $y_keys, weight => $changes_hash{$x_keys}{$y_keys} });
+		}
+	}
+	
+	return \@rebuilt_array;
+}
+
+##
+# boolean Task::Route->recalculateRoute(unresolvedChanges, Array* solution, Field field, Hash* start, Hash* dest, [boolean avoidWalls = true])
+sub recalculateRoute {
+	my ($class, $unresolvedChanges, $solution, $field, $start, $dest, $avoidWalls) = @_;
+	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
+
+	print "[test] recalculateRoute\n";
+
+	# The exact destination may not be a spot that we can walk on.
+	# So we find a nearby spot that is walkable.
+	my %start = %{$start};
+	my %dest = %{$dest};
+	Misc::closestWalkableSpot($field, \%start);
+	Misc::closestWalkableSpot($field, \%dest);
+	
+	use Data::Dumper;
+	
+	#print Dumper($unresolvedChanges);
+	
+	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
+	
+	print "[test] before update cell \n";
+	$class->{pathfinding}->update_cell($start{x}, $start{y}, $unresolvedChanges);
+	print "[test] after update cell \n";
+	
+	my $ret;
+	print "[test] before run \n";
+	$ret = $class->{pathfinding}->run($solution);
+	print "[test] after run \n";
+	
+	my $message = "Run Solution is : (start --> ";
+	
+	foreach my $step (@{$solution}) {
+		$message .= "\"".$step->{x}." ".$step->{y}."\"";
+	} continue {
+		$message .= " --> ";
+	}
+			
+	$message .= "end)\n";
+			
+	print $message;
+
+	return $ret > 0;
 }
 
 ##
@@ -390,6 +496,8 @@ sub getRoute {
 		@{$solution} = () if ($solution);
 		return 1;
 	}
+	
+	my $pathfinding = new PathFinding;
 
 	# The exact destination may not be a spot that we can walk on.
 	# So we find a nearby spot that is walkable.
@@ -399,7 +507,7 @@ sub getRoute {
 	Misc::closestWalkableSpot($field, \%dest);
 
 	# Calculate path
-	my $pathfinding = new PathFinding(
+	$pathfinding->reset(
 		start => \%start,
 		dest  => \%dest,
 		field => $field,
@@ -412,6 +520,56 @@ sub getRoute {
 		$ret = $pathfinding->run($solution);
 	} else {
 		$ret = $pathfinding->runcount();
+	}
+	return $ret > 0;
+}
+
+##
+# boolean Task::Route->getRoute(Array* solution, Field field, Hash* start, Hash* dest, [boolean avoidWalls = true])
+# $solution: The route solution will be stored in here.
+# field: the field on which a route must be calculated.
+# start: The is the start coordinate.
+# dest: The destination coordinate.
+# noAvoidWalls: 1 if you don't want to avoid walls on route.
+# Returns: 1 if the calculation succeeded, 0 if not.
+#
+# Calculate how to walk from $start to $dest on field $field, or check whether there
+# is a path from $start to $dest on field $field.
+#
+# If $solution is given, then the blocks you have to walk on in order to get to $dest
+# are stored in there.
+#
+# This function is a convenience wrapper function for the stuff
+# in Utils/PathFinding.pm
+sub getRouteInternal {
+	my ($class, $solution, $field, $start, $dest, $avoidWalls) = @_;
+	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
+	if (!defined $dest->{x} || $dest->{y} eq '') {
+		@{$solution} = () if ($solution);
+		return 1;
+	}
+
+	# The exact destination may not be a spot that we can walk on.
+	# So we find a nearby spot that is walkable.
+	my %start = %{$start};
+	my %dest = %{$dest};
+	Misc::closestWalkableSpot($field, \%start);
+	Misc::closestWalkableSpot($field, \%dest);
+
+	# Calculate path
+	$class->{pathfinding}->reset(
+		start => \%start,
+		dest  => \%dest,
+		field => $field,
+		avoidWalls => $avoidWalls
+	);
+	return undef if (!$class->{pathfinding});
+
+	my $ret;
+	if ($solution) {
+		$ret = $class->{pathfinding}->run($solution);
+	} else {
+		$ret = $class->{pathfinding}->runcount();
 	}
 	return $ret > 0;
 }

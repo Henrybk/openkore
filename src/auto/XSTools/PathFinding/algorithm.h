@@ -8,6 +8,8 @@ extern "C" {
 typedef struct {
 	unsigned int x;
 	unsigned int y;
+	unsigned long weight;
+	
 	unsigned int nodeAdress;
 	unsigned int key1;
 	unsigned int key2;
@@ -37,7 +39,6 @@ typedef struct {
 	unsigned int k;
 	
 	unsigned int *openList;
-	unsigned long *map;
 	Node *currentMap;
 } CalcPath_session;
 
@@ -63,9 +64,9 @@ int CalcPath_pathStep (CalcPath_session *session);
 
 void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
  
-CalcPath_session *CalcPath_init (CalcPath_session *session);
+CalcPath_session *CalcPath_init (CalcPath_session *session, unsigned char *map);
 
-void updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, unsigned long new_weight);
+void updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight);
 
 void CalcPath_destroy (CalcPath_session *session);
 
