@@ -362,15 +362,16 @@ CODE:
 	   represents a block on the field, but only some bytes are
 	   interesting to pathfinding. */
 	New (0, data, len, unsigned char);
+	Copy (c_weightMap, data, len, unsigned char);
 	
 	int distance_to_weight[5] = { 0, 70, 60, 30, 20 };
-	int fill_weight = 10;
 	int max_distance = 4;
+	int fill_weight = 10;
 
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			i = y * width + x; // i: cell to examine
-			dist = c_weightMap[i]; // dist: dist of i from wall
+			dist = data[i]; // dist: dist of i from wall
 			
 			if (dist > max_distance) {
 				data[i] = fill_weight;
