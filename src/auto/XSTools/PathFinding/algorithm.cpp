@@ -598,7 +598,6 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 CalcPath_session *
 CalcPath_init (CalcPath_session *session, unsigned char *map)
 {
-	
 	unsigned int x = 0;
 	unsigned int y = 0;
 	

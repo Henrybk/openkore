@@ -449,7 +449,7 @@ sub recalculateRoute {
 	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
 	
 	print "[test] before update cell \n";
-	$class->{pathfinding}->update_cell($start{x}, $start{y}, $unresolvedChanges);
+	$class->{pathfinding}->update_solution($start{x}, $start{y}, $unresolvedChanges);
 	print "[test] after update cell \n";
 	
 	my $ret;
