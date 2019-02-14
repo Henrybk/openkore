@@ -19,6 +19,7 @@ my $mob_hooks = Plugins::addHooks(
 	['add_monster_list', \&on_add_monster_list, undef],
 	#['monster_disappeared', \&on_monster_disappeared, undef],
 	#['monster_moved', \&on_monster_moved, undef],
+	#['add_player_list', \&on_add_player_list, undef],
 );
 
 sub onUnload {
@@ -27,7 +28,12 @@ sub onUnload {
 }
 
 my %nameID_obstacles = (
-	1368 => [100, 100, 100, 100], #Planta carnívora
+	1368 => [1000, 1000, 1000, 1000], #Planta carnívora
+);
+
+my %player_name_obstacles = (
+#	'henry safado' => [1000, 1000],
+	'henry safado' => [1000, 1000, 1000, 1000],
 );
 
 my %obstaclesList;
@@ -62,6 +68,41 @@ sub create_changes_array {
 
 sub on_packet_mapChange {
 	undef %obstaclesList;
+}
+
+sub on_add_player_list {
+	my (undef, $args) = @_;
+	my $actor = $args;
+	
+	return unless (exists $player_name_obstacles{$actor->{name}});
+	
+	print "[test] Adding Player $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
+	
+	my $obs_x = $actor->{pos}{x};
+	my $obs_y = $actor->{pos}{y};
+	
+	my $player_name = $actor->{name};
+	
+	my @weights = @{$player_name_obstacles{$actor->{name}}};
+	
+	my $max_distance = $#weights;
+	
+	my @changes_array;
+	
+	for (my $y = ($obs_y - $max_distance);     $y <= ($obs_y + $max_distance);   $y++) {
+		for (my $x = ($obs_x - $max_distance);     $x <= ($obs_x + $max_distance);   $x++) {
+			my $xDistance = abs($obs_x - $x);
+			my $yDistance = abs($obs_y - $y);
+			my $cell_distance = (($xDistance > $yDistance) ? $xDistance : $yDistance);
+			my $delta_weight = $weights[$cell_distance];
+			next unless ($field->isWalkable($x, $y));
+			push(@changes_array, { x => $x, y => $y, weight => $delta_weight});
+		}
+	}
+	
+	$obstaclesList{$actor->{binID}} = \@changes_array;
+	
+	add_changes_to_task(\@changes_array);
 }
 
 sub on_add_monster_list {

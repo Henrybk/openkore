@@ -242,7 +242,7 @@ sub iterate {
 		} elsif (@{$self->{unresolvedChanges}} > 0) {
 			my $begin = time;
 			
-			my $message = "Run Solution is : (start --> ";
+			my $message = "Run Solution before changes is : (start --> ";
 	
 			foreach my $step (@{$self->{solution}}) {
 				$message .= "\"".$step->{x}." ".$step->{y}."\"";
@@ -355,9 +355,10 @@ sub iterate {
 				# But first, check whether the distance of the next point isn't abnormally large.
 				# If it is, then we've moved to an unexpected place. This could be caused by auto-attack,
 				# for example.
-				my %nextPos = (x => $pos->{x}, y => $pos->{y});
-				print "pos x: ".$self->{new_x}." - pos y: ".$self->{new_y}." - new x: ".$self->{new_x}." - new y: ".$self->{new_y}."\n";
+				my %nextPos = (x => $self->{new_x}, y => $self->{new_y});
+				print "pos x: ".$pos->{x}." - pos y: ".$pos->{y}." - new x: ".$self->{new_x}." - new y: ".$self->{new_y}."\n";
 				print "distance: ".distance(\%nextPos, $pos)." -- route step: ".$config{$self->{actor}{configPrefix}.'route_step'}."\n";
+				print "steps left: ".$stepsleft."\n";
 				if (distance(\%nextPos, $pos) > ($config{$self->{actor}{configPrefix}.'route_step'} * 2)) {
 					debug "Route $self->{actor} - movement interrupted: reset route\n", "route";
 					$self->{stage} = '';
@@ -444,9 +445,11 @@ sub recalculateRoute {
 	
 	use Data::Dumper;
 	
-	#print Dumper($unresolvedChanges);
+	#print '[test] Ugly changes: '.Dumper($unresolvedChanges);
 	
 	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
+	
+	#print '[test] Cleaned changes: '.Dumper($unresolvedChanges);
 	
 	print "[test] before update cell \n";
 	$class->{pathfinding}->update_solution($start{x}, $start{y}, $unresolvedChanges);
@@ -457,7 +460,7 @@ sub recalculateRoute {
 	$ret = $class->{pathfinding}->run($solution);
 	print "[test] after run \n";
 	
-	my $message = "Run Solution is : (start --> ";
+	my $message = "Run Solution after changes is : (start --> ";
 	
 	foreach my $step (@{$solution}) {
 		$message .= "\"".$step->{x}." ".$step->{y}."\"";

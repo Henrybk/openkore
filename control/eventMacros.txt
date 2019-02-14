@@ -1,0 +1,35 @@
+automacro move_to_155_100 {
+	run-once 1
+	exclusive 1
+	InMap prontera
+	priority 0
+	call {
+		lock move_cycle_1
+		lock move_cycle_2
+		do c \@warp prontera 155 60
+		pause 1
+		release move_cycle_1
+	}
+}
+
+automacro move_cycle_1 {
+	run-once 1
+	exclusive 1
+	InMap prontera
+	priority 1
+	call {
+		do move 155 100
+		release move_cycle_2
+	}
+}
+
+automacro move_cycle_2 {
+	run-once 1
+	exclusive 1
+	InMap prontera
+	priority 2
+	call {
+		do move 155 60
+		release move_cycle_1
+	}
+}
