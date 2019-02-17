@@ -242,24 +242,8 @@ sub iterate {
 		} elsif (@{$self->{unresolvedChanges}} > 0) {
 			my $begin = time;
 			
-			my $message = "Run Solution before changes is : (start --> ";
-	
-			foreach my $step (@{$self->{solution}}) {
-				$message .= "\"".$step->{x}." ".$step->{y}."\"";
-			} continue {
-				$message .= " --> ";
-			}
-			
-			$message .= "end)\n";
-			
-			print "We are on location $cur_x $cur_y\n";
-			
-			print $message;
-
 			$self->{solution} = [];
-			$self->{stage} = '';
 			if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
-				$self->{stage} = 'Route Solution Ready';
 				$self->{unresolvedChanges} = [];
 				debug "Recalculated Route $self->{actor} Solution Ready!\n", "route";
 
@@ -356,9 +340,6 @@ sub iterate {
 				# If it is, then we've moved to an unexpected place. This could be caused by auto-attack,
 				# for example.
 				my %nextPos = (x => $self->{new_x}, y => $self->{new_y});
-				print "pos x: ".$pos->{x}." - pos y: ".$pos->{y}." - new x: ".$self->{new_x}." - new y: ".$self->{new_y}."\n";
-				print "distance: ".distance(\%nextPos, $pos)." -- route step: ".$config{$self->{actor}{configPrefix}.'route_step'}."\n";
-				print "steps left: ".$stepsleft."\n";
 				if (distance(\%nextPos, $pos) > ($config{$self->{actor}{configPrefix}.'route_step'} * 2)) {
 					debug "Route $self->{actor} - movement interrupted: reset route\n", "route";
 					$self->{stage} = '';
@@ -434,7 +415,7 @@ sub recalculateRoute {
 	my ($class, $unresolvedChanges, $solution, $field, $start, $dest, $avoidWalls) = @_;
 	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
 
-	print "[test] recalculateRoute\n";
+	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
 
 	# The exact destination may not be a spot that we can walk on.
 	# So we find a nearby spot that is walkable.
@@ -442,35 +423,13 @@ sub recalculateRoute {
 	my %dest = %{$dest};
 	Misc::closestWalkableSpot($field, \%start);
 	Misc::closestWalkableSpot($field, \%dest);
-	
-	use Data::Dumper;
-	
-	#print '[test] Ugly changes: '.Dumper($unresolvedChanges);
-	
+
 	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
-	
-	#print '[test] Cleaned changes: '.Dumper($unresolvedChanges);
-	
-	print "[test] before update cell \n";
+
 	$class->{pathfinding}->update_solution($start{x}, $start{y}, $unresolvedChanges);
-	print "[test] after update cell \n";
-	
+
 	my $ret;
-	print "[test] before run \n";
 	$ret = $class->{pathfinding}->run($solution);
-	print "[test] after run \n";
-	
-	my $message = "Run Solution after changes is : (start --> ";
-	
-	foreach my $step (@{$solution}) {
-		$message .= "\"".$step->{x}." ".$step->{y}."\"";
-	} continue {
-		$message .= " --> ";
-	}
-			
-	$message .= "end)\n";
-			
-	print $message;
 
 	return $ret > 0;
 }
@@ -567,6 +526,8 @@ sub getRouteInternal {
 		avoidWalls => $avoidWalls
 	);
 	return undef if (!$class->{pathfinding});
+
+	Plugins::callHook("getRouteInternal_post", { pathfinding => $class->{pathfinding}, field => $field, start => $start, dest => $dest });
 
 	my $ret;
 	if ($solution) {

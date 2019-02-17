@@ -8,7 +8,7 @@ extern "C" {
 typedef struct {
 	unsigned int x;
 	unsigned int y;
-	unsigned long weight;
+	long weight;
 	
 	unsigned long nodeAdress;
 	
@@ -71,11 +71,17 @@ int CalcPath_pathStep (CalcPath_session *session);
 
 int recheck_all_nodes_in_binary_heap (CalcPath_session *session);
 
+int recheck_openList_removed (CalcPath_session *session, Node* removedNode);
+
 void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
  
 CalcPath_session *CalcPath_init (CalcPath_session *session, unsigned char *map);
 
 void updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight);
+
+void free_currentMap (CalcPath_session *session);
+
+void free_openList (CalcPath_session *session);
 
 void CalcPath_destroy (CalcPath_session *session);
 
