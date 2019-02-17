@@ -79,16 +79,15 @@ heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int
 int
 recheck_all_nodes_in_binary_heap (CalcPath_session *session)
 {
-	int currentIndex = 0;
-	int lastIndex = session->openListSize-1;
+	long lastIndex = session->openListSize-1;
 	
-	unsigned int currentAdress;
+	long currentIndex = 0;
+	long leftChildIndex;
+	long rightChildIndex;
 	
-	int leftChildIndex;
-	int rightChildIndex;
-	
-	unsigned int leftChildAdress;
-	unsigned int rightChildAdress;
+	unsigned long currentAdress;
+	unsigned long leftChildAdress;
+	unsigned long rightChildAdress;
 	
 	Node* currentNode;
 	Node* rightChildNode;
@@ -108,10 +107,9 @@ recheck_all_nodes_in_binary_heap (CalcPath_session *session)
 			
 			if (currentNode->key1 > leftChildNode->key1 || (currentNode->key1 == leftChildNode->key1 && currentNode->key2 > leftChildNode->key2)) {
 				
-				printf("[HUGE BUG HERE] current node %d %d, at index %d, has keys %lu and %lu || left child node %d %d, at index %d, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, leftChildNode->x, leftChildNode->y, leftChildIndex, leftChildNode->key1, leftChildNode->key2);
+				printf("[Pathfinding error] Current node %d %d, at index %ld, has keys %lu and %lu || left child node %d %d, at index %ld, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, leftChildNode->x, leftChildNode->y, leftChildIndex, leftChildNode->key1, leftChildNode->key2);
 				return 0;
 			}
-			//- printf("[normal] current node %d %d, at index %d, has keys %lu and %lu || left child node %d %d, at index %d, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, leftChildNode->x, leftChildNode->y, leftChildIndex, leftChildNode->key1, leftChildNode->key2);
 		}
 		
 		if (lastIndex >= rightChildIndex) {
@@ -119,26 +117,25 @@ recheck_all_nodes_in_binary_heap (CalcPath_session *session)
 			rightChildNode = &session->currentMap[rightChildAdress];
 			if (currentNode->key1 > rightChildNode->key1 || (currentNode->key1 == rightChildNode->key1 && currentNode->key2 > rightChildNode->key2)) {
 				
-				printf("[HUGE BUG HERE] current node %d %d, at index %d, has keys %lu and %lu || right child node %d %d, at index %d, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, rightChildNode->x, rightChildNode->y, rightChildIndex, rightChildNode->key1, rightChildNode->key2);
+				printf("[Pathfinding error] Current node %d %d, at index %ld, has keys %lu and %lu || right child node %d %d, at index %ld, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, rightChildNode->x, rightChildNode->y, rightChildIndex, rightChildNode->key1, rightChildNode->key2);
 				return 0;
 			}
-			//- printf("[normal] current node %d %d, at index %d, has keys %lu and %lu || right child node %d %d, at index %d, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, rightChildNode->x, rightChildNode->y, rightChildIndex, rightChildNode->key1, rightChildNode->key2);
 		}
 		
 		currentIndex++;
 	}
 	
-	//- printf("[recheck_all_nodes_in_binary_heap] all clear, checked %d nodes\n", currentIndex);
 	return 1;
 }
 
 int
 recheck_openList_removed (CalcPath_session *session, Node* removedNode)
 {
-	int currentIndex = 0;
-	int lastIndex = session->openListSize-1;
+	long lastIndex = session->openListSize-1;
 	
-	unsigned int currentAdress;
+	long currentIndex = 0;
+	
+	unsigned long currentAdress;
 	
 	Node* currentNode;
 	
@@ -148,7 +145,7 @@ recheck_openList_removed (CalcPath_session *session, Node* removedNode)
 		currentNode = &session->currentMap[currentAdress];
 		
 		if (removedNode->nodeAdress == currentNode->nodeAdress) {
-			printf("[HUGE BUG HERE 2] current node %d %d, at index %d, was removed from openList but is still in it\n", currentNode->x, currentNode->y, currentIndex);
+			printf("[Pathfinding error] Current node %d %d, at index %ld, was removed from openList but is still in it\n", currentNode->x, currentNode->y, currentIndex);
 			return 0;
 		}
 		
@@ -179,18 +176,13 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 	long parentIndex = (long)floor((currentNode->openListIndex - 1) / 2);
 	Node* parentNode;
 	
-	//- printf("[openListAdd] - adding %d %d\n", currentNode->x, currentNode->y);
-	
 	// Repeat while currentNode still has a parent node, otherwise currentNode is the top node in the heap
     while (parentIndex >= 0) {
 		
 		parentNode = &session->currentMap[session->openList[parentIndex]];
 		
-		//- printf("[openListAdd] -- Node %d %d (currently at %ld) (key1 %lu || key2 %lu) has parent %d %d (currently at %ld) (key1 %lu || key2 %lu)\n", currentNode->x, currentNode->y, currentNode->openListIndex, currentNode->key1, currentNode->key2, parentNode->x, parentNode->y, parentNode->openListIndex, parentNode->key1, parentNode->key2);
-		
 		// If parent node is bigger than currentNode, exchange their positions
 		if (parentNode->key1 > currentNode->key1 || (parentNode->key1 == currentNode->key1 && parentNode->key2 > currentNode->key2)) {
-			//- printf("[openListAdd] --- It went up the heap\n");
 			// Changes the node adress of openList[currentNode->openListIndex] (which is 'currentNode') to that of openList[parentIndex] (which is the current parent of 'currentNode')
             session->openList[currentNode->openListIndex] = session->openList[parentIndex];
 			
@@ -207,7 +199,6 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 			parentIndex = (long)floor((currentNode->openListIndex - 1) / 2);
 			
         } else {
-			//- printf("[openListAdd] --- It stopped\n");
 			break;
 		}
 	}
@@ -216,7 +207,7 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 		int result;
 		result = recheck_all_nodes_in_binary_heap(session);
 		if (result == 0) {
-			printf("Something horrible happened and now openList is all fucked up during add node\n");
+			printf("[Pathfinding error] OpenList integrity check failed after function openListAdd.\n");
 		}
 	}
 }
@@ -225,14 +216,12 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 void 
 openListRemove (CalcPath_session *session, Node* currentNode)
 {
-	//- printf("[test] openListRemove %d %d ---- openListIndex: %ld (%lu %lu) --- Size: %lu\n", currentNode->x, currentNode->y, currentNode->openListIndex, currentNode->key1, currentNode->key2, session->openListSize);
 	
 	// Decreases openList size
 	session->openListSize--;
 	
 	// Cannot move last node to this node place if this node is the last in openList
 	if (currentNode->openListIndex == session->openListSize) {
-		//- printf("[test] wow wow It was the last in openList\n");
 		currentNode->isInOpenList = 0;
 		currentNode->openListIndex = 0;
 		
@@ -247,8 +236,6 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 		// TODO
 		movedNode = &session->currentMap[session->openList[currentNode->openListIndex]];
 		
-		//- printf("[test] Node %d %d (index %lu) was moved to %d %d place\n", movedNode->x, movedNode->y, movedNode->openListIndex, currentNode->x, currentNode->y);
-		
 		// TODO
 		movedNode->openListIndex = currentNode->openListIndex;
 		
@@ -260,8 +247,6 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 		
 		// Sometimes we may need to move it up (look http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/9-BinTree/heap-delete.html)
 		if (parentIndex >= 0 && (session->currentMap[session->openList[parentIndex]].key1 > movedNode->key1 || (session->currentMap[session->openList[parentIndex]].key1 == movedNode->key1 && session->currentMap[session->openList[parentIndex]].key2 > movedNode->key2))) {
-			
-			//- printf("[test] openListRemove ---- moving it up lol\n");
 				
 			Node* parentNode;
 			while (parentIndex >= 0) {
@@ -317,10 +302,7 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 				
 				smallerChildNode = &session->currentMap[session->openList[smallerChildIndex]];
 				
-				//- printf("[test] openListRemove loop ---- openListIndex: %ld (%d %d || %lu %lu) ---- smallerChildNode: %ld (%d %d || %lu %lu)\n", movedNode->openListIndex, movedNode->x, movedNode->y, movedNode->key1, movedNode->key2, smallerChildNode->openListIndex, smallerChildNode->x, smallerChildNode->y, smallerChildNode->key1, smallerChildNode->key2);
-				
 				if (movedNode->key1 > smallerChildNode->key1 || (movedNode->key1 == smallerChildNode->key1 && movedNode->key2 > smallerChildNode->key2)) {
-					//- printf("It went down\n");
 					
 					// Changes the node adress of openList[movedNode->openListIndex] (which is 'movedNode') to that of openList[smallerChildIndex] (which is the current child of 'movedNode')
 					session->openList[movedNode->openListIndex] = smallerChildNode->nodeAdress;
@@ -338,9 +320,6 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 					rightChildIndex = 2 * movedNode->openListIndex + 2;
 					leftChildIndex = 2 * movedNode->openListIndex + 1;
 					
-					//- printf("[test] New Index (moved up) %ld is (%d %d) (%d %d) (proof %d %d)\n", smallerChildNode->openListIndex, smallerChildNode->x, smallerChildNode->y, smallerChildNode->key1, smallerChildNode->key2, session->currentMap[session->openList[smallerChildNode->openListIndex]].x, session->currentMap[session->openList[smallerChildNode->openListIndex]].y);
-					//- printf("[test] New Index (moved down) %ld is (%d %d) (%d %d) (proof %d %d || from %ld)\n", movedNode->openListIndex, movedNode->x, movedNode->y, movedNode->key1, movedNode->key2, session->currentMap[session->openList[movedNode->openListIndex]].x, session->currentMap[session->openList[movedNode->openListIndex]].y, smallerChildIndex);
-					
 				} else {
 					break;
 				}
@@ -352,16 +331,12 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 		int result;
 		result = recheck_all_nodes_in_binary_heap(session);
 		if (result == 0) {
-			printf("Something horrible happened and now openList is all fucked up during remove node\n");
+			printf("[Pathfinding error] OpenList integrity check failed after function openListRemove.\n");
 		}
 	}
 	
 	if (DEBUG) {
-		int result;
-		result = recheck_openList_removed(session, currentNode);
-		if (result == 0) {
-			printf("Something horrible happened, we tried to remove a node and it still is in openlist\n");
-		}
+		recheck_openList_removed(session, currentNode);
 	}
 }
 
@@ -435,10 +410,7 @@ reajustOpenListItem (CalcPath_session *session, Node* currentNode, unsigned long
 			
 			smallerChildNode = &session->currentMap[session->openList[smallerChildIndex]];
 			
-			//- printf("[test] openListRemove loop ---- openListIndex: %ld (%d %d || %d %d) ---- smallerChildNode: %ld (%d %d || %d %d)\n", currentNode->openListIndex, currentNode->x, currentNode->y, currentNode->key1, currentNode->key2, smallerChildNode->openListIndex, smallerChildNode->x, smallerChildNode->y, smallerChildNode->key1, smallerChildNode->key2);
-			
 			if (currentNode->key1 > smallerChildNode->key1 || (currentNode->key1 == smallerChildNode->key1 && currentNode->key2 > smallerChildNode->key2)) {
-				//- printf("It went down\n");
 				
 				// Changes the node adress of openList[currentNode->openListIndex] (which is 'currentNode') to that of openList[smallerChildIndex] (which is the current child of 'currentNode')
 				session->openList[currentNode->openListIndex] = smallerChildNode->nodeAdress;
@@ -456,9 +428,6 @@ reajustOpenListItem (CalcPath_session *session, Node* currentNode, unsigned long
 				rightChildIndex = 2 * currentNode->openListIndex + 2;
 				leftChildIndex = 2 * currentNode->openListIndex + 1;
 				
-				//- printf("[test] New Index (moved up) %ld is (%d %d) (%d %d) (proof %d %d)\n", smallerChildNode->openListIndex, smallerChildNode->x, smallerChildNode->y, smallerChildNode->key1, smallerChildNode->key2, session->currentMap[session->openList[smallerChildNode->openListIndex]].x, session->currentMap[session->openList[smallerChildNode->openListIndex]].y);
-				//- printf("[test] New Index (moved down) %ld is (%d %d) (%d %d) (proof %d %d || from %ld)\n", currentNode->openListIndex, currentNode->x, currentNode->y, currentNode->key1, currentNode->key2, session->currentMap[session->openList[currentNode->openListIndex]].x, session->currentMap[session->openList[currentNode->openListIndex]].y, smallerChildIndex);
-				
 			} else {
 				break;
 			}
@@ -468,7 +437,7 @@ reajustOpenListItem (CalcPath_session *session, Node* currentNode, unsigned long
 			int result;
 			result = recheck_all_nodes_in_binary_heap(session);
 			if (result == 0) {
-				printf("Something horrible happened and now openList is all fucked up during readjustnode\n");
+				printf("[Pathfinding error] OpenList integrity check failed after function reajustOpenListItem.\n");
 			}
 		}
 }
@@ -504,24 +473,12 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
 	Node* currentNode = start;
 	
-	
-	//- printf("[test] pathstep 05 (reconstruct start)\n");
-	
-	//- printf("[test] Path from %d %d to %d %d\n", session->startX, session->startY, session->endX, session->endY);
-	
 	session->solution_size = 0;
 	while (currentNode->nodeAdress != goal->nodeAdress)
     {
-		//- printf("[test] pathstep 05.1 || size: %d || node %d %d || sucessor %d %d\n", session->solution_size, currentNode->x, currentNode->y, session->currentMap[currentNode->sucessor].x, session->currentMap[currentNode->sucessor].y);
         currentNode = &session->currentMap[currentNode->sucessor];
 		session->solution_size++;
-		if (session->solution_size >= 50) {
-			//- printf("[test] bugged apparently in reconstruct\n");
-			break;
-		}
     }
-	
-	//- printf("[test] pathstep 06\n");
 }
 
 void 
@@ -559,41 +516,26 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 int 
 CalcPath_pathStep (CalcPath_session *session)
 {
-	
-	//- printf("[test] pathstep 00-3\n");
 	if (!session->initialized) {
 		return -2;
 	}
-	//- printf("[test] pathstep 00-4\n");
-	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
-	//- printf("[test] pathstep 00-5\n");
-	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
 	
-	//- printf("[test] pathstep 00-6\n");
+	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
+	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
 	
 	unsigned long* keys;
 	
 	if (!session->run) {
-	
-		//- printf("[test] pathstep 00-7\n");
-		
 		session->run = 1;
 		session->openListSize = 0;
-		//- printf("[test] pathstep 00-8\n");
 		session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
-		//- printf("[test] pathstep 00-9\n");
 
 		keys = calcKey(goal, session->startX, session->startY, session->avoidWalls, session->k);
 		
-		//- printf("[test] pathstep 00-10\n");
 		goal->key1 = keys[0];
 		goal->key2 = keys[1];
-		//- printf("[test] pathstep 00-11\n");
 		openListAdd (session, goal);
-		//- printf("[test] pathstep 00-12\n");
 	}
-	
-	//- printf("[test] pathstep 01\n");
 	
 	Node* currentNode;
 	Node* neighborNode;
@@ -609,12 +551,9 @@ CalcPath_pathStep (CalcPath_session *session)
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
 	
-	//- printf("[test] pathstep 02\n");
-	
 	keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
 	start->key1 = keys[0];
 	start->key2 = keys[1];
-	//- printf("[test] pathstep 03\n");
 	
 	
     while (1) {
@@ -628,30 +567,20 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
 		
-		
-		//- printf("Before loop %d startNode   => %d %d || g: %lu || rhs: %lu || key1: %lu || key2: %lu || new-key1: %lu || new-key2: %lu || km: %d\n", (loop+1), start->x, start->y, start->g, start->rhs, start->key1, start->key2, keys[0], keys[1], session->k);
-		
 		start->key1 = keys[0];
 		start->key2 = keys[1];
 		
 		keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
-		
-		//- printf("Before loop %d currentNode => %d %d || g: %lu || rhs: %lu || key1: %lu || key2: %lu || new-key1: %lu || new-key2: %lu || h: %d\n", (loop+1), currentNode->x, currentNode->y, currentNode->g, currentNode->rhs, currentNode->key1, currentNode->key2, keys[0], keys[1], heuristic_cost_estimate(currentNode->x, currentNode->y, start->x, start->y, 1));
 
 		// Path found
 		if (!((start->key1 > currentNode->key1 || (start->key1 == currentNode->key1 && start->key2 > currentNode->key2)) || start->rhs > start->g)) {
-			//- printf("[test] pathstep found\n");
-	
 			reconstruct_path(session, goal, start);
-			
-			//- printf("[test] after reconstruct\n");
 			return 1;
 		}
 		
 		// Timer count
 		loop++;
-		//- printf("[test] pathstep 04 - loop %d\n", loop);
-		if (loop == 1000) {
+		if (loop == 100) {
 			if (GetTickCount() - timeout > session->time_max) {
 				return 0;
 			} else
@@ -659,12 +588,10 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
 		if (keys[0] > currentNode->key1 || (keys[0] == currentNode->key1 && keys[1] > currentNode->key2)) {
-			//- printf("- Node key is bigger than it should be, reajusting\n");
 			// Node should be lower in priority queue than it is now, downgrade it
 			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
 			
 		} else if (currentNode->g > currentNode->rhs) {
-			//- printf("- Node is overconsistent, expanding\n");
 			// Node is overconsistent, expand it and remove it from piority queue
 			currentNode->g = currentNode->rhs;
 			openListRemove(session, currentNode);
@@ -679,8 +606,6 @@ CalcPath_pathStep (CalcPath_session *session)
 					}
 					neighbor_x = currentNode->x + i;
 					neighbor_y = currentNode->y + j;
-					
-					//- printf("-- changing neighbor %d %d\n", neighbor_x, neighbor_y);
 
 					if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
 						continue;
@@ -722,7 +647,6 @@ CalcPath_pathStep (CalcPath_session *session)
 			
 			
 		} else {
-			//- printf("- Node is underconsistent\n");
 			// Node is underconsistent, recalculate all the rhs values and sucessors of all cells that have this Node set as their sucessor
 			currentNode->g = 10000000;
 			updateNode(session, currentNode);
@@ -737,8 +661,6 @@ CalcPath_pathStep (CalcPath_session *session)
 					}
 					neighbor_x = currentNode->x + i;
 					neighbor_y = currentNode->y + j;
-					
-					//- printf("-- changing neighbor %d %d\n", neighbor_x, neighbor_y);
 
 					if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
 						continue;
@@ -758,26 +680,12 @@ CalcPath_pathStep (CalcPath_session *session)
 					
 					// Check if neighbor's sucessor is current Node, if so get a new sucessor for the neighbot node
 					if (neighborNode->sucessor == currentNode->nodeAdress) {
-						//- printf("--- Sucessor of neighbor %d %d was currentNode %d %d\n", neighbor_x, neighbor_y, currentNode->x, currentNode->y);
 						get_new_neighbor_sucessor(session, neighborNode);
-						//- printf("---- New Sucessor of neighbor %d %d is %d %d\n", neighbor_x, neighbor_y, session->currentMap[neighborNode->sucessor].x, session->currentMap[neighborNode->sucessor].y);
 					}
 				}
 			}
 		}
-		//- printf("After loop %d currentNode => %d %d || g: %lu || rhs: %lu || key1: %lu || key2: %lu\n", loop, currentNode->x, currentNode->y, currentNode->g, currentNode->rhs, currentNode->key1, currentNode->key2);
-		if (DEBUG) {
-			int result;
-			result = recheck_all_nodes_in_binary_heap(session);
-			if (result == 0) {
-				printf("Something horrible happened and now openList is all fucked up during calculate shorthest\n");
-				return 0;
-			}
-		}
-		//- printf("\n");
 	}
-	
-	//- printf("[test] pathstep 04 - end\n");
 }
 
 // Get the neighbor with the least distance + weight and set it as the new sucessor
@@ -796,8 +704,6 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 	unsigned long neighbor_adress;
 	unsigned long distanceFromCurrent;
 	
-	//- printf("---- get_new_neighbor_sucessor for node %d %d\n", currentNode->x, currentNode->y);
-	
 	
 	// Get all neighbors
 	for (i = -1; i <= 1; i++)
@@ -808,8 +714,6 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 			}
 			neighbor_x = currentNode->x + i;
 			neighbor_y = currentNode->y + j;
-			
-			//- printf("----- changing neighbor %d %d\n", neighbor_x, neighbor_y);
 				
 			if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
 				continue;
@@ -842,14 +746,11 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 			
 			// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
 			if (currentNode->rhs > neighborNode->g + distanceFromCurrent) {
-				//- printf("------ Sucessor of node %d %d changed to %d %d (g: %lu || rhs: %lu || key1 %lu || key2: %lu) from %d %d (g: %lu || rhs: %lu || key1 %lu || key2: %lu)\n", currentNode->x, currentNode->y, neighborNode->x, neighborNode->y, neighborNode->g, neighborNode->rhs, neighborNode->key1, neighborNode->key2, session->currentMap[currentNode->sucessor].x, session->currentMap[currentNode->sucessor].y, session->currentMap[currentNode->sucessor].g, session->currentMap[currentNode->sucessor].rhs, session->currentMap[currentNode->sucessor].key1, session->currentMap[currentNode->sucessor].key2);
 				currentNode->rhs = neighborNode->g + distanceFromCurrent;
 				currentNode->sucessor = neighbor_adress;
 			}
 		}
 	}
-	
-	//- printf(" - - - - - Node %d %d was used in get_new_neighbor_sucessor (before rhs: %lu || after rhs: %lu || before g: %lu || after g: %lu || weight: %lu)\n", currentNode->x, currentNode->y, initial_rhs, currentNode->rhs, initial_g, currentNode->g, currentNode->weight);
 	
 	updateNode(session, currentNode);
 }
@@ -879,12 +780,7 @@ CalcPath_init (CalcPath_session *session, unsigned char *map)
 		}
 	}
 	
-	//- printf("\n\nInitialized 1 goal node %d %d (g: %lu || rhs: %lu)\n\n\n", session->currentMap[(session->endY * session->width) + session->endX].x, session->currentMap[(session->endY * session->width) + session->endX].y, session->currentMap[(session->endY * session->width) + session->endX].g, session->currentMap[(session->endY * session->width) + session->endX].rhs);
-	
 	session->currentMap[(session->endY * session->width) + session->endX].rhs = 0;
-	
-	//- printf("\n\nInitialized 2 goal node %d %d (g: %lu || rhs: %lu)\n\n\n", session->currentMap[(session->endY * session->width) + session->endX].x, session->currentMap[(session->endY * session->width) + session->endX].y, session->currentMap[(session->endY * session->width) + session->endX].g, session->currentMap[(session->endY * session->width) + session->endX].rhs);
-	
 	
 	session->k = 0;
 	session->initialized = 1;
@@ -906,11 +802,9 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	
 	if (DEBUG) {
 		if (new_weight <= 0) {
-			printf("[HUGE BUG HERE 3] update map %d %d || from %ld to %ld || delta_weight %ld\n", x, y, old_weight, new_weight, delta_weight);
+			printf("[Pathfinding error] Map node set to have negative weight on updateChangedMap (%d %d || from %ld to %ld || delta_weight %ld).\n", x, y, old_weight, new_weight, delta_weight);
 		}
 	}
-	
-	//- printf("update map %d %d || from %ld to %ld || delta_weight %ld\n", x, y, old_weight, new_weight, delta_weight);
 	
 	currentNode->weight = new_weight;
 	
@@ -922,7 +816,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	//TODO: should we change rhs and g values?
 	currentNode->rhs = currentNode->rhs + delta_weight;
 	currentNode->g = currentNode->g + delta_weight;
-	//currentNode->g = 10000000;//extra crazy
 	
 	Node* neighborNode;
 	
@@ -936,7 +829,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	
 	// If cell got ligher it may have new sucessors
 	if (old_weight > new_weight) {
-		//- printf("- Got lighter\n");
 		// Get all neighbors
 		for (i = -1; i <= 1; i++)
 		{
@@ -951,8 +843,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 				if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
 					continue;
 				}
-				
-				//- printf("-- changing neighbor %d %d\n", neighbor_x, neighbor_y);
 	
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
@@ -981,7 +871,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 				
 				// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
 				if (neighborNode->rhs > (currentNode->g + distanceFromCurrent)) {
-					//- printf("[3] New sucessor of node %d %d is => node %d %d\n", neighborNode->x, neighborNode->y, currentNode->x, currentNode->y);
 					neighborNode->sucessor = currentNode->nodeAdress;
 					neighborNode->rhs = currentNode->g + distanceFromCurrent;
 					updateNode(session, neighborNode);
@@ -993,7 +882,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	
 	// If cell got heavier it may have lost some sucessors
 	} else {
-		//- printf("- Got heavier\n");
 		// Get all neighbors
 		for (i = -1; i <= 1; i++)
 		{
@@ -1004,8 +892,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 				}
 				neighbor_x = x + i;
 				neighbor_y = y + j;
-				
-				//- printf("-- changing neighbor %d %d\n", neighbor_x, neighbor_y);
 
 				if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
 					continue;
@@ -1031,9 +917,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 				
 				// Check if neighbor's sucessor is current Node, if so get a new sucessor for the neighbor node
 				if (neighborNode->sucessor == currentNode->nodeAdress) {
-					//- printf("--- Sucessor of neighbor %d %d was currentNode %d %d\n", neighbor_x, neighbor_y, currentNode->x, currentNode->y);
 					get_new_neighbor_sucessor(session, neighborNode);
-					//- printf("---- New Sucessor of neighbor %d %d is %d %d\n", neighbor_x, neighbor_y, session->currentMap[neighborNode->sucessor].x, session->currentMap[neighborNode->sucessor].y);
 				}
 			}
 		}
@@ -1043,7 +927,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 		int result;
 		result = recheck_all_nodes_in_binary_heap(session);
 		if (result == 0) {
-			printf("Something horrible happened and now openList is all fucked up during update map\n");
+			printf("[Pathfinding error] OpenList integrity check failed after function updateChangedMap.\n");
 		}
 	}
 	

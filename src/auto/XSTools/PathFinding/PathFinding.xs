@@ -295,7 +295,6 @@ PathFinding_run(session, solution_array)
 	PREINIT:
 		int status;
 	CODE:
-		//- printf("[test] pathstep 00-000\n");
 		
 		/* Check for any missing arguments */
 		if (!session || !solution_array) {

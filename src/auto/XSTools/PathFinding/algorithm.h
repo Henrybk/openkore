@@ -41,7 +41,7 @@ typedef struct {
 	int initialized;
 	int run;
 	
-	unsigned long openListSize;
+	long openListSize;
 	
 	unsigned int k;
 	
