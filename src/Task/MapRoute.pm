@@ -160,12 +160,8 @@ sub iterate {
 		shift @{$self->{mapSolution}};
 
 	} elsif ( $self->{mapSolution}[0]{steps} ) {
-		my $dist = $self->{mapSolution}[0]{dist} || 5;
+		my $dist = $self->{mapSolution}[0]{dist} || 10;
 
-		print "[MapRoute] dist: ".$dist." - actor pos_to: ".$self->{actor}{pos_to}{x}." ".$self->{actor}{pos_to}{y}." - mapSolution pos: ".$self->{mapSolution}[0]{pos}{x}." ".$self->{mapSolution}[0]{pos}{y}."\n";
-		print "[MapRoute] actual distance: ".distance($self->{actor}{pos_to}, $self->{mapSolution}[0]{pos})."\n";
-		print "[MapRoute] steps: ".$self->{mapSolution}[0]{steps}."\n";
-		
 		# If current solution has conversation steps specified
 		if ( $self->{substage} eq 'Waiting for Warp' ) {
 			$self->{timeout} = time unless $self->{timeout};
@@ -196,65 +192,48 @@ sub iterate {
 					$self->initMapCalculator();	# redo MAP router
 				}
 			}
-		} else {
 
-			my $found = 0;
-			foreach my $actor (@{$npcsList->getItems()}) {
-				my $pos = $actor->{pos};
-				next if ($actor->{statuses}->{EFFECTSTATE_BURROW});
-				print "[looking for actor] $actor ".$pos->{x}." ".$pos->{y}.".\n";
-				if ($pos->{x} == $self->{mapSolution}[0]{pos}{x} && $pos->{y} == $self->{mapSolution}[0]{pos}{y}) {
-					if (defined $actor->{name}) {
-						print "[looking for actor] got name.\n";
-						$found = 1;
-						last;
-					}
-					print "[looking for actor] after check.\n";
-				}
-			}
-			
-			if ($found) {
-				my ($from,$to) = split /=/, $self->{mapSolution}[0]{portal};
-				if (($self->{actor}{zeny} >= $portals_lut{$from}{dest}{$to}{cost}) || ($char->inventory->getByNameID(7060) && $portals_lut{$from}{dest}{$to}{allow_ticket})) {
-					# We have enough money for this service.
-					$self->setNpcTalk();
-					
-				} else {
-					error TF("You need %sz to pay for warp service at %s (%s,%s), you have %sz.\n",
-						$portals_lut{$from}{dest}{$to}{cost},
-						$field->baseName, $self->{mapSolution}[0]{pos}{x}, $self->{mapSolution}[0]{pos}{y},
-						$self->{actor}{zeny}), "route";
-						AI::clear(qw/move route mapRoute/);
-						message T("Stopped all movement\n"), "success";
-					$self->initMapCalculator();	# redo MAP router
-				}
-
-			} elsif ( $self->{maxTime} && time - $self->{time_start} > $self->{maxTime} ) {
-				# We spent too long a time.
-				debug "MapRoute - We spent too much time; bailing out.\n", "route";
-				$self->setError(TOO_MUCH_TIME, "Too much time spent on route traversal.");
-
-			} elsif ( Task::Route->getRoute(\@solution, $field, $self->{actor}{pos_to}, $self->{mapSolution}[0]{pos}) ) {
-				# NPC is reachable from current position
-				# >> Then "route" to it
-				debug "Walking towards the NPC, dist $dist\n", "route";
-				my $task = new Task::Route(
-					actor => $self->{actor},
-					x => $self->{mapSolution}[0]{pos}{x},
-					y => $self->{mapSolution}[0]{pos}{y},
-					maxTime => $self->{maxTime},
-					distFromGoal => $dist,
-					avoidWalls => $self->{avoidWalls},
-					solution => \@solution
-				);
-				$self->setSubtask($task);
-
+		} elsif (distance($self->{actor}{pos_to}, $self->{mapSolution}[0]{pos}) <= $dist) {
+			my ($from,$to) = split /=/, $self->{mapSolution}[0]{portal};
+			if (($self->{actor}{zeny} >= $portals_lut{$from}{dest}{$to}{cost}) || ($char->inventory->getByNameID(7060) && $portals_lut{$from}{dest}{$to}{allow_ticket})) {
+				# We have enough money for this service.
+				$self->setNpcTalk();
+				
 			} else {
-				# Error, NPC is not reachable from current pos
-				debug "CRITICAL ERROR: NPC is not reachable from current location.\n", "route";
-				error TF("Unable to walk from %s (%s,%s) to NPC at (%s,%s).\n", $field->baseName, @{$self->{actor}{pos_to}}{qw(x y)}, $self->{mapSolution}[0]{pos}{x}, $self->{mapSolution}[0]{pos}{y}), "route";
-				shift @{$self->{mapSolution}};
+				error TF("You need %sz to pay for warp service at %s (%s,%s), you have %sz.\n",
+					$portals_lut{$from}{dest}{$to}{cost},
+					$field->baseName, $self->{mapSolution}[0]{pos}{x}, $self->{mapSolution}[0]{pos}{y},
+					$self->{actor}{zeny}), "route";
+					AI::clear(qw/move route mapRoute/);
+					message T("Stopped all movement\n"), "success";
+				$self->initMapCalculator();	# redo MAP router
 			}
+
+		} elsif ( $self->{maxTime} && time - $self->{time_start} > $self->{maxTime} ) {
+			# We spent too long a time.
+			debug "MapRoute - We spent too much time; bailing out.\n", "route";
+			$self->setError(TOO_MUCH_TIME, "Too much time spent on route traversal.");
+
+		} elsif ( Task::Route->getRoute(\@solution, $field, $self->{actor}{pos_to}, $self->{mapSolution}[0]{pos}) ) {
+			# NPC is reachable from current position
+			# >> Then "route" to it
+			debug "Walking towards the NPC, dist $dist\n", "route";
+			my $task = new Task::Route(
+				actor => $self->{actor},
+				x => $self->{mapSolution}[0]{pos}{x},
+				y => $self->{mapSolution}[0]{pos}{y},
+				maxTime => $self->{maxTime},
+				distFromGoal => $dist,
+				avoidWalls => $self->{avoidWalls},
+				solution => \@solution
+			);
+			$self->setSubtask($task);
+
+		} else {
+			# Error, NPC is not reachable from current pos
+			debug "CRITICAL ERROR: NPC is not reachable from current location.\n", "route";
+			error TF("Unable to walk from %s (%s,%s) to NPC at (%s,%s).\n", $field->baseName, @{$self->{actor}{pos_to}}{qw(x y)}, $self->{mapSolution}[0]{pos}{x}, $self->{mapSolution}[0]{pos}{y}), "route";
+			shift @{$self->{mapSolution}};
 		}
 
 	} elsif ( $self->{mapSolution}[0]{portal} eq "$self->{mapSolution}[0]{map} $self->{mapSolution}[0]{pos}{x} $self->{mapSolution}[0]{pos}{y}=$self->{mapSolution}[0]{map} $self->{mapSolution}[0]{pos}{x} $self->{mapSolution}[0]{pos}{y}" ) {
