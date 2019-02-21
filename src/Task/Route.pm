@@ -415,8 +415,6 @@ sub recalculateRoute {
 	my ($class, $unresolvedChanges, $solution, $field, $start, $dest, $avoidWalls) = @_;
 	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
 
-	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
-
 	# The exact destination may not be a spot that we can walk on.
 	# So we find a nearby spot that is walkable.
 	my %start = %{$start};
