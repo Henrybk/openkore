@@ -937,14 +937,12 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 void
 free_currentMap (CalcPath_session *session)
 {
-	printf("[Free to wrong pool investigation] free session currentMap new XS to C\n");
 	free(session->currentMap);
 }
 
 void
 free_openList (CalcPath_session *session)
 {
-	printf("[Free to wrong pool investigation] free session openList new XS to C\n");
 	free(session->openList);
 }
 
@@ -952,16 +950,12 @@ void
 CalcPath_destroy (CalcPath_session *session)
 {
 	if (session->initialized) {
-		printf("[Free to wrong pool investigation] free session currentMap C\n");
 		free(session->currentMap);
 	}
 	
 	if (session->run) {
-		printf("[Free to wrong pool investigation] free session openList C\n");
 		free(session->openList);
 	}
-
-	printf("[Free to wrong pool investigation] free true session C\n");
 	free(session);
 }
 
