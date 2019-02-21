@@ -118,7 +118,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		CalcPath_init (session, weight_map_data);
 
 
-void
+int
 PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_array)
 		PathFinding session
 		SV * new_start_x
@@ -126,6 +126,11 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 		SV *weight_changes_array
 		
 	CODE:
+		if (!session->initialized) {
+			printf("[pathfinding update_solution error] cannot call update_solution before calling reset\n");
+			XSRETURN_NO;
+		}
+		
 		/* Check for any missing arguments */
 		if (!session || !new_start_x || !new_start_y || !weight_changes_array) {
 			printf("[pathfinding update_solution error] missing argument\n");
@@ -286,6 +291,9 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 			
 			updateChangedMap(session, x, y, weight);
 		}
+		RETVAL = 1;
+	OUTPUT:
+		RETVAL
 
 
 int
@@ -335,19 +343,24 @@ PathFinding_run(session, solution_array)
 			av_extend (array, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
+			
+			Node sucessor;
 
 			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
+				sucessor = session->currentMap[currentNode.sucessor];
+				
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
-				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
+				hv_store(rh, "x", 1, newSViv(sucessor.x), 0);
 
-				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
+				hv_store(rh, "y", 1, newSViv(sucessor.y), 0);
 				
 				av_push(array, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[currentNode.sucessor];
+				currentNode = sucessor;
 			}
+			
 			RETVAL = size;
 
 		} else {
@@ -373,20 +386,24 @@ PathFinding_runref(session)
 			av_extend(results, session->solution_size);
 			
 			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
+			
+			Node sucessor;
 
 			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
+				sucessor = session->currentMap[currentNode.sucessor];
+				
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
-				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
+				hv_store(rh, "x", 1, newSViv(sucessor.x), 0);
 
-				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
+				hv_store(rh, "y", 1, newSViv(sucessor.y), 0);
 				
 				av_unshift(results, 1);
 
 				av_store(results, 0, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[currentNode.sucessor];
+				currentNode = sucessor;
 			}
 			
 			RETVAL = newRV((SV *)results);

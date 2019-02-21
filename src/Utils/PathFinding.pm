@@ -118,6 +118,12 @@ sub reset {
 	);
 }
 
+##
+# $PathFinding->update_solution(start_x, start_y, changes_array)
+# start_x: New x coordinate of star location after changes
+# start_y: New y coordinate of star location after changes
+# changes_array: An array of hashes containing 3 keys, 'x', 'y' and 'weight', for all the cells which had their weight changed, 'weight' is the delta weight of the cell so it can be negative or positive.
+# Returns: 0 on failure, 1 on sucess
 
 ##
 # $PathFinding->run(solution_array)

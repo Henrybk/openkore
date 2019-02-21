@@ -11,7 +11,7 @@ use Log qw(message debug error warning);
 Plugins::register('DStarLiteAvoid', 'enables smart pathing', \&onUnload);
 
 my $hooks = Plugins::addHooks(
-	['getRouteInternal_post', \&on_getRouteInternal_post, undef],
+	['getRoute_post', \&on_getRoute_post, undef],
 	['packet_mapChange',      \&on_packet_mapChange, undef],
 );
 
@@ -36,7 +36,7 @@ my %nameID_obstacles = (
 
 my %player_name_obstacles = (
 #	'henry safado' => [1000, 1000],
-#	'henry safado' => [1000, 1000, 1000, 1000],
+	'henry safado' => [1000, 1000, 1000, 1000],
 );
 
 my %obstaclesList;
@@ -287,10 +287,10 @@ sub sum_all_changes {
 	return \@rebuilt_array;
 }
 
-sub on_getRouteInternal_post {
+sub on_getRoute_post {
 	my (undef, $args) = @_;
 	
-	return unless (keys(%obstaclesList) > 0); 
+	return unless (keys(%obstaclesList) > 0);
 	
 	return if ($args->{field}->baseName ne $field->baseName);
 	

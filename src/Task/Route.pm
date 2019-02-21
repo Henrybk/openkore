@@ -19,7 +19,7 @@ package Task::Route;
 
 use strict;
 use Time::HiRes qw(time);
-use Scalar::Util;
+use Scalar::Util qw(blessed);
 use Carp::Assert;
 use Utils::Assert;
 
@@ -101,7 +101,7 @@ sub new {
 	} else {$self->{avoidWalls} = 0;}
 	$self->{solution} = [];
 	$self->{stage} = '';
-	$self->{pathfinding} = new PathFinding;
+	$self->{pathfinding} = undef;
 	$self->{unresolvedChanges} = [];
 
 	# Watch for map change events. Pass a weak reference to ourselves in order
@@ -167,7 +167,8 @@ sub iterate {
 	} elsif ($self->{stage} eq '') {
 		my $pos = calcPosition($self->{actor});
 		my $begin = time;
-		if ($self->getRouteInternal($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+		$self->{pathfinding} = new PathFinding;
+		if ($self->getRoute($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
 			$self->{stage} = 'Route Solution Ready';
 			debug "Route $self->{actor} Solution Ready!\n", "route";
 
@@ -383,7 +384,6 @@ sub iterate {
 
 sub addChanges {
 	my ($class, $newChanges) = @_;
-	
 	push(@{$class->{unresolvedChanges}}, @{$newChanges});
 }
 
@@ -424,7 +424,17 @@ sub recalculateRoute {
 
 	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
 
-	$class->{pathfinding}->update_solution($start{x}, $start{y}, $unresolvedChanges);
+	my $return;
+	$return = $class->{pathfinding}->update_solution(
+		$start{x},
+		$start{y},
+		$unresolvedChanges
+	);
+	
+	if ($return != 1) {
+		debug "Route $self->{actor} - Failed to update map weights.\n";
+		return 0;
+	}
 
 	my $ret;
 	$ret = $class->{pathfinding}->run($solution);
@@ -457,7 +467,13 @@ sub getRoute {
 		return 1;
 	}
 	
-	my $pathfinding = new PathFinding;
+	my $pathfinding;
+	
+	if (blessed($class) && defined $class->{pathfinding}) {
+		$pathfinding = $class->{pathfinding};
+	} else {
+		$pathfinding = new PathFinding;
+	}
 
 	# The exact destination may not be a spot that we can walk on.
 	# So we find a nearby spot that is walkable.
@@ -475,63 +491,13 @@ sub getRoute {
 	);
 	return undef if (!$pathfinding);
 
+	Plugins::callHook("getRoute_post", { pathfinding => $pathfinding, field => $field, start => $start, dest => $dest });
+
 	my $ret;
 	if ($solution) {
 		$ret = $pathfinding->run($solution);
 	} else {
 		$ret = $pathfinding->runcount();
-	}
-	return $ret > 0;
-}
-
-##
-# boolean Task::Route->getRoute(Array* solution, Field field, Hash* start, Hash* dest, [boolean avoidWalls = true])
-# $solution: The route solution will be stored in here.
-# field: the field on which a route must be calculated.
-# start: The is the start coordinate.
-# dest: The destination coordinate.
-# noAvoidWalls: 1 if you don't want to avoid walls on route.
-# Returns: 1 if the calculation succeeded, 0 if not.
-#
-# Calculate how to walk from $start to $dest on field $field, or check whether there
-# is a path from $start to $dest on field $field.
-#
-# If $solution is given, then the blocks you have to walk on in order to get to $dest
-# are stored in there.
-#
-# This function is a convenience wrapper function for the stuff
-# in Utils/PathFinding.pm
-sub getRouteInternal {
-	my ($class, $solution, $field, $start, $dest, $avoidWalls) = @_;
-	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
-	if (!defined $dest->{x} || $dest->{y} eq '') {
-		@{$solution} = () if ($solution);
-		return 1;
-	}
-
-	# The exact destination may not be a spot that we can walk on.
-	# So we find a nearby spot that is walkable.
-	my %start = %{$start};
-	my %dest = %{$dest};
-	Misc::closestWalkableSpot($field, \%start);
-	Misc::closestWalkableSpot($field, \%dest);
-
-	# Calculate path
-	$class->{pathfinding}->reset(
-		start => \%start,
-		dest  => \%dest,
-		field => $field,
-		avoidWalls => $avoidWalls
-	);
-	return undef if (!$class->{pathfinding});
-
-	Plugins::callHook("getRouteInternal_post", { pathfinding => $class->{pathfinding}, field => $field, start => $start, dest => $dest });
-
-	my $ret;
-	if ($solution) {
-		$ret = $class->{pathfinding}->run($solution);
-	} else {
-		$ret = $class->{pathfinding}->runcount();
 	}
 	return $ret > 0;
 }
