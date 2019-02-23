@@ -77,7 +77,7 @@ void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
  
 CalcPath_session *CalcPath_init (CalcPath_session *session, unsigned char *map);
 
-void updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight);
+int updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight);
 
 void free_currentMap (CalcPath_session *session);
 

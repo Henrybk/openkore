@@ -789,7 +789,7 @@ CalcPath_init (CalcPath_session *session, unsigned char *map)
 }
 
 // Updates a block weight
-void
+int
 updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight)
 {
 	unsigned long current = (y * session->width) + x;
@@ -803,6 +803,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	if (DEBUG) {
 		if (new_weight <= 0) {
 			printf("[Pathfinding error] Map node set to have negative weight on updateChangedMap (%d %d || from %ld to %ld || delta_weight %ld).\n", x, y, old_weight, new_weight, delta_weight);
+			return 0;
 		}
 	}
 	
@@ -810,7 +811,7 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	
 	//TODO: should we do this trick no never updatade cells we haven't reached yet?
 	if (currentNode->rhs == 10000000 || (session->endX == currentNode->x && session->endY == currentNode->y)) {
-		return;
+		return 1;
 	}
 	
 	//TODO: should we change rhs and g values?
@@ -928,10 +929,12 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 		result = recheck_all_nodes_in_binary_heap(session);
 		if (result == 0) {
 			printf("[Pathfinding error] OpenList integrity check failed after function updateChangedMap.\n");
+			return 0;
 		}
 	}
 	
 	updateNode(session, currentNode);
+	return 1;
 }
 
 void

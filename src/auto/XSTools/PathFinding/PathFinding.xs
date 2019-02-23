@@ -165,12 +165,12 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 		}
 		
 		AV *deref_weight_changes_array;
-		I32 array_length;
+		I32 array_last_index;
 		
 		deref_weight_changes_array = (AV *) SvRV (weight_changes_array);
-		array_length = av_len (deref_weight_changes_array);
+		array_last_index = av_top_index (deref_weight_changes_array);
 		
-		if (array_length <= 0) {
+		if (array_last_index == -1) {
 			printf("[pathfinding update_solution error] weight_changes_array has no members\n");
 			XSRETURN_NO;
 		}
@@ -196,7 +196,10 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 		IV weight;
 		
 		I32 index;
-		for (index = 0; index <= array_length; index++) {
+		
+		int result;
+		
+		for (index = 0; index <= array_last_index; index++) {
 			
 			fetched = av_fetch (deref_weight_changes_array, index, 0);
 			
@@ -289,7 +292,12 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 			
 			weight = SvIV(*ref_weight);
 			
-			updateChangedMap(session, x, y, weight);
+			result = updateChangedMap(session, x, y, weight);
+			
+			if (!result) {
+				printf("[pathfinding update_solution error] updateChangedMap failed\n");
+				XSRETURN_NO;
+			}
 		}
 		RETVAL = 1;
 	OUTPUT:
@@ -328,7 +336,11 @@ PathFinding_run(session, solution_array)
 		
 		status = CalcPath_pathStep (session);
 		
-		if (status < 0) {
+		if (status == -2) {
+			printf("[pathfinding run error] You must call 'reset' before 'run'.\n");
+			RETVAL = -2;
+		
+		} else if (status == -1) {
 			RETVAL = -1;
 
 		} else if (status > 0) {
@@ -364,6 +376,7 @@ PathFinding_run(session, solution_array)
 			RETVAL = size;
 
 		} else {
+			printf("[pathfinding run error] Pathfinding ended before provided time.\n");
 			RETVAL = 0;
 		}
 	OUTPUT:

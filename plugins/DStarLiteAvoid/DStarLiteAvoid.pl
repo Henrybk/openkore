@@ -7,8 +7,13 @@ use Misc;
 use Plugins;
 use Utils;
 use Log qw(message debug error warning);
+use Data::Dumper;
 
-Plugins::register('DStarLiteAvoid', 'enables smart pathing', \&onUnload);
+Plugins::register('DStarLiteAvoid', 'Enables smart pathing using the dynamic aspect of D* Lite pathfinding', \&onUnload);
+
+use constant {
+	PLUGIN_NAME => 'DStarLiteAvoid'
+};
 
 my $hooks = Plugins::addHooks(
 	['getRoute_post', \&on_getRoute_post, undef],
@@ -16,9 +21,12 @@ my $hooks = Plugins::addHooks(
 );
 
 my $obstacle_hooks = Plugins::addHooks(
+	# Mobs
 	['add_monster_list', \&on_add_monster_list, undef],
 	['monster_disappeared', \&on_monster_disappeared, undef],
 	['monster_moved', \&on_monster_moved, undef],
+	
+	# Players
 	['add_player_list', \&on_add_player_list, undef],
 	['player_disappeared', \&on_player_disappeared, undef],
 	['player_moved', \&on_player_moved, undef],
@@ -35,7 +43,6 @@ my %nameID_obstacles = (
 );
 
 my %player_name_obstacles = (
-#	'henry safado' => [1000, 1000],
 	'henry safado' => [1000, 1000, 1000, 1000],
 );
 
@@ -45,154 +52,74 @@ sub on_packet_mapChange {
 	undef %obstaclesList;
 }
 
-sub on_add_player_list {
-	my (undef, $args) = @_;
-	my $actor = $args;
+###################################################
+######## Main obstacle management
+###################################################
+
+sub add_obstacle {
+	my ($actor, $weights) = @_;
 	
-	return unless (exists $player_name_obstacles{$actor->{name}});
+	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
-	my $obs_x = $actor->{pos}{x};
-	my $obs_y = $actor->{pos}{y};
+	my $changes = create_changes_array($actor->{pos}{x}, $actor->{pos}{y}, $weights);
 	
-	print "[test] Adding Player $actor on location ".$obs_x." ".$obs_y.".\n";
-	
-	my $player_name = $actor->{name};
-	
-	my @weights = @{$player_name_obstacles{$actor->{name}}};
-	
-	my $changes = create_changes_array($obs_x, $obs_y, \@weights);
-	
-	$obstaclesList{$actor->{binID}} = $changes;
+	$obstaclesList{$actor->{ID}} = $changes;
 	
 	add_changes_to_task($changes);
 }
 
-sub on_player_moved {
-	my (undef, $args) = @_;
-	my $actor = $args;
+sub move_obstacle {
+	my ($actor, $weights) = @_;
 	
-	return unless (exists $obstaclesList{$actor->{binID}});
+	warning "[".PLUGIN_NAME."] Moving obstacle $actor (from ".$actor->{pos}{x}." ".$actor->{pos}{y}." to ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.").\n";
 	
-	my $obs_x = $actor->{pos_to}{x};
-	my $obs_y = $actor->{pos_to}{y};
+	my $new_changes = create_changes_array($actor->{pos_to}{x}, $actor->{pos_to}{y}, $weights);
 	
-	my $player_name = $actor->{name};
+	my $old_changes = $obstaclesList{$actor->{ID}};
+	my @old_changes = @{$old_changes};
 	
-	print "[test] Updating Player $actor (from ".$actor->{pos}{x}." ".$actor->{pos}{y}." to ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.").\n";
-	
-	my $old_changes = $obstaclesList{$actor->{binID}};
-	delete $obstaclesList{$actor->{binID}};
-	
-	$old_changes = revert_changes($old_changes);
-	
-	my @weights = @{$player_name_obstacles{$actor->{name}}};
-	
-	my $new_changes = create_changes_array($obs_x, $obs_y, \@weights);
-	
-	$obstaclesList{$actor->{binID}} = $new_changes;
+	$old_changes = revert_changes(\@old_changes);
 	
 	my @changes_pack = ($old_changes, $new_changes);
-	
 	my $final_changes = merge_changes(\@changes_pack);
+	
+	$obstaclesList{$actor->{ID}} = $new_changes;
 	
 	add_changes_to_task($final_changes);
 }
 
-sub on_player_disappeared {
-	my (undef, $args) = @_;
-	my $actor = $args->{player};
+sub remove_obstacle {
+	my ($actor) = @_;
 	
-	return unless (exists $obstaclesList{$actor->{binID}});
+	warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
-	print "[test] Removing Player $actor.\n";
+	my $changes = $obstaclesList{$actor->{ID}};
 	
-	my $changes = $obstaclesList{$actor->{binID}};
-	
-	delete $obstaclesList{$actor->{binID}};
+	delete $obstaclesList{$actor->{ID}};
 	
 	$changes = revert_changes($changes);
 	
 	add_changes_to_task($changes);
 }
 
-sub on_add_monster_list {
-	my (undef, $args) = @_;
-	my $actor = $args;
-	
-	return unless (exists $nameID_obstacles{$actor->{nameID}});
-	
-	my $obs_x = $actor->{pos}{x};
-	my $obs_y = $actor->{pos}{y};
-	
-	print "[test] Adding Monster $actor on location ".$obs_x." ".$obs_y.".\n";
-	
-	my $mob_id = $actor->{nameID};
-	
-	my @weights = @{$nameID_obstacles{$mob_id}};
-	
-	my $changes = create_changes_array($obs_x, $obs_y, \@weights);
-	
-	$obstaclesList{$actor->{binID}} = $changes;
-	
-	add_changes_to_task($changes);
-}
-
-sub on_monster_moved {
-	my (undef, $args) = @_;
-	my $actor = $args;
-
-	return unless (exists $obstaclesList{$actor->{binID}});
-	
-	my $obs_x = $actor->{pos_to}{x};
-	my $obs_y = $actor->{pos_to}{y};
-	
-	my $mob_id = $actor->{nameID};
-	
-	print "[test] Updating Monster $actor (from ".$actor->{pos}{x}." ".$actor->{pos}{y}." to ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.").\n";
-	
-	my $old_changes = $obstaclesList{$actor->{binID}};
-	delete $obstaclesList{$actor->{binID}};
-	
-	$old_changes = revert_changes($old_changes);
-	
-	my @weights = @{$nameID_obstacles{$mob_id}};
-	
-	my $new_changes = create_changes_array($obs_x, $obs_y, \@weights);
-	
-	$obstaclesList{$actor->{binID}} = $new_changes;
-	
-	my @changes_pack = ($old_changes, $new_changes);
-	
-	my $final_changes = merge_changes(\@changes_pack);
-	
-	add_changes_to_task($final_changes);
-}
-
-sub on_monster_disappeared {
-	my (undef, $args) = @_;
-	my $actor = $args->{monster};
-	
-	return unless (exists $obstaclesList{$actor->{binID}});
-	
-	print "[test] Removing Monster $actor.\n";
-	
-	my $changes = $obstaclesList{$actor->{binID}};
-	
-	delete $obstaclesList{$actor->{binID}};
-	
-	$changes = revert_changes($changes);
-	
-	add_changes_to_task($changes);
-}
+###################################################
+######## Tecnical subs
+###################################################
 
 sub revert_changes {
 	my ($changes) = @_;
 	
-	foreach my $cell (@{$changes}) {
-		$cell->{weight} *= -1;
+	my @changes = @{$changes};
+	
+	my @changed_array;
+	
+	foreach my $cell (@changes) {
+		my %cell = %{$cell};
+		$cell{weight} *= -1;
+		push(@changed_array, \%cell);
 	}
 	
-	return $changes;
+	return \@changed_array;
 }
 
 sub add_changes_to_task {
@@ -290,15 +217,89 @@ sub sum_all_changes {
 sub on_getRoute_post {
 	my (undef, $args) = @_;
 	
-	return unless (keys(%obstaclesList) > 0);
+	my @obstacles = keys(%obstaclesList);
+	
+	warning "[".PLUGIN_NAME."] on_getRoute_post before check, there are ".@obstacles." obstacles.\n";
+	
+	return unless (@obstacles > 0);
 	
 	return if ($args->{field}->baseName ne $field->baseName);
 	
 	my $changes = sum_all_changes();
 	
-	print "[test DstarLiteAvoid] adding changes on on_getRouteInternal_post.\n";
+	warning "[".PLUGIN_NAME."] adding changes on on_getRoute_post.\n";
 	
 	$args->{pathfinding}->update_solution($args->{start}{x}, $args->{start}{y}, $changes);
+}
+
+###################################################
+######## Player avoiding
+###################################################
+
+sub on_add_player_list {
+	my (undef, $args) = @_;
+	my $actor = $args;
+	
+	return unless (exists $player_name_obstacles{$actor->{name}});
+	
+	my @weights = @{$player_name_obstacles{$actor->{name}}};
+	
+	add_obstacle($actor, \@weights);
+}
+
+sub on_player_moved {
+	my (undef, $args) = @_;
+	my $actor = $args;
+	
+	return unless (exists $obstaclesList{$actor->{ID}});
+	
+	my @weights = @{$player_name_obstacles{$actor->{name}}};
+	
+	move_obstacle($actor, \@weights);
+}
+
+sub on_player_disappeared {
+	my (undef, $args) = @_;
+	my $actor = $args->{player};
+	
+	return unless (exists $obstaclesList{$actor->{ID}});
+	
+	remove_obstacle($actor);
+}
+
+###################################################
+######## Mob avoiding
+###################################################
+
+sub on_add_monster_list {
+	my (undef, $args) = @_;
+	my $actor = $args;
+	
+	return unless (exists $nameID_obstacles{$actor->{nameID}});
+	
+	my @weights = @{$nameID_obstacles{$actor->{nameID}}};
+	
+	add_obstacle($actor, \@weights);
+}
+
+sub on_monster_moved {
+	my (undef, $args) = @_;
+	my $actor = $args;
+
+	return unless (exists $obstaclesList{$actor->{ID}});
+	
+	my @weights = @{$nameID_obstacles{$actor->{nameID}}};
+	
+	move_obstacle($actor, \@weights);
+}
+
+sub on_monster_disappeared {
+	my (undef, $args) = @_;
+	my $actor = $args->{monster};
+	
+	return unless (exists $obstaclesList{$actor->{ID}});
+	
+	remove_obstacle($actor);
 }
 
 return 1;

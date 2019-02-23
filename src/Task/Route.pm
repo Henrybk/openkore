@@ -242,7 +242,7 @@ sub iterate {
 		
 		} elsif (@{$self->{unresolvedChanges}} > 0) {
 			my $begin = time;
-			
+			message "Recalculating route\n", "route";
 			$self->{solution} = [];
 			if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
 				$self->{unresolvedChanges} = [];
@@ -432,7 +432,7 @@ sub recalculateRoute {
 	);
 	
 	if ($return != 1) {
-		debug "Route $self->{actor} - Failed to update map weights.\n";
+		debug "Route $class->{actor} - Failed to update map weights.\n";
 		return 0;
 	}
 
