@@ -34,7 +34,7 @@ use Network;
 use Field;
 use Translation qw(T TF);
 use Misc;
-use Utils qw(timeOut distance calcPosition);
+use Utils qw(timeOut distance blockDistance calcPosition);
 use Utils::Exceptions;
 use Utils::Set;
 use Utils::PathFinding;
@@ -168,6 +168,7 @@ sub iterate {
 		my $pos = calcPosition($self->{actor});
 		my $begin = time;
 		$self->{pathfinding} = new PathFinding;
+		$self->{unresolvedChanges} = [];
 		if ($self->getRoute($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
 			$self->{stage} = 'Route Solution Ready';
 			debug "Route $self->{actor} Solution Ready!\n", "route";
@@ -197,9 +198,10 @@ sub iterate {
 		# Trim down solution tree for pyDistFromGoal or distFromGoal
 		if ($self->{pyDistFromGoal}) {
 			my $trimsteps = 0;
-			$trimsteps++ while ($trimsteps < @{$solution}
-						&& distance($solution->[@{$solution} - 1 - $trimsteps], $solution->[@{$solution} - 1]) < $self->{pyDistFromGoal}
-				);
+			while ($trimsteps < @{$solution} && distance($solution->[@{$solution} - 1 - $trimsteps], $solution->[@{$solution} - 1]) < $self->{pyDistFromGoal}) {
+				$trimsteps++;
+			}
+			
 			debug "Route $self->{actor} - trimming down solution by $trimsteps steps for pyDistFromGoal $self->{pyDistFromGoal}\n", "route";
 			splice(@{$self->{'solution'}}, -$trimsteps) if ($trimsteps);
 
@@ -239,25 +241,6 @@ sub iterate {
 
 			Plugins::callHook('route', {status => 'success'});
 			$self->setDone();
-		
-		} elsif (@{$self->{unresolvedChanges}} > 0) {
-			my $begin = time;
-			message "Recalculating route\n", "route";
-			$self->{solution} = [];
-			if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
-				$self->{unresolvedChanges} = [];
-				debug "Recalculated Route $self->{actor} Solution Ready!\n", "route";
-
-				if (time - $begin < 0.01) {
-					# Optimization: immediately go to the next stage if we
-					# spent neglible time in this step.
-					$self->iterate();
-				}
-
-			} else {
-				debug "Something's wrong; there is no path to " . $field->baseName . "($self->{dest}{pos}{x},$self->{dest}{pos}{y}).\n", "debug";
-				$self->setError(CANNOT_CALCULATE_ROUTE, "Unable to calculate a route.");
-			}
 			
 		} elsif ($self->{old_x} == $cur_x && $self->{old_y} == $cur_y && timeOut($self->{time_step}, 3)) {
 			# We tried to move for 3 seconds, but we are still on the same spot,
@@ -304,24 +287,29 @@ sub iterate {
 			# move commands periodically to keep moving and updating our position
 			my $begin = time;
 			my $solution = $self->{solution};
-			$self->{index} = $config{$self->{actor}{configPrefix}.'route_step'} unless $self->{index};
-			$self->{index}++ if (($self->{index} < $config{$self->{actor}{configPrefix}.'route_step'})
-			  && ($self->{old_x} != $cur_x || $self->{old_y} != $cur_y));
+			
+			if (!$self->{index}) {
+				$self->{index} = $config{$self->{actor}{configPrefix}.'route_step'};
+			}
+			
+			if (($self->{index} < $config{$self->{actor}{configPrefix}.'route_step'}) && ($self->{old_x} != $cur_x || $self->{old_y} != $cur_y)) {
+				$self->{index}++;
+			}
 
 			if (defined($self->{old_x}) && defined($self->{old_y})) {
 				# See how far we've walked since the last move command and
 				# trim down the soultion tree by this distance.
 				# Only remove the last step if we reached the destination
 				my $trimsteps = 0;
+				
 				# If position has changed, we must have walked at least one step
 				$trimsteps++ if ($cur_x != $self->{'old_x'} || $cur_y != $self->{'old_y'});
+				
 				# Search the best matching entry for our position in the solution
-				while ($trimsteps < @{$solution}
-							&& distance( { x => $cur_x, y => $cur_y }, $solution->[$trimsteps + 1])
-							< distance( { x => $cur_x, y => $cur_y }, $solution->[$trimsteps])
-					) {
+				while ($trimsteps < @{$solution} && distance( { x => $cur_x, y => $cur_y }, $solution->[$trimsteps + 1]) < distance( { x => $cur_x, y => $cur_y }, $solution->[$trimsteps]) ) {
 					$trimsteps++;
 				}
+				
 				# Remove the last step also if we reached the destination
 				$trimsteps = @{$solution} - 1 if ($trimsteps >= @{$solution});
 				#$trimsteps = @{$solution} if ($trimsteps <= $self->{'index'} && $self->{'new_x'} == $cur_x && $self->{'new_y'} == $cur_y);
@@ -330,10 +318,13 @@ sub iterate {
 				splice(@{$solution}, 0, $trimsteps) if ($trimsteps > 0);
 			}
 
-			my $stepsleft = @{$solution};
-			if ($stepsleft > 0) {
+			my $steps_left = @{$solution};
+			if ($steps_left > 0) {
 				# If we still have more points to cover, walk to next point
-				$self->{index} = $stepsleft - 1 if ($self->{index} >= $stepsleft);
+				if ($self->{index} >= $steps_left) {
+					$self->{index} = $steps_left - 1;
+				}
+
 				$self->{new_x} = $self->{solution}[$self->{index}]{x};
 				$self->{new_y} = $self->{solution}[$self->{index}]{y};
 
@@ -341,19 +332,44 @@ sub iterate {
 				# If it is, then we've moved to an unexpected place. This could be caused by auto-attack,
 				# for example.
 				my %nextPos = (x => $self->{new_x}, y => $self->{new_y});
-				if (distance(\%nextPos, $pos) > ($config{$self->{actor}{configPrefix}.'route_step'} * 2)) {
+				if (blockDistance(\%nextPos, $pos) > 10) {
 					debug "Route $self->{actor} - movement interrupted: reset route\n", "route";
 					$self->{stage} = '';
+		
+				} elsif (@{$self->{unresolvedChanges}} > 0) {
+					my $begin = time;
+					message "Recalculating route\n", "route";
+					$self->{solution} = [];
+					if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+						$self->{unresolvedChanges} = [];
+						debug "Recalculated Route $self->{actor} Solution Ready!\n", "route";
+
+						if (time - $begin < 0.01) {
+							# Optimization: immediately go to the next stage if we
+							# spent neglible time in this step.
+							$self->iterate();
+						}
+
+					} else {
+						debug "Something's wrong; there is no path to " . $field->baseName . "($self->{dest}{pos}{x},$self->{dest}{pos}{y}).\n", "debug";
+						quit();#todo remove
+						$self->setError(CANNOT_CALCULATE_ROUTE, "Unable to calculate a route.");
+					}
 
 				} else {
-					$self->{time_step} = time if ($cur_x != $self->{old_x} || $cur_y != $self->{old_y});
+					if ($cur_x != $self->{old_x} || $cur_y != $self->{old_y}) {
+						$self->{time_step} = time;
+					}
 					$self->{old_x} = $cur_x;
 					$self->{old_y} = $cur_y;
-					debug "Route $self->{actor} - next step moving to ($self->{new_x}, $self->{new_y}), index $self->{index}, $stepsleft steps left\n", "route";
+					
+					debug "Route $self->{actor} - next step moving to ($self->{new_x}, $self->{new_y}), index $self->{index}, $steps_left steps left\n", "route";
+					
 					my $task = new Task::Move(
 						actor => $self->{actor},
 						x => $self->{new_x},
-						y => $self->{new_y});
+						y => $self->{new_y}
+					);
 					$self->setSubtask($task);
 
 					if (time - $begin < 0.01) {
@@ -423,6 +439,8 @@ sub recalculateRoute {
 	Misc::closestWalkableSpot($field, \%dest);
 
 	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
+	
+	return 1 if (@{$unresolvedChanges} == 0);
 
 	my $return;
 	$return = $class->{pathfinding}->update_solution(
