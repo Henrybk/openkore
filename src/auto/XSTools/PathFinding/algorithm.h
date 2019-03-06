@@ -61,17 +61,11 @@ void openListRemove (CalcPath_session *session, Node* node);
 
 void reajustOpenListItem (CalcPath_session *session, Node* node, unsigned long newkey1, unsigned long newkey2);
 
-Node* openListGetLowest (CalcPath_session *session);
-
 void updateNode (CalcPath_session *session, Node* node);
 
 void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 
 int CalcPath_pathStep (CalcPath_session *session);
-
-int recheck_all_nodes_in_binary_heap (CalcPath_session *session);
-
-int recheck_openList_removed (CalcPath_session *session, Node* removedNode);
 
 void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
  

@@ -59,8 +59,6 @@ calcKey (Node* node, unsigned int startX, unsigned int startY, bool avoidWalls, 
     return key;
 }
 
-
-//
 int 
 heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls)
 {
@@ -74,85 +72,6 @@ heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int
     }
     
     return hScore;
-}
-
-int
-recheck_all_nodes_in_binary_heap (CalcPath_session *session)
-{
-	long lastIndex = session->openListSize-1;
-	
-	long currentIndex = 0;
-	long leftChildIndex;
-	long rightChildIndex;
-	
-	unsigned long currentAdress;
-	unsigned long leftChildAdress;
-	unsigned long rightChildAdress;
-	
-	Node* currentNode;
-	Node* rightChildNode;
-	Node* leftChildNode;
-	
-	while (lastIndex >= currentIndex) {
-		
-		currentAdress = session->openList[currentIndex];
-		currentNode = &session->currentMap[currentAdress];
-		
-		leftChildIndex = 2 * currentIndex + 1;
-		rightChildIndex = 2 * currentIndex + 2;
-		
-		if (lastIndex >= leftChildIndex) {
-			leftChildAdress = session->openList[leftChildIndex];
-			leftChildNode = &session->currentMap[leftChildAdress];
-			
-			if (currentNode->key1 > leftChildNode->key1 || (currentNode->key1 == leftChildNode->key1 && currentNode->key2 > leftChildNode->key2)) {
-				
-				printf("[Pathfinding error] Current node %d %d, at index %ld, has keys %lu and %lu || left child node %d %d, at index %ld, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, leftChildNode->x, leftChildNode->y, leftChildIndex, leftChildNode->key1, leftChildNode->key2);
-				return 0;
-			}
-		}
-		
-		if (lastIndex >= rightChildIndex) {
-			rightChildAdress = session->openList[rightChildIndex];
-			rightChildNode = &session->currentMap[rightChildAdress];
-			if (currentNode->key1 > rightChildNode->key1 || (currentNode->key1 == rightChildNode->key1 && currentNode->key2 > rightChildNode->key2)) {
-				
-				printf("[Pathfinding error] Current node %d %d, at index %ld, has keys %lu and %lu || right child node %d %d, at index %ld, has keys %lu and %lu\n", currentNode->x, currentNode->y, currentIndex, currentNode->key1, currentNode->key2, rightChildNode->x, rightChildNode->y, rightChildIndex, rightChildNode->key1, rightChildNode->key2);
-				return 0;
-			}
-		}
-		
-		currentIndex++;
-	}
-	
-	return 1;
-}
-
-int
-recheck_openList_removed (CalcPath_session *session, Node* removedNode)
-{
-	long lastIndex = session->openListSize-1;
-	
-	long currentIndex = 0;
-	
-	unsigned long currentAdress;
-	
-	Node* currentNode;
-	
-	while (lastIndex >= currentIndex) {
-		
-		currentAdress = session->openList[currentIndex];
-		currentNode = &session->currentMap[currentAdress];
-		
-		if (removedNode->nodeAdress == currentNode->nodeAdress) {
-			printf("[Pathfinding error] Current node %d %d, at index %ld, was removed from openList but is still in it\n", currentNode->x, currentNode->y, currentIndex);
-			return 0;
-		}
-		
-		currentIndex++;
-	}
-	
-	return 1;
 }
 
 // Openlist is a binary heap of min-heap type
@@ -200,14 +119,6 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 			
         } else {
 			break;
-		}
-	}
-	
-	if (DEBUG) {
-		int result;
-		result = recheck_all_nodes_in_binary_heap(session);
-		if (result == 0) {
-			printf("[Pathfinding error] OpenList integrity check failed after function openListAdd.\n");
 		}
 	}
 }
@@ -326,18 +237,6 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 			}
 		}
 	}
-	
-	if (DEBUG) {
-		int result;
-		result = recheck_all_nodes_in_binary_heap(session);
-		if (result == 0) {
-			printf("[Pathfinding error] OpenList integrity check failed after function openListRemove.\n");
-		}
-	}
-	
-	if (DEBUG) {
-		recheck_openList_removed(session, currentNode);
-	}
 }
 
 // Reajusts node 'currentNode' location in openList
@@ -433,20 +332,6 @@ reajustOpenListItem (CalcPath_session *session, Node* currentNode, unsigned long
 			}
 		}
 	}
-		if (DEBUG) {
-			int result;
-			result = recheck_all_nodes_in_binary_heap(session);
-			if (result == 0) {
-				printf("[Pathfinding error] OpenList integrity check failed after function reajustOpenListItem.\n");
-			}
-		}
-}
-
-Node* 
-openListGetLowest (CalcPath_session *session)
-{
-    Node* lowestNode = &session->currentMap[session->openList[0]];
-    return lowestNode;
 }
 
 void 
@@ -563,12 +448,10 @@ CalcPath_pathStep (CalcPath_session *session)
 		}
 		
         // get lowest key score member of openlist and delete it from it, shrinks openListSize
-		currentNode = openListGetLowest (session);
+		currentNode = &session->currentMap[session->openList[0]];
 		
-		keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
-		
-		start->key1 = keys[0];
-		start->key2 = keys[1];
+		start->key2 = ((start->g > start->rhs) ? start->rhs : start->g);
+		start->key1 = start->key2 + session->k;
 		
 		keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
 
@@ -800,11 +683,9 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	
 	long new_weight = old_weight + delta_weight;
 	
-	if (DEBUG) {
-		if (new_weight <= 0) {
-			printf("[Pathfinding error] Map node set to have negative weight on updateChangedMap (%d %d || from %ld to %ld || delta_weight %ld).\n", x, y, old_weight, new_weight, delta_weight);
-			return 0;
-		}
+	if (new_weight <= 0) {
+		printf("[Pathfinding error] Map node set to have negative weight on updateChangedMap (%d %d || from %ld to %ld || delta_weight %ld).\n", x, y, old_weight, new_weight, delta_weight);
+		return 0;
 	}
 	
 	currentNode->weight = new_weight;
@@ -921,15 +802,6 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 					get_new_neighbor_sucessor(session, neighborNode);
 				}
 			}
-		}
-	}
-	
-	if (DEBUG) {
-		int result;
-		result = recheck_all_nodes_in_binary_heap(session);
-		if (result == 0) {
-			printf("[Pathfinding error] OpenList integrity check failed after function updateChangedMap.\n");
-			return 0;
 		}
 	}
 	
