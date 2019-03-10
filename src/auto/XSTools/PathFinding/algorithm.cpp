@@ -8,8 +8,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define DEBUG 1
-
 #define DIAGONAL 14
 #define ORTOGONAL 10
 
@@ -46,7 +44,7 @@ CalcPath_new ()
 }
 
 unsigned long*
-calcKey (Node* node, unsigned int startX, unsigned int startY, bool avoidWalls, unsigned int k)
+calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k)
 {
 	static unsigned long key[2];
 	
@@ -428,8 +426,8 @@ CalcPath_pathStep (CalcPath_session *session)
 	int i;
 	int j;
 	
-	unsigned int neighbor_x;
-	unsigned int neighbor_y;
+	int neighbor_x;
+	int neighbor_y;
 	unsigned long neighbor_adress;
 	unsigned long distanceFromCurrent;
 	
@@ -497,6 +495,10 @@ CalcPath_pathStep (CalcPath_session *session)
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
 					neighborNode = &session->currentMap[neighbor_adress];
+			
+					if (neighborNode->initialized == 0) {
+						initializeNode(session, neighbor_x, neighbor_y);
+					}
 
 					if (neighborNode->weight == 0) {
 						continue;
@@ -552,6 +554,10 @@ CalcPath_pathStep (CalcPath_session *session)
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
 					neighborNode = &session->currentMap[neighbor_adress];
+			
+					if (neighborNode->initialized == 0) {
+						initializeNode(session, neighbor_x, neighbor_y);
+					}
 
 					if (neighborNode->weight == 0) {
 						continue;
@@ -582,8 +588,8 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 	int i;
 	int j;
 	
-	unsigned int neighbor_x;
-	unsigned int neighbor_y;
+	int neighbor_x;
+	int neighbor_y;
 	unsigned long neighbor_adress;
 	unsigned long distanceFromCurrent;
 	
@@ -605,6 +611,10 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 			neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
 			neighborNode = &session->currentMap[neighbor_adress];
+			
+			if (neighborNode->initialized == 0) {
+				initializeNode(session, neighbor_x, neighbor_y);
+			}
 
 			if (neighborNode->weight == 0) {
 				continue;
@@ -641,43 +651,52 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 // Create a new pathfinding session, or reset an existing session.
 // Resetting is preferred over destroying and creating, because it saves
 // unnecessary memory allocations, thus improving performance.
-CalcPath_session *
-CalcPath_init (CalcPath_session *session, unsigned char *map)
+void
+CalcPath_init (CalcPath_session *session)
 {
 	/* Allocate enough memory in currentMap to hold all cells in the map */
 	session->currentMap = (Node*) calloc(session->height * session->width, sizeof(Node));
 	
-	unsigned int x = 0;
-	unsigned int y = 0;
+	initializeNode(session, session->endX, session->endY);
 	
-	unsigned long current;
-	for (y = 0; y < session->height; y++) {
-		for (x = 0; x < session->width; x++) {
-			current = (y * session->width) + x;
-			session->currentMap[current].x = x;
-			session->currentMap[current].y = y;
-			session->currentMap[current].weight = map[current];
-			session->currentMap[current].nodeAdress = current;
-			session->currentMap[current].g = 10000000;
-			session->currentMap[current].rhs = 10000000;
-		}
-	}
+	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
+	goal->rhs = 0;
 	
-	session->currentMap[(session->endY * session->width) + session->endX].rhs = 0;
+	initializeNode(session, session->startX, session->startY);
 	
 	session->k = 0;
 	session->initialized = 1;
+}
+
+void
+initializeNode (CalcPath_session *session, int x, int y)
+{
+	unsigned long current;
+
+	current = ((y * session->width) + x);
 	
-	return session;
+	Node* currentNode = &session->currentMap[current];
+	
+	currentNode->x = x;
+	currentNode->y = y;
+	currentNode->nodeAdress = current;
+	currentNode->g = 10000000;
+	currentNode->rhs = 10000000;
+	currentNode->weight = session->map_base_weight[current];
+	currentNode->initialized = 1;
 }
 
 // Updates a block weight
 int
-updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight)
+updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 {
 	unsigned long current = (y * session->width) + x;
 	
 	Node* currentNode = &session->currentMap[current];
+	
+	if (currentNode->initialized == 0) {
+		initializeNode(session, x, y);
+	}
 	
 	long old_weight = currentNode->weight;
 	
@@ -704,8 +723,8 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 	int i;
 	int j;
 	
-	unsigned int neighbor_x;
-	unsigned int neighbor_y;
+	int neighbor_x;
+	int neighbor_y;
 	unsigned long neighbor_adress;
 	unsigned long distanceFromCurrent;
 	
@@ -729,6 +748,10 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
 				neighborNode = &session->currentMap[neighbor_adress];
+			
+				if (neighborNode->initialized == 0) {
+					initializeNode(session, neighbor_x, neighbor_y);
+				}
 
 				if (neighborNode->weight == 0) {
 					continue;
@@ -782,6 +805,10 @@ updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, lon
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
 				neighborNode = &session->currentMap[neighbor_adress];
+			
+				if (neighborNode->initialized == 0) {
+					initializeNode(session, neighbor_x, neighbor_y);
+				}
 
 				if (neighborNode->weight == 0) {
 					continue;

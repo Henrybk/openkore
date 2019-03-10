@@ -32,7 +32,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		SV * time_max
 	
 	PREINIT:
-		unsigned char *weight_map_data = NULL;
+		char *weight_map_data = NULL;
 	
 	CODE:
 		
@@ -101,21 +101,22 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		}
 		
 		/* Get the weight_map data */
-		weight_map_data = (unsigned char *) SvPV_nolen (SvRV (weight_map));
+		weight_map_data = (char *) SvPV_nolen (SvRV (weight_map));
+		session->map_base_weight = weight_map_data;
 		
 		session->width = (unsigned long) SvUV (width);
 		session->height = (unsigned long) SvUV (height);
 		
-		session->startX = (unsigned short) SvUV (startx);
-		session->startY = (unsigned short) SvUV (starty);
-		session->endX = (unsigned short) SvUV (destx);
-		session->endY = (unsigned short) SvUV (desty);
+		session->startX = (int) SvUV (startx);
+		session->startY = (int) SvUV (starty);
+		session->endX = (int) SvUV (destx);
+		session->endY = (int) SvUV (desty);
 		
 		session->avoidWalls = (unsigned short) SvUV (avoidWalls);
 		session->time_max = (unsigned int) SvUV (time_max);
 		
 		/* Initializes all cells in the map */
-		CalcPath_init (session, weight_map_data);
+		CalcPath_init(session);
 
 
 int
@@ -175,8 +176,8 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 			XSRETURN_NO;
 		}
 		
-		unsigned short new_x = (unsigned short) SvUV (new_start_x);
-		unsigned short new_y = (unsigned short) SvUV (new_start_y);
+		int new_x = (int) SvIV (new_start_x);
+		int new_y = (int) SvIV (new_start_y);
 		
 		if (new_x != session->startX || new_y != session->startY) {
 			session->k += heuristic_cost_estimate(new_x, new_y, session->startX, session->startY, session->avoidWalls);

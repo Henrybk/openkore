@@ -6,8 +6,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct {
-	unsigned int x;
-	unsigned int y;
+	bool initialized;
+	
+	int x;
+	int y;
 	long weight;
 	
 	unsigned long nodeAdress;
@@ -29,13 +31,13 @@ typedef struct {
 	
 	unsigned long time_max;
 	
-	unsigned int width;
-	unsigned int height;
+	int width;
+	int height;
 	
-	unsigned int startX;
-	unsigned int startY;
-	unsigned int endX;
-	unsigned int endY;
+	int startX;
+	int startY;
+	int endX;
+	int endY;
 	
 	int solution_size;
 	int initialized;
@@ -45,13 +47,15 @@ typedef struct {
 	
 	unsigned int k;
 	
-	unsigned long *openList;
+	const char *map_base_weight;
 	Node *currentMap;
+	
+	unsigned long *openList;
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();
 
-unsigned long* calcKey (Node* node, unsigned int startX, unsigned int startY, bool avoidWalls, unsigned int k);
+unsigned long* calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k);
 	
 int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls);
 
@@ -69,9 +73,11 @@ int CalcPath_pathStep (CalcPath_session *session);
 
 void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
  
-CalcPath_session *CalcPath_init (CalcPath_session *session, unsigned char *map);
+void CalcPath_init (CalcPath_session *session);
 
-int updateChangedMap (CalcPath_session *session, unsigned int x, unsigned int y, long delta_weight);
+void initializeNode (CalcPath_session *session, int x, int y);
+
+int updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight);
 
 void free_currentMap (CalcPath_session *session);
 
