@@ -494,18 +494,18 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
+					if (session->map_base_weight[neighbor_adress] == 0) {
+						continue;
+					}
+
 					neighborNode = &session->currentMap[neighbor_adress];
 			
 					if (neighborNode->initialized == 0) {
 						initializeNode(session, neighbor_x, neighbor_y);
 					}
 
-					if (neighborNode->weight == 0) {
-						continue;
-					}
-
 					if (i != 0 && j != 0) {
-						if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
+						if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
 							continue;
 						}
 						distanceFromCurrent = DIAGONAL;
@@ -553,14 +553,14 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
+					if (session->map_base_weight[neighbor_adress] == 0) {
+						continue;
+					}
+
 					neighborNode = &session->currentMap[neighbor_adress];
 			
 					if (neighborNode->initialized == 0) {
 						initializeNode(session, neighbor_x, neighbor_y);
-					}
-
-					if (neighborNode->weight == 0) {
-						continue;
 					}
 					
 					if (neighbor_x == session->endX && neighbor_y == session->endY) {
@@ -610,18 +610,18 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 	
 			neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
+			if (session->map_base_weight[neighbor_adress] == 0) {
+				continue;
+			}
+
 			neighborNode = &session->currentMap[neighbor_adress];
 			
 			if (neighborNode->initialized == 0) {
 				initializeNode(session, neighbor_x, neighbor_y);
 			}
-
-			if (neighborNode->weight == 0) {
-				continue;
-			}
 			
 			if (i != 0 && j != 0) {
-				if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
+				if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
 					continue;
 				}
 				distanceFromCurrent = DIAGONAL;
@@ -747,18 +747,18 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 	
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
+				if (session->map_base_weight[neighbor_adress] == 0) {
+					continue;
+				}
+
 				neighborNode = &session->currentMap[neighbor_adress];
 			
 				if (neighborNode->initialized == 0) {
 					initializeNode(session, neighbor_x, neighbor_y);
 				}
-
-				if (neighborNode->weight == 0) {
-					continue;
-				}
 				
 				if (i != 0 && j != 0) {
-					if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
+					if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
 						continue;
 					}
 					distanceFromCurrent = DIAGONAL;
@@ -804,18 +804,18 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
+				if (session->map_base_weight[neighbor_adress] == 0) {
+					continue;
+				}
+
 				neighborNode = &session->currentMap[neighbor_adress];
 			
 				if (neighborNode->initialized == 0) {
 					initializeNode(session, neighbor_x, neighbor_y);
 				}
-
-				if (neighborNode->weight == 0) {
-					continue;
-				}
 				
 				if (i != 0 && j != 0) {
-					if (session->currentMap[(currentNode->y * session->width) + neighborNode->x].weight == 0 || session->currentMap[(neighborNode->y * session->width) + currentNode->x].weight == 0) {
+					if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
 						continue;
 					}
 				}
