@@ -398,7 +398,6 @@ free_openList (CalcPath_session *session)
 void
 CalcPath_destroy (CalcPath_session *session)
 {
-
 	if (session->initialized) {
 		free(session->currentMap);
 	}
