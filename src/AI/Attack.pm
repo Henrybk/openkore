@@ -430,7 +430,7 @@ sub main {
 		# Determine which of these spots are snipable
 		my $best_spot;
 		my $best_dist;
-		for my $spot (@stand) {
+		SPOT: for my $spot (@stand) {
 			# Is this spot acceptable?
 			# 1. It must have LOS to the target ($realMonsterPos).
 			# 2. It must be within $config{followDistanceMax} of $masterPos, if we have a master.
@@ -443,6 +443,7 @@ sub main {
 			    &&    (($config{attackCanSnipe} && (checkLineSnipable($spot, $realMonsterPos) || checkLineWalkable($spot, $realMonsterPos, 1)))
 				   || (!$config{attackCanSnipe} && blockDistance($spot, $realMonsterPos) <= $args->{attackMethod}{maxDistance} && checkLineWalkable($spot, $realMonsterPos, 1)))
 			) {
+				my $solution = [];
 				my $dist = new PathFinding(
 					field => $field,
 					start => $realMyPos,
