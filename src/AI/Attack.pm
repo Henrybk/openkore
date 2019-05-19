@@ -439,6 +439,8 @@ sub main {
 			if (
 				$field->isWalkable($spot->{x}, $spot->{y})
 				&& ($realMyPos->{x} != $spot->{x} && $realMyPos->{y} != $spot->{y})
+			    &&    (($config{attackCanSnipe} && (checkLineSnipable($spot, $realMonsterPos) || checkLineWalkable($spot, $realMonsterPos, 1)))
+				   || (!$config{attackCanSnipe} && blockDistance($spot, $realMonsterPos) <= $args->{attackMethod}{maxDistance} && checkLineWalkable($spot, $realMonsterPos, 1)))
 				&& (!$master || blockDistance($spot, $masterPos) <= $config{followDistanceMax})
 			    &&    (($config{attackCanSnipe} && (checkLineSnipable($spot, $realMonsterPos) || checkLineWalkable($spot, $realMonsterPos, 1)))
 				   || (!$config{attackCanSnipe} && blockDistance($spot, $realMonsterPos) <= $args->{attackMethod}{maxDistance} && checkLineWalkable($spot, $realMonsterPos, 1)))
