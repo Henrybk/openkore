@@ -393,6 +393,12 @@ sub main {
 			message T("Teleport due to dropping attack target\n"), "teleport";
 			useTeleport(1);
 		}
+		
+	} elsif ($realMonsterDist > 14) {
+		# Drop target if it's more than 14 cells away (mob is already out of the screen but was not removed from monsterList)
+		message T("Dropping target - It is too far away\n"), "ai_attack";
+		$char->sendMove(@{$realMyPos}{qw(x y)});
+		AI::dequeue;
 
 	} elsif (
 		# We are a ranged attacker without LOS
