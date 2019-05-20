@@ -393,12 +393,6 @@ sub main {
 			message T("Teleport due to dropping attack target\n"), "teleport";
 			useTeleport(1);
 		}
-		
-	} elsif ($realMonsterDist > 14) {
-		# Drop target if it's more than 14 cells away (mob is already out of the screen but was not removed from monsterList)
-		message T("Dropping target - It is too far away\n"), "ai_attack";
-		$char->sendMove(@{$realMyPos}{qw(x y)});
-		AI::dequeue;
 
 	} elsif (
 		# We are a ranged attacker without LOS
@@ -436,7 +430,7 @@ sub main {
 		# Determine which of these spots are snipable
 		my $best_spot;
 		my $best_dist;
-		SPOT: for my $spot (@stand) {
+		for my $spot (@stand) {
 			# Is this spot acceptable?
 			# 1. It must have LOS to the target ($realMonsterPos).
 			# 2. It must be within $config{followDistanceMax} of $masterPos, if we have a master.
@@ -445,6 +439,7 @@ sub main {
 			if (
 				$field->isWalkable($spot->{x}, $spot->{y})
 				&& ($realMyPos->{x} != $spot->{x} && $realMyPos->{y} != $spot->{y})
+				&& (!$master || blockDistance($spot, $masterPos) <= $config{followDistanceMax})
 			    &&    (($config{attackCanSnipe} && (checkLineSnipable($spot, $realMonsterPos) || checkLineWalkable($spot, $realMonsterPos, 1)))
 				   || (!$config{attackCanSnipe} && blockDistance($spot, $realMonsterPos) <= $args->{attackMethod}{maxDistance} && checkLineWalkable($spot, $realMonsterPos, 1)))
 				&& (!$master || blockDistance($spot, $masterPos) <= $config{followDistanceMax})
