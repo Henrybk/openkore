@@ -19,10 +19,10 @@ PathFinding_create()
 
 
 void
-PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
+PathFinding__reset(session, weight_map, avoidType, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
 		PathFinding session
 		SV *weight_map
-		SV * avoidWalls
+		SV * avoidType
 		SV * width
 		SV * height
 		SV * startx
@@ -53,14 +53,14 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		}
 		
 		/* Check for any missing arguments */
-		if (!session || !weight_map || !avoidWalls || !width || !height || !startx || !starty || !destx || !desty || !time_max) {
+		if (!session || !weight_map || !avoidType || !width || !height || !startx || !starty || !destx || !desty || !time_max) {
 			printf("[pathfinding reset error] missing argument\n");
 			XSRETURN_NO;
 		}
 		
 		/* Check for any bad arguments */
-		if (SvROK(avoidWalls) || SvTYPE(avoidWalls) >= SVt_PVAV || !SvOK(avoidWalls)) {
-			printf("[pathfinding reset error] bad avoidWalls argument\n");
+		if (SvROK(avoidType) || SvTYPE(avoidType) >= SVt_PVAV || !SvOK(avoidType)) {
+			printf("[pathfinding reset error] bad avoidType argument\n");
 			XSRETURN_NO;
 		}
 		
@@ -170,7 +170,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			XSRETURN_NO;
 		}
 		
-		session->avoidWalls = (unsigned short) SvUV (avoidWalls);
+		session->avoidType = (unsigned short) SvUV (avoidType);
 		session->time_max = (unsigned int) SvUV (time_max);
 		
 		/* Initializes all cells in the map */

@@ -74,7 +74,7 @@ use enum (
 #                  destination is reached.
 # - pyDistFromGoal - Same as distFromGoal, but this allows you to specify the
 #                    Pythagorian distance instead of block distance.
-# - avoidWalls - Whether to avoid walls. The default is true.
+# - avoidType - Type of avoiding to be used in pathing (See src/Utils/PathFinding.pm), defaults to 1.
 # - notifyUponArrival - Whether to print a message when we've reached the destination.
 #                       The default is no.
 # `l`
@@ -89,7 +89,7 @@ sub new {
 	}
 
 	my $allowed = new Set('maxDistance', 'maxTime', 'distFromGoal', 'pyDistFromGoal',
-		'avoidWalls', 'notifyUponArrival');
+		'avoidType', 'notifyUponArrival');
 	foreach my $key (keys %args) {
 		if ($allowed->has($key) && defined $args{$key}) {
 			$self->{$key} = $args{$key};
@@ -101,9 +101,9 @@ sub new {
 	# $self->{dest}{map} = $args{map};
 	$self->{dest}{pos}{x} = $args{x};
 	$self->{dest}{pos}{y} = $args{y};
-	if ($config{'route_avoidWalls'}) {
-		$self->{avoidWalls} = 1 if (!defined $self->{avoidWalls});
-	} else {$self->{avoidWalls} = 0;}
+	if ($config{'route_avoidType'}) {
+		$self->{avoidType} = 1 if (!defined $self->{avoidType});
+	} else {$self->{avoidType} = 0;}
 
 	# Watch for map change events. Pass a weak reference to ourselves in order
 	# to avoid circular references (memory leaks).
@@ -224,7 +224,7 @@ sub iterate {
 				y => $self->{mapSolution}[0]{pos}{y},
 				maxTime => $self->{maxTime},
 				distFromGoal => $dist,
-				avoidWalls => $self->{avoidWalls},
+				avoidType => $self->{avoidType},
 				solution => \@solution
 			);
 			$self->setSubtask($task);
@@ -258,7 +258,7 @@ sub iterate {
 				x => $self->{mapSolution}[0]{pos}{x},
 				y => $self->{mapSolution}[0]{pos}{y},
 				maxTime => $self->{maxTime},
-				avoidWalls => $self->{avoidWalls},
+				avoidType => $self->{avoidType},
 				distFromGoal => $self->{distFromGoal},
 				pyDistFromGoal => $self->{pyDistFromGoal},
 				solution => \@solution
@@ -329,7 +329,7 @@ sub iterate {
 							x => $self->{guess_portal}{pos}{x},
 							y => $self->{guess_portal}{pos}{y},
 							maxTime => $self->{maxTime},
-							avoidWalls => $self->{avoidWalls},
+							avoidType => $self->{avoidType},
 							solution => \@solution
 						);
 						$self->setSubtask($task);
@@ -440,7 +440,7 @@ sub iterate {
 						x => $self->{mapSolution}[0]{pos}{x},
 						y => $self->{mapSolution}[0]{pos}{y},
 						maxTime => $self->{maxTime},
-						avoidWalls => $self->{avoidWalls},
+						avoidType => $self->{avoidType},
 						solution => \@solution
 					);
 					$self->setSubtask($task);
@@ -509,7 +509,7 @@ sub subtaskDone {
 					x => $self->{dest}{pos}{x},
 					y => $self->{dest}{pos}{y},
 					maxTime => $self->{maxTime},
-					avoidWalls => $self->{avoidWalls},
+					avoidType => $self->{avoidType},
 					distFromGoal => $self->{distFromGoal},
 					pyDistFromGoal => $self->{pyDistFromGoal}
 				);

@@ -267,9 +267,8 @@ CalcPath_pathStep (CalcPath_session *session)
 	int neighbor_x;
 	int neighbor_y;
 	unsigned long neighbor_adress;
-	unsigned long distanceFromCurrent;
 	
-	unsigned int g_score = 0;
+	unsigned long g_score;
 	
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
@@ -322,22 +321,34 @@ CalcPath_pathStep (CalcPath_session *session)
 			   if (session->map_base_weight[(currentNode->y * session->width) + neighbor_x] == -1 || session->map_base_weight[(neighbor_y * session->width) + currentNode->x] == -1) {
 					continue;
 				}
-				distanceFromCurrent = 14;
+				g_score = 14;
 			} else {
-				distanceFromCurrent = 10;
+				g_score = 10;
 			}
 			
-			if (session->avoidWalls) {
-				distanceFromCurrent += session->map_base_weight[neighbor_adress];
+			g_score = currentNode->g + g_score;
+			
+			// Avoids walls by adding weight to cells near them
+			if (session->avoidType == 1) {
+				g_score += session->map_base_weight[neighbor_adress];
+			
+			// Mimics the client walking algorithm by adding weight to all direction changes and prefers walking all diagonals before ortogonals
+			} else if (session->avoidType == 2) {
+				if (currentNode->predecessor_dir != i) {
+					g_score += 1;
+				}
+
+				if (neighbor_x != goal->x && neighbor_y != goal->y) {
+					g_score += 1;
+				}
 			}
-				
-			g_score = currentNode->g + distanceFromCurrent;
 				
 			if (neighborNode->whichlist == NONE) {
 				neighborNode->x = neighbor_x;
 				neighborNode->y = neighbor_y;
 				neighborNode->nodeAdress = neighbor_adress;
 				neighborNode->predecessor = currentNode->nodeAdress;
+				neighborNode->predecessor_dir = i;
 				neighborNode->g = g_score;
 				neighborNode->h = heuristic_cost_estimate(neighborNode->x, neighborNode->y, session->endX, session->endY);
 				neighborNode->f = neighborNode->g + neighborNode->h;
@@ -345,6 +356,7 @@ CalcPath_pathStep (CalcPath_session *session)
 			} else {
 				if (g_score < neighborNode->g) {
 					neighborNode->predecessor = currentNode->nodeAdress;
+					neighborNode->predecessor_dir = i;
 					neighborNode->g = g_score;
 					neighborNode->f = neighborNode->g + neighborNode->h;
 					reajustOpenListItem (session, neighborNode);

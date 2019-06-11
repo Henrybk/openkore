@@ -331,7 +331,7 @@ automacro MageTraining7 {
 }
 macro MageTraining7M {
 	log Идем бить зеленую траву, надо будет для квеста
-	do conf route_avoidWalls 0
+	do conf route_avoidType 0
 	do conf attackAuto 2
 	do conf route_randomWalk 0
 	do mconf all 0 0 0 
@@ -374,7 +374,7 @@ automacro MageTraining7b {
 }
 macro MageTraining7bM {
 	log Набили зеленой травы, идем в пайон менять гемы.
-	do conf route_avoidWalls 1
+	do conf route_avoidType 1
 	do conf lockMap geffen
 	do conf attackAuto 0
 	do conf route_randomWalk 0

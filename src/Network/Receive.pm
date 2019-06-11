@@ -1686,6 +1686,7 @@ sub actor_display {
 	$actor->{walk_speed} = $args->{walk_speed} / 1000 if (exists $args->{walk_speed} && $args->{switch} ne "0086");
 	$actor->{time_move} = time;
 	$actor->{time_move_calc} = distance(\%coordsFrom, \%coordsTo) * $actor->{walk_speed};
+	$actor->{time_move_calc_new} = adjustedBlockDistance(\%coordsFrom, \%coordsTo) * $actor->{walk_speed};
 	$actor->{len} = $args->{len} if $args->{len};
 	# 0086 would need that?
 	$actor->{object_type} = $args->{object_type} if (defined $args->{object_type});
@@ -4201,6 +4202,7 @@ sub character_moves {
 	debug "You're moving from ($char->{pos}{x}, $char->{pos}{y}) to ($char->{pos_to}{x}, $char->{pos_to}{y}) - distance $dist\n", "parseMsg_move";
 	$char->{time_move} = time;
 	$char->{time_move_calc} = distance($char->{pos}, $char->{pos_to}) * ($char->{walk_speed} || 0.12);
+	$char->{time_move_calc_new} = adjustedBlockDistance($char->{pos}, $char->{pos_to}) * ($char->{walk_speed} || 0.12);
 
 	# Correct the direction in which we're looking
 	my (%vec, $degree);
@@ -5266,6 +5268,7 @@ sub high_jump {
 
 	$actor->{time_move} = time;
 	$actor->{time_move_calc} = 0;
+	$actor->{time_move_calc_new} = 0;
 }
 
 sub hp_sp_changed {

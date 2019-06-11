@@ -68,7 +68,7 @@ use enum qw(
 #                  destination is reached.
 # - pyDistFromGoal - Same as distFromGoal, but this allows you to specify the
 #                    Pythagorian distance instead of block distance.
-# - avoidWalls - Whether to avoid walls. The default is yes.
+# - avoidType - Type of avoiding to be used in pathing (See src/Utils/PathFinding.pm), defaults to 1.
 # - notifyUponArrival - Whether to print a message when we've reached the destination.
 #                       The default is no.
 # `l`
@@ -84,7 +84,7 @@ sub new {
 	}
 
 	my $allowed = new Set('maxDistance', 'maxTime', 'distFromGoal', 'pyDistFromGoal',
-		'avoidWalls', 'notifyUponArrival');
+		'avoidType', 'notifyUponArrival');
 	foreach my $key (keys %args) {
 		if ($allowed->has($key) && defined($args{$key})) {
 			$self->{$key} = $args{$key};
@@ -96,9 +96,9 @@ sub new {
 	$self->{dest}{map} = $field->baseName;
 	$self->{dest}{pos}{x} = $args{x};
 	$self->{dest}{pos}{y} = $args{y};
-	if ($config{$self->{actor}{configPrefix}.'route_avoidWalls'}) {
-		$self->{avoidWalls} = 1 if (!defined $self->{avoidWalls});
-	} else {$self->{avoidWalls} = 0;}
+	if ($config{$self->{actor}{configPrefix}.'route_avoidType'}) {
+		$self->{avoidType} = 1 if (!defined $self->{avoidType});
+	} else {$self->{avoidType} = 0;}
 	$self->{solution} = [];
 	$self->{stage} = '';
 
@@ -168,7 +168,7 @@ sub iterate {
 		if ($pos->{x} == $self->{dest}{pos}{x} && $pos->{y} == $self->{dest}{pos}{y}) {
 			debug "Route $self->{actor}: Current position and destination are the same.\n", "route";
 			$self->setDone();
-		} elsif ($self->getRoute($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+		} elsif ($self->getRoute($self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidType})) {
 			$self->{stage} = 'Route Solution Ready';
 			debug "Route $self->{actor} Solution Ready!\n", "route";
 
@@ -370,12 +370,12 @@ sub resetRoute {
 }
 
 ##
-# boolean Task::Route->getRoute(Array* solution, Field field, Hash* start, Hash* dest, [boolean avoidWalls = true])
+# boolean Task::Route->getRoute(Array* solution, Field field, Hash* start, Hash* dest, [ avoidType = 1 ])
 # $solution: The route solution will be stored in here.
 # field: the field on which a route must be calculated.
 # start: The is the start coordinate.
 # dest: The destination coordinate.
-# noAvoidWalls: 1 if you don't want to avoid walls on route.
+# avoidType: Type of avoiding to be used in pathing (See src/Utils/PathFinding.pm).
 # Returns: 1 if the calculation succeeded, 0 if not.
 #
 # Calculate how to walk from $start to $dest on field $field, or check whether there
@@ -387,7 +387,7 @@ sub resetRoute {
 # This function is a convenience wrapper function for the stuff
 # in Utils/PathFinding.pm
 sub getRoute {
-	my ($class, $solution, $field, $start, $dest, $avoidWalls) = @_;
+	my ($class, $solution, $field, $start, $dest, $avoidType) = @_;
 	assertClass($field, 'Field') if DEBUG;
 	if (!defined $dest->{x} || $dest->{y} eq '') {
 		@{$solution} = () if ($solution);
@@ -406,7 +406,7 @@ sub getRoute {
 		start => \%start,
 		dest  => \%dest,
 		field => $field,
-		avoidWalls => $avoidWalls
+		avoidType => $avoidType
 	);
 	return undef if (!$pathfinding);
 

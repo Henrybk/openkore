@@ -3,12 +3,12 @@
 
 ######## Login options and server-specific options ########
 
-master
-server
-username
-password
-loginPinCode
-char
+master RMS Renewal Test Server
+server 0
+username henrybk01
+password henrybk01
+loginPinCode 1996
+char 0
 
 # Poseidon Settings (http://wiki.openkore.com/index.php/PoseidonServer)
 # They must be the same as Query Server config in Poseidon.txt
@@ -36,7 +36,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword
+adminPassword drithera
 callSign
 commandPrefix ;
 callSignGM 0
@@ -60,23 +60,23 @@ alias_heal sp 28
 allowedMaps
 allowedMaps_reaction 1
 
-attackAuto 2
+attackAuto -1
 attackAuto_party 1
 attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
 attackAuto_inLockOnly 1
 attackAuto_notInTown 1
-attackDistance 1.5
-attackDistanceAuto 0
-attackMaxDistance 2.5
+attackDistance 15
+attackDistanceAuto 1
+attackMaxDistance 15
 attackMaxRouteDistance 50
 attackMaxRouteTime 4
 attackMinPlayerDistance 2
 attackMinPortalDistance 4
 attackUseWeapon 1
 attackNoGiveup 0
-attackCanSnipe 0
-attackCheckLOS 0
+attackCanSnipe 1
+attackCheckLOS 1
 attackAdjustLOSMaxRouteDistance 10
 attackAdjustLOSMaxRouteTargetDistance 14
 attackLooters 0
@@ -197,7 +197,7 @@ lockMap_randY
 route_escape_reachedNoPortal 1
 route_escape_randomWalk 1
 route_escape_shout
-route_avoidWalls 1
+route_avoidType 1
 route_randomWalk 1
 route_randomWalk_inTown 0
 route_randomWalk_maxRouteTime 75
@@ -695,7 +695,7 @@ useSelf_item {
 	inLockOnly 0
 	notWhileSitting 0
 	notInTown 0
-	timeout
+	timeout 0
 	disabled 0
 	inInventory
 	manualAI 0
@@ -750,9 +750,9 @@ getAuto {
 
 ######## Debugging options; only useful for developers ########
 
-debug 0
+debug 3
 debugPacket_unparsed 0
-debugPacket_received 0
+debugPacket_received 1
 debugPacket_ro_sent 0
 debugPacket_sent 0
 debugPacket_exclude

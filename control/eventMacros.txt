@@ -1,0 +1,8 @@
+automacro test {
+	NpcNearVisible /kafra/i
+	exclusive 1
+	call {
+		log hey hey it works
+		pause 1
+	}
+}

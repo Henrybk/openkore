@@ -38,7 +38,7 @@ our @EXPORT = (
 	@{$Utils::DataStructures::EXPORT_TAGS{all}},
 
 	# Math
-	qw(calcPosFromTime calcPosition calcTime checkMovementDirection countSteps distance
+	qw(calcPosFromTimeAndPathing calcPosFromTime calcPosition calcPosition_new calcTime checkMovementDirection countSteps distance
 	intToSignedInt intToSignedShort
 	blockDistance adjustedBlockDistance getVector moveAlong moveAlongVector
 	normalize vectorToDegree max min round ceil),
@@ -65,63 +65,65 @@ our %quarks;
 
 
 ##
-# calcPosFromTime(pos, pos_to, speed, time)
+# calcPosFromTimeAndPathing(pos, pos_to, speed, time, $field)
 #
-# Returns: the position where an actor moving from $pos to $pos_to with
+# Returns: the position where an actor moving from $pos to $pos_to in field $field with
 # the speed $speed will be in $time amount of time.
-# Walls are not considered.
-sub calcPosFromTime {
-	my ($pos, $pos_to, $speed, $time) = @_;
-	my $posX = $$pos{x};
-	my $posY = $$pos{y};
-	my $pos_toX = $$pos_to{x};
-	my $pos_toY = $$pos_to{y};
+# Walls are considered.
+sub calcPosFromTimeAndPathing {
+	my ($pos, $pos_to, $speed, $time_passed, $field) = @_;
+	
 	my $stepType = 0; # 1 - vertical or horizontal; 2 - diagonal
-	my $s = 0; # step
+	my $step = 0; # step
+	
+	my $solution = [];
+	my $dist = new PathFinding(
+		field => $field,
+		start => $pos,
+		dest => $pos_to,
+		avoidType => 2
+	)->run($solution);
+	
+	my %current_pos = ( x => $$pos{x} , y => $$pos{y} );
+	my %next_pos;
+	
+	my $time_needed_ortogonal = 1 * $speed;
+	my $time_needed_diagonal = sqrt(2) * $speed;
+	my $time_needed;
+	
+	print "pos: ".$$pos{x}." ".$$pos{y}." | pos_to: ".$$pos_to{x}." ".$$pos_to{y}." | speed: ".$speed." | time passed: ".$time_passed." | dist: ".$dist."\n";
 
-	my %result;
-	$result{x} = $pos_toX;
-	$result{y} = $pos_toY;
-
-	if (!$speed) {
-		return %result;
-	}
-	while (1) {
-		$s++;
+	while ($step < $dist) {
+		%next_pos = ( x => $solution->[$step]{x}, y => $solution->[$step]{y} );
+		
 		$stepType = 0;
-		if ($posX < $pos_toX) {
-			$posX++;
+		
+		if ($current_pos{x} != $next_pos{x}) {
 			$stepType++;
 		}
-		if ($posX > $pos_toX) {
-			$posX--;
-			$stepType++;
-		}
-		if ($posY < $pos_toY) {
-			$posY++;
-			$stepType++;
-		}
-		if ($posY > $pos_toY) {
-			$posY--;
+
+		if ($current_pos{y} != $next_pos{y}) {
 			$stepType++;
 		}
 
 		if ($stepType == 2) {
-			$time -= sqrt(2) / $speed;
+			$time_needed = $time_needed_diagonal;
 		} elsif ($stepType == 1) {
-			$time -= 1 / $speed;
-		} else {
-			$s--;
-			last;
+			$time_needed = $time_needed_ortogonal;
 		}
-		if ($time < 0) {
-			$s--;
+		print "curent: ".$current_pos{x}." ".$current_pos{y}." | next: ".$next_pos{x}." ".$next_pos{y}." | stepType ".$stepType." | time_needed: ".$time_needed." | step: ".$step."\n";
+		
+		if ($time_passed > $time_needed) {
+			$time_passed -= $time_needed;
+			%current_pos = %next_pos;
+			$step++;
+		} else {
+			print "Last.\n";
 			last;
 		}
 	}
 
-	%result = moveAlong($pos, $pos_to, $s);
-	return %result;
+	return \%current_pos;
 }
 
 ##
@@ -205,6 +207,91 @@ sub calcPosition {
 		moveAlongVector(\%result, $pos, \%vec, $dist);
 		$result{x} = int sprintf("%.0f", $result{x}) if (!$float);
 		$result{y} = int sprintf("%.0f", $result{y}) if (!$float);
+		return \%result;
+	}
+}
+
+sub calcPosition_new {
+	my ($object, $extra_time, $float) = @_;
+	my $time_needed = $object->{time_move_calc_new};
+	my $elasped = time - $object->{time_move} + $extra_time;
+
+	if ($elasped >= $time_needed || !$time_needed) {
+		return $object->{pos_to};
+	} else {
+		my $pos = $object->{pos};
+		my $pos_to = $object->{pos_to};
+		
+		# RO will always make the character walk the diagonal part of the route before the ortogonal part
+		# Diagonal paths take sqrt(2) longer to complete than ortogonal paths
+		
+		my $xDistance = abs($pos->{x} - $pos_to->{x});
+		my $yDistance = abs($pos->{y} - $pos_to->{y});
+		
+		my $diagonal_block_dist = min($xDistance, $yDistance);
+		my $ortogonal_dist = max($xDistance, $yDistance) - $diagonal_block_dist;
+		
+		my $diagonal_dist = $diagonal_block_dist * sqrt(2);
+		
+		my $diagonal_complete_time = $object->{walk_speed} * $diagonal_dist;
+		
+		my $last_diagonal_cell = {};
+		
+		if ($diagonal_dist == 0) {
+			$last_diagonal_cell = $pos;
+			
+		} elsif ($ortogonal_dist == 0) {
+			$last_diagonal_cell = $pos_to;
+			
+		} else {
+			if ($xDistance > $yDistance) {
+				if ($pos->{x} > $pos_to->{x}) {
+					$last_diagonal_cell->{x} = $pos->{x} - $diagonal_block_dist;
+				} else {
+					$last_diagonal_cell->{x} = $pos->{x} + $diagonal_block_dist;
+				}
+				$last_diagonal_cell->{y} = $pos_to->{y};
+			} else {
+				$last_diagonal_cell->{x} = $pos_to->{x};
+				if ($pos->{y} > $pos_to->{y}) {
+					$last_diagonal_cell->{y} = $pos->{y} - $diagonal_block_dist;
+				} else {
+					$last_diagonal_cell->{y} = $pos->{y} + $diagonal_block_dist;
+				}
+			}
+		}
+		
+		my $start;
+		my $end;
+		my $block_dist;
+
+		my (%result, $walked_percent);
+		
+		# We are in ortogonal movement
+		if ($elasped >= $diagonal_complete_time) {
+			$start = $last_diagonal_cell;
+			$end = $pos_to;
+			$block_dist = $ortogonal_dist;
+			$elasped = $elasped - $diagonal_complete_time;
+			$time_needed = $object->{walk_speed} * $ortogonal_dist;
+			
+		# We are in diagonal movement
+		} else {
+			$start = $pos;
+			$end = $last_diagonal_cell;
+			$block_dist = $diagonal_block_dist;
+			#$elasped = ;
+			$time_needed = $diagonal_complete_time;
+		}
+		
+		$walked_percent = ($elasped / $time_needed);
+		
+		$result{x} = $start->{x} + $walked_percent * ($end->{x} - $start->{x});
+		$result{y} = $start->{y} + $walked_percent * ($end->{y} - $start->{y});
+		
+		$result{x} = int sprintf("%.0f", $result{x}) if (!$float);
+		$result{y} = int sprintf("%.0f", $result{y}) if (!$float);
+		
 		return \%result;
 	}
 }

@@ -75,7 +75,11 @@ sub new {
 # Optional arguments:
 # `l
 # - timeout: the number of milliseconds to run each step for, defaults to 1500
-# - avoidWalls: of walls should be avoided during pathing, defaults to 1
+# - avoidType: defines the type of avoidinsg to be used during pathing
+#              0 means no avoiding
+#              1 means avoiding only walls (to mimic a player real movement)
+#              2 means avoiding direction changes, also prefers to travel diagonal paths first and ortogonal paths last (to mimic the client step-to-step movement)
+#              defaults to 1
 # - min_x: limits the map in a certain minimum x coordinate, defaults to 0
 # - max_x: limits the map in a certain maximum x coordinate, defaults to width-1
 # - min_y: limits the map in a certain minimum y coordinate, defaults to 0
@@ -106,7 +110,7 @@ sub reset {
 		$args{width} = $args{field}{width} unless (defined $args{width});
 		$args{height} = $args{field}{height} unless (defined $args{height});
 		$args{timeout} = 1500 unless (defined $args{timeout});
-		$args{avoidWalls} = 1 unless (defined $args{avoidWalls});
+		$args{avoidType} = 1 unless (defined $args{avoidType});
 		$args{min_x} = 0 unless (defined $args{min_x});
 		$args{max_x} = ($args{width}-1) unless (defined $args{max_x});
 		$args{min_y} = 0 unless (defined $args{min_y});
@@ -115,7 +119,7 @@ sub reset {
 
 	return $class->_reset(
 		$args{weight_map}, 
-		$args{avoidWalls}, 
+		$args{avoidType}, 
 		$args{width}, 
 		$args{height},
 		$args{start}{x}, 

@@ -43,6 +43,62 @@ use Task::UseSkill;
 use Task::ErrorReport;
 use Utils::Exceptions;
 
+sub calcPosFromTimeAndPathing2 {
+	my ($pos, $pos_to, $speed, $time_passed, $field) = @_;
+	
+	my $stepType = 0; # 1 - vertical or horizontal; 2 - diagonal
+	my $step = 0; # step
+	
+	my $solution = [];
+	my $dist = new PathFinding(
+		field => $field,
+		start => $pos,
+		dest => $pos_to,
+		avoidType => 2
+	)->run($solution);
+	
+	my %current_pos = ( x => $$pos{x} , y => $$pos{y} );
+	my %next_pos;
+	
+	my $time_needed_ortogonal = 1 * $speed;
+	my $time_needed_diagonal = sqrt(2) * $speed;
+	my $time_needed;
+	
+	warning "pos: ".$$pos{x}." ".$$pos{y}." | pos_to: ".$$pos_to{x}." ".$$pos_to{y}." | speed: ".$speed." | time passed: ".$time_passed." | dist: ".$dist."\n";
+
+	while ($step < $dist) {
+		%next_pos = ( x => $solution->[$step]{x}, y => $solution->[$step]{y} );
+		
+		$stepType = 0;
+		
+		if ($current_pos{x} != $next_pos{x}) {
+			$stepType++;
+		}
+
+		if ($current_pos{y} != $next_pos{y}) {
+			$stepType++;
+		}
+
+		if ($stepType == 2) {
+			$time_needed = $time_needed_diagonal;
+		} elsif ($stepType == 1) {
+			$time_needed = $time_needed_ortogonal;
+		}
+		warning "curent: ".$current_pos{x}." ".$current_pos{y}." | next: ".$next_pos{x}." ".$next_pos{y}." | stepType ".$stepType." | time_needed: ".$time_needed." | step: ".$step."\n";
+		
+		if ($time_passed > $time_needed) {
+			$time_passed -= $time_needed;
+			%current_pos = %next_pos;
+			$step++;
+		} else {
+			warning "Last.\n";
+			last;
+		}
+	}
+
+	return \%current_pos;
+}
+
 # This is the main function from which the rest of the AI
 # will be invoked.
 sub iterate {
@@ -55,6 +111,15 @@ sub iterate {
 	Benchmark::end("ai_prepare") if DEBUG;
 	
 	Plugins::callHook('AI_start', {state => AI::state});
+	
+	for my $monster (@$playersList) {
+		my $pos_old = calcPosition($monster, 0, 1);
+		my $pos_new = calcPosition_new($monster, 0, 1);
+		my $pos_pathing = calcPosFromTimeAndPathing2($monster->{pos}, $monster->{pos_to}, $monster->{walk_speed}, (time - $monster->{time_move}), $field);
+		warning $monster." is at (calcPostion_old) ".$pos_old->{x}." ".$pos_old->{y}." (dist: ".blockDistance($char->{pos}, $pos_old).").\n";
+		warning $monster." is at (calcPostion_new) ".$pos_new->{x}." ".$pos_new->{y}." (dist: ".blockDistance($char->{pos}, $pos_new).").\n";
+		warning $monster." is at (CalcFromPathing) ".$pos_pathing->{x}." ".$pos_pathing->{y}." (dist: ".blockDistance($char->{pos}, $pos_pathing).").\n\n";
+	}
 
 	return if AI::state == AI::OFF;
 	if ($net->clientAlive() && !$sentWelcomeMessage && timeOut($timeout{welcomeText})) {
@@ -2870,6 +2935,7 @@ sub processAutoEquip {
 ##### AUTO-ATTACK #####
 sub processAutoAttack {
 	# Don't even think about attacking if attackAuto is -1.
+
 	return if $config{attackAuto} && $config{attackAuto} eq -1;
 
 	# The auto-attack logic is as follows:

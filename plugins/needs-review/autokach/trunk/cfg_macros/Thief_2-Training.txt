@@ -420,7 +420,7 @@ automacro ThiefTraining9g {
 }
 macro ThiefTraining9gM {
 	log Идем бить зеленую траву, надо будет для квеста
-	do conf route_avoidWalls 0
+	do conf route_avoidType 0
 	do conf lockMap gef_fild00
 	do conf attackAuto 2
 	do conf route_randomWalk 0
@@ -465,7 +465,7 @@ automacro ThiefTraining9g2 {
 }
 macro ThiefTraining9g2M {
 	log Набили зеленой травы, идем в пайон менять гемы.
-	do conf route_avoidWalls 1
+	do conf route_avoidType 1
 	do conf lockMap none
 	do conf attackAuto 0
 	do conf route_randomWalk 0

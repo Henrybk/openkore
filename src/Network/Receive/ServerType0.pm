@@ -2014,6 +2014,7 @@ sub skill_used_no_damage {
 		$char->{pos_to} = $pos;
 		$char->{time_move} = 0;
 		$char->{time_move_calc} = 0;
+		$char->{time_move_calc_new} = 0;
 	}
 
 	# Resolve source and target names

@@ -12,6 +12,7 @@ typedef struct {
 	unsigned long nodeAdress;
 	
 	unsigned int predecessor;
+	short predecessor_dir;
 	
 	unsigned int whichlist;
 	long openListIndex;
@@ -22,7 +23,7 @@ typedef struct {
 } Node;
 
 typedef struct {
-	bool avoidWalls;
+	unsigned short avoidType;
 	
 	unsigned long time_max;
 	

@@ -601,7 +601,7 @@ sub processAttack {
 				maxRouteTime => $config{$slave->{configPrefix}.'attackMaxRouteTime'},
 				attackID => $ID,
 				noMapRoute => 1,
-				noAvoidWalls => 1);
+				avoidType => 0);
 			if (!$result) {
 				# Unable to calculate a route to target
 				$target->{homunculus_attack_failed} = time;

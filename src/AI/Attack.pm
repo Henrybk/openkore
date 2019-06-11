@@ -550,7 +550,7 @@ sub main {
 			maxRouteTime => $config{'attackMaxRouteTime'},
 			attackID => $ID,
 			noMapRoute => 1,
-			noAvoidWalls => 1);
+			avoidType => 0);
 		if (!$result) {
 			# Unable to calculate a route to target
 			$target->{attack_failed} = time;
