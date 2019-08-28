@@ -65,10 +65,6 @@ heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int
 	
 	int hScore = (ORTOGONAL * (xDistance + yDistance)) + ((DIAGONAL - (2 * ORTOGONAL)) * ((xDistance > yDistance) ? yDistance : xDistance));
 	
-	if (avoidWalls) {
-		hScore += (((xDistance > yDistance) ? xDistance : yDistance) * 10);
-	}
-	
 	return hScore;
 }
 
@@ -494,7 +490,7 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-					if (session->map_base_weight[neighbor_adress] == 0) {
+					if (session->map_base_weight[neighbor_adress] == -1) {
 						continue;
 					}
 
@@ -505,7 +501,7 @@ CalcPath_pathStep (CalcPath_session *session)
 					}
 
 					if (i != 0 && j != 0) {
-						if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
+						if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == -1 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == -1) {
 							continue;
 						}
 						distanceFromCurrent = DIAGONAL;
@@ -553,7 +549,7 @@ CalcPath_pathStep (CalcPath_session *session)
 
 					neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-					if (session->map_base_weight[neighbor_adress] == 0) {
+					if (session->map_base_weight[neighbor_adress] == -1) {
 						continue;
 					}
 
@@ -610,7 +606,7 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 	
 			neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-			if (session->map_base_weight[neighbor_adress] == 0) {
+			if (session->map_base_weight[neighbor_adress] == -1) {
 				continue;
 			}
 
@@ -621,7 +617,7 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 			}
 			
 			if (i != 0 && j != 0) {
-				if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
+				if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == -1 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == -1) {
 					continue;
 				}
 				distanceFromCurrent = DIAGONAL;
@@ -747,7 +743,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 	
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-				if (session->map_base_weight[neighbor_adress] == 0) {
+				if (session->map_base_weight[neighbor_adress] == -1) {
 					continue;
 				}
 
@@ -758,7 +754,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 				}
 				
 				if (i != 0 && j != 0) {
-					if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
+					if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == -1 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == -1) {
 						continue;
 					}
 					distanceFromCurrent = DIAGONAL;
@@ -804,7 +800,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 
 				neighbor_adress = (neighbor_y * session->width) + neighbor_x;
 
-				if (session->map_base_weight[neighbor_adress] == 0) {
+				if (session->map_base_weight[neighbor_adress] == -1) {
 					continue;
 				}
 
@@ -815,7 +811,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 				}
 				
 				if (i != 0 && j != 0) {
-					if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == 0 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == 0) {
+					if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == -1 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == -1) {
 						continue;
 					}
 				}
