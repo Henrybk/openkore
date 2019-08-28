@@ -450,7 +450,7 @@ CalcPath_pathStep (CalcPath_session *session)
 				neighbor_x = currentNode->x + i_x[i];
 				neighbor_y = currentNode->y + i_y[i];
 
-				if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+				if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
 					continue;
 				}
 
@@ -503,7 +503,7 @@ CalcPath_pathStep (CalcPath_session *session)
 				neighbor_x = currentNode->x + i_x[i];
 				neighbor_y = currentNode->y + i_y[i];
 
-				if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+				if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
 					continue;
 				}
 
@@ -556,7 +556,7 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 		neighbor_x = currentNode->x + i_x[i];
 		neighbor_y = currentNode->y + i_y[i];
 		
-		if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+		if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
 			continue;
 		}
 	
@@ -688,7 +688,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 			neighbor_x = x + i_x[i];
 			neighbor_y = y + i_y[i];
 			
-			if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+			if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
 				continue;
 			}
 	
@@ -739,7 +739,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 			neighbor_x = x + i_x[i];
 			neighbor_y = y + i_y[i];
 
-			if (neighbor_x >= session->width || neighbor_y >= session->height || neighbor_x < 0 || neighbor_y < 0) {
+			if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
 				continue;
 			}
 

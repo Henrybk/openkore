@@ -33,6 +33,11 @@ typedef struct {
 	
 	int width;
 	int height;
+
+ 	int min_x;
+	int max_x;
+	int min_y;
+	int max_y;
 	
 	int startX;
 	int startY;
