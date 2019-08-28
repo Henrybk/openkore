@@ -181,6 +181,91 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		/* Initializes all cells in the map */
 		CalcPath_init(session);
 
+int
+PathFinding_run(session, solution_array)
+		PathFinding session
+		SV *solution_array
+	PREINIT:
+		int status;
+	CODE:
+		
+		/* Check for any missing arguments */
+		if (!session || !solution_array) {
+			printf("[pathfinding run error] missing argument\n");
+			XSRETURN_NO;
+		}
+		
+		/* solution_array should be a reference to an array */
+		if (!SvROK(solution_array)) {
+			printf("[pathfinding run error] solution_array is not a reference\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvTYPE(SvRV(solution_array)) != SVt_PVAV) {
+			printf("[pathfinding run error] solution_array is not an array reference\n");
+			XSRETURN_NO;
+		}
+		
+		if (!SvOK(solution_array)) {
+			printf("[pathfinding run error] solution_array is not defined\n");
+			XSRETURN_NO;
+		}
+		
+		status = CalcPath_pathStep (session);
+		
+		if (status < 0) {
+			RETVAL = status;
+		} else {
+			AV *array;
+			int size;
+
+			size = session->solution_size;
+ 			array = (AV *) SvRV (solution_array);
+			if (av_len (array) > size)
+				av_clear (array);
+			
+			av_extend (array, session->solution_size);
+			
+			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
+			
+			Node sucessor;
+
+			while (currentNode.x != session->endX || currentNode.y != session->endY)
+			{
+				sucessor = session->currentMap[currentNode.sucessor];
+				
+				HV * rh = (HV *)sv_2mortal((SV *)newHV());
+
+				hv_store(rh, "x", 1, newSViv(sucessor.x), 0);
+
+				hv_store(rh, "y", 1, newSViv(sucessor.y), 0);
+				
+				av_push(array, newRV((SV *)rh));
+				
+				currentNode = sucessor;
+			}
+			
+			RETVAL = size;
+
+		}
+	OUTPUT:
+		RETVAL
+
+int
+PathFinding_runcount(session)
+		PathFinding session
+	PREINIT:
+		int status;
+	CODE:
+
+		status = CalcPath_pathStep (session);
+		if (status < 0) {
+			RETVAL = status;
+		} else {
+			RETVAL = (int) session->solution_size;
+		}
+	OUTPUT:
+		RETVAL
 
 int
 PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_array)
@@ -380,92 +465,6 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 			}
 		}
 		RETVAL = 1;
-	OUTPUT:
-		RETVAL
-
-int
-PathFinding_run(session, solution_array)
-		PathFinding session
-		SV *solution_array
-	PREINIT:
-		int status;
-	CODE:
-		
-		/* Check for any missing arguments */
-		if (!session || !solution_array) {
-			printf("[pathfinding run error] missing argument\n");
-			XSRETURN_NO;
-		}
-		
-		/* solution_array should be a reference to an array */
-		if (!SvROK(solution_array)) {
-			printf("[pathfinding run error] solution_array is not a reference\n");
-			XSRETURN_NO;
-		}
-		
-		if (SvTYPE(SvRV(solution_array)) != SVt_PVAV) {
-			printf("[pathfinding run error] solution_array is not an array reference\n");
-			XSRETURN_NO;
-		}
-		
-		if (!SvOK(solution_array)) {
-			printf("[pathfinding run error] solution_array is not defined\n");
-			XSRETURN_NO;
-		}
-		
-		status = CalcPath_pathStep (session);
-		
-		if (status < 0) {
-			RETVAL = status;
-		} else {
-			AV *array;
-			int size;
-
-			size = session->solution_size;
- 			array = (AV *) SvRV (solution_array);
-			if (av_len (array) > size)
-				av_clear (array);
-			
-			av_extend (array, session->solution_size);
-			
-			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
-			
-			Node sucessor;
-
-			while (currentNode.x != session->endX || currentNode.y != session->endY)
-			{
-				sucessor = session->currentMap[currentNode.sucessor];
-				
-				HV * rh = (HV *)sv_2mortal((SV *)newHV());
-
-				hv_store(rh, "x", 1, newSViv(sucessor.x), 0);
-
-				hv_store(rh, "y", 1, newSViv(sucessor.y), 0);
-				
-				av_push(array, newRV((SV *)rh));
-				
-				currentNode = sucessor;
-			}
-			
-			RETVAL = size;
-
-		}
-	OUTPUT:
-		RETVAL
-
-int
-PathFinding_runcount(session)
-		PathFinding session
-	PREINIT:
-		int status;
-	CODE:
-
-		status = CalcPath_pathStep (session);
-		if (status < 0) {
-			RETVAL = status;
-		} else {
-			RETVAL = (int) session->solution_size;
-		}
 	OUTPUT:
 		RETVAL
 
