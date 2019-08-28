@@ -117,7 +117,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			XSRETURN_NO;
 		}
 
- 		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == 0) {
+ 		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == -1) {
 			printf("[pathfinding reset error] Start coordinate is not a walkable cell.\n");
 			XSRETURN_NO;
 		}
@@ -127,7 +127,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			XSRETURN_NO;
 		}
 
- 		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == 0) {
+ 		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == -1) {
 			printf("[pathfinding reset error] End coordinate is not a walkable cell.\n");
 			XSRETURN_NO;
 		}
@@ -206,12 +206,12 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 				XSRETURN_NO;
 			}
 
-			if (session->map_base_weight[((new_y * session->width) + new_x)] == 0) {
+			if (session->map_base_weight[((new_y * session->width) + new_x)] == -1) {
 				printf("[pathfinding update_solution error] Start coordinate is not a walkable cell.\n");
 				XSRETURN_NO;
 			}
 		
-			session->k += heuristic_cost_estimate(new_x, new_y, session->startX, session->startY, session->avoidWalls);
+			session->k += heuristic_cost_estimate(new_x, new_y, session->startX, session->startY);
 			session->startX = new_x;
 			session->startY = new_y;
 		}

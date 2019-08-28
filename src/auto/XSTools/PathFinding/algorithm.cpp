@@ -47,7 +47,7 @@ calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k)
 	
 	key[1] = ((node->g > node->rhs) ? node->rhs : node->g);
 	
-	unsigned short h = heuristic_cost_estimate(node->x, node->y, startX, startY, avoidWalls);
+	unsigned short h = heuristic_cost_estimate(node->x, node->y, startX, startY);
 	
 	key[0] = key[1] + h + k;
 	
@@ -55,7 +55,7 @@ calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k)
 }
 
 int 
-heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls)
+heuristic_cost_estimate (int currentX, int currentY, int startX, int startY)
 {
 	int xDistance = abs(currentX - startX);
 	int yDistance = abs(currentY - startY);
@@ -357,38 +357,6 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 	}
 }
 
-void 
-updateNode (CalcPath_session *session, Node* node)
-{
-	if (node->g != node->rhs) {
-		if (node->isInOpenList) {
-			int* keys = calcKey(node, session->k);
-			reajustOpenListItem(session, node, keys[0], keys[1]);
-		} else {
-			unsigned int* keys = calcKey(node, session->k);
-			node->key1 = keys[0];
-			node->key2 = keys[1];
-			openListAdd (session, node);
-		}
-		
-	} else if (node->isInOpenList) {
-		openListRemove(session, node);
-	}
-}
-
-void 
-reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
-{
-	Node* currentNode = start;
-	
-	session->solution_size = 0;
-	while (currentNode->nodeAdress != goal->nodeAdress)
-	{
-		currentNode = &session->currentMap[currentNode->sucessor];
-		session->solution_size++;
-	}
-}
-
 int 
 CalcPath_pathStep (CalcPath_session *session)
 {
@@ -411,6 +379,11 @@ CalcPath_pathStep (CalcPath_session *session)
 		goal->key1 = keys[0];
 		goal->key2 = keys[1];
 		openListAdd (session, goal);
+	}
+
+ 	if (goal->nodeAdress == start->nodeAdress) {
+		session->solution_size = 0;
+		return 1;
 	}
 	
 	Node* currentNode;

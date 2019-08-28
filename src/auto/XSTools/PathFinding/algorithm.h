@@ -57,7 +57,7 @@ CalcPath_session *CalcPath_new ();
 
 unsigned long* calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k);
 	
-int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls);
+int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY);
 
 void openListAdd (CalcPath_session *session, Node* node);
 
