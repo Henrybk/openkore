@@ -48,28 +48,28 @@ calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k)
 {
 	static unsigned long key[2];
 	
-    key[1] = ((node->g > node->rhs) ? node->rhs : node->g);
+	key[1] = ((node->g > node->rhs) ? node->rhs : node->g);
 	
 	unsigned short h = heuristic_cost_estimate(node->x, node->y, startX, startY, avoidWalls);
 	
 	key[0] = key[1] + h + k;
 	
-    return key;
+	return key;
 }
 
 int 
 heuristic_cost_estimate (int currentX, int currentY, int startX, int startY, int avoidWalls)
 {
-    int xDistance = abs(currentX - startX);
-    int yDistance = abs(currentY - startY);
-    
-    int hScore = (ORTOGONAL * (xDistance + yDistance)) + ((DIAGONAL - (2 * ORTOGONAL)) * ((xDistance > yDistance) ? yDistance : xDistance));
-    
-    if (avoidWalls) {
-        hScore += (((xDistance > yDistance) ? xDistance : yDistance) * 10);
-    }
-    
-    return hScore;
+	int xDistance = abs(currentX - startX);
+	int yDistance = abs(currentY - startY);
+	
+	int hScore = (ORTOGONAL * (xDistance + yDistance)) + ((DIAGONAL - (2 * ORTOGONAL)) * ((xDistance > yDistance) ? yDistance : xDistance));
+	
+	if (avoidWalls) {
+		hScore += (((xDistance > yDistance) ? xDistance : yDistance) * 10);
+	}
+	
+	return hScore;
 }
 
 // Openlist is a binary heap of min-heap type
@@ -81,11 +81,11 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 {
 	// Index will be 1 + last index in openList, which is also its size
 	// Save in currentNode its index in openList
-    currentNode->openListIndex = session->openListSize;
+	currentNode->openListIndex = session->openListSize;
 	currentNode->isInOpenList = 1;
 	
 	// Defines openList[index] to currentNode adress
-    session->openList[currentNode->openListIndex] = currentNode->nodeAdress;
+	session->openList[currentNode->openListIndex] = currentNode->nodeAdress;
 	
 	// Increses openListSize by 1, since we just added a new member
 	session->openListSize++;
@@ -94,28 +94,28 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 	Node* parentNode;
 	
 	// Repeat while currentNode still has a parent node, otherwise currentNode is the top node in the heap
-    while (parentIndex >= 0) {
+	while (parentIndex >= 0) {
 		
 		parentNode = &session->currentMap[session->openList[parentIndex]];
 		
 		// If parent node is bigger than currentNode, exchange their positions
 		if (parentNode->key1 > currentNode->key1 || (parentNode->key1 == currentNode->key1 && parentNode->key2 > currentNode->key2)) {
 			// Changes the node adress of openList[currentNode->openListIndex] (which is 'currentNode') to that of openList[parentIndex] (which is the current parent of 'currentNode')
-            session->openList[currentNode->openListIndex] = session->openList[parentIndex];
+			session->openList[currentNode->openListIndex] = session->openList[parentIndex];
 			
 			// Changes openListIndex of the current parent of 'currentNode' to that of 'currentNode' since they exchanged positions
-            parentNode->openListIndex = currentNode->openListIndex;
+			parentNode->openListIndex = currentNode->openListIndex;
 			
 			// Changes the node adress of openList[parentIndex] (which is the current parent of 'currentNode') to that of openList[currentNode->openListIndex] (which is 'currentNode')
-            session->openList[parentIndex] = currentNode->nodeAdress;
+			session->openList[parentIndex] = currentNode->nodeAdress;
 			
 			// Changes openListIndex of 'currentNode' to that of the current parent of 'currentNode' since they exchanged positions
-            currentNode->openListIndex = parentIndex;
+			currentNode->openListIndex = parentIndex;
 			
 			// Updates parentIndex to that of the current parent of 'currentNode'
 			parentIndex = (long)floor((currentNode->openListIndex - 1) / 2);
 			
-        } else {
+		} else {
 			break;
 		}
 	}
@@ -358,10 +358,10 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 	
 	session->solution_size = 0;
 	while (currentNode->nodeAdress != goal->nodeAdress)
-    {
-        currentNode = &session->currentMap[currentNode->sucessor];
+	{
+		currentNode = &session->currentMap[currentNode->sucessor];
 		session->solution_size++;
-    }
+	}
 }
 
 void 
@@ -390,10 +390,10 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 	
 	session->solution_size = 0;
 	while (currentNode->nodeAdress != goal->nodeAdress)
-    {
-        currentNode = &session->currentMap[currentNode->sucessor];
-        session->solution_size++;
-    }
+	{
+		currentNode = &session->currentMap[currentNode->sucessor];
+		session->solution_size++;
+	}
 }
 
 int 
@@ -439,13 +439,13 @@ CalcPath_pathStep (CalcPath_session *session)
 	start->key2 = keys[1];
 	
 	
-    while (1) {
+	while (1) {
 		// No path exists
 		if (session->openListSize == 0) {
 			return -1;
 		}
 		
-        // get lowest key score member of openlist and delete it from it, shrinks openListSize
+		// get lowest key score member of openlist and delete it from it, shrinks openListSize
 		currentNode = &session->currentMap[session->openList[0]];
 		
 		start->key2 = ((start->g > start->rhs) ? start->rhs : start->g);
