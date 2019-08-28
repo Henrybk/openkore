@@ -446,7 +446,6 @@ sub main {
 			    &&    (($config{attackCanSnipe} && (checkLineSnipable($spot, $realMonsterPos) || checkLineWalkable($spot, $realMonsterPos, 1)))
 				   || (!$config{attackCanSnipe} && blockDistance($spot, $realMonsterPos) <= $args->{attackMethod}{maxDistance} && checkLineWalkable($spot, $realMonsterPos, 1)))
 			) {
-				my $solution = [];
 				my $dist = new PathFinding(
 					field => $field,
 					start => $realMyPos,
