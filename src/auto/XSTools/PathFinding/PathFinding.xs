@@ -110,7 +110,27 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		session->startX = (int) SvUV (startx);
 		session->startY = (int) SvUV (starty);
 		session->endX = (int) SvUV (destx);
-		session->endY = (int) SvUV (desty);
+		session->endY = (int) SvUV (desty);;
+
+ 		if (session->startX >= session->width || session->startY >= session->height || session->startX < 0 || session->startY < 0) {
+			printf("[pathfinding reset error] Start coordinate is out of the map.\n");
+			XSRETURN_NO;
+		}
+
+ 		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == 0) {
+			printf("[pathfinding reset error] Start coordinate is not a walkable cell.\n");
+			XSRETURN_NO;
+		}
+
+ 		if (session->endX >= session->width   || session->endY >= session->height   || session->endX < 0   || session->endY < 0) {
+			printf("[pathfinding reset error] End coordinate is out of the map.\n");
+			XSRETURN_NO;
+		}
+
+ 		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == 0) {
+			printf("[pathfinding reset error] End coordinate is not a walkable cell.\n");
+			XSRETURN_NO;
+		}
 		
 		session->avoidWalls = (unsigned short) SvUV (avoidWalls);
 		session->time_max = (unsigned int) SvUV (time_max);
@@ -180,6 +200,17 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 		int new_y = (int) SvIV (new_start_y);
 		
 		if (new_x != session->startX || new_y != session->startY) {
+
+			if (new_x >= session->width || new_y >= session->height || new_x < 0 || new_y < 0) {
+				printf("[pathfinding update_solution error] Start coordinate is out of the map.\n");
+				XSRETURN_NO;
+			}
+
+			if (session->map_base_weight[((new_y * session->width) + new_x)] == 0) {
+				printf("[pathfinding update_solution error] Start coordinate is not a walkable cell.\n");
+				XSRETURN_NO;
+			}
+		
 			session->k += heuristic_cost_estimate(new_x, new_y, session->startX, session->startY, session->avoidWalls);
 			session->startX = new_x;
 			session->startY = new_y;
