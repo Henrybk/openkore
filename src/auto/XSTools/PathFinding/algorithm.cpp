@@ -655,7 +655,7 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 	
 	long new_weight = old_weight + delta_weight;
 	
-	if (new_weight <= 0) {
+	if (new_weight < 0) {
 		printf("[Pathfinding error] Map node set to have negative weight on updateChangedMap (%d %d || from %ld to %ld || delta_weight %ld).\n", x, y, old_weight, new_weight, delta_weight);
 		return 0;
 	}
