@@ -12,7 +12,9 @@ use Data::Dumper;
 Plugins::register('DStarLiteAvoid', 'Enables smart pathing using the dynamic aspect of D* Lite pathfinding', \&onUnload);
 
 use constant {
-	PLUGIN_NAME => 'DStarLiteAvoid'
+	PLUGIN_NAME => 'DStarLiteAvoid',
+	ENABLE_MOVE => 1,
+	ENABLE_REMOVE => 0,
 };
 
 my $hooks = Plugins::addHooks(
@@ -30,6 +32,10 @@ my $obstacle_hooks = Plugins::addHooks(
 	['add_player_list', \&on_add_player_list, undef],
 	['player_disappeared', \&on_player_disappeared, undef],
 	['player_moved', \&on_player_moved, undef],
+	
+	# Spells
+	['packet_areaSpell', \&on_add_areaSpell_list, undef],
+	['packet_pre/area_spell_disappears', \&on_areaSpell_disappeared, undef],
 );
 
 sub onUnload {
@@ -37,13 +43,17 @@ sub onUnload {
 	Plugins::delHooks($obstacle_hooks);
 }
 
-my %nameID_obstacles = (
+my %mob_nameID_obstacles = (
 	1368 => [1000, 1000, 1000, 1000], #Planta carnívora
 	1475 => [1000, 1000, 1000, 1000], #wraith
 );
 
 my %player_name_obstacles = (
 	'henry safado' => [1000, 1000, 1000, 1000],
+);
+
+my %area_spell_type_obstacles = (
+	'177' => [1000, 1000],
 );
 
 my %obstaclesList;
@@ -71,6 +81,8 @@ sub add_obstacle {
 sub move_obstacle {
 	my ($actor, $weights) = @_;
 	
+	return unless (ENABLE_MOVE);
+	
 	warning "[".PLUGIN_NAME."] Moving obstacle $actor (from ".$actor->{pos}{x}." ".$actor->{pos}{y}." to ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.").\n";
 	
 	my $new_changes = create_changes_array($actor->{pos_to}{x}, $actor->{pos_to}{y}, $weights);
@@ -90,6 +102,8 @@ sub move_obstacle {
 
 sub remove_obstacle {
 	my ($actor) = @_;
+	
+	return unless (ENABLE_REMOVE);
 	
 	warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
@@ -275,9 +289,9 @@ sub on_add_monster_list {
 	my (undef, $args) = @_;
 	my $actor = $args;
 	
-	return unless (exists $nameID_obstacles{$actor->{nameID}});
+	return unless (exists $mob_nameID_obstacles{$actor->{nameID}});
 	
-	my @weights = @{$nameID_obstacles{$actor->{nameID}}};
+	my @weights = @{$mob_nameID_obstacles{$actor->{nameID}}};
 	
 	add_obstacle($actor, \@weights);
 }
@@ -288,7 +302,7 @@ sub on_monster_moved {
 
 	return unless (exists $obstaclesList{$actor->{ID}});
 	
-	my @weights = @{$nameID_obstacles{$actor->{nameID}}};
+	my @weights = @{$mob_nameID_obstacles{$actor->{nameID}}};
 	
 	move_obstacle($actor, \@weights);
 }
@@ -300,6 +314,34 @@ sub on_monster_disappeared {
 	return unless (exists $obstaclesList{$actor->{ID}});
 	
 	remove_obstacle($actor);
+}
+
+###################################################
+######## Spell avoiding
+###################################################
+
+# TODO: Add fail flag check
+
+sub on_add_areaSpell_list {
+	my (undef, $args) = @_;
+	my $ID = $args->{ID};
+	my $spell = $spells{$ID};
+	
+	return unless (exists $area_spell_type_obstacles{$spell->{type}});
+	
+	my @weights = @{$area_spell_type_obstacles{$spell->{type}}};
+	
+	add_obstacle($spell, \@weights);
+}
+
+sub on_areaSpell_disappeared {
+	my (undef, $args) = @_;
+	my $ID = $args->{ID};
+	my $spell = $spells{$ID};
+	
+	return unless (exists $obstaclesList{$spell->{ID}});
+	
+	remove_obstacle($spell);
 }
 
 return 1;
