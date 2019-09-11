@@ -141,32 +141,37 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		session->max_y = (int) SvUV (max_y);
 	
 		if (session->max_x >= session->width || session->max_y >= session->height || session->min_x < 0 || session->min_y < 0) {
-			//printf("[pathfinding reset error] Minimum or maximum coordinates are out of the map.\n");
+			printf("[pathfinding reset error] Minimum or maximum coordinates are out of the map.\n");
 			XSRETURN_NO;
 		}
 	
 		if (session->startX >= session->width || session->startY >= session->height || session->startX < 0 || session->startY < 0) {
-			//printf("[pathfinding reset error] Start coordinate is out of the map.\n");
+			printf("[pathfinding reset error] Start coordinate is out of the map.\n");
 			XSRETURN_NO;
 		}
 		
 		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == -1) {
-			//printf("[pathfinding reset error] Start coordinate is not a walkable cell.\n");
-			XSRETURN_NO;
-		}
-	
-		if (session->endX >= session->width   || session->endY >= session->height   || session->endX < 0   || session->endY < 0) {
-			//printf("[pathfinding reset error] End coordinate is out of the map.\n");
-			XSRETURN_NO;
-		}
-		
-		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == -1) {
-			//printf("[pathfinding reset error] End coordinate is not a walkable cell.\n");
+			printf("[pathfinding reset error] Start coordinate is not a walkable cell.\n");
 			XSRETURN_NO;
 		}
 	
 		if (session->startX > session->max_x || session->startY > session->max_y || session->startX < session->min_x || session->startY < session->min_y) {
-			//printf("[pathfinding reset error] Start coordinate is out of the minimum and maximum coordinates.\n");
+			printf("[pathfinding reset error] Start coordinate is out of the minimum and maximum coordinates.\n");
+			XSRETURN_NO;
+		}
+	
+		if (session->endX >= session->width   || session->endY >= session->height   || session->endX < 0   || session->endY < 0) {
+			printf("[pathfinding reset error] End coordinate is out of the map.\n");
+			XSRETURN_NO;
+		}
+		
+		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == -1) {
+			printf("[pathfinding reset error] End coordinate is not a walkable cell.\n");
+			XSRETURN_NO;
+		}
+	
+		if (session->endX > session->max_x || session->endY > session->max_y || session->endtX < session->min_x || session->endY < session->min_y) {
+			printf("[pathfinding reset error] End coordinate is out of the minimum and maximum coordinates.\n");
 			XSRETURN_NO;
 		}
 		
