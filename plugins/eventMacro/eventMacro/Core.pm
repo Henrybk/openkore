@@ -312,6 +312,14 @@ sub create_automacro_list {
 		
 			my ($condition_object, $condition_module);
 			
+			my $not_flag;
+			if ($condition->{'key'} =~ /^\!\~/) {
+				$not_flag = 1;
+				$condition->{'key'} =~ s/^\!\~//;
+			} else {
+				$not_flag = 0;
+			}
+			
 			$condition_module = "eventMacro::Condition::".$condition->{'key'};
 			
 			if (!exists $self->{Condition_Modules_Loaded}{$condition_module}) {
@@ -347,6 +355,8 @@ sub create_automacro_list {
 					$event_type_condition_name = $condition->{'key'};
 				}
 			}
+			
+			$condition_object = $condition_module->set_not_flag($not_flag);
 			
 			push( @{ $currentConditions{$condition_module} }, $condition->{'value'} );
 			

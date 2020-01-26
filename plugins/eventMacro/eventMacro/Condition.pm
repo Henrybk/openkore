@@ -76,12 +76,24 @@ sub is_fulfilled {
 			error "[eventMacro] For some reason something tried to change the fulfilled state of condition '".$self->{name}."' in automacro '".$self->{Automacro_List}->get($self->{automacro_index})->get_name."' to a value that's neither 0 or 1 ('".$new_value."')\n";
 		}
 	}
+	if ($self->{not_flag}) {
+		if ($self->{is_Fulfilled} == 0) {
+			$self->{is_Fulfilled} = 1;
+		} else {
+			$self->{is_Fulfilled} = 0;
+		}
+	}
 	return $self->{is_Fulfilled};
 }
 
 sub error {
 	my ( $self ) = @_;
 	$self->{error};
+}
+
+sub set_not_flag {
+	my ($self, $new_value) = @_;
+	$self->{not_flag} = $new_value;
 }
 
 # Default: No variables.
