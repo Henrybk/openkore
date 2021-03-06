@@ -6,19 +6,24 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct {
+	bool initialized;
+	
 	int x;
 	int y;
+	long weight;
 	
 	unsigned long nodeAdress;
 	
-	unsigned int predecessor;
+	unsigned long key1;
+	unsigned long key2;
 	
-	unsigned int whichlist;
+	bool isInOpenList;
 	long openListIndex;
 	
 	unsigned long g;
-	unsigned long h;
-	unsigned long f;
+	unsigned long rhs;
+	
+	unsigned int sucessor;
 } Node;
 
 typedef struct {
@@ -28,8 +33,8 @@ typedef struct {
 	
 	int width;
 	int height;
-	
-	int min_x;
+
+ 	int min_x;
 	int max_x;
 	int min_y;
 	int max_y;
@@ -45,6 +50,8 @@ typedef struct {
 	
 	long openListSize;
 	
+	unsigned int k;
+	
 	const char *map_base_weight;
 	Node *currentMap;
 	
@@ -53,19 +60,29 @@ typedef struct {
 
 CalcPath_session *CalcPath_new ();
 
-void CalcPath_init (CalcPath_session *session);
-
-int CalcPath_pathStep (CalcPath_session *session);
-
-int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY);
-
-void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
+unsigned long* calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k);
+	
+int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY);
 
 void openListAdd (CalcPath_session *session, Node* node);
 
-void reajustOpenListItem (CalcPath_session *session, Node* node);
+void openListRemove (CalcPath_session *session, Node* node);
 
-Node* openListGetLowest (CalcPath_session *session);
+void reajustOpenListItem (CalcPath_session *session, Node* node, unsigned long newkey1, unsigned long newkey2);
+
+void updateNode (CalcPath_session *session, Node* node);
+
+void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
+
+int CalcPath_pathStep (CalcPath_session *session);
+
+void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
+ 
+void CalcPath_init (CalcPath_session *session);
+
+void initializeNode (CalcPath_session *session, int x, int y);
+
+int updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight);
 
 void free_currentMap (CalcPath_session *session);
 

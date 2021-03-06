@@ -234,21 +234,23 @@ PathFinding_run(session, solution_array)
 			
 			av_extend (array, session->solution_size);
 			
-			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
+			Node currentNode = session->currentMap[(session->startY * session->width) + session->startX];
+			
+			Node sucessor;
 
-			while (currentNode.x != session->startX || currentNode.y != session->startY)
+			while (currentNode.x != session->endX || currentNode.y != session->endY)
 			{
+				sucessor = session->currentMap[currentNode.sucessor];
+				
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
-				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
+				hv_store(rh, "x", 1, newSViv(sucessor.x), 0);
 
-				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
+				hv_store(rh, "y", 1, newSViv(sucessor.y), 0);
 				
-				av_unshift(array, 1);
-
-				av_store(array, 0, newRV((SV *)rh));
+				av_push(array, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[currentNode.predecessor];
+				currentNode = sucessor;
 			}
 			
 			RETVAL = size;
@@ -270,6 +272,207 @@ PathFinding_runcount(session)
 		} else {
 			RETVAL = (int) session->solution_size;
 		}
+	OUTPUT:
+		RETVAL
+
+int
+PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_array)
+		PathFinding session
+		SV * new_start_x
+		SV * new_start_y
+		SV *weight_changes_array
+		
+	CODE:
+		if (!session->initialized) {
+			printf("[pathfinding update_solution error] cannot call update_solution before calling reset\n");
+			XSRETURN_NO;
+		}
+		
+		/* Check for any missing arguments */
+		if (!session || !new_start_x || !new_start_y || !weight_changes_array) {
+			printf("[pathfinding update_solution error] missing argument\n");
+			XSRETURN_NO;
+		}
+		
+		/* Check for any bad arguments */
+		if (SvROK(new_start_x) || SvTYPE(new_start_x) >= SVt_PVAV || !SvOK(new_start_x)) {
+			printf("[pathfinding update_solution error] bad new_start_x argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(new_start_y) || SvTYPE(new_start_y) >= SVt_PVAV || !SvOK(new_start_y)) {
+			printf("[pathfinding update_solution error] bad new_start_y argument\n");
+			XSRETURN_NO;
+		}
+		
+		/* weight_changes_array should be a reference to an array */
+		if (!SvROK(weight_changes_array)) {
+			printf("[pathfinding update_solution error] weight_changes_array is not a reference\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvTYPE(SvRV(weight_changes_array)) != SVt_PVAV) {
+			printf("[pathfinding update_solution error] weight_changes_array is not an array reference\n");
+			XSRETURN_NO;
+		}
+		
+		if (!SvOK(weight_changes_array)) {
+			printf("[pathfinding update_solution error] weight_changes_array is not defined\n");
+			XSRETURN_NO;
+		}
+		
+		AV *deref_weight_changes_array;
+		I32 array_last_index;
+		
+		deref_weight_changes_array = (AV *) SvRV (weight_changes_array);
+		array_last_index = av_top_index (deref_weight_changes_array);
+		
+		if (array_last_index == -1) {
+			printf("[pathfinding update_solution error] weight_changes_array has no members\n");
+			XSRETURN_NO;
+		}
+		
+		int new_x = (int) SvIV (new_start_x);
+		int new_y = (int) SvIV (new_start_y);
+		
+		if (new_x != session->startX || new_y != session->startY) {
+
+			if (new_x >= session->width || new_y >= session->height || new_x < 0 || new_y < 0) {
+				printf("[pathfinding update_solution error] Start coordinate is out of the map.\n");
+				XSRETURN_NO;
+			}
+
+			if (session->map_base_weight[((new_y * session->width) + new_x)] == -1) {
+				printf("[pathfinding update_solution error] Start coordinate is not a walkable cell.\n");
+				XSRETURN_NO;
+			}
+
+			if (new_x > session->max_x || new_y > session->max_y || new_x < session->min_x || new_y < session->min_y) {
+				printf("[pathfinding update_solution error] Start coordinate is out of the minimum and maximum coordinates.\n");
+				XSRETURN_NO;
+			}
+
+			session->k += heuristic_cost_estimate(new_x, new_y, session->startX, session->startY);
+			session->startX = new_x;
+			session->startY = new_y;
+		}
+		
+		SV **fetched;
+		HV *hash;
+		
+		SV **ref_x;
+		SV **ref_y;
+		SV **ref_weight;
+		
+		IV x;
+		IV y;
+		IV weight;
+		
+		I32 index;
+		
+		int result;
+		
+		for (index = 0; index <= array_last_index; index++) {
+			
+			fetched = av_fetch (deref_weight_changes_array, index, 0);
+			
+			if (!SvROK(*fetched)) {
+				printf("[pathfinding update_solution error] member of array is not a reference\n");
+				XSRETURN_NO;
+			}
+			
+			if (SvTYPE(SvRV(*fetched)) != SVt_PVHV) {
+				printf("[pathfinding update_solution error] member of array is not a reference to a hash\n");
+				XSRETURN_NO;
+			}
+			
+			if (!SvOK(*fetched)) {
+				printf("[pathfinding update_solution error] member of array is not defined\n");
+				XSRETURN_NO;
+			}
+			
+			hash = (HV*) SvRV(*fetched);
+			
+			if (!hv_exists(hash, "x", 1)) {
+				printf("[pathfinding update_solution error] member of array does not contain the key 'x'\n");
+				XSRETURN_NO;
+			}
+			
+			ref_x = hv_fetch(hash, "x", 1, 0);
+			
+			if (SvROK(*ref_x)) {
+				printf("[pathfinding update_solution error] member of array 'x' key is a reference\n");
+				XSRETURN_NO;
+			}
+			
+			if (SvTYPE(*ref_x) >= SVt_PVAV) {
+				printf("[pathfinding update_solution error] member of array 'x' key is not a scalar\n");
+				XSRETURN_NO;
+			}
+			
+			if (!SvOK(*ref_x)) {
+				printf("[pathfinding update_solution error] member of array 'x' key is not defined\n");
+				XSRETURN_NO;
+			}
+			
+			x = SvIV(*ref_x);
+			
+			if (!hv_exists(hash, "y", 1)) {
+				printf("[pathfinding update_solution error] member of array does not contain the key 'y'\n");
+				XSRETURN_NO;
+			}
+			
+			ref_y = hv_fetch(hash, "y", 1, 0);
+			
+			if (SvROK(*ref_y)) {
+				printf("[pathfinding update_solution error] member of array 'y' key is a reference\n");
+				XSRETURN_NO;
+			}
+			
+			if (SvTYPE(*ref_y) >= SVt_PVAV) {
+				printf("[pathfinding update_solution error] member of array 'y' key is not a scalar\n");
+				XSRETURN_NO;
+			}
+			
+			if (!SvOK(*ref_y)) {
+				printf("[pathfinding update_solution error] member of array 'y' key is not defined\n");
+				XSRETURN_NO;
+			}
+			
+			y = SvIV(*ref_y);
+			
+			if (!hv_exists(hash, "weight", 6)) {
+				printf("[pathfinding update_solution error] member of array does not contain the key 'weight'\n");
+				XSRETURN_NO;
+			}
+			
+			ref_weight = hv_fetch(hash, "weight", 6, 0);
+			
+			if (SvROK(*ref_weight)) {
+				printf("[pathfinding update_solution error] member of array 'weight' key is a reference\n");
+				XSRETURN_NO;
+			}
+			
+			if (SvTYPE(*ref_weight) >= SVt_PVAV) {
+				printf("[pathfinding update_solution error] member of array 'weight' key is not a scalar\n");
+				XSRETURN_NO;
+			}
+			
+			if (!SvOK(*ref_weight)) {
+				printf("[pathfinding update_solution error] member of array 'weight' key is not defined\n");
+				XSRETURN_NO;
+			}
+			
+			weight = SvIV(*ref_weight);
+			
+			result = updateChangedMap(session, x, y, weight);
+			
+			if (!result) {
+				printf("[pathfinding update_solution error] updateChangedMap failed\n");
+				XSRETURN_NO;
+			}
+		}
+		RETVAL = 1;
 	OUTPUT:
 		RETVAL
 

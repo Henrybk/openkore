@@ -19,7 +19,7 @@ package Task::Route;
 
 use strict;
 use Time::HiRes qw(time);
-use Scalar::Util;
+use Scalar::Util qw(blessed);
 use Carp::Assert;
 use Utils::Assert;
 
@@ -125,6 +125,8 @@ sub new {
 		$self->{avoidWalls} = 0;
 	}
 	$self->{solution} = [];
+	$self->{unresolvedChanges} = [];
+	$self->{pathfinding} = undef;
 	$self->{stage} = NOT_INITIALIZED;
 
 	# Watch for map change events. Pass a weak reference to ourselves in order
@@ -205,6 +207,8 @@ sub iterate {
 			@{$self->{last_pos_to}}{qw(x y)} = @{$pos_to}{qw(x y)};
 			$self->{start} = 1;
 			$self->{confirmed_correct_vector} = 0;
+			$self->{unresolvedChanges} = [];
+			$self->{pathfinding} = new PathFinding;
 			
 			debug "Route $self->{actor} Solution Ready! Found path on ".$self->{dest}{map}->baseName." from ".$pos->{x}." ".$pos->{y}." to ".$self->{dest}{pos}{x}." ".$self->{dest}{pos}{y}.". Size: ".@{$self->{solution}}." steps.\n", "route";
 			
@@ -486,6 +490,15 @@ sub iterate {
 				debug "Route $self->{actor} - movement interrupted: reset route (the distance of the next point is abnormally large ($current_pos->{x} $current_pos->{y} -> $nextPos{x} $nextPos{y}))\n", "route";
 				$self->{solution} = [];
 				$self->{stage} = CALCULATE_ROUTE;
+		
+			} elsif (@{$self->{unresolvedChanges}} > 0) {
+				my $begin = time;
+				message "Recalculating route\n", "route";
+				$self->{solution} = [];
+				if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+					$self->{unresolvedChanges} = [];
+					debug "Recalculated Route $self->{actor} Solution Ready!\n", "route";
+				}
 
 			} else {
                 if ($self->{actor}->isa('Actor::You') && $self->{isRandomWalk} && $self->{actor}{slaves}) {
@@ -534,6 +547,68 @@ sub resetRoute {
 	$self->{stage} = CALCULATE_ROUTE;
 }
 
+sub addChanges {
+	my ($class, $newChanges) = @_;
+	push(@{$class->{unresolvedChanges}}, @{$newChanges});
+}
+
+sub clean_changes {
+	my ($self, $unresolvedChanges) = @_;
+	
+	my %changes_hash;
+	foreach my $change (@{$unresolvedChanges}) {
+		my $x = $change->{x};
+		my $y = $change->{y};
+		my $changed = $change->{weight};
+		$changes_hash{$x}{$y} += $changed;
+	}
+	
+	my @rebuilt_array;
+	foreach my $x_keys (keys %changes_hash) {
+		foreach my $y_keys (keys %{$changes_hash{$x_keys}}) {
+			next if ($changes_hash{$x_keys}{$y_keys} == 0);
+			push(@rebuilt_array, { x => $x_keys, y => $y_keys, weight => $changes_hash{$x_keys}{$y_keys} });
+		}
+	}
+	
+	return \@rebuilt_array;
+}
+
+##
+# boolean Task::Route->recalculateRoute(unresolvedChanges, Array* solution, Field field, Hash* start, Hash* dest, [boolean avoidWalls = true])
+sub recalculateRoute {
+	my ($class, $unresolvedChanges, $solution, $field, $start, $dest, $avoidWalls) = @_;
+	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
+
+	# The exact destination may not be a spot that we can walk on.
+	# So we find a nearby spot that is walkable.
+	my %start = %{$start};
+	my %dest = %{$dest};
+	Misc::closestWalkableSpot($field, \%start);
+	Misc::closestWalkableSpot($field, \%dest);
+
+	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
+	
+	return 1 if (@{$unresolvedChanges} == 0);
+
+	my $return;
+	$return = $class->{pathfinding}->update_solution(
+		$start{x},
+		$start{y},
+		$unresolvedChanges
+	);
+	
+	if ($return != 1) {
+		debug "Route $class->{actor} - Failed to update map weights.\n";
+		return 0;
+	}
+
+	my $ret;
+	$ret = $class->{pathfinding}->run($solution);
+
+	return ($ret >= 0 ? 1 : 0);
+}
+
 ##
 # boolean Task::Route->getRoute(Array* solution, Field field, Hash* start, Hash* dest, [boolean avoidWalls = true])
 # $solution: The route solution will be stored in here.
@@ -558,6 +633,14 @@ sub getRoute {
 		@{$solution} = () if ($solution);
 		return 1;
 	}
+	
+	my $pathfinding;
+	
+	if (blessed($class) && defined $class->{pathfinding}) {
+		$pathfinding = $class->{pathfinding};
+	} else {
+		$pathfinding = new PathFinding;
+	}
 
 	# The exact destination may not be a spot that we can walk on.
 	# So we find a nearby spot that is walkable.
@@ -572,13 +655,15 @@ sub getRoute {
 	}
 
 	# Calculate path
-	my $pathfinding = new PathFinding(
+	$pathfinding->reset(
 		start => $closest_start,
 		dest  => $closest_dest,
 		field => $field,
 		avoidWalls => $avoidWalls
 	);
 	return undef if (!$pathfinding);
+
+	Plugins::callHook("getRoute_post", { pathfinding => $pathfinding, field => $field, start => $start, dest => $dest });
 
 	my $ret;
 	if ($solution) {
