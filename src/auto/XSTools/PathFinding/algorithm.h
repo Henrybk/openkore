@@ -33,8 +33,8 @@ typedef struct {
 	
 	int width;
 	int height;
-
- 	int min_x;
+	
+	int min_x;
 	int max_x;
 	int min_y;
 	int max_y;
@@ -59,7 +59,7 @@ typedef struct {
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();
- 
+
 // Actual pathing algorithm
 void CalcPath_init (CalcPath_session *session);
 
@@ -71,7 +71,7 @@ void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 void initializeNode (CalcPath_session *session, int x, int y);
 
 unsigned long* calcKey (Node* node, int startX, int startY, unsigned int k);
-	
+
 int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY);
 
 // openList management
