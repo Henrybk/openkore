@@ -126,7 +126,7 @@ sub new {
 	}
 	$self->{solution} = [];
 	$self->{unresolvedChanges} = [];
-	$self->{pathfinding} = undef;
+	$self->{pathfinding} = new PathFinding;
 	$self->{stage} = NOT_INITIALIZED;
 
 	# Watch for map change events. Pass a weak reference to ourselves in order
@@ -208,7 +208,6 @@ sub iterate {
 			$self->{start} = 1;
 			$self->{confirmed_correct_vector} = 0;
 			$self->{unresolvedChanges} = [];
-			$self->{pathfinding} = new PathFinding;
 			
 			debug "Route $self->{actor} Solution Ready! Found path on ".$self->{dest}{map}->baseName." from ".$pos->{x}." ".$pos->{y}." to ".$self->{dest}{pos}{x}." ".$self->{dest}{pos}{y}.". Size: ".@{$self->{solution}}." steps.\n", "route";
 			
@@ -579,13 +578,14 @@ sub clean_changes {
 sub recalculateRoute {
 	my ($class, $unresolvedChanges, $solution, $field, $start, $dest, $avoidWalls) = @_;
 	assert(UNIVERSAL::isa($field, 'Field')) if DEBUG;
+	
+	my %start = %{$start};
+	my %dest = %{$dest};
 
 	# The exact destination may not be a spot that we can walk on.
 	# So we find a nearby spot that is walkable.
-	my %start = %{$start};
-	my %dest = %{$dest};
-	Misc::closestWalkableSpot($field, \%start);
-	Misc::closestWalkableSpot($field, \%dest);
+	my $closest_start = $field->closestWalkableSpot(\%start, 1);
+	my $closest_dest = $field->closestWalkableSpot(\%dest, 1);
 
 	$unresolvedChanges = $class->clean_changes($unresolvedChanges);
 	
@@ -593,8 +593,8 @@ sub recalculateRoute {
 
 	my $return;
 	$return = $class->{pathfinding}->update_solution(
-		$start{x},
-		$start{y},
+		$closest_start->{x},
+		$closest_start->{y},
 		$unresolvedChanges
 	);
 	
