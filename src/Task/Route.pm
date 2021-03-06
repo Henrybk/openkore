@@ -495,7 +495,7 @@ sub iterate {
 				my $begin = time;
 				message "Recalculating route\n", "route";
 				$self->{solution} = [];
-				if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $pos, $self->{dest}{pos}, $self->{avoidWalls})) {
+				if ($self->recalculateRoute($self->{unresolvedChanges}, $self->{solution}, $field, $current_pos, $self->{dest}{pos}, $self->{avoidWalls})) {
 					$self->{unresolvedChanges} = [];
 					debug "Recalculated Route $self->{actor} Solution Ready!\n", "route";
 				}
