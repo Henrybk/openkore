@@ -595,8 +595,6 @@ get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
 		if (session->map_base_weight[neighbor_adress] == -1) {
 			continue;
 		}
-	}
-}
 
 		neighborNode = &session->currentMap[neighbor_adress];
 		
@@ -790,30 +788,6 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 			if (neighborNode->sucessor == currentNode->nodeAdress) {
 				get_new_neighbor_sucessor(session, neighborNode);
 			}
-		}
-		
-		smallerChildNode = &session->currentMap[session->openList[smallerChildIndex]];
-		
-		if (movedNode->f > smallerChildNode->f) {
-			
-			// Changes the node adress of openList[movedNode->openListIndex] (which is 'movedNode') to that of openList[smallerChildIndex] (which is the current child of 'movedNode')
-			session->openList[movedNode->openListIndex] = smallerChildNode->nodeAdress;
-			
-			// Changes openListIndex of the current child of 'movedNode' to that of 'movedNode' since they exchanged positions
-			smallerChildNode->openListIndex = movedNode->openListIndex;
-			
-			// Changes the node adress of openList[smallerChildIndex] (which is the current child of 'movedNode') to that of openList[movedNode->openListIndex] (which is 'movedNode')
-			session->openList[smallerChildIndex] = movedNode->nodeAdress;
-			
-			// Changes openListIndex of 'movedNode' to that of the current child of 'movedNode' since they exchanged positions
-			movedNode->openListIndex = smallerChildIndex;
-			
-			// Updates rightChildIndex and leftChildIndex to those of the current children of 'movedNode'
-			rightChildIndex = 2 * movedNode->openListIndex + 2;
-			leftChildIndex = 2 * movedNode->openListIndex + 1;
-			
-		} else {
-			break;
 		}
 	}
 	
