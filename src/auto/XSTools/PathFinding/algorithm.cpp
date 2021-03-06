@@ -79,7 +79,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		// Allocate enough memory in openList to hold the adress of all nodes in the map
 		session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
 		
-		keys = calcKey(goal, session->startX, session->startY, session->avoidWalls, session->k);
+		keys = calcKey(goal, session->startX, session->startY, session->k);
 		
 		goal->key1 = keys[0];
 		goal->key2 = keys[1];
@@ -110,7 +110,7 @@ CalcPath_pathStep (CalcPath_session *session)
 	unsigned long timeout = (unsigned long) GetTickCount();
 	int loop = 0;
 	
-	keys = calcKey(start, session->startX, session->startY, session->avoidWalls, session->k);
+	keys = calcKey(start, session->startX, session->startY, session->k);
 	start->key1 = keys[0];
 	start->key2 = keys[1];
 	
@@ -126,7 +126,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		start->key2 = ((start->g > start->rhs) ? start->rhs : start->g);
 		start->key1 = start->key2 + session->k;
 		
-		keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
+		keys = calcKey(currentNode, session->startX, session->startY, session->k);
 
 		if (!((start->key1 > currentNode->key1 || (start->key1 == currentNode->key1 && start->key2 > currentNode->key2)) || start->rhs > start->g)) {
 			reconstruct_path(session, goal, start);
@@ -145,7 +145,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		if (keys[0] > currentNode->key1 || (keys[0] == currentNode->key1 && keys[1] > currentNode->key2)) {
 			// Node should be lower in priority queue than it is now, downgrade it
-			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
+			openListReajust(session, currentNode, keys[0], keys[1]);
 			
 		} else if (currentNode->g > currentNode->rhs) {
 			// Node is overconsistent, expand it and remove it from priority queue
@@ -244,18 +244,6 @@ CalcPath_pathStep (CalcPath_session *session)
 	}
 }
 
-// The heuristic used is diagonal distance.
-int 
-heuristic_cost_estimate (int currentX, int currentY, int startX, int startY)
-{
-	int xDistance = abs(currentX - startX);
-	int yDistance = abs(currentY - startY);
-	
-	int hScore = (10 * (xDistance + yDistance)) - (6 * ((xDistance > yDistance) ? yDistance : xDistance));
-	
-	return hScore;
-}
-
 void 
 reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 {
@@ -269,8 +257,26 @@ reconstruct_path(CalcPath_session *session, Node* goal, Node* start)
 	}
 }
 
+void
+initializeNode (CalcPath_session *session, int x, int y)
+{
+	unsigned long current;
+
+	current = ((y * session->width) + x);
+	
+	Node* currentNode = &session->currentMap[current];
+	
+	currentNode->x = x;
+	currentNode->y = y;
+	currentNode->nodeAdress = current;
+	currentNode->g = 10000000;
+	currentNode->rhs = 10000000;
+	currentNode->weight = session->map_base_weight[current];
+	currentNode->initialized = 1;
+}
+
 unsigned long*
-calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k)
+calcKey (Node* node, int startX, int startY, unsigned int k)
 {
 	static unsigned long key[2];
 	
@@ -281,6 +287,37 @@ calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k)
 	key[0] = key[1] + h + k;
 	
 	return key;
+}
+
+// The heuristic used is diagonal distance.
+int 
+heuristic_cost_estimate (int currentX, int currentY, int startX, int startY)
+{
+	int xDistance = abs(currentX - startX);
+	int yDistance = abs(currentY - startY);
+	
+	int hScore = (10 * (xDistance + yDistance)) - (6 * ((xDistance > yDistance) ? yDistance : xDistance));
+	
+	return hScore;
+}
+
+void 
+updateNode (CalcPath_session *session, Node* currentNode)
+{
+	if (currentNode->g != currentNode->rhs) {
+		if (currentNode->isInOpenList) {
+			unsigned long* keys = calcKey(currentNode, session->startX, session->startY, session->k);
+			openListReajust(session, currentNode, keys[0], keys[1]);
+		} else {
+			unsigned long* keys = calcKey(currentNode, session->startX, session->startY, session->k);
+			currentNode->key1 = keys[0];
+			currentNode->key2 = keys[1];
+			openListAdd (session, currentNode);
+		}
+		
+	} else if (currentNode->isInOpenList) {
+		openListRemove(session, currentNode);
+	}
 }
 
 // Openlist is a binary heap of min-heap type
@@ -450,7 +487,7 @@ openListRemove (CalcPath_session *session, Node* currentNode)
 
 // Reajusts node 'currentNode' location in openList
 void 
-reajustOpenListItem (CalcPath_session *session, Node* currentNode, unsigned long newkey1, unsigned long newkey2)
+openListReajust (CalcPath_session *session, Node* currentNode, unsigned long newkey1, unsigned long newkey2)
 {
 	// Node got ligher, so we ajust it up
 	if (currentNode->key1 > newkey1 || (currentNode->key1 == newkey1 && currentNode->key2 > newkey2)) {
@@ -541,115 +578,6 @@ reajustOpenListItem (CalcPath_session *session, Node* currentNode, unsigned long
 			}
 		}
 	}
-}
-
-void 
-updateNode (CalcPath_session *session, Node* currentNode)
-{
-	if (currentNode->g != currentNode->rhs) {
-		if (currentNode->isInOpenList) {
-			unsigned long* keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
-			reajustOpenListItem(session, currentNode, keys[0], keys[1]);
-		} else {
-			unsigned long* keys = calcKey(currentNode, session->startX, session->startY, session->avoidWalls, session->k);
-			currentNode->key1 = keys[0];
-			currentNode->key2 = keys[1];
-			openListAdd (session, currentNode);
-		}
-		
-	} else if (currentNode->isInOpenList) {
-		openListRemove(session, currentNode);
-	}
-}
-
-// Get the neighbor with the least distance + weight and set it as the new sucessor
-void
-get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
-{
-	currentNode->rhs = 10000000;
-	
-	Node* neighborNode;
-	
-	short i;
- 	short i_x[8] = {0, 0, 1, -1, 1, 1, -1, -1};
-	short i_y[8] = {1, -1, 0, 0, 1, -1, -1, 1};
-	
-	int neighbor_x;
-	int neighbor_y;
-	unsigned long neighbor_adress;
-	unsigned long distanceFromCurrent;
-	
-	
-	// Loop between all neighbors
-	for (i = 0; i <= 7; i++)
-	{
-		neighbor_x = currentNode->x + i_x[i];
-		neighbor_y = currentNode->y + i_y[i];
-		
-		if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
-			continue;
-		}
-	
-		neighbor_adress = (neighbor_y * session->width) + neighbor_x;
-
-		if (session->map_base_weight[neighbor_adress] == -1) {
-			continue;
-		}
-
-		neighborNode = &session->currentMap[neighbor_adress];
-		
-		if (neighborNode->initialized == 0) {
-			initializeNode(session, neighbor_x, neighbor_y);
-		}
-		
-		// First 4 neighbors in the list are in a ortogonal path and the last 4 are in a diagonal path from currentNode.
-		if (i >= 4) {
-			// If neighborNode has a diagonal path from currentNode then we can only move to it if both ortogonal composite nodes are walkable. (example: To move to the northeast both north and east must be walkable)
-			if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == -1 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == -1) {
-				continue;
-			}
-			// We use 14 as the diagonal movement weight
-			distanceFromCurrent = 14;
-		} else {
-			// We use 10 for ortogonal movement weight
-			distanceFromCurrent = 10;
-		}
-		
-		// If avoidWalls is true we add weight to cells near walls to disencourage the algorithm to move to them.
-		if (session->avoidWalls) {
-			distanceFromCurrent += currentNode->weight;
-		}
-		
-		if (neighbor_x == session->endX && neighbor_y == session->endY) {
-			continue;
-		}
-		
-		// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
-		if (currentNode->rhs > neighborNode->g + distanceFromCurrent) {
-			currentNode->rhs = neighborNode->g + distanceFromCurrent;
-			currentNode->sucessor = neighbor_adress;
-		}
-	}
-	
-	updateNode(session, currentNode);
-}
-
-void
-initializeNode (CalcPath_session *session, int x, int y)
-{
-	unsigned long current;
-
-	current = ((y * session->width) + x);
-	
-	Node* currentNode = &session->currentMap[current];
-	
-	currentNode->x = x;
-	currentNode->y = y;
-	currentNode->nodeAdress = current;
-	currentNode->g = 10000000;
-	currentNode->rhs = 10000000;
-	currentNode->weight = session->map_base_weight[current];
-	currentNode->initialized = 1;
 }
 
 // Updates a block weight
@@ -793,6 +721,78 @@ updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight)
 	
 	updateNode(session, currentNode);
 	return 1;
+}
+
+// Get the neighbor with the least distance + weight and set it as the new sucessor
+void
+get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode)
+{
+	currentNode->rhs = 10000000;
+	
+	Node* neighborNode;
+	
+	short i;
+ 	short i_x[8] = {0, 0, 1, -1, 1, 1, -1, -1};
+	short i_y[8] = {1, -1, 0, 0, 1, -1, -1, 1};
+	
+	int neighbor_x;
+	int neighbor_y;
+	unsigned long neighbor_adress;
+	unsigned long distanceFromCurrent;
+	
+	
+	// Loop between all neighbors
+	for (i = 0; i <= 7; i++)
+	{
+		neighbor_x = currentNode->x + i_x[i];
+		neighbor_y = currentNode->y + i_y[i];
+		
+		if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < 0 || neighbor_y < 0) {
+			continue;
+		}
+	
+		neighbor_adress = (neighbor_y * session->width) + neighbor_x;
+
+		if (session->map_base_weight[neighbor_adress] == -1) {
+			continue;
+		}
+
+		neighborNode = &session->currentMap[neighbor_adress];
+		
+		if (neighborNode->initialized == 0) {
+			initializeNode(session, neighbor_x, neighbor_y);
+		}
+		
+		// First 4 neighbors in the list are in a ortogonal path and the last 4 are in a diagonal path from currentNode.
+		if (i >= 4) {
+			// If neighborNode has a diagonal path from currentNode then we can only move to it if both ortogonal composite nodes are walkable. (example: To move to the northeast both north and east must be walkable)
+			if (session->map_base_weight[(currentNode->y * session->width) + neighborNode->x] == -1 || session->map_base_weight[(neighborNode->y * session->width) + currentNode->x] == -1) {
+				continue;
+			}
+			// We use 14 as the diagonal movement weight
+			distanceFromCurrent = 14;
+		} else {
+			// We use 10 for ortogonal movement weight
+			distanceFromCurrent = 10;
+		}
+		
+		// If avoidWalls is true we add weight to cells near walls to disencourage the algorithm to move to them.
+		if (session->avoidWalls) {
+			distanceFromCurrent += currentNode->weight;
+		}
+		
+		if (neighbor_x == session->endX && neighbor_y == session->endY) {
+			continue;
+		}
+		
+		// If current cell weight + distant to next cell is lower than next cell's rhs, current cell becomes the neghbor cell's new sucessor
+		if (currentNode->rhs > neighborNode->g + distanceFromCurrent) {
+			currentNode->rhs = neighborNode->g + distanceFromCurrent;
+			currentNode->sucessor = neighbor_adress;
+		}
+	}
+	
+	updateNode(session, currentNode);
 }
 
 // Frees the memory allocated by currentMap

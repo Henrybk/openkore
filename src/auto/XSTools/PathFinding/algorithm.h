@@ -59,31 +59,36 @@ typedef struct {
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();
+ 
+// Actual pathing algorithm
+void CalcPath_init (CalcPath_session *session);
 
-unsigned long* calcKey (Node* node, int startX, int startY, bool avoidWalls, unsigned int k);
+int CalcPath_pathStep (CalcPath_session *session);
+
+void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
+
+// Node management
+void initializeNode (CalcPath_session *session, int x, int y);
+
+unsigned long* calcKey (Node* node, int startX, int startY, unsigned int k);
 	
 int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY);
+
+// openList management
+void updateNode (CalcPath_session *session, Node* node);
 
 void openListAdd (CalcPath_session *session, Node* node);
 
 void openListRemove (CalcPath_session *session, Node* node);
 
-void reajustOpenListItem (CalcPath_session *session, Node* node, unsigned long newkey1, unsigned long newkey2);
+void openListReajust (CalcPath_session *session, Node* node, unsigned long newkey1, unsigned long newkey2);
 
-void updateNode (CalcPath_session *session, Node* node);
-
-void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
-
-int CalcPath_pathStep (CalcPath_session *session);
-
-void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
- 
-void CalcPath_init (CalcPath_session *session);
-
-void initializeNode (CalcPath_session *session, int x, int y);
-
+// Related to D* Lite map updating
 int updateChangedMap (CalcPath_session *session, int x, int y, long delta_weight);
 
+void get_new_neighbor_sucessor (CalcPath_session *session, Node *currentNode);
+
+// Memory cleaning
 void free_currentMap (CalcPath_session *session);
 
 void free_openList (CalcPath_session *session);
