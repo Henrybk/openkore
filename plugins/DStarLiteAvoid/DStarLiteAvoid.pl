@@ -45,24 +45,22 @@ sub onUnload {
 }
 
 my %mob_nameID_obstacles = (
-	1368 => [1000, 1000, 1000, 1000], #Planta carnívora
-	1475 => [1000, 1000, 1000, 1000], #wraith
-	1084 => [1000, 1000, 1000, 1000], #black shrom
-	1085 => [1000, 1000, 1000, 1000], #red shrom
+	#1368 => [1000, 1000, 1000, 1000], #Planta carnívora
+	#1475 => [1000, 1000, 1000, 1000], #wraith
+	#1084 => [1000, 1000, 1000, 1000], #black shrom
+	#1085 => [1000, 1000, 1000, 1000], #red shrom
 );
 
 my %player_name_obstacles = (
 	'testCreator' => {
-		weight_format => 'circle',
-		weight => [1000, 1000, 1000, 1000, 50, 20],
-		avoid_format => 'square',
-		avoid => [1, 1, 1, 1]
-		
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		ignore_when_inside => 3
 	}
 );
 
 my %area_spell_type_obstacles = (
-	'177' => [1000, 1000],
+	#'177' => [1000, 1000],
 );
 
 my %obstaclesList;
@@ -80,11 +78,15 @@ sub add_obstacle {
 	
 	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
-	my $changes = create_changes_array($actor->{pos_to}, $weights);
+	my $weight_changes;
+	my $avoid_cells;
 	
-	$obstaclesList{$actor->{ID}} = $changes;
+	($weight_changes, $avoid_cells) = create_changes_array($actor->{pos_to}, $weights);
 	
-	add_changes_to_task($changes);
+	$obstaclesList{$actor->{ID}}{weight} = $weight_changes;
+	$obstaclesList{$actor->{ID}}{avoid} = $avoid_cells;
+	
+	add_changes_to_task($weight_changes);
 }
 
 sub move_obstacle {
@@ -94,17 +96,22 @@ sub move_obstacle {
 	
 	warning "[".PLUGIN_NAME."] Moving obstacle $actor (from ".$actor->{pos}{x}." ".$actor->{pos}{y}." to ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.").\n";
 	
-	my $new_changes = create_changes_array($actor->{pos_to}, $weights);
 	
-	my $old_changes = $obstaclesList{$actor->{ID}};
+	my $new_weight_changes;
+	my $new_avoid_cells;
+	
+	($new_weight_changes, $new_avoid_cells) = create_changes_array($actor->{pos_to}, $weights);
+	
+	my $old_changes = $obstaclesList{$actor->{ID}}{weight};
 	my @old_changes = @{$old_changes};
 	
 	$old_changes = revert_changes(\@old_changes);
 	
-	my @changes_pack = ($old_changes, $new_changes);
+	my @changes_pack = ($old_changes, $new_weight_changes);
 	my $final_changes = merge_changes(\@changes_pack);
 	
-	$obstaclesList{$actor->{ID}} = $new_changes;
+	$obstaclesList{$actor->{ID}}{weight} = $new_weight_changes;
+	$obstaclesList{$actor->{ID}}{avoid} = $new_avoid_cells;
 	
 	add_changes_to_task($final_changes);
 }
@@ -116,7 +123,7 @@ sub remove_obstacle {
 	
 	warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
-	my $changes = $obstaclesList{$actor->{ID}};
+	my $changes = $obstaclesList{$actor->{ID}}{weight};
 	
 	delete $obstaclesList{$actor->{ID}};
 	
@@ -165,13 +172,15 @@ sub add_changes_to_task {
 }
 
 sub create_changes_array {
-	my ($obstacle_pos, $weight_array) = @_;
+	my ($obstacle_pos, $obstacle_hash) = @_;
 	
-	my @weights = @{$weight_array};
+	my @weights = @{$obstacle_hash->{weight}};
+	my @avoid = @{$obstacle_hash->{avoid}};
 	
 	my $max_distance = $#weights;
 	
 	my @changes_array;
+	my @avoid_array;
 	
 	my ($min_x, $min_y, $max_x, $max_y) = Utils::getSquareEdgesFromCoord($field, $obstacle_pos, $max_distance);
 	
@@ -185,7 +194,18 @@ sub create_changes_array {
 				x => $x,
 				y => $y
 			};
+			
 			my $distance = blockDistance($pos, $obstacle_pos);
+			if ($obstacle_hash->{ignore_when_inside_dist} && $obstacle_hash->{ignore_when_inside_dist} >= $distance) {
+				next;
+			}
+			if (@avoid && $#avoid >= $distance) {
+				push(@avoid_array, {
+					x => $x,
+					y => $y
+				});
+			}
+			
 			my $delta_weight = $weights[$distance];
 			push(@changes_array, {
 				x => $x,
@@ -195,7 +215,7 @@ sub create_changes_array {
 		}
 	}
 	
-	return \@changes_array;
+	return (\@changes_array, \@avoid_array);
 }
 
 sub merge_changes {
@@ -229,7 +249,7 @@ sub sum_all_changes {
 	my %changes_hash;
 	
 	foreach my $key (keys %obstaclesList) {
-		foreach my $change (@{$obstaclesList{$key}}) {
+		foreach my $change (@{$obstaclesList{$key}{weight}}) {
 			my $x = $change->{x};
 			my $y = $change->{y};
 			my $changed = $change->{weight};
@@ -246,6 +266,21 @@ sub sum_all_changes {
 	}
 	
 	return \@rebuilt_array;
+}
+
+sub sum_all_avoid {
+	my %avoid_hash;
+	
+	foreach my $key (keys %obstaclesList) {
+		next unless (exists $obstaclesList{$key}{avoid});
+		foreach my $avoid (@{$obstaclesList{$key}{avoid}}) {
+			my $x = $avoid->{x};
+			my $y = $avoid->{y};
+			$avoid_hash{$x}{$y} = 1;
+		}
+	}
+	
+	return \%avoid_hash;
 }
 
 sub on_getRoute_post {
@@ -299,17 +334,17 @@ sub on_route_step_final {
 		if (blockDistance($actor_pos, $current_next_step_pos) <= 17 && $field->checkLOS($actor_pos, $current_next_step_pos, 0)) {
 			warning "[".PLUGIN_NAME."] you can move there with los.\n";
 			
-			my $changes = sum_all_changes();
+			my $avoid_hash = sum_all_avoid();
 			
-			my %obstacle_hash;
-			foreach my $obstacle_cell (@{$changes}) {
-				$obstacle_hash{$obstacle_cell->{x}}{$obstacle_cell->{y}} = 1;
-			}
-			
-			if (check_intercept_avoid_cell($actor_pos, $current_next_step_pos, \%obstacle_hash)) {
-				warning "[".PLUGIN_NAME."] and you also wont intercept anything YAYYYYY, changing next step to $current_next_step_index.\n";
-				$route->{step_index} = $current_next_step_index;
-				$route->{decreasing_step_index} += $decrease;
+			if (check_intercept_avoid_cell($actor_pos, $current_next_step_pos, $avoid_hash)) {
+				warning "[".PLUGIN_NAME."] and you also wont intercept anything YAYYYYY";
+				if ($decrease) {
+					warning "changing next step to $current_next_step_index (decrease by $decrease).\n";
+					$route->{step_index} = $current_next_step_index;
+					$route->{decreasing_step_index} += $decrease;
+				} else {
+					warning "No need to reduce step size.\n";
+				}
 				return;
 				
 			} else {
@@ -411,9 +446,9 @@ sub on_add_player_list {
 	
 	return unless (exists $player_name_obstacles{$actor->{name}});
 	
-	my @weights = @{$player_name_obstacles{$actor->{name}}};
+	my %obstacle_info = %{$player_name_obstacles{$actor->{name}}};
 	
-	add_obstacle($actor, \@weights);
+	add_obstacle($actor, \%obstacle_info);
 }
 
 sub on_player_moved {
@@ -422,9 +457,9 @@ sub on_player_moved {
 	
 	return unless (exists $obstaclesList{$actor->{ID}});
 	
-	my @weights = @{$player_name_obstacles{$actor->{name}}};
+	my %obstacle_info = %{$player_name_obstacles{$actor->{name}}};
 	
-	move_obstacle($actor, \@weights);
+	move_obstacle($actor, \%obstacle_info);
 }
 
 sub on_player_disappeared {
@@ -446,9 +481,9 @@ sub on_add_monster_list {
 	
 	return unless (exists $mob_nameID_obstacles{$actor->{nameID}});
 	
-	my @weights = @{$mob_nameID_obstacles{$actor->{nameID}}};
+	my %obstacle_info = %{$mob_nameID_obstacles{$actor->{nameID}}};
 	
-	add_obstacle($actor, \@weights);
+	add_obstacle($actor, \%obstacle_info);
 }
 
 sub on_monster_moved {
@@ -457,9 +492,9 @@ sub on_monster_moved {
 
 	return unless (exists $obstaclesList{$actor->{ID}});
 	
-	my @weights = @{$mob_nameID_obstacles{$actor->{nameID}}};
+	my %obstacle_info = %{$mob_nameID_obstacles{$actor->{nameID}}};
 	
-	move_obstacle($actor, \@weights);
+	move_obstacle($actor, \%obstacle_info);
 }
 
 sub on_monster_disappeared {
@@ -484,9 +519,9 @@ sub on_add_areaSpell_list {
 	
 	return unless (exists $area_spell_type_obstacles{$spell->{type}});
 	
-	my @weights = @{$area_spell_type_obstacles{$spell->{type}}};
+	my %obstacle_info = %{$area_spell_type_obstacles{$spell->{type}}};
 	
-	add_obstacle($spell, \@weights);
+	add_obstacle($spell, \%obstacle_info);
 }
 
 sub on_areaSpell_disappeared {
