@@ -478,6 +478,10 @@ sub iterate {
 				$self->{step_index} = $stepsleft - 1;
 			}
 			
+			my %hookArgs;
+			$hookArgs{route} = $self;
+			Plugins::callHook("route_step_final", \%hookArgs);
+			
 			# Here maybe we should also use pos_to (in the form of best_pos_to_step) to decide the next step index, as it can make the routing way more responsive
 			
 			@{$self->{next_pos}}{qw(x y)} = @{$solution->[$self->{step_index}]}{qw(x y)};

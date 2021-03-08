@@ -1,0 +1,31 @@
+automacro gotostart {
+	run-once 1
+	exclusive 1
+	priority 0
+	InMap prt_fild08
+	call {
+		do c \@warp prt_fild08 220 40
+	}
+}
+
+automacro move1 {
+	run-once 1
+	exclusive 1
+	priority 1
+	InMap prt_fild08
+	call {
+		do move prt_fild08 220 80
+		release move2
+	}
+}
+
+automacro move2 {
+	run-once 1
+	exclusive 1
+	priority 2
+	InMap prt_fild08
+	call {
+		do move prt_fild08 220 40
+		release move1
+	}
+}

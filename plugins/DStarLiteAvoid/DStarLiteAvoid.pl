@@ -19,6 +19,7 @@ use constant {
 
 my $hooks = Plugins::addHooks(
 	['getRoute_post', \&on_getRoute_post, undef],
+	['route_step_final', \&on_route_step_final, undef],
 	['packet_mapChange',      \&on_packet_mapChange, undef],
 );
 
@@ -51,7 +52,13 @@ my %mob_nameID_obstacles = (
 );
 
 my %player_name_obstacles = (
-	'testCreator' => [1000, 1000, 1000, 1000],
+	'testCreator' => {
+		weight_format => 'circle',
+		weight => [1000, 1000, 1000, 1000, 50, 20],
+		avoid_format => 'square',
+		avoid => [1, 1, 1, 1]
+		
+	}
 );
 
 my %area_spell_type_obstacles = (
@@ -73,7 +80,7 @@ sub add_obstacle {
 	
 	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
-	my $changes = create_changes_array($actor->{pos}{x}, $actor->{pos}{y}, $weights);
+	my $changes = create_changes_array($actor->{pos_to}, $weights);
 	
 	$obstaclesList{$actor->{ID}} = $changes;
 	
@@ -87,7 +94,7 @@ sub move_obstacle {
 	
 	warning "[".PLUGIN_NAME."] Moving obstacle $actor (from ".$actor->{pos}{x}." ".$actor->{pos}{y}." to ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.").\n";
 	
-	my $new_changes = create_changes_array($actor->{pos_to}{x}, $actor->{pos_to}{y}, $weights);
+	my $new_changes = create_changes_array($actor->{pos_to}, $weights);
 	
 	my $old_changes = $obstaclesList{$actor->{ID}};
 	my @old_changes = @{$old_changes};
@@ -158,7 +165,7 @@ sub add_changes_to_task {
 }
 
 sub create_changes_array {
-	my ($obs_x, $obs_y, $weight_array) = @_;
+	my ($obstacle_pos, $weight_array) = @_;
 	
 	my @weights = @{$weight_array};
 	
@@ -166,14 +173,25 @@ sub create_changes_array {
 	
 	my @changes_array;
 	
-	for (my $y = ($obs_y - $max_distance);     $y <= ($obs_y + $max_distance);   $y++) {
-		for (my $x = ($obs_x - $max_distance);     $x <= ($obs_x + $max_distance);   $x++) {
-			my $xDistance = abs($obs_x - $x);
-			my $yDistance = abs($obs_y - $y);
-			my $cell_distance = (($xDistance > $yDistance) ? $xDistance : $yDistance);
-			my $delta_weight = $weights[$cell_distance];
+	my ($min_x, $min_y, $max_x, $max_y) = Utils::getSquareEdgesFromCoord($field, $obstacle_pos, $max_distance);
+	
+	my @y_range = ($min_y..$max_y);
+	my @x_range = ($min_x..$max_x);
+	
+	foreach my $y (@y_range) {
+		foreach my $x (@x_range) {
 			next unless ($field->isWalkable($x, $y));
-			push(@changes_array, { x => $x, y => $y, weight => $delta_weight});
+			my $pos = {
+				x => $x,
+				y => $y
+			};
+			my $distance = blockDistance($pos, $obstacle_pos);
+			my $delta_weight = $weights[$distance];
+			push(@changes_array, {
+				x => $x,
+				y => $y,
+				weight => $delta_weight
+			});
 		}
 	}
 	
@@ -246,6 +264,141 @@ sub on_getRoute_post {
 	warning "[".PLUGIN_NAME."] adding changes on on_getRoute_post.\n";
 	
 	$args->{pathfinding}->update_solution($args->{start}{x}, $args->{start}{y}, $changes);
+}
+
+sub on_route_step_final {
+	my (undef, $args) = @_;
+	
+	my @obstacles = keys(%obstaclesList);
+	
+	warning "[".PLUGIN_NAME."] on_route_step_final, there are ".@obstacles." obstacles.\n";
+	
+	return unless (@obstacles > 0);
+	
+	#return if ($args->{field}->baseName ne $field->baseName);
+	
+	my $route = $args->{route};
+	my $actor_pos = $route->{actor}{pos};
+	
+	my $current_next_step_pos;
+	my $current_next_step_index = $route->{step_index};
+	
+	my $abs_dif_x;
+	my $abs_dif_y;
+	
+	my $is_line;
+	my $found;
+	my $decrease = 0;
+	
+	while ($current_next_step_index > 0) {
+		@{$current_next_step_pos}{qw(x y)} = @{$route->{solution}[$current_next_step_index]}{qw(x y)};
+		
+		$abs_dif_x = abs($actor_pos->{x} - $current_next_step_pos->{x});
+		$abs_dif_y = abs($actor_pos->{y} - $current_next_step_pos->{y});
+		
+		if (blockDistance($actor_pos, $current_next_step_pos) <= 17 && $field->checkLOS($actor_pos, $current_next_step_pos, 0)) {
+			warning "[".PLUGIN_NAME."] you can move there with los.\n";
+			
+			my $changes = sum_all_changes();
+			
+			my %obstacle_hash;
+			foreach my $obstacle_cell (@{$changes}) {
+				$obstacle_hash{$obstacle_cell->{x}}{$obstacle_cell->{y}} = 1;
+			}
+			
+			if (check_intercept_avoid_cell($actor_pos, $current_next_step_pos, \%obstacle_hash)) {
+				warning "[".PLUGIN_NAME."] and you also wont intercept anything YAYYYYY, changing next step to $current_next_step_index.\n";
+				$route->{step_index} = $current_next_step_index;
+				$route->{decreasing_step_index} += $decrease;
+				return;
+				
+			} else {
+				warning "[".PLUGIN_NAME."] but intercetp an obstacle.\n";
+			}
+		} else {
+			warning "[".PLUGIN_NAME."] but you cannot move there with los.\n";
+		}
+	
+	} continue {
+		$current_next_step_index--;
+		$decrease++;
+	}
+	
+	warning "[".PLUGIN_NAME."] DID NOT FIND GOOD NEXT STEP.\n";
+}
+
+sub check_intercept_avoid_cell {
+	my ($from, $to, $obstacle_hash) = @_;
+
+	# Simulate tracing a line to the location (modified Bresenham's algorithm)
+	my ($X0, $Y0, $X1, $Y1) = ($from->{x}, $from->{y}, $to->{x}, $to->{y});
+
+	my $steep;
+	my $posX = 1;
+	my $posY = 1;
+	if ($X1 - $X0 < 0) {
+		$posX = -1;
+	}
+	if ($Y1 - $Y0 < 0) {
+		$posY = -1;
+	}
+	if (abs($Y0 - $Y1) < abs($X0 - $X1)) {
+		$steep = 0;
+	} else {
+		$steep = 1;
+	}
+	if ($steep == 1) {
+		my $Yt = $Y0;
+		$Y0 = $X0;
+		$X0 = $Yt;
+
+		$Yt = $Y1;
+		$Y1 = $X1;
+		$X1 = $Yt;
+	}
+	if ($X0 > $X1) {
+		my $Xt = $X0;
+		$X0 = $X1;
+		$X1 = $Xt;
+
+		my $Yt = $Y0;
+		$Y0 = $Y1;
+		$Y1 = $Yt;
+	}
+	my $dX = $X1 - $X0;
+	my $dY = abs($Y1 - $Y0);
+	my $E = 0;
+	my $dE;
+	if ($dX) {
+		$dE = $dY / $dX;
+	} else {
+		# Delta X is 0, it only occures when $from is equal to $to
+		return 1;
+	}
+	my $stepY;
+	if ($Y0 < $Y1) {
+		$stepY = 1;
+	} else {
+		$stepY = -1;
+	}
+	my $Y = $Y0;
+	my $Erate = 0.99;
+	if (($posY == -1 && $posX == 1) || ($posY == 1 && $posX == -1)) {
+		$Erate = 0.01;
+	}
+	for (my $X=$X0;$X<=$X1;$X++) {
+		$E += $dE;
+		if ($steep == 1) {
+			return 0 if (exists $obstacle_hash->{$Y} && exists $obstacle_hash->{$Y}{$X});
+		} else {
+			return 0 if (exists $obstacle_hash->{$X} && exists $obstacle_hash->{$X}{$Y});
+		}
+		if ($E >= $Erate) {
+			$Y += $stepY;
+			$E -= 1;
+		}
+	}
+	return 1;
 }
 
 ###################################################
