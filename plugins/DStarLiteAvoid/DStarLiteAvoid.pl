@@ -14,7 +14,7 @@ Plugins::register('DStarLiteAvoid', 'Enables smart pathing using the dynamic asp
 use constant {
 	PLUGIN_NAME => 'DStarLiteAvoid',
 	ENABLE_MOVE => 1,
-	ENABLE_REMOVE => 0,
+	ENABLE_REMOVE => 1,
 };
 
 my $hooks = Plugins::addHooks(
@@ -46,10 +46,31 @@ sub onUnload {
 }
 
 my %mob_nameID_obstacles = (
-	#1368 => [1000, 1000, 1000, 1000], #Planta carnívora
-	#1475 => [1000, 1000, 1000, 1000], #wraith
-	#1084 => [1000, 1000, 1000, 1000], #black shrom
-	#1085 => [1000, 1000, 1000, 1000], #red shrom
+	1368 => { #Planta carnívora
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		min_dist_to_account => 4
+	},
+	1084 => { #black shrom
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		min_dist_to_account => 4
+	},
+	1085 => { #red shrom
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		min_dist_to_account => 4
+	},
+	1368 => { # planta carnivora
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		min_dist_to_account => 4
+	},
+	1372 => { # bode
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		min_dist_to_account => 4
+	}
 );
 
 my %player_name_obstacles = (
@@ -61,7 +82,11 @@ my %player_name_obstacles = (
 );
 
 my %area_spell_type_obstacles = (
-	#'177' => [1000, 1000],
+	'177' => {
+		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
+		avoid => [1, 1, 1, 1],
+		min_dist_to_account => 4
+	}
 );
 
 my %obstaclesList;
@@ -77,7 +102,7 @@ sub on_packet_mapChange {
 sub add_obstacle {
 	my ($actor, $obstacle_hash) = @_;
 	
-	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
+	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.".\n";
 	
 	my $weight_changes;
 	my $avoid_cells;
@@ -117,9 +142,7 @@ sub remove_obstacle {
 	
 	return unless (ENABLE_REMOVE);
 	
-	warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
-	
-	my $changes = $obstaclesList{$actor->{ID}}{weight};
+	warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.".\n";
 	
 	delete $obstaclesList{$actor->{ID}};
 	
