@@ -19,6 +19,7 @@ use constant {
 
 my $hooks = Plugins::addHooks(
 	['getRoute_post', \&on_getRoute_post, undef],
+	['recalculateRoute', \&on_recalculateRoute, undef],
 	['route_step_final', \&on_route_step_final, undef],
 	['packet_mapChange',      \&on_packet_mapChange, undef],
 );
@@ -55,7 +56,7 @@ my %player_name_obstacles = (
 	'testCreator' => {
 		weight => [1000, 1000, 1000, 1000, 50, 40, 30, 20],
 		avoid => [1, 1, 1, 1],
-		ignore_when_inside => 3
+		min_dist_to_account => 4
 	}
 );
 
@@ -74,23 +75,25 @@ sub on_packet_mapChange {
 ###################################################
 
 sub add_obstacle {
-	my ($actor, $weights) = @_;
+	my ($actor, $obstacle_hash) = @_;
 	
 	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
 	
 	my $weight_changes;
 	my $avoid_cells;
 	
-	($weight_changes, $avoid_cells) = create_changes_array($actor->{pos_to}, $weights);
+	($weight_changes, $avoid_cells) = create_changes_array($actor->{pos_to}, $obstacle_hash);
 	
+	$obstaclesList{$actor->{ID}}{pos_to} = $actor->{pos_to};
 	$obstaclesList{$actor->{ID}}{weight} = $weight_changes;
 	$obstaclesList{$actor->{ID}}{avoid} = $avoid_cells;
+	$obstaclesList{$actor->{ID}}{min_dist_to_account} = $obstacle_hash->{min_dist_to_account};
 	
-	add_changes_to_task($weight_changes);
+	add_changes_to_task();
 }
 
 sub move_obstacle {
-	my ($actor, $weights) = @_;
+	my ($actor, $obstacle_hash) = @_;
 	
 	return unless (ENABLE_MOVE);
 	
@@ -100,20 +103,13 @@ sub move_obstacle {
 	my $new_weight_changes;
 	my $new_avoid_cells;
 	
-	($new_weight_changes, $new_avoid_cells) = create_changes_array($actor->{pos_to}, $weights);
+	($new_weight_changes, $new_avoid_cells) = create_changes_array($actor->{pos_to}, $obstacle_hash);
 	
-	my $old_changes = $obstaclesList{$actor->{ID}}{weight};
-	my @old_changes = @{$old_changes};
-	
-	$old_changes = revert_changes(\@old_changes);
-	
-	my @changes_pack = ($old_changes, $new_weight_changes);
-	my $final_changes = merge_changes(\@changes_pack);
-	
+	$obstaclesList{$actor->{ID}}{pos_to} = $actor->{pos_to};
 	$obstaclesList{$actor->{ID}}{weight} = $new_weight_changes;
 	$obstaclesList{$actor->{ID}}{avoid} = $new_avoid_cells;
 	
-	add_changes_to_task($final_changes);
+	add_changes_to_task();
 }
 
 sub remove_obstacle {
@@ -127,30 +123,12 @@ sub remove_obstacle {
 	
 	delete $obstaclesList{$actor->{ID}};
 	
-	$changes = revert_changes($changes);
-	
-	add_changes_to_task($changes);
+	add_changes_to_task();
 }
 
 ###################################################
 ######## Tecnical subs
 ###################################################
-
-sub revert_changes {
-	my ($changes) = @_;
-	
-	my @changes = @{$changes};
-	
-	my @changed_array;
-	
-	foreach my $cell (@changes) {
-		my %cell = %{$cell};
-		$cell{weight} *= -1;
-		push(@changed_array, \%cell);
-	}
-	
-	return \@changed_array;
-}
 
 sub add_changes_to_task {
 	my ($changes) = @_;
@@ -168,7 +146,7 @@ sub add_changes_to_task {
 		return;
 	}
 	
-	$task->addChanges($changes);
+	$task->addChanges();
 }
 
 sub create_changes_array {
@@ -176,7 +154,7 @@ sub create_changes_array {
 	
 	my @weights = @{$obstacle_hash->{weight}};
 	my @avoid = @{$obstacle_hash->{avoid}};
-	
+		
 	my $max_distance = $#weights;
 	
 	my @changes_array;
@@ -196,9 +174,6 @@ sub create_changes_array {
 			};
 			
 			my $distance = blockDistance($pos, $obstacle_pos);
-			if ($obstacle_hash->{ignore_when_inside_dist} && $obstacle_hash->{ignore_when_inside_dist} >= $distance) {
-				next;
-			}
 			if (@avoid && $#avoid >= $distance) {
 				push(@avoid_array, {
 					x => $x,
@@ -218,37 +193,19 @@ sub create_changes_array {
 	return (\@changes_array, \@avoid_array);
 }
 
-sub merge_changes {
-	my ($changes) = @_;
-	
-	my @changes_pack = @{$changes};
-	
-	my %changes_hash;
-	
-	foreach my $changes_unit (@changes_pack) {
-		foreach my $change (@{$changes_unit}) {
-			my $x = $change->{x};
-			my $y = $change->{y};
-			my $changed = $change->{weight};
-			$changes_hash{$x}{$y} += $changed;
-		}
-	}
-	
-	my @rebuilt_array;
-	foreach my $x_keys (keys %changes_hash) {
-		foreach my $y_keys (keys %{$changes_hash{$x_keys}}) {
-			next if ($changes_hash{$x_keys}{$y_keys} == 0);
-			push(@rebuilt_array, { x => $x_keys, y => $y_keys, weight => $changes_hash{$x_keys}{$y_keys} });
-		}
-	}
-	
-	return \@rebuilt_array;
-}
-
 sub sum_all_changes {
 	my %changes_hash;
 	
 	foreach my $key (keys %obstaclesList) {
+		warning "[".PLUGIN_NAME."] sum_all_avoid - testing obstacle at $obstaclesList{$key}{pos_to}{x} $obstaclesList{$key}{pos_to}{y} - min is $obstaclesList{$key}{min_dist_to_account}.\n";
+		if (exists $obstaclesList{$key}{min_dist_to_account} && $obstaclesList{$key}{min_dist_to_account}) {
+			my $pos = calcPosition($char);
+			my $dist = blockDistance($pos, $obstaclesList{$key}{pos_to});
+			if ($dist < $obstaclesList{$key}{min_dist_to_account}) {
+				warning "[".PLUGIN_NAME."] sum_all_changes - ignoring obstacle at $obstaclesList{$key}{pos_to}{x} $obstaclesList{$key}{pos_to}{y} because it is too close ($dist - min is $obstaclesList{$key}{min_dist_to_account}).\n";
+				next;
+			}
+		}
 		foreach my $change (@{$obstaclesList{$key}{weight}}) {
 			my $x = $change->{x};
 			my $y = $change->{y};
@@ -272,6 +229,15 @@ sub sum_all_avoid {
 	my %avoid_hash;
 	
 	foreach my $key (keys %obstaclesList) {
+		
+		if (exists $obstaclesList{$key}{min_dist_to_account} && $obstaclesList{$key}{min_dist_to_account}) {
+			my $pos = calcPosition($char);
+			my $dist = blockDistance($pos, $obstaclesList{$key}{pos_to});
+			if ($dist < $obstaclesList{$key}{min_dist_to_account}) {
+				warning "[".PLUGIN_NAME."] sum_all_avoid - ignoring obstacle at $obstaclesList{$key}{pos_to}{x} $obstaclesList{$key}{pos_to}{y} because it is too close ($dist - min is $obstaclesList{$key}{min_dist_to_account}).\n";
+				next;
+			}
+		}
 		next unless (exists $obstaclesList{$key}{avoid});
 		foreach my $avoid (@{$obstaclesList{$key}{avoid}}) {
 			my $x = $avoid->{x};
@@ -281,6 +247,26 @@ sub sum_all_avoid {
 	}
 	
 	return \%avoid_hash;
+}
+
+sub on_recalculateRoute {
+	my (undef, $args) = @_;
+	
+	my @obstacles = keys(%obstaclesList);
+	
+	warning "[".PLUGIN_NAME."] on_recalculateRoute before check, there are ".@obstacles." obstacles.\n";
+	
+	return unless (@obstacles > 0);
+	
+	return if ($args->{field}->baseName ne $field->baseName);
+	
+	my $changes = sum_all_changes();
+	
+	warning "[".PLUGIN_NAME."] adding changes on on_recalculateRoute.\n";
+	
+	my $return = $args->{pathfinding}->update_solution($args->{start}{x}, $args->{start}{y}, $changes);
+	
+	$args->{return} = $return;
 }
 
 sub on_getRoute_post {
@@ -298,7 +284,9 @@ sub on_getRoute_post {
 	
 	warning "[".PLUGIN_NAME."] adding changes on on_getRoute_post.\n";
 	
-	$args->{pathfinding}->update_solution($args->{start}{x}, $args->{start}{y}, $changes);
+	my $return = $args->{pathfinding}->update_solution($args->{start}{x}, $args->{start}{y}, $changes);
+	
+	$args->{return} = $return;
 }
 
 sub on_route_step_final {
@@ -325,6 +313,8 @@ sub on_route_step_final {
 	my $found;
 	my $decrease = 0;
 	
+	my $avoid_hash = sum_all_avoid();
+	
 	while ($current_next_step_index > 0) {
 		@{$current_next_step_pos}{qw(x y)} = @{$route->{solution}[$current_next_step_index]}{qw(x y)};
 		
@@ -333,8 +323,6 @@ sub on_route_step_final {
 		
 		if (blockDistance($actor_pos, $current_next_step_pos) <= 17 && $field->checkLOS($actor_pos, $current_next_step_pos, 0)) {
 			warning "[".PLUGIN_NAME."] you can move there with los.\n";
-			
-			my $avoid_hash = sum_all_avoid();
 			
 			if (check_intercept_avoid_cell($actor_pos, $current_next_step_pos, $avoid_hash)) {
 				warning "[".PLUGIN_NAME."] and you also wont intercept anything YAYYYYY";
