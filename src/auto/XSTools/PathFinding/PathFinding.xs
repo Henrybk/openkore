@@ -355,6 +355,14 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 			session->k += heuristic_cost_estimate(new_x, new_y, session->startX, session->startY);
 			session->startX = new_x;
 			session->startY = new_y;
+			
+			Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
+			
+			if (start->initialized == 0) {
+				printf("[pathfinding update_solution] initializing new start.\n");
+				initializeNode(session, new_x, new_y);
+			}
+			
 		}
 		
 		SV **fetched;
