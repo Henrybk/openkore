@@ -282,7 +282,7 @@ calcKey (Node* node, int startX, int startY, unsigned int k)
 	
 	key[1] = ((node->g > node->rhs) ? node->rhs : node->g);
 	
-	unsigned short h = heuristic_cost_estimate(node->x, node->y, startX, startY);
+	unsigned long h = heuristic_cost_estimate(node->x, node->y, startX, startY);
 	
 	key[0] = key[1] + h + k;
 	
@@ -290,7 +290,7 @@ calcKey (Node* node, int startX, int startY, unsigned int k)
 }
 
 // The heuristic used is diagonal distance.
-int 
+unsigned long
 heuristic_cost_estimate (int currentX, int currentY, int startX, int startY)
 {
 	int xDistance = abs(currentX - startX);

@@ -327,10 +327,10 @@ PathFinding_update_solution(session, new_start_x, new_start_y, weight_changes_ar
 		deref_weight_changes_array = (AV *) SvRV (weight_changes_array);
 		array_last_index = av_top_index (deref_weight_changes_array);
 		
-		if (array_last_index == -1) {
-			printf("[pathfinding update_solution error] weight_changes_array has no members\n");
-			XSRETURN_NO;
-		}
+		//if (array_last_index == -1) {
+		//	printf("[pathfinding update_solution error] weight_changes_array has no members\n");
+		//	XSRETURN_NO;
+		//}
 		
 		int new_x = (int) SvIV (new_start_x);
 		int new_y = (int) SvIV (new_start_y);

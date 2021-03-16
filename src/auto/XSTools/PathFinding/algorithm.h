@@ -12,18 +12,17 @@ typedef struct {
 	int y;
 	long weight;
 	
-	unsigned long nodeAdress;
+	bool isInOpenList;
+	
+	long openListIndex;
 	
 	unsigned long key1;
 	unsigned long key2;
-	
-	bool isInOpenList;
-	long openListIndex;
-	
 	unsigned long g;
 	unsigned long rhs;
 	
-	unsigned int sucessor;
+	unsigned long nodeAdress;
+	unsigned long sucessor;
 } Node;
 
 typedef struct {
@@ -44,13 +43,14 @@ typedef struct {
 	int endX;
 	int endY;
 	
-	int solution_size;
 	int initialized;
 	int run;
 	
+	unsigned long k;
+	
 	long openListSize;
 	
-	unsigned int k;
+	long solution_size;
 	
 	const char *map_base_weight;
 	Node *currentMap;
@@ -72,7 +72,7 @@ void initializeNode (CalcPath_session *session, int x, int y);
 
 unsigned long* calcKey (Node* node, int startX, int startY, unsigned int k);
 
-int heuristic_cost_estimate (int currentX, int currentY, int startX, int startY);
+unsigned long heuristic_cost_estimate (int currentX, int currentY, int startX, int startY);
 
 // openList management
 void updateNode (CalcPath_session *session, Node* node);
