@@ -216,9 +216,10 @@ route_tryToGuessMissingPortalByDistance 1
 route_reAddMissingPortals 1
 
 runFromTarget 0
+runFromTarget_inAdvance 0
 runFromTarget_dist 5
 runFromTarget_minStep 7
-runFromTarget_maxStep 9
+runFromTarget_maxStep 11
 runFromTarget_maxPathDistance 13
 
 saveMap
