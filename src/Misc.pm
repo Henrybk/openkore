@@ -925,18 +925,18 @@ sub get_kite_position {
 	} continue {
 		# We start at $initial_rad and move $added_rad_per_loop radians both clockwise and counterclockwise each loop checking for cells
 		if ($current_mod == 1 && $total_added_rad > 0) {
-				$current_mod = -1;
-			} else {
-				$current_mod = 1;
-				$total_added_rad += $added_rad_per_loop;
-			}
+			$current_mod = -1;
+		} else {
+			$current_mod = 1;
+			$total_added_rad += $added_rad_per_loop;
+		}
 
-			$current_rad = $initial_rad + ($total_added_rad * $current_mod);
+		$current_rad = $initial_rad + ($total_added_rad * $current_mod);
 
-			# Again, adjust $current_rad to be between 0 and 2*pi
-			if ($current_rad >= pi2) {
-				$current_rad -= pi2;
-			} elsif ($current_rad < 0) {
+		# Again, adjust $current_rad to be between 0 and 2*pi
+		if ($current_rad >= pi2) {
+			$current_rad -= pi2;
+		} elsif ($current_rad < 0) {
 			$current_rad += pi2;
 		}
 	}
@@ -2655,11 +2655,6 @@ sub meetingPosition {
 	my $myDistToTargetPosInStep;
 	
 	# Target started moving from %targetPos to %targetPosTo and has not finished moving yet, it is currently at $realTargetPos, here we calculate every block still in its path and the time to reach them
-	my $highest_myDistToTargetPosInStep;
-	my $min_target_x;
-	my $min_target_y;
-	my $max_target_x;
-	my $max_target_y;
 	if ($target_moving) {
 		my $steps_count = 0;
 		foreach my $currentStep ($targetCurrentStep..$targetTotalSteps) {
@@ -2683,27 +2678,6 @@ sub meetingPosition {
 				timeForTargetToGetToStep => $timeForTargetToGetToStep,
 				myDistToTargetPosInStep => $myDistToTargetPosInStep
 			};
-			
-			if (!defined $min_target_x || $min_target_x > $targetPosInStep{x}) {
-				$min_target_x = $targetPosInStep{x};
-			}
-			
-			if (!defined $max_target_x || $max_target_x < $targetPosInStep{x}) {
-				$max_target_x = $targetPosInStep{x};
-			}
-			
-			if (!defined $min_target_y || $min_target_y > $targetPosInStep{y}) {
-				$min_target_y = $targetPosInStep{y};
-			}
-			
-			if (!defined $max_target_y || $max_target_y < $targetPosInStep{y}) {
-				$max_target_y = $targetPosInStep{y};
-			}
-			
-			if (!defined $highest_myDistToTargetPosInStep || $highest_myDistToTargetPosInStep < $myDistToTargetPosInStep) {
-				$highest_myDistToTargetPosInStep = $myDistToTargetPosInStep;
-			}
-			
 		} continue {
 			$steps_count++;
 		}
@@ -2716,22 +2690,16 @@ sub meetingPosition {
 			timeForTargetToGetToStep => 0,
 			myDistToTargetPosInStep => $myDistToTargetPosInStep
 		};
-		
-		$min_target_x = $realTargetPos->{x};
-		$max_target_x = $realTargetPos->{x};
-		$min_target_y = $realTargetPos->{y};
-		$max_target_y = $realTargetPos->{y};
-		$highest_myDistToTargetPosInStep = $myDistToTargetPosInStep;
 	}
 	
 	my $attackRouteMaxPathDistance;
 	my $attackCanSnipe;
-	my $runFromTarget;
-	my $runFromTarget_dist;
-	my $followDistanceMax;
 	my $attackCheckLOS;
+	my $followDistanceMax;
 	my $master;
 	my $masterPos;
+	my $runFromTarget;
+	my $runFromTarget_dist;
 	
 	# actor is char
 	if ($actorType == 1) {
@@ -2799,31 +2767,16 @@ sub meetingPosition {
 		$realMyPos->{y} = $new_pos->{y};
 	}
 	
-	if ($highest_myDistToTargetPosInStep >= $max_pathfinding_dist) {
-		$max_pathfinding_dist = $highest_myDistToTargetPosInStep  + 1;
-	}
-	
-	my ($min_pathfinding_x, $min_pathfinding_y, $max_pathfinding_x, $max_pathfinding_y) = Utils::fieldAreaCorrectEdges($field, ($min_target_x - $max_pathfinding_dist), ($min_target_y - $max_pathfinding_dist), ($max_target_x + $max_pathfinding_dist), ($max_target_y + $max_pathfinding_dist));
-	
-	my $pathfinding = new PathFinding;
-	
-	$pathfinding->reset(
-		field => $field,
-		start => $realTargetPos,#inverted
-		dest => $realMyPos,#inverted
-		avoidWalls => 0,
-		min_x => $min_pathfinding_x,
-		max_x => $max_pathfinding_x,
-		min_y => $min_pathfinding_y,
-		max_y => $max_pathfinding_y
-	);
-	
 	my $best_spot;
 	my $best_time;
-	
 	foreach my $possible_target_pos (@target_pos_to_check) {
+		if ($possible_target_pos->{myDistToTargetPosInStep} >= $max_pathfinding_dist) {
+			$max_pathfinding_dist = $possible_target_pos->{myDistToTargetPosInStep} + 1;
+		}
 		
 		# TODO: This algorithm is now a lot smarter than runFromTarget, maybe port it here
+		
+		my ($min_pathfinding_x, $min_pathfinding_y, $max_pathfinding_x, $max_pathfinding_y) = Utils::getSquareEdgesFromCoord($field, $possible_target_pos->{targetPosInStep}, $max_pathfinding_dist);
 		# TODO: Check if this reverse is actually any good here
 		foreach my $distance (reverse ($min_destination_dist..$max_destination_dist)) {
 			
@@ -2836,6 +2789,8 @@ sub meetingPosition {
 				
 				# 1. It must be walkable
 				next unless ($field->isWalkable($spot->{x}, $spot->{y}));
+			
+				next if (positionNearPortal($spot, $config{'attackMinPortalDistance'}));
 				
 				# 2. It must be within $followDistanceMax of $masterPos, if we have a master.
 				if ($masterPos) {
@@ -2853,11 +2808,17 @@ sub meetingPosition {
 				}
 				
 				# 4. The route should not exceed at any point $max_pathfinding_dist distance from the target.
-				my @change;
-				$pathfinding->update_solution($spot->{x}, $spot->{y}, \@change);
-				
 				my $solution = [];
-				my $dist = $pathfinding->run($solution);
+				my $dist = new PathFinding(
+					field => $field,
+					start => $realMyPos,
+					dest => $spot,
+					avoidWalls => 0,
+					min_x => $min_pathfinding_x,
+					max_x => $max_pathfinding_x,
+					min_y => $min_pathfinding_y,
+					max_y => $max_pathfinding_y
+				)->run($solution);
 				
 				# 5. It must be reachable and have at max $attackRouteMaxPathDistance of route distance to it from our current position.
 				next unless ($dist >= 0 && $dist <= $attackRouteMaxPathDistance);
