@@ -980,96 +980,148 @@ sub get_kite_position {
 # Based on AzzyAI dance
 sub get_dance_position {
 	my ($slave, $target) = @_;
-	my ($newx, $newy, $dy, $dx);
+	my ($dy, $dx);
 
-	my $slave_pos = calcPosition($slave);
-	my $enemy_pos = calcPosition($target);
-
-	my $t = int(rand(2));
+	my $my_pos = calcPosition($slave);
+	my $target_pos = calcPosition($target);
+	
+	my @possible;
+	
+	# same x and y
+	if ($my_pos->{x} == $target_pos->{x} && $my_pos->{y} == $target_pos->{y}) {
+		@possible = (
+			{ x => 1, y => 1 },
+			{ x => 1, y => 0 },
+			{ x => 1, y => -1 },
+			{ x => 0, y => 1 },
+			{ x => 0, y => -1 },
+			{ x => -1, y => 1 },
+			{ x => -1, y => 0 },
+			{ x => -1, y => -1 }
+		);
+	
+	} elsif ($my_pos->{x} == $target_pos->{x}) {
+		$dy = abs($my_pos->{y} - $target_pos->{y});
+		if ($my_pos->{y} > $target_pos->{y}) {
+			# same x, 2 y north
+			if ($dy == 2) {
+				@possible = (
+					{ x => 1, y => -1 },
+					{ x => 0, y => -1 },
+					{ x => -1, y => -1 }
+				);
+			# same x, 1 y north
+			} else {
+				@possible = (
+					{ x => 1, y => 0 },
+					{ x => -1, y => 0 },
+					{ x => 0, y => 1 }
+				);
+			}
+		} else {
+			# same x, 2 y south
+			if ($dy == 2) {
+				@possible = (
+					{ x => 1, y => 1 },
+					{ x => 0, y => 1 },
+					{ x => -1, y => 1 }
+				);
+			# same x, 1 y south
+			} else {
+				@possible = (
+					{ x => 1, y => 0 },
+					{ x => -1, y => 0 },
+					{ x => 0, y => -1 }
+				);
+			}
+		}
+	
+	} elsif ($my_pos->{y} == $target_pos->{y}) {
+		$dx = abs($my_pos->{x} - $target_pos->{x});
+		if ($my_pos->{x} > $target_pos->{x}) {
+			# same y, 2 x east
+			if ($dx == 2) {
+				@possible = (
+					{ x => -1, y => 1 },
+					{ x => -1, y => 0 },
+					{ x => -1, y => -1 }
+				);
+			# same y, 1 x east
+			} else {
+				@possible = (
+					{ x => 0, y => 1 },
+					{ x => 0, y => -1 },
+					{ x => 1, y => 0 }
+				);
+			}
+		} else {
+			# same y, 2 x west
+			if ($dx == 2) {
+				@possible = (
+					{ x => 1, y => 1 },
+					{ x => 1, y => 0 },
+					{ x => 1, y => -1 }
+				);
+			# same y, 1 x west
+			} else {
+				@possible = (
+					{ x => 0, y => 1 },
+					{ x => 0, y => -1 },
+					{ x => -1, y => 0 }
+				);
+			}
+		}
+		
+	} elsif ($my_pos->{y} > $target_pos->{y}) {
+		# 1 northeast
+		if ($my_pos->{x} > $target_pos->{x}) {
+			@possible = (
+				{ x => -1, y => 0 },
+				{ x => 0, y => -1 },
+				{ x => -1, y => 1 },
+				{ x => 1, y => -1 }
+			);
+		# 1 northwest
+		} else {
+			@possible = (
+				{ x => 1, y => 0 },
+				{ x => 0, y => -1 },
+				{ x => 1, y => 1 },
+				{ x => -1, y => -1 }
+			);
+		}
+		
+	} else {
+		# 1 southeast
+		if ($my_pos->{x} > $target_pos->{x}) {
+			@possible = (
+				{ x => -1, y => 0 },
+				{ x => 0, y => 1 },
+				{ x => -1, y => -1 },
+				{ x => 1, y => 1 }
+			);
+		# 1 southwest
+		} else {
+			@possible = (
+				{ x => 1, y => 0 },
+				{ x => 0, y => 1 },
+				{ x => 1, y => -1 },
+				{ x => -1, y => 1 }
+			);
+		}
+	}
+	
+	shuffleArray(\@possible);
 
 	my %dance_pos;
-
-	if ($t == 1) {
-		if ($slave_pos->{x} == $enemy_pos->{x}) {
-			if ($slave_pos->{y} == $enemy_pos->{y}) {
-				$newx = $enemy_pos->{x} + 1;
-				$newy = $enemy_pos->{y};
-			} else {
-				$dy = $slave_pos->{y} - $enemy_pos->{y};
-				$newx = $slave_pos->{x} + absunit($dy);
-				$newy = $slave_pos->{y};
-			}
-		} elsif ($slave_pos->{y} == $enemy_pos->{y}) {
-			$dx = $slave_pos->{x} - $enemy_pos->{x};
-			$newy = $slave_pos->{y} - absunit($dx);
-			$newx = $slave_pos->{x};
-		} elsif ($slave_pos->{y} > $enemy_pos->{y}) {
-			if ($slave_pos->{x} > $enemy_pos->{x}) {
-				$newy = $slave_pos->{y} - 1;
-				$newx = $slave_pos->{x};
-			} else {
-				$newy = $slave_pos->{y};
-				$newx = $slave_pos->{x} + 1;
-			}
-		} else {
-			if ($slave_pos->{x} > $enemy_pos->{x}) {
-				$newx = $slave_pos->{x} - 1;
-				$newy = $slave_pos->{y};
-			} else {
-				$newx = $slave_pos->{x};
-				$newy = $slave_pos->{y} + 1;
-			}
-		}
-
-		%dance_pos = (
-			x => $newx,
-			y => $newy,
-		);
-
-	} elsif ($t == 2) {
-		if ($slave_pos->{x} == $enemy_pos->{x}) {
-			if ($slave_pos->{y} == $enemy_pos->{y}) {
-				$newx = $enemy_pos->{x} - 1;
-				$newy = $enemy_pos->{y};
-			} else {
-				$dy = $slave_pos->{y} - $enemy_pos->{y};
-				$newx = $slave_pos->{x} - absunit($dy);
-				$newy = $slave_pos->{y};
-			}
-		} elsif ($slave_pos->{y} == $enemy_pos->{y}) {
-			$dx = $slave_pos->{x} - $enemy_pos->{x};
-			$newy = $slave_pos->{y} + absunit($dx);
-			$newx = $slave_pos->{x};
-		} elsif ($slave_pos->{y} > $enemy_pos->{y}) {
-			if ($slave_pos->{x} > $enemy_pos->{x}) {
-				$newy = $slave_pos->{y};
-				$newx = $slave_pos->{x} - 1;
-			} else {
-				$newy = $slave_pos->{y} - 1;
-				$newx = $slave_pos->{x};
-			}
-		} else {
-			if ($slave_pos->{x} > $enemy_pos->{x}) {
-				$newx = $slave_pos->{x};
-				$newy = $slave_pos->{y} + 1;
-			} else {
-				$newx = $slave_pos->{x} + 1;
-				$newy = $slave_pos->{y};
-			}
-		}
-
-		%dance_pos = (
-			x => $newx,
-			y => $newy,
-		);
-
-	} else {
-		$dx = $enemy_pos->{x} - $slave_pos->{x};
-		$dy = $enemy_pos->{y} - $slave_pos->{y};
-		%dance_pos = (
-			x => $slave_pos->{x} + (2 * $dx),
-			y => $slave_pos->{y} + (2 * $dy),
-		);
+	foreach my $pos_add (@possible) {
+		my $x = $my_pos->{x} + $pos_add->{x};
+		my $y = $my_pos->{y} + $pos_add->{y};
+		next unless ($field->isWalkable($x, $y));
+		
+		$dance_pos{x} = $x;
+		$dance_pos{y} = $y;
+		last;
 	}
 
 	return \%dance_pos;
@@ -2723,12 +2775,12 @@ sub meetingPosition {
 	
 	# actor is a slave
 	} elsif ($actorType == 2) {
-		$attackRouteMaxPathDistance = $config{$target->{configPrefix}.'attackRouteMaxPathDistance'};
-		$runFromTarget = $config{$target->{configPrefix}.'runFromTarget'};
-		$runFromTarget_dist = $config{$target->{configPrefix}.'runFromTarget_dist'};
-		$followDistanceMax = $config{$target->{configPrefix}.'followDistanceMax'};
-		$attackCanSnipe = $config{$target->{configPrefix}.'attackCanSnipe'};
-		$attackCheckLOS = $config{$target->{configPrefix}.'attackCheckLOS'};
+		$attackRouteMaxPathDistance = $config{$actor->{configPrefix}.'attackRouteMaxPathDistance'};
+		$runFromTarget = $config{$actor->{configPrefix}.'runFromTarget'};
+		$runFromTarget_dist = $config{$actor->{configPrefix}.'runFromTarget_dist'};
+		$followDistanceMax = $config{$actor->{configPrefix}.'followDistanceMax'};
+		$attackCanSnipe = $config{$actor->{configPrefix}.'attackCanSnipe'};
+		$attackCheckLOS = $config{$actor->{configPrefix}.'attackCheckLOS'};
 		$master = $char;
 		$masterPos = calcPosition($char);
 	}
