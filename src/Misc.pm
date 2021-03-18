@@ -789,16 +789,16 @@ sub get_kite_position {
 	
 	# actor is a slave
 	} elsif ($actorType == 2) {
-		$attackCanSnipe = $config{$target->{configPrefix}.'attackCanSnipe'};
-		$attackCheckLOS = $config{$target->{configPrefix}.'attackCheckLOS'};
-		$followDistanceMax = $config{$target->{configPrefix}.'followDistanceMax'};
+		$attackCanSnipe = $config{$actor->{configPrefix}.'attackCanSnipe'};
+		$attackCheckLOS = $config{$actor->{configPrefix}.'attackCheckLOS'};
+		$followDistanceMax = $config{$actor->{configPrefix}.'followDistanceMax'};
 		$master = $char;
 		$masterPos = calcPosition($char);
-		$runFromTarget = $config{$target->{configPrefix}.'runFromTarget'};
-		$runFromTarget_dist = $config{$target->{configPrefix}.'runFromTarget_dist'};
-		$runFromTarget_minStep = $config{$target->{configPrefix}.'runFromTarget_minStep'};
-		$runFromTarget_maxStep = $config{$target->{configPrefix}.'runFromTarget_maxStep'};
-		$runFromTarget_maxPathDistance = $config{$target->{configPrefix}.'runFromTarget_maxPathDistance'};
+		$runFromTarget = $config{$actor->{configPrefix}.'runFromTarget'};
+		$runFromTarget_dist = $config{$actor->{configPrefix}.'runFromTarget_dist'};
+		$runFromTarget_minStep = $config{$actor->{configPrefix}.'runFromTarget_minStep'};
+		$runFromTarget_maxStep = $config{$actor->{configPrefix}.'runFromTarget_maxStep'};
+		$runFromTarget_maxPathDistance = $config{$actor->{configPrefix}.'runFromTarget_maxPathDistance'};
 	}
 
 	# Get the angle (using a vector) in radians from target to actor
