@@ -969,6 +969,8 @@ sub get_kite_position {
 	return undef;
 }
 
+use constant USE_DIAGONAL => 0;
+
 ##
 # get_dance_position(slave, target)
 # slave: reference to the slave actor which is dancing.
@@ -989,50 +991,56 @@ sub get_dance_position {
 	
 	# same x and y
 	if ($my_pos->{x} == $target_pos->{x} && $my_pos->{y} == $target_pos->{y}) {
-		@possible = (
-			{ x => 1, y => 1 },
+		push(@possible,(
 			{ x => 1, y => 0 },
-			{ x => 1, y => -1 },
 			{ x => 0, y => 1 },
 			{ x => 0, y => -1 },
-			{ x => -1, y => 1 },
-			{ x => -1, y => 0 },
-			{ x => -1, y => -1 }
-		);
+			{ x => -1, y => 0 }
+		));
+		push(@possible,(
+			{ x => 1, y => 1 },
+			{ x => -1, y => -1 },
+			{ x => 1, y => -1 },
+			{ x => -1, y => 1 }
+		)) if (USE_DIAGONAL == 1);
 	
 	} elsif ($my_pos->{x} == $target_pos->{x}) {
 		$dy = abs($my_pos->{y} - $target_pos->{y});
 		if ($my_pos->{y} > $target_pos->{y}) {
 			# same x, 2 y north
 			if ($dy == 2) {
-				@possible = (
+				push(@possible,(
+					{ x => 0, y => -1 }
+				));
+				push(@possible,(
 					{ x => 1, y => -1 },
-					{ x => 0, y => -1 },
 					{ x => -1, y => -1 }
-				);
+				)) if (USE_DIAGONAL == 1);
 			# same x, 1 y north
 			} else {
-				@possible = (
+				push(@possible,(
 					{ x => 1, y => 0 },
 					{ x => -1, y => 0 },
 					{ x => 0, y => 1 }
-				);
+				));
 			}
 		} else {
 			# same x, 2 y south
 			if ($dy == 2) {
-				@possible = (
+				push(@possible,(
+					{ x => 0, y => 1 }
+				));
+				push(@possible,(
 					{ x => 1, y => 1 },
-					{ x => 0, y => 1 },
 					{ x => -1, y => 1 }
-				);
+				)) if (USE_DIAGONAL == 1);
 			# same x, 1 y south
 			} else {
-				@possible = (
+				push(@possible,(
 					{ x => 1, y => 0 },
 					{ x => -1, y => 0 },
 					{ x => 0, y => -1 }
-				);
+				));
 			}
 		}
 	
@@ -1041,73 +1049,85 @@ sub get_dance_position {
 		if ($my_pos->{x} > $target_pos->{x}) {
 			# same y, 2 x east
 			if ($dx == 2) {
-				@possible = (
+				push(@possible,(
+					{ x => -1, y => 0 }
+				));
+				push(@possible,(
 					{ x => -1, y => 1 },
-					{ x => -1, y => 0 },
 					{ x => -1, y => -1 }
-				);
+				)) if (USE_DIAGONAL == 1);
 			# same y, 1 x east
 			} else {
-				@possible = (
+				push(@possible,(
 					{ x => 0, y => 1 },
 					{ x => 0, y => -1 },
 					{ x => 1, y => 0 }
-				);
+				));
 			}
 		} else {
 			# same y, 2 x west
 			if ($dx == 2) {
-				@possible = (
+				push(@possible,(
+					{ x => 1, y => 0 }
+				));
+				push(@possible,(
 					{ x => 1, y => 1 },
-					{ x => 1, y => 0 },
 					{ x => 1, y => -1 }
-				);
+				)) if (USE_DIAGONAL == 1);
 			# same y, 1 x west
 			} else {
-				@possible = (
+				push(@possible,(
 					{ x => 0, y => 1 },
 					{ x => 0, y => -1 },
 					{ x => -1, y => 0 }
-				);
+				));
 			}
 		}
 		
 	} elsif ($my_pos->{y} > $target_pos->{y}) {
 		# 1 northeast
 		if ($my_pos->{x} > $target_pos->{x}) {
-			@possible = (
+			push(@possible,(
 				{ x => -1, y => 0 },
-				{ x => 0, y => -1 },
+				{ x => 0, y => -1 }
+			));
+			push(@possible,(
 				{ x => -1, y => 1 },
 				{ x => 1, y => -1 }
-			);
+			)) if (USE_DIAGONAL == 1);
 		# 1 northwest
 		} else {
-			@possible = (
+			push(@possible,(
 				{ x => 1, y => 0 },
-				{ x => 0, y => -1 },
+				{ x => 0, y => -1 }
+			));
+			push(@possible,(
 				{ x => 1, y => 1 },
 				{ x => -1, y => -1 }
-			);
+			)) if (USE_DIAGONAL == 1);
 		}
 		
 	} else {
 		# 1 southeast
 		if ($my_pos->{x} > $target_pos->{x}) {
-			@possible = (
+			push(@possible,(
 				{ x => -1, y => 0 },
-				{ x => 0, y => 1 },
+				{ x => 0, y => 1 }
+			));
+			push(@possible,(
 				{ x => -1, y => -1 },
 				{ x => 1, y => 1 }
-			);
+			)) if (USE_DIAGONAL == 1);
 		# 1 southwest
 		} else {
-			@possible = (
+			push(@possible,(
 				{ x => 1, y => 0 },
-				{ x => 0, y => 1 },
+				{ x => 0, y => 1 }
+			));
+			push(@possible,(
 				{ x => 1, y => -1 },
 				{ x => -1, y => 1 }
-			);
+			)) if (USE_DIAGONAL == 1);
 		}
 	}
 	
