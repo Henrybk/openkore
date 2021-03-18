@@ -592,20 +592,23 @@ sub processAttack {
 			}
 
 			if ($args->{attackMethod}{type} eq "weapon") {
-				if ($config{$slave->{configPrefix}.'attack_dance_melee'}) {
+				if ($config{$slave->{configPrefix}.'attack_dance_melee'} && $args->{attackMethod}{distance} == 1) {
 					if (timeOut($timeout{$slave->{ai_dance_attack_melee_timeout}})) {
 						my $cell = get_dance_position($slave, $target);
+						warning TF("Slave %s will dance type %d from (%d, %d) to (%d, %d), target %s at (%d, %d).\n", $slave, $config{$slave->{configPrefix}.'attack_dance_melee'}, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y});
 						$slave->sendMove ($cell->{x}, $cell->{y});
-						$slave->sendAttack ($ID);
 						$slave->sendMove ($realMyPos->{x},$realMyPos->{y});
+						$slave->sendAttack ($ID);
 						$timeout{$slave->{ai_dance_attack_melee_timeout}}{time} = time;
 					}
 					
 				} elsif ($config{$slave->{configPrefix}.'attack_dance_ranged'} && $args->{attackMethod}{distance} > 2) {
 					if (timeOut($timeout{$slave->{ai_dance_attack_ranged_timeout}})) {
 						my $cell = get_dance_position($slave, $target);
-						$slave->sendAttack ($ID);
+						warning TF("Slave %s will range dance type %d from (%d, %d) to (%d, %d), target %s at (%d, %d).\n", $slave, $config{$slave->{configPrefix}.'attack_dance_ranged'}, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y});
 						$slave->sendMove ($cell->{x}, $cell->{y});
+						$slave->sendMove ($realMyPos->{x},$realMyPos->{y});
+						$slave->sendAttack ($ID);
 						$timeout{$slave->{ai_dance_attack_ranged_timeout}}{time} = time;
 					}
 				
