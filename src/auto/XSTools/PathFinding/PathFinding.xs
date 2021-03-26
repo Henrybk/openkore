@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -19,7 +20,7 @@ PathFinding_create()
 
 
 void
-PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
+PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y, drunkness)
 		PathFinding session
 		SV *weight_map
 		SV * avoidWalls
@@ -34,6 +35,7 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		SV * max_x
 		SV * min_y
 		SV * max_y
+		SV * drunkness
 	
 	PREINIT:
 		char *weight_map_data = NULL;
@@ -124,6 +126,11 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			XSRETURN_NO;
 		}
 		
+		if (SvROK(drunkness) || SvTYPE(drunkness) >= SVt_PVAV || !SvOK(drunkness)) {
+			printf("[pathfinding reset error] bad drunkness argument\n");
+			XSRETURN_NO;
+		}
+		
 		/* Get the weight_map data */
 		weight_map_data = (char *) SvPV_nolen (SvRV (weight_map));
 		session->map_base_weight = weight_map_data;
@@ -140,6 +147,8 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		session->max_x = (int) SvUV (max_x);
 		session->min_y = (int) SvUV (min_y);
 		session->max_y = (int) SvUV (max_y);
+		srand(time(0));
+		session->drunkness = (int) SvUV (drunkness);
 	
 		// Min and max check
 		if (session->min_x >= session->width || session->min_y >= session->height || session->min_x < 0 || session->min_y < 0) {

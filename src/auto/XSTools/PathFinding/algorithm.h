@@ -49,6 +49,8 @@ typedef struct {
 	Node *currentMap;
 	
 	unsigned long *openList;
+	
+	int drunkness;
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();

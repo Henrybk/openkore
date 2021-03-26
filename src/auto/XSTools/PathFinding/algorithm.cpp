@@ -110,6 +110,7 @@ CalcPath_pathStep (CalcPath_session *session)
 	int neighbor_y;
 	unsigned long neighbor_adress;
 	unsigned long distanceFromCurrent;
+	int drunk;
 	
 	unsigned int g_score = 0;
 	
@@ -177,6 +178,12 @@ CalcPath_pathStep (CalcPath_session *session)
 			} else {
 				// We use 10 for ortogonal movement weight
 				distanceFromCurrent = 10;
+			}
+			
+			// If drunk
+			if (session->drunkness) {
+				drunk = rand() % session->drunkness;
+				distanceFromCurrent += drunk;
 			}
 			
 			// If avoidWalls is true we add weight to cells near walls to disencourage the algorithm to move to them.
