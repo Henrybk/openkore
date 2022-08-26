@@ -29,12 +29,10 @@ automacro Equip_TwoHanded {
     IsNotEquippedID rightHand 1157
     InInventoryID 1157 > 0
 	BaseLevel > 34
-	InCity 1
     exclusive 1
 	priority 3
     call {
-		%toequip = (rightHand => 1157)
-        call start_equipping
+		do conf -f equipAuto_0_rightHand GetNamebyNameID(1157)
     }
 }
 

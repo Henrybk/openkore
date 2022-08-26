@@ -1,15 +1,30 @@
 
-automacro Talk_to_Final_Tester {
-	exclusive 1
-	JobLevel 10
-    QuestInactive 7122
+automacro move_to_Hanson {
+    exclusive 1
+    JobLevel = 10
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_4
     InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
-	NpcNear /Final/
-	ConfigKey eventMacro_1_99_stage turnswordman
-    priority 1
-	call {
-		do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r1 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0 r0
-	}
+	NpcNotNear /Hanson/
+	call move_to_Hanson
+}
+
+macro move_to_Hanson {
+	do move 99 20
+}
+
+automacro talkHanson {
+    exclusive 1
+    JobLevel = 10
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_4
+    InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
+    NpcNear /Hanson/
+    call TalkHanson
+}
+
+macro TalkHanson {
+    do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r1 r1 r1 r1 r1 r1 r1 r1 r0 r0 r1 r0 r1 r1 r1 r0 r2 r0 r1 r1 r1 r1 r0
 }
 
 automacro moved_out_of_novice_grounds {
@@ -25,10 +40,14 @@ automacro moved_out_of_novice_grounds {
     NotInMap new_3-3
     NotInMap new_4-3
     NotInMap new_5-3
-	ConfigKey eventMacro_1_99_stage turnswordman
+	ConfigKey eventMacro_1_99_stage novice_4
 	priority 1
 	call {
+		include off Move_to_tester.pm
+		
 		do conf -f eventMacro_1_99_stage turnswordman_out
+		
+		do reload eventMacros
 	}
 }
 
@@ -64,7 +83,7 @@ automacro move_to_guild_inside {
 	JobID 0
 	InMap izlude_in
 	QuestInactive 1014
-	NpcNotNear /Swordman/
+	NpcNotNear /Swordman#swd_1/
 	exclusive 1
 	priority 1
 	call Move_to_swordman_place
@@ -79,7 +98,7 @@ automacro Talk_to_swordman_Swordman {
 	JobID 0
 	InMap izlude_in
 	QuestInactive 1014
-	NpcNear /Swordman/
+	NpcNear /Swordman#swd_1/
 	exclusive 1
 	priority 1
 	call {
@@ -102,14 +121,28 @@ automacro move_to_test_inside {
 	JobID 0
 	InMap izlude_in
 	QuestActive 1014
-	NpcNotNear /Test/
+	NpcNotNear /Swordman#swd_2/
 	exclusive 1
 	priority 1
 	call Move_to_test_place
 }
 
 macro Move_to_test_place {
-	do move izlude_in 30 175 5
+	do move izlude_in 84 169
+}
+
+automacro talk_to_move_test_area {
+	ConfigKey eventMacro_1_99_stage turnswordman_out
+	JobID 0
+	InMap izlude_in
+	QuestActive 1014
+	NpcNotNear /Test/
+	NpcNear /Swordman#swd_2/
+	exclusive 1
+	priority 1
+	call {
+		do talk $.NpcNearLastBinId
+	}
 }
 
 automacro Talk_to_swordman_test {
@@ -144,6 +177,7 @@ macro Ajust_to_test {
 	do conf -f route_randomWalk 0
 	do conf -f route_step 1
 	do conf -f portalRecord 0
+	do conf -f route_avoidWalls 0
 	]
 }
 
@@ -170,6 +204,7 @@ macro Ajust_to_move_to_test {
 	do conf -f itemsGatherAuto 0
 	do conf -f route_step 15
 	do conf -f portalRecord 2
+	do conf -f route_avoidWalls 1
 	]
 }
 
@@ -185,7 +220,65 @@ automacro do_test {
 }
 
 macro do_test {
-	do move 218 165
+	do move 20 245
+	do move 25 250
+	do move 30 250
+	do move 38 245
+	do move 48 245
+	do move 50 241
+	do move 64 241
+	do move 75 240
+	do move 92 240
+	do move 105 241
+	do move 120 243
+	do move 140 243
+	do move 160 243
+	do move 185 243
+	do move 191 244
+	pause 5
+	do move 222 243
+	pause 5
+	do move 12 211
+	do move 184 211
+	do move 192 207
+	pause 5
+	do move 223 205
+	pause 5
+	do move 24 170
+	do move 24 173
+	do move 33 174
+	do move 37 174
+	do move 38 172
+	do move 45 172
+	do move 48 169
+	do move 53 173
+	do move 56 173
+	do move 60 169
+	do move 84 169
+	do move 85 170
+	do move 88 170
+	do move 89 169
+	do move 93 169
+	do move 95 171
+	do move 112 171
+	do move 113 172
+	do move 116 172
+	do move 117 171
+	do move 124 171
+	do move 125 172
+	do move 128 172
+	do move 129 174
+	do move 158 174
+	do move 158 171
+	do move 166 171
+	do move 167 172
+	do move 170 172
+	do move 171 171
+	do move 177 171
+	do move 180 171
+	do move 181 172
+	do move 192 168
+	pause 5
 }
 
 automacro Talk_to_mae_end_test {
@@ -202,11 +295,12 @@ automacro Talk_to_mae_end_test {
 }
 
 automacro mae_text_end {
+    exclusive 0
+	self_interruptible 0
 	ConfigKey eventMacro_1_99_stage turnswordman_test
 	QuestActive 1014
 	NpcMsgName /congratulate/i /(Mae)/i
 	JobID 0
-	exclusive 1
 	priority 0
 	call {
 		[
@@ -217,6 +311,7 @@ automacro mae_text_end {
 		do conf -f itemsGatherAuto 0
 		do conf -f route_step 15
 		do conf -f portalRecord 2
+		do conf -f route_avoidWalls 1
 		]
 	}
 }
@@ -253,7 +348,7 @@ automacro move_to_guild_inside_end {
 	ConfigKey eventMacro_1_99_stage turnswordman_after_test
 	QuestActive 1014
 	InMap izlude_in
-	NpcNotNear /Swordman/
+	NpcNotNear /Swordman#swd_1/
 	JobID 0
 	exclusive 1
 	priority 1
@@ -265,7 +360,7 @@ automacro Talk_to_swordman_Swordman_end {
 	QuestActive 1014
 	InMap izlude_in
 	JobID 0
-	NpcNear /Swordman/
+	NpcNear /Swordman#swd_1/
 	priority 1
 	exclusive 1
 	call {
@@ -286,22 +381,30 @@ automacro Changed_to_Swordman {
 
 automacro EquipSwordmanStuff {
 	ConfigKey eventMacro_1_99_stage turnswordman_after_change
-	IsNotEquippedID rightHand 13415, armor 2393
-	InInventoryID 13415 = 1
+	IsNotEquippedID rightHand 1104
 	JobLevel = 1
 	JobID 1
 	exclusive 1
+	timeout 10
 	call {
-		%toequip = (rightHand => 13415, armor => 2393)
-        call start_equipping
+		[
+			do conf -f equipAuto_0_topHead none
+			do conf -f equipAuto_0_leftHand none
+			do conf -f equipAuto_0_robe none
+			do conf -f equipAuto_0_shoes none
+			do conf -f equipAuto_0_armor none
+			do conf -f equipAuto_0_rightHand none
+			do conf -f equipAuto_0_topHead none
+			do conf -f equipAuto_0_leftHand none
+			do conf -f equipAuto_0_robe none
+			do conf -f equipAuto_0_rightHand GetNamebyNameID(1104)
+		]
 	}
 }
 
 automacro EquipSwordmanStuffEnd {
 	ConfigKey eventMacro_1_99_stage turnswordman_after_change
-	IsEquippedID rightHand 13415
-	IsEquippedID armor 2393
-	InInventoryID 13415 = 1
+	IsEquippedID rightHand 1104
 	JobLevel = 1
 	JobID 1
 	exclusive 1
@@ -324,8 +427,6 @@ automacro EquipSwordmanStuffEnd {
 		do conf -f saveMap_warpToBuyOrSell 1
 		
 		include off Turn_Swordman.pm
-		include off Brade_Bug.pm
-		include off Move_to_tester.pm
 		
 		call set_class_leveling
 		

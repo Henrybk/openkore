@@ -166,6 +166,7 @@ automacro detect_receptionist_teleport {
 
 automacro moveNextToInterfaces1 {
     exclusive 1
+    BaseLevel = 2
     NpcNotNear /Interfaces/
 	ConfigKey eventMacro_1_99_stage novice_2
     InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
@@ -247,32 +248,6 @@ automacro talkGirlItem {
 macro TalkItem {
     do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r0
 }
- 
-automacro moveToGirlItem_teleport_ask {
-    exclusive 1
-    BaseLevel = 4
-    JobLevel = 6
-    priority 0
-	ConfigKey eventMacro_1_99_stage novice_2
-    InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
-    NpcNotNear /Item/
-    call MoveItem
-}
- 
-automacro talkGirlItem_teleport_ask {
-    exclusive 1
-    BaseLevel = 4
-    JobLevel = 6
-    priority 0
-	ConfigKey eventMacro_1_99_stage novice_2
-    InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
-    NpcNear /Item/
-    call TalkItem_teleport_ask
-}
-
-macro TalkItem_teleport_ask {
-    do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0
-}
 
 # Got items
 # 1-2 28 178
@@ -310,8 +285,8 @@ macro TalkHelper {
  
 automacro moveToGuyEntrance {
     exclusive 1
-    BaseLevel = 5
-    JobLevel = 6
+    BaseLevel >= 5
+    JobLevel >= 6
     priority 0
 	ConfigKey eventMacro_1_99_stage novice_2
     InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
@@ -325,8 +300,8 @@ macro MoveEntrance {
 
 automacro talkGuyEntrance {
     exclusive 1
-    BaseLevel = 5
-    JobLevel = 6
+    BaseLevel >= 5
+    JobLevel >= 6
     priority 0
 	ConfigKey eventMacro_1_99_stage novice_2
     InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
@@ -338,14 +313,43 @@ macro TalkEntrance {
     do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0
 }
 
-# Teleportado pra 1-3
-
-automacro talkBradeonGroundsAdjustToQuest {
+automacro enteredGrounds {
     exclusive 1
-    BaseLevel = 5
-    JobLevel = 6
     priority 0
 	ConfigKey eventMacro_1_99_stage novice_2
+    InMap new_1-3, new_2-3, new_3-3, new_4-3, new_5-3
+    call enteredGrounds
+}
+
+macro enteredGrounds {
+    do conf -f eventMacro_1_99_stage novice_3
+}
+
+# Teleportado pra 1-3
+
+automacro moveToGuyEntrance_again {
+    exclusive 1
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_3
+    InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
+    NpcNotNear /Entrance/
+    call MoveEntrance
+}
+
+automacro talkGuyEntrance_again {
+    exclusive 1
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_3
+    InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
+    NpcNear /Entrance/
+    call TalkEntrance
+}
+
+automacro AdjustConfigForGrounds {
+    exclusive 1
+    JobLevel < 10
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_3
 	ConfigKeyNot attackAuto 2
     InMap new_1-3, new_2-3, new_3-3, new_4-3, new_5-3
     call AdjustConfigForGrounds
@@ -372,31 +376,45 @@ macro AdjustConfigForGrounds {
 	do conf -f useSelf_item_0_disabled 0
 	do conf -f useSelf_item_0_hp < 80%
 	do conf -f useSelf_item_0_timeout 1
+	
+	do conf -f equipAuto_0_topHead GetNamebyNameID(5055)
+	do conf -f equipAuto_0_leftHand GetNamebyNameID(2112)
+	do conf -f equipAuto_0_robe GetNamebyNameID(2393)
+	do conf -f equipAuto_0_shoes GetNamebyNameID(2414)
+	do conf -f equipAuto_0_armor GetNamebyNameID(2352)
+	do conf -f equipAuto_0_rightHand GetNamebyNameID(1243)
 	]
 }
- 
-automacro equipStuffForGrounds {
-    exclusive 1
-    BaseLevel = 5
-    JobLevel = 6
-    priority 0
-	ConfigKey eventMacro_1_99_stage novice_2
-	ConfigKey attackAuto 2
-    InInventoryID 13040 = 1
-    IsNotEquippedID topHead 5055, leftHand 2112, robe 2393, shoes 2414, armor 2352, rightHand 13040
-    InMap new_1-3, new_2-3, new_3-3, new_4-3, new_5-3
-    call {
-		%toequip = (topHead => 5055, robe => 2393, shoes => 2414, armor => 2352, leftHand => 2112, rightHand => 13040)
-        call start_equipping
-    }
-}
+
+#topHead 5055, leftHand 2112, robe 2393, shoes 2414, armor 2352, rightHand 13040
 
 automacro Change_to_class_selection {
     exclusive 1
     JobLevel = 10
     priority 0
     InMap new_1-3, new_2-3, new_3-3, new_4-3, new_5-3
-	ConfigKey eventMacro_1_99_stage novice_2
+	ConfigKey eventMacro_1_99_stage novice_3
+	call {
+		do conf -f attackAuto 0
+		do conf -f route_randomWalk 0
+		do conf -f lockMap none
+		
+		include off Novice_Grounds.pm
+		
+		include on Move_to_tester.pm
+		
+		call set_class_answer_novice
+		
+		do reload eventMacros
+	}
+}
+
+automacro Change_to_class_selection_bug2 {
+    exclusive 1
+    JobLevel = 10
+    priority 0
+    InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
+	ConfigKey eventMacro_1_99_stage novice_3
 	call {
 		do conf -f attackAuto 0
 		do conf -f route_randomWalk 0

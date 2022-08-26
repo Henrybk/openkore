@@ -1,37 +1,4 @@
 
-#Equip configurations
-macro start_equipping {
-	@slots = &keys(%toequip)
-	$size = %toequip
-	$index = 0
-	
-	if ($size = 0) {
-		log \%toequip has size 0, a problem ocurred
-		do quit
-		stop
-	}
-	
-	while ($size > $index) {
-		$slot = $slots[$index]
-		$itemID = $toequip{$slots[$index]}
-		do conf -f to_be_equipped_$slot $itemID
-		$index++
-	}
-	
-	@slots = undef
-	$size = undef
-	$index = undef
-	%toequip = undef
-	
-	do conf -f equipItems_stage_before &config(eventMacro_1_99_stage)
-	do conf -f eventMacro_1_99_stage equipping_items
-	do conf -f before_event_include &config(current_event_include)
-	do conf -f current_event_include Equip_Items.pm
-	include off &config(before_event_include)
-	include on Equip_Items.pm
-	do reload eventMacros
-}
-
 #Savepoint configurations
 macro get_best_savepoint {
 	$savepoint = set_nearest_savepoint("&config(lockMap)", "none", "none")

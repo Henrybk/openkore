@@ -648,20 +648,18 @@ automacro Changed_to_knight {
 
 automacro EquipknightStuff {
 	ConfigKey eventMacro_1_99_stage turning_knight_after_change
-	IsNotEquippedID rightHand 1157, armor 2393
+	IsNotEquippedID rightHand 1157
 	JobLevel = 1
 	JobID 7
 	exclusive 1
 	call {
-		%toequip = (rightHand => 1157, armor => 2393)
-        call start_equipping
+		do conf -f equipAuto_0_rightHand GetNamebyNameID(1157)
 	}
 }
 
 automacro EquipknightStuffEnd {
 	ConfigKey eventMacro_1_99_stage turning_knight_after_change
 	IsEquippedID rightHand 1157
-	IsEquippedID armor 2393
 	JobLevel = 1
 	JobID 7
 	exclusive 1

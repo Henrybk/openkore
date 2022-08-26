@@ -6,22 +6,18 @@
 # Utils 
 	!include eventMacros\Utils\Perl_Subs.pm
 	#!include eventMacros\Utils\Save_Kafra.pm
-	#!include eventMacros\Utils\Equip_Items.pm
-	#!include eventMacros\Utils\Set_Buy_Meat.pm
+	#!include eventMacros\Utils\Set_Buy_Meat.pm 
 
 
 # Classes
 	# Novice
 		!include eventMacros\Classes\Novice\Novice_Grounds.pm
 		#!include eventMacros\Classes\Novice\Move_to_tester.pm
+		
+	# Swordman
+		#!include eventMacros\Classes\Swordman\Turn_Swordman.pm
+		#!include eventMacros\Classes\Knight\Turn_Knight.pm
+		#!include eventMacros\Classes\Knight\Knight_Equips.pm
 
-	# Thief
-		#!include eventMacros\Classes\Thief\Turn_Thief.pm
-
-	# Rogue	
-		#!include eventMacros\Classes\Rogue\Turn_Rogue.pm
-		#!include eventMacros\Classes\Rogue\RogueLeveling.pm
-
-
-# Quests
+# Quests 
 	#!include eventMacros\Quests\Join_Sewb.pm

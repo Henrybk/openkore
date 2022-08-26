@@ -18,12 +18,10 @@ macro set_class_stats_and_skills {
 macro set_class_answer_novice {
 	call set_config_class
 	if ($configClass = rogue) {
-		do conf -f eventMacro_1_99_stage turnthief
 		do conf -f current_event_include Turn_Thief.pm
 		include on Turn_Thief.pm
 		
 	} elsif ($configClass = knight) {
-		do conf -f eventMacro_1_99_stage turnswordman
 		do conf -f current_event_include Turn_Swordman.pm
 		include on Turn_Swordman.pm
 	}
