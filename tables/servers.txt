@@ -6,6 +6,24 @@
 # except for when subservers were changed or reordered
 # in such a way it requires user confirmation to correctly select a subserver
 
+# https://oathro.com/
+[OathRO]
+ip 51.81.56.97
+port 6900
+master_version 1
+version 28
+serverType kRO_RagexeRE_2020_04_01b
+serverEncoding Western
+addTableFolders kRO/RagexeRE_2020_04_01b;translated/kRO_english
+charBlockSize 155
+storageEncryptKey 0x050B6F79, 0x0202C179, 0x0E20120, 0x04FA43E3, 0x0179B6C8, 0x05973DF2, 0x07D8D6B, 0x08CB9ED9
+pinCode 0
+charDeleteDateType 1
+rankingSystemType 1
+gameGuard 0
+private 1
+itemListType 1
+
 #####################
 # Official RO Servers
 
