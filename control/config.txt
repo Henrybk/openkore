@@ -9,6 +9,16 @@ username henrybk
 password Pi=3141592
 loginPinCode
 char 0
+##### Plugins Start
+
+eventMacro_1_99_stage start
+eventMacro_goal_class knight
+
+eventMacro_orphans terminate
+eventMacro_CheckOnAI auto
+eventMacro_file eventMacros.txt
+
+##### Plugins End
 
 # Poseidon Settings: https://openkore.com/wiki/Poseidon
 # They must be the same as Query Server config in Poseidon.txt
@@ -151,7 +161,7 @@ cachePlayerNames 1
 cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
-clientSight 15
+clientSight 30
 
 dcPause 1
 dcOnDeath 0
