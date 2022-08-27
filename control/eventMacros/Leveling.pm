@@ -8,74 +8,68 @@ automacro leveling_timer {
 }
 
 macro baseMacroUp {
-	re_add_skipped_lockMaps()
-
-	if (check_current_lockMap()) {
-		stop
-	}
-		
-	$lockMap = set_best_lockMap()
-	[
-		if ($lockMap == 1) {
-			log Everything went fine with the auto find lockMap function
-		} else {
-			log There was a problem with the auto find lockMap function
-			do quit
-			stop
-		}
-	]
+	log Here we would set lockmap and savemap
 	
-	call get_best_savepoint
+	call SetVar
+	
+	$changed = 0
+	
+	#Leveling
+	if ($.lvl <= 25) {
+		if ($configlockMap != prt_sewb2) {
+			# https://ratemyserver.net/npc_shop_warp.php?map=prt_fild05&re_mob=0&small=1
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_sewb2
+			$changed = 1
+		}
+	}
+	
+	if ($changed == 1) {
+		call after_lock_change
+	}
 }
 
-#Savepoint configurations
-macro get_best_savepoint {
-	$savepoint = set_nearest_savepoint("&config(lockMap)", "none", "none")
+macro set_lockmap_prt_sewb2 {
 	[
-	if ($savepoint == 1) {
-		log Everything went fine with the auto save find savemap function
-	} else {
-		log There was a problem with the auto find savemap function
-		do quit
-		stop
-	}
+	do conf lockMap prt_sewb2
+	
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r0
+	]
+}
+
+macro after_lock_change {
 	call SetVar
+	call basic_config_leveling_settings
 	if ($configsaveMap != &config(future_saveMap_map)) {
-		do conf -f saveMap_stage_before &config(eventMacro_1_99_stage)
-		do conf -f eventMacro_1_99_stage saving_in_kafra
-		do conf -f before_event_include &config(current_event_include)
-		do conf -f current_event_include Save_Kafra.pm
-		include off &config(before_event_include)
-		include on Save_Kafra.pm
-		do reload eventMacros
+		call change_savemap
 	} else {
 		call clear_saveMap_keys
 	}
-	]
 }
 
-macro clear_saveMap_keys {
+macro change_savemap {
 	[
-	do conf -f future_saveMap_map none
-	do conf -f future_saveMap_x none
-	do conf -f future_saveMap_y none
-	
-	do conf -f future_saveMap_kafra_map none
-	do conf -f future_saveMap_kafra_x none
-	do conf -f future_saveMap_kafra_y none
-	do conf -f future_saveMap_save_sequence none
+	do conf -f saveMap_stage_before &config(eventMacro_1_99_stage)
+	do conf -f eventMacro_1_99_stage saving_in_kafra
+	do conf -f before_event_include &config(current_event_include)
+	do conf -f current_event_include Save_Kafra.pm
 	]
-}
-
-macro SetVar {
-	$configlockMap = &config(lockMap)
-	$configsaveMap = &config(saveMap)
-	$joinedSewb = &config(Joined_Sewb)
+	include off &config(before_event_include)
+	include on Save_Kafra.pm
+	do reload eventMacros
 }
 
 automacro need_to_configure_Sewb {
 	exclusive 1
-	priority 0
+	priority 1
 	ConfigKeyNot Joined_Sewb true
 	ConfigKeyNot Joined_Sewb false
 	ConfigKey eventMacro_1_99_stage leveling
@@ -84,14 +78,25 @@ automacro need_to_configure_Sewb {
 	}
 }
 
-automacro need_to_join_Sewb {
+automacro need_to_configure_Sewb_2 {
 	exclusive 1
-	priority 0
+	priority 1
+	ConfigKey Joined_Sewb true
+	ConfigKey eventMacro_1_99_stage leveling
+	NpcMsgName /we can only allow volunteers for the Culvert Campaign to enter/ /Culvert Guardian/
+	call {
+		do conf -f Joined_Sewb false
+	}
+}
+
+automacro need_to_Join_Sewb {
+	exclusive 1
+	priority 1
 	ConfigKey Joined_Sewb false
 	ConfigKey eventMacro_1_99_stage leveling
 	call {
 		do conf -f Join_Sewb_before &config(eventMacro_1_99_stage)
-		do conf -f eventMacro_1_99_stage join_Sewb
+		do conf -f eventMacro_1_99_stage Join_Sewb
 		do conf -f before_event_include &config(current_event_include)
 		do conf -f current_event_include Join_Sewb.pm
 		include off &config(before_event_include)
@@ -112,14 +117,14 @@ automacro need_to_configure_Oranpere {
 	}
 }
 
-automacro need_to_join_Oranpere {
+automacro need_to_Join_Oranpere {
 	exclusive 1
 	priority 0
 	ConfigKey Joined_Oranpere false
 	ConfigKey eventMacro_1_99_stage leveling
 	call {
 		do conf -f Join_Oranpere_before &config(eventMacro_1_99_stage)
-		do conf -f eventMacro_1_99_stage join_Oranpere
+		do conf -f eventMacro_1_99_stage Join_Oranpere
 		do conf -f before_event_include &config(current_event_include)
 		do conf -f current_event_include Join_Oranpere.pm
 		include off &config(before_event_include)

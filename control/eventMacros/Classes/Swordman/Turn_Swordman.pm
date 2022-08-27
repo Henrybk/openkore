@@ -183,9 +183,9 @@ automacro Got_into_test_map {
 macro Ajust_to_test {
 	[
 	do conf -f eventMacro_1_99_stage turnswordman_test
-	do conf -f lockMap $.map
+	do conf -f lockMap none
 	
-	do conf -f attackAuto 1
+	do conf -f attackAuto -1
 	do conf -f route_randomWalk 0
 	do conf -f route_step 1
 	do conf -f portalRecord 0
@@ -199,10 +199,6 @@ automacro Got_out_of_test_map {
 	QuestActive 1014
 	ConfigKey eventMacro_1_99_stage turnswordman_test
 	NotInMap job_sword1
-	NotInMap sword_2-2
-	NotInMap sword_2-1
-	NotInMap sword_1-1
-	NotInMap sword_3-1
 	priority 1
 	call Ajust_to_move_to_test
 }
@@ -222,7 +218,7 @@ macro Ajust_to_move_to_test {
 
 automacro do_test {
 	ConfigKey eventMacro_1_99_stage turnswordman_test
-	InMap job_sword1, sword_2-2, sword_2-1, sword_1-1, sword_3-1
+	InMap job_sword1
 	QuestActive 1014
 	NpcNotNear /Mae/
 	JobID 0
@@ -297,7 +293,7 @@ automacro Talk_to_mae_end_test {
     exclusive 0
 	self_interruptible 0
 	ConfigKey eventMacro_1_99_stage turnswordman_test
-	InMap job_sword1, sword_2-2, sword_2-1, sword_1-1, sword_3-1
+	InMap job_sword1
 	QuestActive 1014
 	NpcNear /Mae/
 	JobID 0
@@ -319,14 +315,14 @@ automacro mae_text_end {
 
 macro ended_test {
 	[
-		do conf -f eventMacro_1_99_stage turnswordman_after_test
-		do conf -f lockMap none
-		do conf -f attackAuto 0
-		do conf -f route_randomWalk 0
-		do conf -f itemsGatherAuto 0
-		do conf -f route_step 15
-		do conf -f portalRecord 2
-		do conf -f route_avoidWalls 1
+	do conf -f eventMacro_1_99_stage turnswordman_after_test
+	do conf -f lockMap none
+	do conf -f attackAuto 0
+	do conf -f route_randomWalk 0
+	do conf -f itemsGatherAuto 0
+	do conf -f route_step 15
+	do conf -f portalRecord 2
+	do conf -f route_avoidWalls 1
 	]
 }
 
@@ -335,10 +331,6 @@ automacro move_to_guild_outside_far_end {
 	QuestActive 1014
 	NotInMap izlude
 	NotInMap job_sword1
-	NotInMap sword_2-2
-	NotInMap sword_2-1
-	NotInMap sword_1-1
-	NotInMap sword_3-1
 	NotInMap izlude_in
 	JobID 0
 	exclusive 1
@@ -402,15 +394,7 @@ automacro EquipSwordmanStuff {
 	timeout 10
 	call {
 		[
-			do conf -f equipAuto_0_topHead none
-			do conf -f equipAuto_0_leftHand none
-			do conf -f equipAuto_0_robe none
-			do conf -f equipAuto_0_shoes none
-			do conf -f equipAuto_0_armor none
-			do conf -f equipAuto_0_rightHand none
-			do conf -f equipAuto_0_topHead none
-			do conf -f equipAuto_0_leftHand none
-			do conf -f equipAuto_0_robe none
+			call clear_equipauto
 			do conf -f equipAuto_0_rightHand GetNamebyNameID(1104)
 		]
 	}
@@ -436,6 +420,10 @@ automacro EquipSwordmanStuffEnd {
 		do conf -f useSelf_item_0_hp < 75%
 		do conf -f attackAuto 2
 		do conf -f route_randomWalk 1
+        do conf -f itemsTakeAuto 1
+		do conf -f route_step 15
+		do conf -f portalRecord 2
+		do conf -f route_avoidWalls 1
 		
 		do conf -f teleportAuto_minAggressives 4
 		do conf -f saveMap_warpToBuyOrSell 1

@@ -146,33 +146,6 @@ macro update_turning_knight {
 	do conf -f eventMacro_1_99_stage leveling
 	do conf -f doing_knight_job_change windsor
 	
-	do iconf 517 70 1 0
-	
-	$meatName = GetNamebyNameID(517)
-	
-	$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("useSelf_item","$meatName")
-	do conf -f useSelf_item_$nextFreeUseSelfItemSlot $meatName
-	do conf -f useSelf_item_$nextFreeUseSelfItemSlot_disabled 0
-	do conf -f useSelf_item_$nextFreeUseSelfItemSlot_hp < 70%
-		
-	$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("getAuto","$meatName")
-	do conf -f getAuto_$nextFreeUseSelfItemSlot $meatName
-	do conf -f getAuto_$nextFreeUseSelfItemSlot_minAmount 2
-	do conf -f getAuto_$nextFreeUseSelfItemSlot_maxAmount 70
-	do conf -f getAuto_$nextFreeUseSelfItemSlot_passive 0
-	]
-	
-	$buyautoMeat = set_nearest_vender("517", "2", "70", "1000", "&config(saveMap_map)", "&config(saveMap_x)", "&config(saveMap_y)")
-	[
-	if ($buyautoMeat == 1) {
-		log Everything went fine with the buyautoMeat find function
-	} else {
-		log There was a problem with the buyautoMeat find function
-		do quit
-		stop
-	}
-	]
-	
 	[
 	do conf -f lockMap &config(turn_knight_lockMap_before)
 	do conf -f turn_knight_lockMap_before none
@@ -349,14 +322,6 @@ macro adapt_to_test_windsor {
 
 		do conf -f storageAuto 0
 		
-		$meatName = GetNamebyNameID(517)
-			
-		$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("getAuto","$meatName")
-		do conf -f getAuto_$nextFreeUseSelfItemSlot_passive 1
-		
-		$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("buyAuto","$meatName")
-		do conf -f buyAuto_$nextFreeUseSelfItemSlot_disabled 1
-		
 		do conf -f teleportAuto_minAggressives none
 		do conf -f teleportAuto_hp none
 		do conf -f teleportAuto_maxDmg none
@@ -380,14 +345,6 @@ macro out_of_test {
 	
 	do conf -f sellAuto 1
 	do conf -f storageAuto 1
-	
-	$meatName = GetNamebyNameID(517)
-	
-	$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("getAuto","$meatName")
-	do conf -f getAuto_$nextFreeUseSelfItemSlot_passive 1
-	
-	$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("buyAuto","$meatName")
-	do conf -f buyAuto_$nextFreeUseSelfItemSlot_disabled 1
 	]
 }
 
@@ -671,17 +628,6 @@ automacro EquipknightStuffEnd {
 		include off Turn_knight.pm
 		
 		do iconf 517 0 1 0
-	
-		$meatName = GetNamebyNameID(517)
-		
-		$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("useSelf_item","$meatName")
-		do conf -f useSelf_item_$nextFreeUseSelfItemSlot none
-			
-		$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("getAuto","$meatName")
-		do conf -f getAuto_$nextFreeUseSelfItemSlot none
-		
-		$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("buyAuto","$meatName")
-		do conf -f buyAuto_$nextFreeUseSelfItemSlot none
 		
 		do conf -f eventMacro_1_99_stage leveling
 		

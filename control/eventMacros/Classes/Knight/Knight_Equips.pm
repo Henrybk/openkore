@@ -1,27 +1,15 @@
 
 macro knight_set_buyauto_equipment {
-	
-	$needHanded = &eval((!defined $::char->inventory->getByNameID(1157) && $::char->{lv} > 34) ? 1 : 0)
-	
-	if ($needHanded = 1) {
-		$buyAutoTwoHanded = set_nearest_vender("1157", "0", "1", "65000", "&config(future_saveMap_map)", "&config(future_saveMap_x)", "&config(future_saveMap_y)")
-		if ($buyAutoTwoHanded == 1) {
-			log Everything went fine with the buyAutoTwoHanded find function
-			do iconf 1157 1 0 0
-			
-			$name = GetNamebyNameID(1157)
-			$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("buyAuto","$name")
-			
-			do conf -f buyAuto_$nextFreeUseSelfItemSlot_inInventory $name < 1
-			
-		} else {
-			log There was a problem with the buyAutoTwoHanded find function
-			do quit
-			stop
-		}
-	} else {
-		log We either already have a two handed sword or are too low level to buy it
-	}
+	$name = GetNamebyNameID(1157)
+	$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$nextFreeSlot $name
+	do conf -f buyAuto_$nextFreeSlot_npc izlude_in 60 127
+	do conf -f buyAuto_$nextFreeSlot_minAmount 0
+	do conf -f buyAuto_$nextFreeSlot_maxAmount 1
+	do conf -f buyAuto_$nextFreeSlot_minDistance 1
+	do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+	do conf -f buyAuto_$nextFreeSlot_zeny > 65000
+	do iconf 1157 1 0 0
 }
 
 automacro Equip_TwoHanded {
@@ -33,20 +21,6 @@ automacro Equip_TwoHanded {
 	priority 3
     call {
 		do conf -f equipAuto_0_rightHand GetNamebyNameID(1157)
-    }
-}
-
-automacro Set_use_Meat_Heal {
-	ConfigKey eventMacro_1_99_stage leveling
-    ConfigKeyNot useSelf_item_0 Meat
-    InInventoryID 569 = 0
-    exclusive 1
-	priority 3
-    call {
-		$meatName = GetNamebyNameID(517)
-		do conf -f useSelf_item_0 $meatName
-		do conf -f useSelf_item_0_disabled 0
-		do conf -f useSelf_item_0_hp < 50%
     }
 }
 
@@ -67,7 +41,7 @@ automacro Go_Job_Change {
 		
 		include on Turn_Knight.pm
 		
-		do reload acros
+		do reload eventMacros
     }
 }
 

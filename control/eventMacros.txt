@@ -6,7 +6,6 @@
 # Utils 
 	!include eventMacros\Utils\Perl_Subs.pm
 	#!include eventMacros\Utils\Save_Kafra.pm
-	#!include eventMacros\Utils\Set_Buy_Meat.pm 
 
 
 # Classes

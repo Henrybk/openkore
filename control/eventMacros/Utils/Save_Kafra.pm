@@ -8,11 +8,13 @@ automacro set_savemap_variables {
 	priority 0
 	call {
 		$saveMap = &config(future_saveMap_kafra_map)
+		log [set_savemap_variables] future_saveMap_kafra_map is $saveMap
 	}
 }
 
 automacro something_went_wrong_kafra {
 	exclusive 1
+	priority 1
 	ConfigKey eventMacro_1_99_stage saving_in_kafra
 	ConfigKey saveMap $saveMap
 	call {
@@ -33,6 +35,7 @@ automacro something_went_wrong_kafra {
 
 automacro moveLocKafraOutside {
 	exclusive 1
+	priority 1
 	ConfigKey eventMacro_1_99_stage saving_in_kafra
 	ConfigKeyNot future_saveMap_kafra_map none
 	ConfigKeyNot saveMap $saveMap
@@ -42,6 +45,7 @@ automacro moveLocKafraOutside {
 
 automacro moveLocKafraInside {
 	exclusive 1
+	priority 1
 	ConfigKeyNot saveMap $saveMap
 	ConfigKeyNot future_saveMap_kafra_map none
 	NpcNotNear /^Kafra Employee$/
@@ -79,56 +83,106 @@ automacro SavedAtKafra {
 	call {
 		do conf -f saveMap $saveMap
 		
-		$storage = set_nearest_storage("&config(future_saveMap_map) &config(future_saveMap_x) &config(future_saveMap_y)")
-		if ($storage == 1) {
-			log Everything went fine with the autostorage find function
-		} else {
-			log There was a problem with the autostorage find function
-			do quit
-			stop
-		}
-		
-		$sellauto = set_nearest_sellauto("&config(future_saveMap_map)", "&config(future_saveMap_x)", "&config(future_saveMap_y)")
-		if ($sellauto == 1) {
-			log Everything went fine with the autosell find function
-		} else {
-			log There was a problem with the autosell find function
-			do quit
-			stop
-		}
-		
-		$buyautoFlyWing = set_nearest_vender("601", "0", "5", "300", "&config(future_saveMap_map)", "&config(future_saveMap_x)", "&config(future_saveMap_y)")
-		if ($buyautoFlyWing == 1) {
-			log Everything went fine with the buyautoFlyWing find function
+		if ($saveMap == prt_fild05) {
+			[
+			do conf -f minStorageZeny 100
+			do conf -f storageAuto_npc prt_fild05 290 224
+			do conf -f storageAuto_npc_steps r1
+			do conf -f storageAuto 1
+			
+			do conf -f sellAuto 1
+			do conf -f sellAuto_npc prt_fild05 290 221
+			
+			# Fly wing
+			$name = GetNamebyNameID(601)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc prt_fild05 290 221
+			do conf -f buyAuto_$nextFreeSlot_minAmount 0
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 5
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 300
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
 			do iconf 601 5 1 0
 			
-			$name = GetNamebyNameID(601)
-			$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("buyAuto","$name")
-			
-			$name = GetNamebyNameID(12323)
-			do conf -f buyAuto_$nextFreeUseSelfItemSlot_inInventory $name < 1
-			
-		} else {
-			log There was a problem with the buyautoFlyWing find function
-			do quit
-			stop
-		}
-		
-		$buyautoButterFlyWing = set_nearest_vender("602", "0", "1", "300", "&config(future_saveMap_map)", "&config(future_saveMap_x)", "&config(future_saveMap_y)")
-		if ($buyautoButterFlyWing == 1) {
-			log Everything went fine with the buyautoButterFlyWing find function
+			# Butterly wing
+			$name = GetNamebyNameID(602)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc prt_fild05 290 221
+			do conf -f buyAuto_$nextFreeSlot_minAmount 0
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 1
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 300
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
 			do iconf 602 1 1 0
 			
-			$name = GetNamebyNameID(602)
-			$nextFreeUseSelfItemSlot = get_free_slot_index_for_key("buyAuto","$name")
+			# Red potion
+			$name = GetNamebyNameID(501)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc prt_fild05 290 221
+			do conf -f buyAuto_$nextFreeSlot_minAmount 5
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 50
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 2500
+			do conf -f buyAuto_$nextFreeSlot_maxBase 30
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 501 50 1 0
 			
-			$name = GetNamebyNameID(12324)
-			do conf -f buyAuto_$nextFreeUseSelfItemSlot_inInventory $name < 1
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_hp < 70%
 			
-		} else {
-			log There was a problem with the buyautoButterFlyWing find function
-			do quit
-			stop
+			# Orange potion
+			$name = GetNamebyNameID(502)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc prt_fild05 290 221
+			do conf -f buyAuto_$nextFreeSlot_minAmount 5
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 50
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 10000
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 25
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 502 50 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_hp < 60%
+			
+			# Orange potion
+			$name = GetNamebyNameID(645)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc prt_fild05 290 221
+			do conf -f buyAuto_$nextFreeSlot_minAmount 1
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 5
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 5000
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 645 5 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_whenStatusInactive Concentration Potion
+			]
 		}
 		
 		call set_buyauto_equipment
@@ -142,8 +196,6 @@ automacro SavedAtKafra {
 		do conf -f saveMap_kafra_x &config(future_saveMap_kafra_x)
 		do conf -f saveMap_kafra_y &config(future_saveMap_kafra_y)
 		do conf -f saveMap_save_sequence &config(future_saveMap_save_sequence)
-		
-		do conf -f saveMap_to_lockMap_route &config(future_saveMap_to_lockMap_route)
 		
 		call clear_saveMap_keys
 		

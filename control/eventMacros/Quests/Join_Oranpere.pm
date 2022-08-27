@@ -2,14 +2,14 @@
 # Join Oranpere
 automacro moveRecOutside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage join_Oranpere
+	ConfigKey eventMacro_1_99_stage Join_Oranpere
 	NotInMap prontera
 	call gotoRec
 }
 
 automacro moveRecInside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage join_Oranpere
+	ConfigKey eventMacro_1_99_stage Join_Oranpere
 	NpcNotNear /Oranpere/
 	InMap prontera
 	call gotoRec
@@ -23,7 +23,7 @@ automacro talkRec {
     exclusive 0
 	self_interruptible 0
 	NpcNear /Oranpere/
-	ConfigKey eventMacro_1_99_stage join_Oranpere
+	ConfigKey eventMacro_1_99_stage Join_Oranpere
 	InMap prontera
 	call {
 		do talk $.NpcNearLastBinId
@@ -37,7 +37,7 @@ automacro talkRec {
 automacro RecOver {
 	exclusive 1
 	priority 0
-	ConfigKey eventMacro_1_99_stage join_Oranpere
+	ConfigKey eventMacro_1_99_stage Join_Oranpere
 	NpcMsgName /(Welcome to Sword Clan|mess with me)/ /Oranpere/
 	call {
 		do conf -f Joined_Oranpere true

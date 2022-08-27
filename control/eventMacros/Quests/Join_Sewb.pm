@@ -2,14 +2,14 @@
 # Join Sewb
 automacro moveRecOutside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage join_sewb
+	ConfigKey eventMacro_1_99_stage Join_Sewb
 	NotInMap prt_in
 	call gotoRec
 }
 
 automacro moveRecInside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage join_sewb
+	ConfigKey eventMacro_1_99_stage Join_Sewb
 	NpcNotNear /(Recrutador|Recruiter)/
 	InMap prt_in
 	call gotoRec
@@ -23,7 +23,7 @@ automacro talkRec {
     exclusive 0
 	self_interruptible 0
 	NpcNear /(Recrutador|Recruiter)/
-	ConfigKey eventMacro_1_99_stage join_sewb
+	ConfigKey eventMacro_1_99_stage Join_Sewb
 	InMap prt_in
 	call {
 		do talk $.NpcNearLastBinId
@@ -34,7 +34,7 @@ automacro talkRec {
 automacro RecOver {
 	exclusive 1
 	priority 0
-	ConfigKey eventMacro_1_99_stage join_sewb
+	ConfigKey eventMacro_1_99_stage Join_Sewb
 	NpcMsgName /(Eu te mandarei imediatamente|I will now warp you)/ /(Recrutador|Recruiter)/
 	call {
 		do conf -f Joined_Sewb true
@@ -54,7 +54,7 @@ automacro RecOver {
 automacro RecOverbug {
 	exclusive 1
 	priority 0
-	ConfigKey eventMacro_1_99_stage join_sewb
+	ConfigKey eventMacro_1_99_stage Join_Sewb
 	NpcMsgName /Would you let me warp/ /(Recrutador|Recruiter)/
 	call {
 		do talk resp /Warp/
