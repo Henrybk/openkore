@@ -164,27 +164,6 @@ sub set_nearest_sellauto {
 	return 1;
 }
 
-sub get_next_to_be_equipped_item {
-	my @slots = qw( topHead midHead lowHead leftHand rightHand robe armor shoes leftAccessory rightAccessory arrow costumeTopHead costumeMidHead costumeLowHead costumeRobe costumeFloor shadowLeftHand shadowRightHand shadowArmor shadowShoes shadowLeftAccessory shadowRightAccessory );
-	
-	foreach my $slot (@slots) {
-		next unless ($config{'to_be_equipped_'.$slot});
-		if (exists $char->{equipment}{$slot} && $char->{equipment}{$slot}->{nameID} == $config{'to_be_equipped_'.$slot}) {
-			configModify('to_be_equipped_'.$slot, undef);
-			next;
-		}
-		my $id = $config{'to_be_equipped_'.$slot};
-		my $Item = $char->inventory->getByNameID($id);
-		unless ($Item) {
-			configModify('to_be_equipped_'.$slot, undef);
-			next;
-		}
-		my $inv_index = $Item->{binID};
-		return "$slot $inv_index";
-	}
-	return -1;
-}
-
 sub get_jobId {
 	return $char->{jobID};
 }
@@ -221,9 +200,13 @@ sub time_passed {
 
 
 sub check_current_lockMap {
-    my ($map, $index, $class, $current_class, $blvl, $jlvl, $skip) = @_;
 	
-	my $args = { map => $map, index => $index, class => $class, current_class => $current_class, blvl => $blvl, jlvl => $jlvl, skip => $skip };
+	if (!exists $config{lockMap_skip} || !defined $config{lockMap_skip}) {
+		configModify('lockMap_skip', "dummy");
+		configModify('lockMap_skipTimings', "dummy");
+	}
+	
+	my $args = { map => $config{lockMap}, index => $config{lockMap_index}, class => $config{eventMacro_goal_class}, current_class => $jobs_lut{$char->{jobID}}, blvl => $char->{'lv'}, jlvl => $char->{'lv_job'}, skip => $config{lockMap_skip} };
 	
 	Plugins::callHook( check_current_lockMap => $args );
 	
@@ -231,9 +214,13 @@ sub check_current_lockMap {
 }
 
 sub set_best_lockMap {
-    my ($class, $current_class, $blvl, $jlvl, $skip) = @_;
 	
-	my $args = { class => $class, current_class => $current_class, blvl => $blvl, jlvl => $jlvl, skip => $skip };
+	if (!exists $config{lockMap_skip} || !defined $config{lockMap_skip}) {
+		configModify('lockMap_skip', "dummy");
+		configModify('lockMap_skipTimings', "dummy");
+	}
+	
+	my $args = { class => $config{eventMacro_goal_class}, current_class => $jobs_lut{$char->{jobID}}, blvl => $char->{'lv'}, jlvl => $char->{'lv_job'}, skip => $config{lockMap_skip} };
 	
 	Plugins::callHook( get_best_lockMap => $args );
 	if (!$args->{return}) {
@@ -274,9 +261,9 @@ sub set_best_lockMap {
 
 macro lockMap_too_dangerous {
 	log It has been determined that our current lockMap is too dangerous, adding it to skiplist for an hour and changing lockMap.
-	add_skip_lockMap("&config(lockMap)")
+	add_skip_lockMap()
 	
-	$lockMap = set_best_lockMap("&config(eventMacro_goal_class)", "$.lvl", "$.joblvl", "&config(lockMap_skip)")
+	$lockMap = set_best_lockMap()
 	[
 		if ($lockMap == 1) {
 			log Everything went fine with the auto find lockMap function
@@ -328,7 +315,7 @@ sub re_add_skipped_lockMaps {
 }
 
 sub add_skip_lockMap {
-	my $lockMap = shift;
+	my $lockMap = $config{lockMap};
 	
 	my $config_skips = $config{'lockMap_skip'};
 	

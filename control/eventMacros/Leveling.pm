@@ -10,11 +10,11 @@ automacro leveling_timer {
 macro baseMacroUp {
 	re_add_skipped_lockMaps()
 
-	if (check_current_lockMap("&config(lockMap)", "&config(lockMap_index)", "&config(eventMacro_goal_class)", "$.job", "$.lvl", "$.joblvl", "&config(lockMap_skip)")) {
+	if (check_current_lockMap()) {
 		stop
 	}
 		
-	$lockMap = set_best_lockMap("&config(eventMacro_goal_class)", "$.job", "$.lvl", "$.joblvl", "&config(lockMap_skip)")
+	$lockMap = set_best_lockMap()
 	[
 		if ($lockMap == 1) {
 			log Everything went fine with the auto find lockMap function

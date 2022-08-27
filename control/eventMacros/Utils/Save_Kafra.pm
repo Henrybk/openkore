@@ -5,7 +5,7 @@ automacro set_savemap_variables {
 	exclusive 1
 	run-once 1
 	ConfigKey eventMacro_1_99_stage saving_in_kafra
-	priority -4
+	priority 0
 	call {
 		$saveMap = &config(future_saveMap_kafra_map)
 	}
@@ -44,7 +44,7 @@ automacro moveLocKafraInside {
 	exclusive 1
 	ConfigKeyNot saveMap $saveMap
 	ConfigKeyNot future_saveMap_kafra_map none
-	NpcNotNear /(Kafra Employee|Funcionária Kafra)/
+	NpcNotNear /^Kafra Employee$/
 	InMap $saveMap
 	call move_to_near_kafra
 }
@@ -54,13 +54,15 @@ macro move_to_near_kafra {
 }
 
 automacro talkKafra {
+    exclusive 0
+	self_interruptible 0
 	ConfigKey eventMacro_1_99_stage saving_in_kafra
 	ConfigKeyNot saveMap $saveMap
 	ConfigKeyNot future_saveMap_kafra_map none
 	InMap $saveMap
-	NpcNear /(Kafra Employee|Funcionária Kafra)/
+	NpcNear /^Kafra Employee$/
 	delay 2
-	timeout 20
+	timeout 10
 	call {
 		log talking to kafra at '&arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2)' using sequence '&config(future_saveMap_save_sequence)'
 		do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) &config(future_saveMap_save_sequence)
@@ -69,8 +71,8 @@ automacro talkKafra {
 
 automacro SavedAtKafra {
 	exclusive 1
-	priority -5
-	NpcMsgName /(O seu Ponto de Retorno foi salvo|Location Saved)/i /(Kafra Employee|Funcionária Kafra)/i
+	priority 0
+	NpcMsgName /(O seu Ponto de Retorno foi salvo|has been saved here)/i /^Kafra Employee$/i
 	ConfigKeyNot saveMap $saveMap
 	ConfigKey eventMacro_1_99_stage saving_in_kafra
 	InMap $saveMap
@@ -163,19 +165,4 @@ automacro SavedAtKafra {
 		]
 		release set_savemap_variables
 	}
-}
-
-macro clear_saveMap_keys {
-	[
-	do conf -f future_saveMap_map none
-	do conf -f future_saveMap_x none
-	do conf -f future_saveMap_y none
-	
-	do conf -f future_saveMap_kafra_map none
-	do conf -f future_saveMap_kafra_x none
-	do conf -f future_saveMap_kafra_y none
-	do conf -f future_saveMap_save_sequence none
-	
-	do conf -f future_saveMap_to_lockMap_route none
-	]
 }

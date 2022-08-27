@@ -132,17 +132,29 @@ macro Move_to_test_place {
 }
 
 automacro talk_to_move_test_area {
+    exclusive 0
+	self_interruptible 0
+	timeout 5
 	ConfigKey eventMacro_1_99_stage turnswordman_out
 	JobID 0
 	InMap izlude_in
 	QuestActive 1014
 	NpcNotNear /Test/
 	NpcNear /Swordman#swd_2/
-	exclusive 1
 	priority 1
 	call {
 		do talk $.NpcNearLastBinId
 	}
+}
+
+automacro end_bug {
+    exclusive 1
+	ConfigKey eventMacro_1_99_stage turnswordman_out
+	QuestActive 1014
+	NpcMsgName /You need to talk to the Swordman in the center of the room/i /Swordman#swd_2/i
+	JobID 0
+	priority 0
+	call ended_test
 }
 
 automacro Talk_to_swordman_test {
@@ -282,12 +294,13 @@ macro do_test {
 }
 
 automacro Talk_to_mae_end_test {
+    exclusive 0
+	self_interruptible 0
 	ConfigKey eventMacro_1_99_stage turnswordman_test
 	InMap job_sword1, sword_2-2, sword_2-1, sword_1-1, sword_3-1
 	QuestActive 1014
 	NpcNear /Mae/
 	JobID 0
-	timeout 20
 	priority 2
 	call {
 		do talk $.NpcNearLastBinId
@@ -295,15 +308,17 @@ automacro Talk_to_mae_end_test {
 }
 
 automacro mae_text_end {
-    exclusive 0
-	self_interruptible 0
+    exclusive 1
 	ConfigKey eventMacro_1_99_stage turnswordman_test
 	QuestActive 1014
 	NpcMsgName /congratulate/i /(Mae)/i
 	JobID 0
 	priority 0
-	call {
-		[
+	call ended_test
+}
+
+macro ended_test {
+	[
 		do conf -f eventMacro_1_99_stage turnswordman_after_test
 		do conf -f lockMap none
 		do conf -f attackAuto 0
@@ -312,8 +327,7 @@ automacro mae_text_end {
 		do conf -f route_step 15
 		do conf -f portalRecord 2
 		do conf -f route_avoidWalls 1
-		]
-	}
+	]
 }
 
 automacro move_to_guild_outside_far_end {

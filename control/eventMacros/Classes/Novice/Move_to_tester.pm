@@ -1,4 +1,31 @@
 
+
+automacro moveToGuyEntrance_again {
+    exclusive 1
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_3
+    InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
+    NpcNotNear /Entrance/
+    call MoveEntrance
+}
+
+macro MoveEntrance {
+    do move 28 178
+}
+
+automacro talkGuyEntrance_again {
+    exclusive 1
+    priority 0
+	ConfigKey eventMacro_1_99_stage novice_3
+    InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
+    NpcNear /Entrance/
+    call TalkEntrance
+}
+
+macro TalkEntrance {
+    do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0
+}
+
 automacro moveToTest {
     exclusive 1
     JobLevel = 10
@@ -10,7 +37,7 @@ automacro moveToTest {
 }
 
 macro MoveTest {
-    do move 28 178
+    do move 100 170
 }
 
 automacro talkGuyTest {
