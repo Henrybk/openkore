@@ -8,7 +8,7 @@ server 0
 username henrybk
 password Pi=3141592
 loginPinCode
-char 0
+char 
 ##### Plugins Start
 
 eventMacro_1_99_stage start
