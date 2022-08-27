@@ -72,3 +72,59 @@ macro SetVar {
 	$configsaveMap = &config(saveMap)
 	$joinedSewb = &config(Joined_Sewb)
 }
+
+automacro need_to_configure_Sewb {
+	exclusive 1
+	priority 0
+	ConfigKeyNot Joined_Sewb true
+	ConfigKeyNot Joined_Sewb false
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Joined_Sewb false
+	}
+}
+
+automacro need_to_join_Sewb {
+	exclusive 1
+	priority 0
+	ConfigKey Joined_Sewb false
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Join_Sewb_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage join_Sewb
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include Join_Sewb.pm
+		include off &config(before_event_include)
+		include on Join_Sewb.pm
+		
+		do reload eventMacros
+	}
+}
+
+automacro need_to_configure_Oranpere {
+	exclusive 1
+	priority 0
+	ConfigKeyNot Joined_Oranpere true
+	ConfigKeyNot Joined_Oranpere false
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Joined_Oranpere false
+	}
+}
+
+automacro need_to_join_Oranpere {
+	exclusive 1
+	priority 0
+	ConfigKey Joined_Oranpere false
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Join_Oranpere_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage join_Oranpere
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include Join_Oranpere.pm
+		include off &config(before_event_include)
+		include on Join_Oranpere.pm
+		
+		do reload eventMacros
+	}
+}
