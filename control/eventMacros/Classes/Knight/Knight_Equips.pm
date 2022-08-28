@@ -36,6 +36,7 @@ macro knight_set_buyauto_weapon {
 	} elsif ($TwoHandedSwordEquipped == 0 && $TwoHandedSwordCanEquip == 1 && $TwoHandedSwordHas >= 1) {
 		call clear_Katana_buyAuto
 		call clear_Scimiter_buyAuto
+		call clear_TwoHandedSword_buyAuto
 		$name = GetNamebyNameID(1157)
 		log Setting equipauto $name
 		do iconf 1116 0 0 1
@@ -57,9 +58,11 @@ macro knight_set_buyauto_weapon {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 65000
 		$currentZeny = $currentZeny - 65000
+		do iconf 1157 1 0 0
 		
 	} elsif (($TwoHandedSwordCanEquip == 0 || $TwoHandedSwordHas == 0) && $ScimiterEquipped == 0 && $ScimiterCanEquip == 1 && $ScimiterHas >= 1) {
 		call clear_Katana_buyAuto
+		call clear_Scimiter_buyAuto
 		$name = GetNamebyNameID(1157)
 		log Setting equipauto $name
 		do iconf 1116 0 0 1
@@ -79,8 +82,10 @@ macro knight_set_buyauto_weapon {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 20000
 		$currentZeny = $currentZeny - 20000
+		do iconf 1113 1 0 0
 		
 	} elsif (($TwoHandedSwordCanEquip == 0 || $TwoHandedSwordCanBuy == 0) && ($ScimiterCanEquip == 0 || $ScimiterHas == 0) && $KatanaEquipped == 0 && $KatanaCanEquip == 1 && $KatanaHas >= 1) {
+		call clear_Katana_buyAuto
 		$name = GetNamebyNameID(1116)
 		log Setting equipauto $name
 		do iconf 1116 1 0 0
@@ -96,8 +101,9 @@ macro knight_set_buyauto_weapon {
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 2500
-		$currentZeny = $currentZeny - 2500
+		do conf -f buyAuto_$nextFreeSlot_zeny > 2100
+		$currentZeny = $currentZeny - 2100
+		do iconf 1116 1 0 0
 	}
 	]
 }
@@ -111,7 +117,7 @@ macro knight_set_Katana {
 	} else {
 		$KatanaCanEquip = 0
 	}
-	if ($currentZeny >= 2500) {
+	if ($currentZeny >= 2100) {
 		$KatanaCanBuy = 1
 	} else {
 		$KatanaCanBuy = 0
@@ -171,6 +177,15 @@ macro knight_set_TwoHandedSword {
 	]
 }
 
+macro clear_TwoHandedSword_buyAuto {
+	[
+	$name = GetNamebyNameID(1157)
+	log Clearing buyAuto $name
+	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$foundSlot none
+	]
+}
+
 macro knight_set_buyauto_armor {
 	call knight_set_AdventureSuit
 	call knight_set_PaddedArmor
@@ -197,6 +212,7 @@ macro knight_set_buyauto_armor {
 	} elsif ($PlateArmorEquipped == 0 && $PlateArmorCanEquip == 1 && $PlateArmorHas >= 1) {
 		call clear_AdventureSuit_buyAuto
 		call clear_PaddedArmor_buyAuto
+		call macro clear_PlateArmor_buyAuto
 		$name = GetNamebyNameID(2316)
 		log Setting equipauto $name
 		do iconf 2305 0 0 1
@@ -218,9 +234,11 @@ macro knight_set_buyauto_armor {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 85000
 		$currentZeny = $currentZeny - 85000
+		do iconf 2316 1 0 0
 		
 	} elsif (($PlateArmorCanEquip == 0 || $PlateArmorHas == 0) && $PaddedArmorEquipped == 0 && $PaddedArmorCanEquip == 1 && $PaddedArmorHas >= 1) {
 		call clear_AdventureSuit_buyAuto
+		call clear_PaddedArmor_buyAuto
 		$name = GetNamebyNameID(2316)
 		log Setting equipauto $name
 		do iconf 2305 0 0 1
@@ -240,8 +258,10 @@ macro knight_set_buyauto_armor {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 50000
 		$currentZeny = $currentZeny - 50000
+		do iconf 2312 1 0 0
 		
 	} elsif (($PlateArmorCanEquip == 0 || $PlateArmorHas == 0) && ($PaddedArmorCanEquip == 0 || $PaddedArmorHas == 0) && $AdventureSuitEquipped == 0 && $AdventureSuitCanEquip == 1 && $AdventureSuitHas >= 1) {
+		call clear_AdventureSuit_buyAuto
 		$name = GetNamebyNameID(2305)
 		log Setting equipauto $name
 		do iconf 2305 1 0 0
@@ -259,6 +279,7 @@ macro knight_set_buyauto_armor {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 1500
 		$currentZeny = $currentZeny - 1500
+		do iconf 2305 1 0 0
 	}
 	]
 }
@@ -331,6 +352,16 @@ macro knight_set_PlateArmor {
 	}
 	]
 }
+
+macro clear_PlateArmor_buyAuto {
+	[
+	$name = GetNamebyNameID(2316)
+	log Clearing buyAuto $name
+	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$foundSlot none
+	]
+}
+
 macro knight_set_buyauto_shoes {
 	call knight_set_Sandals
 	call knight_set_Shoes
@@ -357,6 +388,7 @@ macro knight_set_buyauto_shoes {
 	} elsif ($BootsEquipped == 0 && $BootsCanEquip == 1 && $BootsHas >= 1) {
 		call clear_Sandals_buyAuto
 		call clear_Shoes_buyAuto
+		call clear_Boots_buyAuto
 		$name = GetNamebyNameID(2405)
 		log Setting equipauto $name
 		do iconf 2401 0 0 1
@@ -378,9 +410,11 @@ macro knight_set_buyauto_shoes {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 20000
 		$currentZeny = $currentZeny - 20000
+		do iconf 2405 1 0 0
 		
 	} elsif (($BootsCanEquip == 0 || $BootsHas == 0) && $ShoesEquipped == 0 && $ShoesCanEquip == 1 && $ShoesHas >= 1) {
 		call clear_Sandals_buyAuto
+		call clear_Shoes_buyAuto
 		$name = GetNamebyNameID(2405)
 		log Setting equipauto $name
 		do iconf 2401 0 0 1
@@ -400,8 +434,10 @@ macro knight_set_buyauto_shoes {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 4000
 		$currentZeny = $currentZeny - 4000
+		do iconf 2403 1 0 0
 		
 	} elsif (($BootsCanEquip == 0 || $BootsHas == 0) && ($ShoesCanEquip == 0 || $ShoesHas == 0) && $SandalsEquipped == 0 && $SandalsCanEquip == 1 && $SandalsHas >= 1) {
+		call clear_Sandals_buyAuto
 		$name = GetNamebyNameID(2401)
 		log Setting equipauto $name
 		do iconf 2401 1 0 0
@@ -419,6 +455,7 @@ macro knight_set_buyauto_shoes {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 500
 		$currentZeny = $currentZeny - 500
+		do iconf 2401 1 0 0
 	}
 	]
 }
@@ -492,6 +529,15 @@ macro knight_set_Boots {
 	]
 }
 
+macro clear_Boots_buyAuto {
+	[
+	$name = GetNamebyNameID(2405)
+	log Clearing buyAuto $name
+	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$foundSlot none
+	]
+}
+
 macro knight_set_buyauto_robe {
 	call knight_set_Muffler
 	call knight_set_Manteau
@@ -510,10 +556,10 @@ macro knight_set_buyauto_robe {
 		
 	} elsif ($ManteauEquipped == 0 && $ManteauCanEquip == 1 && $ManteauHas >= 1) {
 		call clear_Muffler_buyAuto
+		call clear_Manteau_buyAuto
 		$name = GetNamebyNameID(2505)
 		log Setting equipauto $name
 		do iconf 2503 0 0 1
-		do iconf 2312 0 0 1
 		do iconf 2505 1 0 0
 		do conf -f equipAuto_0_robe GetNamebyNameID(2505)
 		
@@ -530,8 +576,10 @@ macro knight_set_buyauto_robe {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 35000
 		$currentZeny = $currentZeny - 35000
+		do iconf 2505 1 0 0
 		
 	} elsif (($ManteauCanEquip == 0 || $ManteauHas == 0) && $MufflerEquipped == 0 && $MufflerCanEquip == 1 && $MufflerHas >= 1) {
+		call clear_Muffler_buyAuto
 		$name = GetNamebyNameID(2503)
 		log Setting equipauto $name
 		do iconf 2503 1 0 0
@@ -549,6 +597,7 @@ macro knight_set_buyauto_robe {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 1500
 		$currentZeny = $currentZeny - 1500
+		do iconf 2503 1 0 0
 	}
 	]
 }
@@ -596,6 +645,15 @@ macro knight_set_Manteau {
 	]
 }
 
+macro clear_Manteau_buyAuto {
+	[
+	$name = GetNamebyNameID(2505)
+	log Clearing buyAuto $name
+	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$foundSlot none
+	]
+}
+
 macro knight_set_buyauto_topHead {
 	call knight_set_Hat
 	call knight_set_Cap
@@ -622,6 +680,7 @@ macro knight_set_buyauto_topHead {
 	} elsif ($HelmEquipped == 0 && $HelmCanEquip == 1 && $HelmHas >= 1) {
 		call clear_Hat_buyAuto
 		call clear_Cap_buyAuto
+		call clear_Helm_buyAuto
 		$name = GetNamebyNameID(2228)
 		log Setting equipauto $name
 		do iconf 2220 0 0 1
@@ -643,9 +702,11 @@ macro knight_set_buyauto_topHead {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 45000
 		$currentZeny = $currentZeny - 45000
+		do iconf 2228 1 0 0
 		
 	} elsif (($HelmCanEquip == 0 || $HelmHas == 0) && $CapEquipped == 0 && $CapCanEquip == 1 && $CapHas >= 1) {
 		call clear_Hat_buyAuto
+		call clear_Cap_buyAuto
 		$name = GetNamebyNameID(2228)
 		log Setting equipauto $name
 		do iconf 2220 0 0 1
@@ -665,8 +726,10 @@ macro knight_set_buyauto_topHead {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 15000
 		$currentZeny = $currentZeny - 15000
+		do iconf 2226 1 0 0
 		
 	} elsif (($HelmCanEquip == 0 || $HelmHas == 0) && ($CapCanEquip == 0 || $CapHas == 0) && $HatEquipped == 0 && $HatCanEquip == 1 && $HatHas >= 1) {
+		call clear_Hat_buyAuto
 		$name = GetNamebyNameID(2220)
 		log Setting equipauto $name
 		do iconf 2220 1 0 0
@@ -684,6 +747,7 @@ macro knight_set_buyauto_topHead {
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 		do conf -f buyAuto_$nextFreeSlot_zeny > 1500
 		$currentZeny = $currentZeny - 1500
+		do iconf 2220 1 0 0
 	}
 	]
 }
@@ -754,6 +818,15 @@ macro knight_set_Helm {
 	} else {
 		$HelmCanBuy = 0
 	}
+	]
+}
+
+macro clear_Helm_buyAuto {
+	[
+	$name = GetNamebyNameID(2228)
+	log Clearing buyAuto $name
+	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$foundSlot none
 	]
 }
 
