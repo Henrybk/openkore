@@ -117,6 +117,17 @@ automacro need_to_configure_Oranpere {
 	}
 }
 
+automacro need_to_configure_Oranpere_2 {
+	exclusive 1
+	priority 0
+	ConfigKey Joined_Oranpere true
+	StatusInactiveHandle EFST_SWORDCLAN
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Joined_Oranpere false
+	}
+}
+
 automacro need_to_Join_Oranpere {
 	exclusive 1
 	priority 0

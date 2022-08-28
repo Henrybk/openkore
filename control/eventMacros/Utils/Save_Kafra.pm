@@ -181,7 +181,7 @@ automacro SavedAtKafra {
 			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
 			do conf -f useSelf_item_$nextFreeSlot $name
 			do conf -f useSelf_item_$nextFreeSlot_disabled 0
-			do conf -f useSelf_item_whenStatusInactive Concentration Potion
+			do conf -f useSelf_item_whenStatusInactive EFST_ATTHASTE_POTION1
 			]
 		}
 		

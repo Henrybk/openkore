@@ -394,8 +394,8 @@ automacro EquipSwordmanStuff {
 	timeout 10
 	call {
 		[
-			call clear_equipauto
-			do conf -f equipAuto_0_rightHand GetNamebyNameID(1104)
+		call clear_equipauto
+		do conf -f equipAuto_0_rightHand GetNamebyNameID(1104)
 		]
 	}
 }
@@ -411,6 +411,7 @@ automacro EquipSwordmanStuffEnd {
 		do iconf 1243 0 0 1
 		do iconf 2112 0 0 1
 		do iconf 5055 0 0 1
+		do iconf 2393 0 0 1
 		do iconf 2414 0 0 1
 		do iconf 2510 0 0 1
 		do iconf 2352 0 0 1

@@ -188,8 +188,28 @@ sub iterate {
 						push(@portals_lut_missed, $missed);
 						delete $portals_lut{"$self->{mapSolution}[0]{map} $self->{mapSolution}[0]{pos}{x} $self->{mapSolution}[0]{pos}{y}"};
 					}
-					error TF("Failed to teleport using NPC at %s (%s,%s) after %s tries, ignoring NPC and recalculating route.\n", $field->baseName, $self->{mapSolution}[0]{pos}{x}, $self->{mapSolution}[0]{pos}{y}, $self->{mapSolution}[0]{retry}), "route";
-					$self->initMapCalculator();	# redo MAP router
+					
+					my %plugin_args;
+					$plugin_args{x} = $self->{mapSolution}[0]{pos}{x};
+					$plugin_args{y} = $self->{mapSolution}[0]{pos}{y};
+					$plugin_args{steps} = $self->{mapSolution}[0]{steps};
+					$plugin_args{plugin_retry} = $self->{mapSolution}[0]{plugin_retry};
+					$plugin_args{plugin_retry} = 0 if (defined $plugin_args{plugin_retry});
+					
+					$plugin_args{return} = 0;
+					
+					Plugins::callHook( npc_teleport_missing => \%plugin_args );
+					
+					if ($plugin_args{return}) {
+						$self->{mapSolution}[0]{retry} = 0;
+						$self->{mapSolution}[0]{plugin_retry}++;
+						$self->{mapSolution}[0]{pos}{x} = $plugin_args{x};
+						$self->{mapSolution}[0]{pos}{y} = $plugin_args{y};
+						$self->setNpcTalk();
+					} else {
+						error TF("Failed to teleport using NPC at %s (%s,%s) after %s tries, ignoring NPC and recalculating route.\n", $field->baseName, $self->{mapSolution}[0]{pos}{x}, $self->{mapSolution}[0]{pos}{y}, $self->{mapSolution}[0]{retry}), "route";
+						$self->initMapCalculator();	# redo MAP router
+					}
 				}
 			}
 
