@@ -66,7 +66,7 @@ sub isEquippedInSlotNameID {
 	my $slot = shift;
 	my $nameID = shift;
 	
-	Log::warning "[isEquippedInSlotNameID] slot ($slot) | nameID ($nameID)\n";
+	#Log::warning "[isEquippedInSlotNameID] slot ($slot) | nameID ($nameID)\n";
 	
 	return 0 unless (exists $char->{equipment} && $char->{equipment});
 	return 0 unless (exists $char->{equipment}{$slot} && $char->{equipment}{$slot});
