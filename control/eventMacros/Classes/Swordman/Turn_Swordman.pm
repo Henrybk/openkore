@@ -363,7 +363,8 @@ automacro EquipSwordmanStuffEnd {
 		do conf -f useSelf_item_0_hp < 75%
 		do conf -f attackAuto 2
 		do conf -f route_randomWalk 1
-        do conf -f itemsTakeAuto 1
+        do conf -f itemsGatherAuto 0
+        do conf -f itemsTakeAuto 2
 		do conf -f route_step 15
 		do conf -f portalRecord 2
 		do conf -f route_avoidWalls 1

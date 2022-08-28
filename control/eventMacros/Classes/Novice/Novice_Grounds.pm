@@ -58,7 +58,7 @@ macro Conf_Stuff {
         do conf -f sitAuto_idle 0
         do conf -f sitAuto_hp_lower 40
         do conf -f sitAuto_hp_upper 80
-        do conf -f itemsTakeAuto 1
+        do conf -f itemsTakeAuto 2
         do conf -f itemsGatherAuto 0
         do conf -f lockMap none
         do conf -f route_randomWalk 0
