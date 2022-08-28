@@ -21,16 +21,16 @@ macro knight_set_buyauto_weapon {
 	} elsif ($ScimiterEquipped == 1 && $TwoHandedSwordCanEquip == 0) {
 		log Scimiter is equipped and cannot equip TwoHandedSword DAMNN
 		
-	} elsif ($ScimiterEquipped == 1 && $TwoHandedSwordCanEquip == 1 && $TwoHandedSwordCanBuy == 0) {
+	} elsif ($ScimiterEquipped == 1 && $TwoHandedSwordCanEquip == 1 && $TwoHandedSwordCanBuy == 0 && $TwoHandedSwordHas == 0) {
 		log Scimiter is equipped, can equip TwoHandedSword but cannot buy it DAMNN
 		
 	} elsif ($KatanaEquipped == 1 && $TwoHandedSwordCanEquip == 0 && $ScimiterCanEquip == 0) {
 		log Katana is equipped and cannot equip TwoHandedSword or Scimiter DAMNN
 		
-	} elsif ($KatanaEquipped == 1 && ($TwoHandedSwordCanEquip == 1 || $ScimiterCanEquip == 1) && $TwoHandedSwordCanBuy == 0 && $ScimiterCanBuy == 0) {
+	} elsif ($KatanaEquipped == 1 && ($TwoHandedSwordCanEquip == 1 || $ScimiterCanEquip == 1) && $TwoHandedSwordCanBuy == 0 && $ScimiterCanBuy == 0 && $TwoHandedSwordHas == 0 && $ScimiterHas == 0) {
 		log Katana is equipped, can equip better stuff but not buy it DAMNN
 		
-	} elsif ($KatanaEquipped == 0 && $KatanaCanBuy == 0) {
+	} elsif ($KatanaEquipped == 0 && $KatanaCanBuy == 0 && $KatanaHas == 0) {
 		log Katana is not equipped, cannot buy it
 		
 	} elsif ($TwoHandedSwordEquipped == 0 && $TwoHandedSwordCanEquip == 1 && $TwoHandedSwordHas >= 1) {
@@ -105,7 +105,7 @@ macro knight_set_buyauto_weapon {
 macro knight_set_Katana {
 	[
 	$KatanaHas = &invamount(1116)
-	$KatanaEquipped = isEquippedInSlotNameID('rightHand', '1116')
+	$KatanaEquipped = isEquippedInSlotNameID("rightHand", "1116")
 	if ($.lvl >= 4) {
 		$KatanaCanEquip = 1
 	} else {
@@ -131,7 +131,7 @@ macro clear_Katana_buyAuto {
 macro knight_set_Scimiter {
 	[
 	$ScimiterHas = &invamount(1113)
-	$ScimiterEquipped = isEquippedInSlotNameID('rightHand', '1113')
+	$ScimiterEquipped = isEquippedInSlotNameID("rightHand", "1113")
 	if ($.lvl >= 14) {
 		$ScimiterCanEquip = 1
 	} else {
@@ -157,7 +157,7 @@ macro clear_Scimiter_buyAuto {
 macro knight_set_TwoHandedSword {
 	[
 	$TwoHandedSwordHas = &invamount(1157)
-	$TwoHandedSwordEquipped = isEquippedInSlotNameID('rightHand', '1157')
+	$TwoHandedSwordEquipped = isEquippedInSlotNameID("rightHand", "1157")
 	if ($.lvl >= 33) {
 		$TwoHandedSwordCanEquip = 1
 	} else {
@@ -182,16 +182,16 @@ macro knight_set_buyauto_armor {
 	} elsif ($PaddedArmorEquipped == 1 && $PlateArmorCanEquip == 0) {
 		log PaddedArmor is equipped and cannot equip PlateArmor DAMNN
 		
-	} elsif ($PaddedArmorEquipped == 1 && $PlateArmorCanEquip == 1 && $PlateArmorCanBuy == 0) {
+	} elsif ($PaddedArmorEquipped == 1 && $PlateArmorCanEquip == 1 && $PlateArmorCanBuy == 0 && $PlateArmorHas == 0) {
 		log PaddedArmor is equipped, can equip PlateArmor but cannot buy it DAMNN
 		
 	} elsif ($AdventureSuitEquipped == 1 && $PlateArmorCanEquip == 0 && $PaddedArmorCanEquip == 0) {
 		log AdventureSuit is equipped and cannot equip PlateArmor or PaddedArmor DAMNN
 		
-	} elsif ($AdventureSuitEquipped == 1 && ($PlateArmorCanEquip == 1 || $PaddedArmorCanEquip == 1) && $PlateArmorCanBuy == 0 && $PaddedArmorCanBuy == 0) {
+	} elsif ($AdventureSuitEquipped == 1 && ($PlateArmorCanEquip == 1 || $PaddedArmorCanEquip == 1) && $PlateArmorCanBuy == 0 && $PaddedArmorCanBuy == 0 && $PlateArmorHas == 0 && $PaddedArmorHas == 0) {
 		log AdventureSuit is equipped, can equip better stuff but not buy it DAMNN
 		
-	} elsif ($AdventureSuitEquipped == 0 && $AdventureSuitCanBuy == 0) {
+	} elsif ($AdventureSuitEquipped == 0 && $AdventureSuitCanBuy == 0 && $AdventureSuitHas == 0) {
 		log AdventureSuit is not equipped, cannot buy it
 		
 	} elsif ($PlateArmorEquipped == 0 && $PlateArmorCanEquip == 1 && $PlateArmorHas >= 1) {
@@ -266,7 +266,7 @@ macro knight_set_buyauto_armor {
 macro knight_set_AdventureSuit {
 	[
 	$AdventureSuitHas = &invamount(2305)
-	$AdventureSuitEquipped = isEquippedInSlotNameID('armor', '2305')
+	$AdventureSuitEquipped = isEquippedInSlotNameID("armor", "2305")
 	if ($.lvl >= 4) {
 		$AdventureSuitCanEquip = 1
 	} else {
@@ -292,7 +292,7 @@ macro clear_AdventureSuit_buyAuto {
 macro knight_set_PaddedArmor {
 	[
 	$PaddedArmorHas = &invamount(2312)
-	$PaddedArmorEquipped = isEquippedInSlotNameID('armor', '2312')
+	$PaddedArmorEquipped = isEquippedInSlotNameID("armor", "2312")
 	if ($.lvl >= 14) {
 		$PaddedArmorCanEquip = 1
 	} else {
@@ -318,7 +318,7 @@ macro clear_PaddedArmor_buyAuto {
 macro knight_set_PlateArmor {
 	[
 	$PlateArmorHas = &invamount(2316)
-	$PlateArmorEquipped = isEquippedInSlotNameID('armor', '2316')
+	$PlateArmorEquipped = isEquippedInSlotNameID("armor", "2316")
 	if ($.lvl >= 33) {
 		$PlateArmorCanEquip = 1
 	} else {
@@ -342,16 +342,16 @@ macro knight_set_buyauto_shoes {
 	} elsif ($ShoesEquipped == 1 && $BootsCanEquip == 0) {
 		log Shoes is equipped and cannot equip Boots DAMNN
 		
-	} elsif ($ShoesEquipped == 1 && $BootsCanEquip == 1 && $BootsCanBuy == 0) {
+	} elsif ($ShoesEquipped == 1 && $BootsCanEquip == 1 && $BootsCanBuy == 0 && $BootsHas == 0) {
 		log Shoes is equipped, can equip Boots but cannot buy it DAMNN
 		
 	} elsif ($SandalsEquipped == 1 && $BootsCanEquip == 0 && $ShoesCanEquip == 0) {
 		log Sandals is equipped and cannot equip Boots or Shoes DAMNN
 		
-	} elsif ($SandalsEquipped == 1 && ($BootsCanEquip == 1 || $ShoesCanEquip == 1) && $BootsCanBuy == 0 && $ShoesCanBuy == 0) {
+	} elsif ($SandalsEquipped == 1 && ($BootsCanEquip == 1 || $ShoesCanEquip == 1) && $BootsCanBuy == 0 && $ShoesCanBuy == 0 && $BootsHas == 0 && $ShoesHas == 0) {
 		log Sandals is equipped, can equip better stuff but not buy it DAMNN
 		
-	} elsif ($SandalsEquipped == 0 && $SandalsCanBuy == 0) {
+	} elsif ($SandalsEquipped == 0 && $SandalsCanBuy == 0 && $SandalsHas == 0) {
 		log Sandals is not equipped, cannot buy it
 		
 	} elsif ($BootsEquipped == 0 && $BootsCanEquip == 1 && $BootsHas >= 1) {
@@ -426,7 +426,7 @@ macro knight_set_buyauto_shoes {
 macro knight_set_Sandals {
 	[
 	$SandalsHas = &invamount(2401)
-	$SandalsEquipped = isEquippedInSlotNameID('shoes', '2401')
+	$SandalsEquipped = isEquippedInSlotNameID("shoes", "2401")
 	if ($.lvl >= 4) {
 		$SandalsCanEquip = 1
 	} else {
@@ -452,7 +452,7 @@ macro clear_Sandals_buyAuto {
 macro knight_set_Shoes {
 	[
 	$ShoesHas = &invamount(2403)
-	$ShoesEquipped = isEquippedInSlotNameID('shoes', '2403')
+	$ShoesEquipped = isEquippedInSlotNameID("shoes", "2403")
 	if ($.lvl >= 14) {
 		$ShoesCanEquip = 1
 	} else {
@@ -478,7 +478,7 @@ macro clear_Shoes_buyAuto {
 macro knight_set_Boots {
 	[
 	$BootsHas = &invamount(2405)
-	$BootsEquipped = isEquippedInSlotNameID('shoes', '2405')
+	$BootsEquipped = isEquippedInSlotNameID("shoes", "2405")
 	if ($.lvl >= 33) {
 		$BootsCanEquip = 1
 	} else {
@@ -502,10 +502,10 @@ macro knight_set_buyauto_robe {
 	} elsif ($MufflerEquipped == 1 && $ManteauCanEquip == 0) {
 		log Muffler is equipped and cannot equip Manteau
 		
-	} elsif ($MufflerEquipped == 1 && $ManteauCanEquip == 1 && $ManteauCanBuy == 0) {
+	} elsif ($MufflerEquipped == 1 && $ManteauCanEquip == 1 && $ManteauCanBuy == 0 && $ManteauHas == 0) {
 		log Muffler is equipped, can equip better stuff but not buy it DAMNN
 		
-	} elsif ($MufflerEquipped == 0 && $MufflerCanBuy == 0) {
+	} elsif ($MufflerEquipped == 0 && $MufflerCanBuy == 0 && $MufflerHas == 0) {
 		log Muffler is not equipped, cannot buy it
 		
 	} elsif ($ManteauEquipped == 0 && $ManteauCanEquip == 1 && $ManteauHas >= 1) {
@@ -556,7 +556,7 @@ macro knight_set_buyauto_robe {
 macro knight_set_Muffler {
 	[
 	$MufflerHas = &invamount(2503)
-	$MufflerEquipped = isEquippedInSlotNameID('robe', '2503')
+	$MufflerEquipped = isEquippedInSlotNameID("robe", "2503")
 	if ($.lvl >= 4) {
 		$MufflerCanEquip = 1
 	} else {
@@ -582,7 +582,7 @@ macro clear_Muffler_buyAuto {
 macro knight_set_Manteau {
 	[
 	$ManteauHas = &invamount(2505)
-	$ManteauEquipped = isEquippedInSlotNameID('robe', '2505')
+	$ManteauEquipped = isEquippedInSlotNameID("robe", "2505")
 	if ($.lvl >= 33) {
 		$ManteauCanEquip = 1
 	} else {
@@ -607,16 +607,16 @@ macro knight_set_buyauto_topHead {
 	} elsif ($CapEquipped == 1 && $HelmCanEquip == 0) {
 		log Cap is equipped and cannot equip Helm DAMNN
 		
-	} elsif ($CapEquipped == 1 && $HelmCanEquip == 1 && $HelmCanBuy == 0) {
+	} elsif ($CapEquipped == 1 && $HelmCanEquip == 1 && $HelmCanBuy == 0 && $HelmHas == 0) {
 		log Cap is equipped, can equip Helm but cannot buy it DAMNN
 		
 	} elsif ($HatEquipped == 1 && $HelmCanEquip == 0 && $CapCanEquip == 0) {
 		log Hat is equipped and cannot equip Helm or Cap DAMNN
 		
-	} elsif ($HatEquipped == 1 && ($HelmCanEquip == 1 || $CapCanEquip == 1) && $HelmCanBuy == 0 && $CapCanBuy == 0) {
+	} elsif ($HatEquipped == 1 && ($HelmCanEquip == 1 || $CapCanEquip == 1) && $HelmCanBuy == 0 && $CapCanBuy == 0 && $HelmHas == 0 && $CapHas == 0) {
 		log Hat is equipped, can equip better stuff but not buy it DAMNN
 		
-	} elsif ($HatEquipped == 0 && $HatCanBuy == 0) {
+	} elsif ($HatEquipped == 0 && $HatCanBuy == 0 && $HatHas == 0) {
 		log Hat is not equipped, cannot buy it
 		
 	} elsif ($HelmEquipped == 0 && $HelmCanEquip == 1 && $HelmHas >= 1) {
@@ -691,7 +691,7 @@ macro knight_set_buyauto_topHead {
 macro knight_set_Hat {
 	[
 	$HatHas = &invamount(2220)
-	$HatEquipped = isEquippedInSlotNameID('topHead', '2220')
+	$HatEquipped = isEquippedInSlotNameID("topHead", "2220")
 	if ($.lvl >= 4) {
 		$HatCanEquip = 1
 	} else {
@@ -717,7 +717,7 @@ macro clear_Hat_buyAuto {
 macro knight_set_Cap {
 	[
 	$CapHas = &invamount(2226)
-	$CapEquipped = isEquippedInSlotNameID('topHead', '2226')
+	$CapEquipped = isEquippedInSlotNameID("topHead", "2226")
 	if ($.lvl >= 14) {
 		$CapCanEquip = 1
 	} else {
@@ -743,7 +743,7 @@ macro clear_Cap_buyAuto {
 macro knight_set_Helm {
 	[
 	$HelmHas = &invamount(2228)
-	$HelmEquipped = isEquippedInSlotNameID('topHead', '2228')
+	$HelmEquipped = isEquippedInSlotNameID("topHead", "2228")
 	if ($.lvl >= 33) {
 		$HelmCanEquip = 1
 	} else {
