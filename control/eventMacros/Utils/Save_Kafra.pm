@@ -87,7 +87,7 @@ automacro SavedAtKafra {
 			[
 			do conf -f minStorageZeny 100
 			do conf -f storageAuto_npc prt_fild05 290 224
-			do conf -f storageAuto_npc_steps r1
+			do conf -f storageAuto_npc_steps r~/storage/i
 			do conf -f storageAuto 1
 			
 			do conf -f sellAuto 1

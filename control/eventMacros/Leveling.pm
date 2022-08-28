@@ -44,7 +44,7 @@ macro set_lockmap_prt_sewb2 {
 	do conf -f future_saveMap_kafra_map prt_fild05
 	do conf -f future_saveMap_kafra_x 290
 	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r0
+	do conf -f future_saveMap_save_sequence r~/Save/i
 	]
 }
 
