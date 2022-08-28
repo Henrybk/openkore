@@ -227,7 +227,7 @@ macro knight_set_buyauto_armor {
 		do iconf 2312 1 0 0
 		do conf -f equipAuto_0_armor GetNamebyNameID(2312)
 		
-	} elsif (($PlateArmorCanEquip == 0 || ($PlateArmorCanEquip == 1 && $PlateArmorCanBuy == 0)) && ($PaddedArmorEquipped == 0 && $PaddedArmorCanEquip == 1 && $PaddedArmorHas == 0 && $PaddedArmorCanBuy == 1)) {
+	} elsif ($PlateArmorCanEquip == 0 && $PaddedArmorEquipped == 0 && $PaddedArmorCanEquip == 1 && $PaddedArmorHas == 0 && $PaddedArmorCanBuy == 1) {
 		call clear_AdventureSuit_buyAuto
 		$name = GetNamebyNameID(2312)
 		log Setting buyAuto $name
@@ -241,13 +241,13 @@ macro knight_set_buyauto_armor {
 		do conf -f buyAuto_$nextFreeSlot_zeny > 50000
 		$currentZeny = $currentZeny - 50000
 		
-	} elsif (($PlateArmorCanEquip == 0 || $PlateArmorHas == 0) && ($PaddedArmorCanEquip == 0 || $PaddedArmorHas == 0) && $AdventureSuitEquipped == 0 && $AdventureSuitCanEquip == 1 && $AdventureSuitHas >= 1) {
+	} elsif ($PlateArmorCanEquip == 0 && $PaddedArmorCanEquip == 0 && $AdventureSuitEquipped == 0 && $AdventureSuitCanEquip == 1 && $AdventureSuitHas >= 1) {
 		$name = GetNamebyNameID(2305)
 		log Setting equipauto $name
 		do iconf 2305 1 0 0
 		do conf -f equipAuto_0_armor GetNamebyNameID(2305)
 		
-	} elsif (($PlateArmorCanEquip == 0 || ($PlateArmorCanEquip == 1 && $PlateArmorCanBuy == 0)) && ($PaddedArmorCanEquip == 0 || ($PaddedArmorCanEquip == 1 && $PlateArmorCanBuy == 0)) && $AdventureSuitEquipped == 0 && $AdventureSuitCanEquip == 1 && $AdventureSuitHas == 0 && $AdventureSuitCanBuy == 1) {
+	} elsif ($PlateArmorCanEquip == 0 && $PaddedArmorCanEquip == 0 && $AdventureSuitEquipped == 0 && $AdventureSuitCanEquip == 1 && $AdventureSuitHas == 0 && $AdventureSuitCanBuy == 1) {
 		$name = GetNamebyNameID(2305)
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
