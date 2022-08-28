@@ -228,65 +228,7 @@ automacro do_test {
 }
 
 macro do_test {
-	do move 20 245
-	do move 25 250
-	do move 30 250
-	do move 38 245
-	do move 48 245
-	do move 50 241
-	do move 64 241
-	do move 75 240
-	do move 92 240
-	do move 105 241
-	do move 120 243
-	do move 140 243
-	do move 160 243
-	do move 185 243
-	do move 191 244
-	pause 5
-	do move 222 243
-	pause 5
-	do move 12 211
-	do move 184 211
-	do move 192 207
-	pause 5
-	do move 223 205
-	pause 5
-	do move 24 170
-	do move 24 173
-	do move 33 174
-	do move 37 174
-	do move 38 172
-	do move 45 172
-	do move 48 169
-	do move 53 173
-	do move 56 173
-	do move 60 169
-	do move 84 169
-	do move 85 170
-	do move 88 170
-	do move 89 169
-	do move 93 169
-	do move 95 171
-	do move 112 171
-	do move 113 172
-	do move 116 172
-	do move 117 171
-	do move 124 171
-	do move 125 172
-	do move 128 172
-	do move 129 174
-	do move 158 174
-	do move 158 171
-	do move 166 171
-	do move 167 172
-	do move 170 172
-	do move 171 171
-	do move 177 171
-	do move 180 171
-	do move 181 172
-	do move 192 168
-	pause 5
+	do move job_sword1 215 167
 }
 
 automacro Talk_to_mae_end_test {

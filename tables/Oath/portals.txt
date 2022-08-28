@@ -2628,16 +2628,6 @@ lhz_in02 282 79 lighthalzen 194 48
 #------------------------------
 xmas 139 307 evt_xmas 129 129 0 c r1
 
-job_sword1 7 245 izlude_in 43 169
-izlude_in 43 169 job_sword1 10 245
-
-job_sword1 192 244 job_sword1 215 244
-job_sword1 8 207 job_sword1 223 243
-job_sword1 223 205 job_sword1 193 207
-job_sword1 193 207 job_sword1 215 205
-job_sword1 8 169 job_sword1 223 205
-job_sword1 193 168 job_sword1 193 168
-
 # Kafra izlude 1
 izlude 134 87 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
 izlude 134 87 prontera 116 72 2000 1 c r~/teleport/i c r~/prontera/i
@@ -2752,3 +2742,21 @@ comodo 195 150 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
 cmd_fild07 136 134 oldnewpayon 161 58 1400 c r~/teleport/i c r~/payon/i
 cmd_fild07 136 134 comodo 209 143 1200 c c r~/teleport/i c r~/^Comodo$/
 cmd_fild07 136 134 morocc 156 47 1200 c c r~/teleport/i c c r~/mor/i
+
+
+job_sword1 7 245 izlude_in 43 169
+izlude_in 43 169 job_sword1 10 245
+
+job_sword1 192 244 job_sword1 215 244
+job_sword1 223 243 job_sword1 11 206
+job_sword1 193 207 job_sword1 215 205
+job_sword1 223 205 job_sword1 11 168
+job_sword1 193 168 job_sword1 215 167
+
+job_sword1 65 117 job_sword1 10 245
+job_sword1 98 27 job_sword1 11 207
+job_sword1 161 27 job_sword1 11 207
+
+#job_sword1 8 207 job_sword1 223 243
+#job_sword1 8 169 job_sword1 223 205
+

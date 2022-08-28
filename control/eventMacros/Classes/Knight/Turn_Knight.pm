@@ -147,22 +147,22 @@ macro update_turning_knight {
 	do conf -f doing_knight_job_change windsor
 	
 	[
-	do conf -f lockMap &config(turn_knight_lockMap_before)
-	do conf -f turn_knight_lockMap_before none
+	do conf -f lockMap &config(Turn_Knight_lockMap_before)
+	do conf -f Turn_Knight_lockMap_before none
 	]
 }
 
-automacro Return_To_Job_Change_Meat {
+automacro Return_To_Job_Change_Orange_Potion {
 	ConfigKey eventMacro_1_99_stage leveling
 	ConfigKey doing_knight_job_change windsor
 	QuestActive 9004, 9005, 9006
-	InInventoryID 517 > 60
+	InInventoryID 502 > 30 
     exclusive 1
 	priority 0
     call {
 		[
 		do conf -f eventMacro_1_99_stage turning_knight_windsor
-		do conf -f turn_knight_lockMap_before &config(lockMap)
+		do conf -f Turn_Knight_lockMap_before &config(lockMap)
 		do conf -f lockMap none
 		]
     }
@@ -231,8 +231,8 @@ automacro Got_Out_Of_Waiting_Room {
 		[
 		do ai auto
 		do conf -f eventMacro_1_99_stage leveling
-		do conf -f lockMap &config(turn_knight_lockMap_before)
-		do conf -f turn_knight_lockMap_before none
+		do conf -f lockMap &config(Turn_Knight_lockMap_before)
+		do conf -f Turn_Knight_lockMap_before none
 		]
 	}
 }
@@ -278,8 +278,8 @@ automacro Got_Out_Of_Waiting_Room_chat {
 		[
 		do ai auto
 		do conf -f eventMacro_1_99_stage leveling
-		do conf -f lockMap &config(turn_knight_lockMap_before)
-		do conf -f turn_knight_lockMap_before none
+		do conf -f lockMap &config(Turn_Knight_lockMap_before)
+		do conf -f Turn_Knight_lockMap_before none
 		]
 	}
 }
@@ -370,8 +370,8 @@ automacro Got_Out_Of_test {
 		[
 		call out_of_test
 		do conf -f eventMacro_1_99_stage leveling
-		do conf -f lockMap &config(turn_knight_lockMap_before)
-		do conf -f turn_knight_lockMap_before none
+		do conf -f lockMap &config(Turn_Knight_lockMap_before)
+		do conf -f Turn_Knight_lockMap_before none
 		]
 	}
 }
@@ -622,12 +622,10 @@ automacro EquipknightStuffEnd {
 	exclusive 1
 	call {
 		[
-		do conf -f lockMap &config(turn_knight_lockMap_before)
-		do conf -f turn_knight_lockMap_before none
+		do conf -f lockMap &config(Turn_Knight_lockMap_before)
+		do conf -f Turn_Knight_lockMap_before none
 		
-		include off Turn_knight.pm
-		
-		do iconf 517 0 1 0
+		include off Turn_Knight.pm
 		
 		do conf -f eventMacro_1_99_stage leveling
 		

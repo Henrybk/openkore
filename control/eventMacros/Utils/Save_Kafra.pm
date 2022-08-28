@@ -163,7 +163,7 @@ automacro SavedAtKafra {
 			do conf -f useSelf_item_$nextFreeSlot_disabled 0
 			do conf -f useSelf_item_$nextFreeSlot_hp < 60%
 			
-			# Orange potion
+			# Concentration potion
 			$name = GetNamebyNameID(645)
 			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 			do conf -f buyAuto_$nextFreeSlot $name
@@ -173,7 +173,7 @@ automacro SavedAtKafra {
 			do conf -f buyAuto_$nextFreeSlot_minDistance 1
 			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 			do conf -f buyAuto_$nextFreeSlot_zeny > 5000
-			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_maxBase 39
 			do conf -f buyAuto_$nextFreeSlot_minBase 1
 			do conf -f buyAuto_$nextFreeSlot_disabled 0
 			do iconf 645 5 1 0
@@ -181,11 +181,35 @@ automacro SavedAtKafra {
 			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
 			do conf -f useSelf_item_$nextFreeSlot $name
 			do conf -f useSelf_item_$nextFreeSlot_disabled 0
-			do conf -f useSelf_item_whenStatusInactive EFST_ATTHASTE_POTION1
+			do conf -f useSelf_item_$nextFreeSlot_whenStatusInactive EFST_ATTHASTE_POTION1
+			do conf -f useSelf_item_$nextFreeSlot_inLockOnly 1
+			do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
+			do conf -f useSelf_item_$nextFreeSlot_timeout 5
+			
+			# Awakening Potion
+			$name = GetNamebyNameID(656)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc prt_in 126 76
+			do conf -f buyAuto_$nextFreeSlot_minAmount 1
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 5
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 8000
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 40
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 656 5 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_whenStatusInactive EFST_ATTHASTE_POTION2
+			do conf -f useSelf_item_$nextFreeSlot_inLockOnly 1
+			do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
+			do conf -f useSelf_item_$nextFreeSlot_timeout 5
 			]
 		}
-		
-		call set_buyauto_equipment
 		
 		[
 		do conf -f saveMap_map &config(future_saveMap_map)

@@ -8,9 +8,11 @@ automacro leveling_timer {
 }
 
 macro baseMacroUp {
+	[
 	log Here we would set lockmap and savemap
 	
 	call SetVar
+	call set_buyauto_equipment
 	
 	$changed = 0
 	
@@ -28,6 +30,7 @@ macro baseMacroUp {
 	if ($changed == 1) {
 		call after_lock_change
 	}
+	]
 }
 
 macro set_lockmap_prt_sewb2 {

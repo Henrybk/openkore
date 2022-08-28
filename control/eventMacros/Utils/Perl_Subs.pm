@@ -40,7 +40,41 @@ macro SetVar {
 	$configsaveMap = &config(saveMap)
 	$joinedSewb = &config(Joined_Sewb)
 }
- 
+
+sub GetEquippedInSlotName {
+	my $slot = shift;
+	
+	return 0 unless (exists $char->{equipment} && $char->{equipment});
+	return 0 unless (exists $char->{equipment}{$slot} && $char->{equipment}{$slot});
+	my $item = $char->{equipment}{$slot};
+	
+	return $item->{name};
+}
+
+sub GetEquippedInSlotNameID {
+	my $slot = shift;
+	
+	return 0 unless (exists $char->{equipment} && $char->{equipment});
+	return 0 unless (exists $char->{equipment}{$slot} && $char->{equipment}{$slot});
+	my $item = $char->{equipment}{$slot};
+	
+	return $item->{nameID};
+}
+
+sub isEquippedInSlotNameID {
+	my $slot = shift;
+	my $nameID = shift;
+	
+	return 0 unless (exists $char->{equipment} && $char->{equipment});
+	return 0 unless (exists $char->{equipment}{$slot} && $char->{equipment}{$slot});
+	
+	my $item = $char->{equipment}{$slot};
+	
+	return 0 unless ($item->{nameID} == $nameID);
+	
+	return 1;
+}
+
 sub GetNamebyNameID {
 	my $itemID = shift;
 
