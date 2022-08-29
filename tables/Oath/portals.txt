@@ -2769,3 +2769,8 @@ payon_in01 86 37 payon_in01 70 52
 payon_in01 70 52 payon_in01 86 34
 oldnewpayon 22 174 payon_in01 101 25
 payon_in01 101 25 oldnewpayon 22 171
+
+aldebaran 211 172 1@ecl 35 71 r~/Yes/i
+1@ecl 42 63 aldebaran 211 169 r~/Yes/i
+1@ecl 52 64 lasa_dun01 29 143 r~/Yes/i
+lasa_dun01 22 143 1@ecl 46 64 r~/back up/i

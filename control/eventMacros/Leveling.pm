@@ -30,7 +30,8 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 35) {
+	} elsif ($.lvl <= 28) {
+	#} elsif ($.lvl <= 32) {
 		if ($configlockMap != pay_fild01) {
 			# kafra oldnewpayon 98 118
 			# sell oldnewpayon 69 117
@@ -43,6 +44,14 @@ macro baseMacroUp {
 			# kafra aldebaran 143 119
 			# sell aldeba_in 94 56
 			call set_lockmap_yuno_fild01
+			$changed = 1
+		}
+		
+	} elsif ($.lvl <= 50) {
+		if ($configlockMap != lasa_dun01) {
+			# kafra aldebaran 143 119
+			# sell aldeba_in 94 56
+			call set_lockmap_lasa_dun01
 			$changed = 1
 		}
 		
@@ -89,6 +98,23 @@ macro set_lockmap_pay_fild01 {
 macro set_lockmap_yuno_fild01 {
 	[
 	do conf lockMap yuno_fild01
+	do iconf 713 50 1 0
+	do iconf 1058 1 1 0
+	
+	do conf -f future_saveMap_map aldebaran
+	do conf -f future_saveMap_x 143
+	do conf -f future_saveMap_y 119
+	
+	do conf -f future_saveMap_kafra_map aldebaran
+	do conf -f future_saveMap_kafra_x 143
+	do conf -f future_saveMap_kafra_y 119
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_lasa_dun01 {
+	[
+	do conf lockMap lasa_dun01
 	do iconf 713 50 1 0
 	do iconf 1058 1 1 0
 	
@@ -200,5 +226,46 @@ automacro need_to_Join_Oranpere {
 		include on Join_Oranpere.pm
 		
 		do reload eventMacros
+	}
+}
+
+automacro need_to_configure_Haleigh {
+	exclusive 1
+	priority 0
+	ConfigKey lockMap lasa_dun01
+	ConfigKey eventMacro_1_99_stage leveling
+	ConfigKeyNot Joined_Haleigh true
+	ConfigKeyNot Joined_Haleigh false
+	call {
+		do conf -f Joined_Haleigh false
+	}
+}
+
+automacro need_to_Join_Haleigh {
+	exclusive 1
+	priority 0
+	ConfigKey lockMap lasa_dun01
+	ConfigKey eventMacro_1_99_stage leveling
+	ConfigKey Joined_Haleigh false
+	call {
+		do conf -f Join_Haleigh_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage Join_Haleigh
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include Join_Haleigh.pm
+		include off &config(before_event_include)
+		include on Join_Haleigh.pm
+		
+		do reload eventMacros
+	}
+}
+
+automacro need_to_configure_Haleigh_2 {
+	exclusive 1
+	priority 1
+	ConfigKey Joined_Haleigh true
+	ConfigKey eventMacro_1_99_stage leveling
+	NpcMsgName /Are you here to help the Professor/i /Assistant Eryn/
+	call {
+		do conf -f Joined_Haleigh false
 	}
 }
