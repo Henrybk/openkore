@@ -96,6 +96,8 @@ macro Conf_Stuff {
         do iconf 13041 0 0 0
         do iconf 2393 0 0 0
         do iconf 2301 0 0 0
+		do iconf 713 50 1 0
+		do iconf 1058 1 1 0
 		]
     }
  

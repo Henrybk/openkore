@@ -360,6 +360,8 @@ automacro EquipSwordmanStuffEnd {
 		do iconf 1201 0 0 1
 		do iconf 13040 0 0 1
 		do iconf 2301 0 0 1
+		do iconf 713 50 1 0
+		do iconf 1058 1 1 0
 		do conf -f useSelf_item_0_hp < 75%
 		do conf -f attackAuto 2
 		do conf -f route_randomWalk 1

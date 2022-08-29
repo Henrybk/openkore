@@ -1166,12 +1166,7 @@ orcsdun01 32 172 in_orcs01 30 182
 orcsdun01 183 8 orcsdun02 21 188
 orcsdun02 21 188 orcsdun01 183 8
 orcsdun02 180 15 in_orcs01 108 114
-oldnewpayon 267 89 pay_fild08 17 75
-oldnewpayon 228 329 pay_arche 81 22
-oldnewpayon 122 27 pay_fild01 333 356
-oldnewpayon 16 143 pay_gld 370 149
-oldnewpayon 141 85 oldnewpayon 151 127 oldnewpayon 136 158 oldnewpayon 130 169 oldnewpayon 189 233 oldnewpayon 187 233 oldnewpayon 270 152 pay_arche 36 131 pay_dun00 21 186
-pay_arche 81 17 oldnewpayon 228 329
+
 pay_arche 145 165 pay_arche 71 156 pay_arche 92 170 pay_dun00 21 186 pay_arche 36 131
 pay_dun00 184 33 pay_dun01 15 33
 pay_dun01 15 33 pay_dun00 184 33
@@ -1187,7 +1182,6 @@ pay_fild01 13 152 moc_fild03 303 170
 pay_fild01 278 14 pay_fild02 83 386
 pay_fild01 353 14 pay_fild02 167 390
 pay_fild01 379 201 pay_fild07 16 200
-pay_fild01 333 361 oldnewpayon 122 27
 #pay_fild02 16 175 pay_fild11 297 135
 pay_fild02 83 386 pay_fild01 278 14
 pay_fild02 134 16 pay_fild05 127 378
@@ -1207,7 +1201,6 @@ pay_fild07 16 200 pay_fild01 379 201
 pay_fild07 164 17 pay_fild03 172 281
 pay_fild07 280 382 pay_fild08 160 16
 pay_fild07 382 290 pay_fild10 16 290
-pay_fild08 17 75 oldnewpayon 265 92
 pay_fild08 160 16 pay_fild07 280 382
 pay_fild08 262 91 pay_fild09 16 91
 pay_fild09 16 91 pay_fild08 262 91
@@ -1222,7 +1215,6 @@ pay_gld 140 156 payg_cas04 252 275
 pay_gld 204 270 payg_cas05 62 223
 pay_gld 291 116 payg_cas02 276 61
 pay_gld 321 293 payg_cas03 226 22
-pay_gld 374 149 oldnewpayon 16 143
 payg_cas01 214 44 pay_gld 121 233
 payg_cas01 201 126 payg_cas01 102 21
 payg_cas01 102 17 payg_cas01 201 121
@@ -2629,24 +2621,24 @@ lhz_in02 282 79 lighthalzen 194 48
 xmas 139 307 evt_xmas 129 129 0 c r1
 
 # Kafra izlude 1
-izlude 134 87 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+izlude 134 87 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 izlude 134 87 prontera 116 72 2000 1 c r~/teleport/i c r~/prontera/i
 izlude 134 87 geffen 120 39 2000 1 c r~/teleport/i c r~/geffen/i
 izlude 134 87 morocc 156 47 2000 1 c r~/teleport/i c r~/mor/i
 izlude 134 87 aldebaran 168 112 2000 1 c r~/teleport/i c r~/baran/i
 
 # Kafra alberta 1
-alberta 113 60 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+alberta 113 60 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 alberta 113 60 morocc 156 47 1800 c r~/teleport/i c r~/mor/i
 alberta 113 60 prontera 116 72 1800 c r~/teleport/i c r~/prontera/i
 
 # Kafra alberta 2
-alberta 28 229 oldnewpayon 161 58 1200 c r~/teleport/i c r0
+alberta 28 229 oldnewpayon 98 118 1200 c r~/teleport/i c r0
 alberta 28 229 morocc 156 47 1800 c r~/teleport/i c r~/mor/i
 alberta 28 229 prontera 116 72 1800 c r~/teleport/i c r~/prontera/i
 
 # Kafra prontera 1
-prontera 146 89 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+prontera 146 89 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 prontera 146 89 izlude 94 103 2000 1 c r~/teleport/i c r~/izlude/i
 prontera 146 89 aldebaran 168 112 2000 1 c r~/teleport/i c r~/baran/i
 prontera 146 89 geffen 120 39 2000 1 c r~/teleport/i c r~/geffen/i
@@ -2655,7 +2647,7 @@ prontera 146 89 gef_fild10 52 326 1200 1 c r~/teleport/i c r~/Orc/i
 prontera 146 89 alberta 117 56 2000 1 c r~/teleport/i c r~/alberta/i
 
 # Kafra prontera 2
-prontera 151 29 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+prontera 151 29 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 prontera 151 29 izlude 94 103 2000 1 c r~/teleport/i c r~/izlude/i
 prontera 151 29 aldebaran 168 112 2000 1 c r~/teleport/i c r~/baran/i
 prontera 151 29 geffen 120 39 2000 1 c r~/teleport/i c r~/geffen/i
@@ -2664,7 +2656,7 @@ prontera 151 29 gef_fild10 52 326 1200 1 c r~/teleport/i c r~/Orc/i
 prontera 151 29 alberta 117 56 2000 1 c r~/teleport/i c r~/alberta/i
 
 # Kafra prontera 3
-prontera 282 200 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+prontera 282 200 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 prontera 282 200 izlude 94 103 2000 1 c r~/teleport/i c r~/izlude/i
 prontera 282 200 aldebaran 168 112 2000 1 c r~/teleport/i c r~/baran/i
 prontera 282 200 geffen 120 39 2000 1 c r~/teleport/i c r~/geffen/i
@@ -2673,7 +2665,7 @@ prontera 282 200 gef_fild10 52 326 1200 1 c r~/teleport/i c r~/Orc/i
 prontera 282 200 alberta 117 56 2000 1 c r~/teleport/i c r~/alberta/i
 
 # Kafra prontera 4
-prontera 29 207 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+prontera 29 207 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 prontera 29 207 izlude 94 103 2000 1 c r~/teleport/i c r~/izlude/i
 prontera 29 207 aldebaran 168 112 2000 1 c r~/teleport/i c r~/baran/i
 prontera 29 207 geffen 120 39 2000 1 c r~/teleport/i c r~/geffen/i
@@ -2682,7 +2674,7 @@ prontera 29 207 gef_fild10 52 326 1200 1 c r~/teleport/i c r~/Orc/i
 prontera 29 207 alberta 117 56 2000 1 c r~/teleport/i c r~/alberta/i
 
 # Kafra morocc 1
-morocc 156 97 oldnewpayon 161 58 1200 c r~/teleport/i c r~/payon/i
+morocc 156 97 oldnewpayon 98 118 1200 c r~/teleport/i c r~/payon/i
 morocc 156 97 prontera 116 72 1200 c r~/teleport/i c r~/prontera/i
 morocc 156 97 alberta 117 56 1800 c r~/teleport/i c r~/alberta/i
 morocc 156 97 comodo 209 143 1800 c r~/teleport/i c r~/^Comodo$/
@@ -2690,7 +2682,7 @@ morocc 156 97 geffen 120 39 2300 c r~/teleport/i c r~/geffen/i
 morocc 156 97 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
 
 # Kafra morocc 2
-morocc 156 97 oldnewpayon 161 58 1200 c r~/teleport/i c r~/payon/i
+morocc 156 97 oldnewpayon 98 118 1200 c r~/teleport/i c r~/payon/i
 morocc 156 97 prontera 116 72 1200 c r~/teleport/i c r~/prontera/i
 morocc 156 97 alberta 117 56 1800 c r~/teleport/i c r~/alberta/i
 morocc 156 97 comodo 209 143 1800 c r~/teleport/i c r~/^Comodo$/
@@ -2698,7 +2690,7 @@ morocc 156 97 geffen 120 39 2300 c r~/teleport/i c r~/geffen/i
 morocc 156 97 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
 
 # Kafra geffen 1
-geffen 110 65 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+geffen 110 65 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 geffen 110 65 prontera 116 72 1200 1 c r~/teleport/i c r~/prontera/i
 geffen 110 65 aldebaran 168 112 1200 1 c r~/teleport/i c r~/baran/i
 geffen 110 65 morocc 156 47 2000 1 c r~/teleport/i c r~/mor/i
@@ -2706,7 +2698,7 @@ geffen 110 65 gef_fild10 52 326 1200 1 c r~/teleport/i c r~/Orc/i
 geffen 110 65 mjolnir_02 99 351 1700 1 c r~/teleport/i c r~/Mjolnir/i
 
 # Kafra geffen 2
-geffen 203 123 oldnewpayon 161 58 2000 1 c r~/teleport/i c r~/payon/i
+geffen 203 123 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
 geffen 203 123 prontera 116 72 1200 1 c r~/teleport/i c r~/prontera/i
 geffen 203 123 aldebaran 168 112 1200 1 c r~/teleport/i c r~/baran/i
 geffen 203 123 morocc 156 47 2000 1 c r~/teleport/i c r~/mor/i
@@ -2721,7 +2713,7 @@ oldnewpayon 98 118 morocc 156 47 1200 1 c r~/teleport/i c r~/mor/i
 oldnewpayon 98 118 geffen 120 39 1800 1 c r~/teleport/i c r~/geffen/i
 
 # Kafra aldebaran 1
-aldebaran 143 119 oldnewpayon 161 58 0 1 c r~/teleport/i c r~/payon/i
+aldebaran 143 119 oldnewpayon 98 118 0 1 c r~/teleport/i c r~/payon/i
 aldebaran 143 119 geffen 120 39 1800 1 c r~/teleport/i c r~/geffen/i
 aldebaran 143 119 yuno 158 125 1200 c r~/teleport/i c r~/Juno/i
 aldebaran 143 119 prontera 116 72 600 1 c r~/teleport/i c r~/prontera/i
@@ -2729,17 +2721,17 @@ aldebaran 143 119 izlude 94 103 2000 1 c r~/teleport/i c r~/izlude/i
 aldebaran 143 119 mjolnir_02 99 351 1700 1 c r~/teleport/i c r~/Mjolnir/i
 
 # Kafra juno 1
-yuno 152 187 oldnewpayon 161 58 1800 1 c r~/teleport/i c r~/payon/i
+yuno 152 187 oldnewpayon 98 118 1800 1 c r~/teleport/i c r~/payon/i
 yuno 152 187 aldebaran 168 112 1200 1 c r~/teleport/i c r~/baran/i
 yuno 152 187 prontera 116 72 2400 1 c r~/teleport/i c r~/prontera/i
 
 # Kafra comodo 1
-comodo 195 150 oldnewpayon 161 58 1400 c r~/teleport/i c r~/payon/i
+comodo 195 150 oldnewpayon 98 118 1400 c r~/teleport/i c r~/payon/i
 comodo 195 150 morocc 156 47 1800 1 c c r~/teleport/i c r~/mor/i
 comodo 195 150 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
 
 # Kafra Pharos 1
-cmd_fild07 136 134 oldnewpayon 161 58 1400 c r~/teleport/i c r~/payon/i
+cmd_fild07 136 134 oldnewpayon 98 118 1400 c r~/teleport/i c r~/payon/i
 cmd_fild07 136 134 comodo 209 143 1200 c c r~/teleport/i c r~/^Comodo$/
 cmd_fild07 136 134 morocc 156 47 1200 c c r~/teleport/i c c r~/mor/i
 
@@ -2760,3 +2752,20 @@ job_sword1 161 27 job_sword1 11 207
 #job_sword1 8 207 job_sword1 223 243
 #job_sword1 8 169 job_sword1 223 205
 
+yuno_fild01 208 17 aldebaran 140 244
+aldebaran 140 244 yuno_fild01 208 19
+
+oldnewpayon 89 22 pay_fild01 333 356
+pay_fild01 333 361 oldnewpayon 89 26
+
+payon_in01 144 45 oldnewpayon 38 171
+oldnewpayon 38 173 payon_in01 142 45
+
+payon_in01 83 63 oldnewpayon 30 176
+oldnewpayon 30 176 payon_in01 80 63
+payon_in01 130 36 payon_in01 70 75
+payon_in01 70 75 payon_in01 130 39
+payon_in01 86 37 payon_in01 70 52
+payon_in01 70 52 payon_in01 86 34
+oldnewpayon 22 174 payon_in01 101 25
+payon_in01 101 25 oldnewpayon 22 171

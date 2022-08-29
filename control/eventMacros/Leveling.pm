@@ -15,16 +15,37 @@ macro baseMacroUp {
 	call set_buyauto_equipment
 	
 	$changed = 0
+	$HPRecoveryWhileMovingLevel = getSkillLevelByHandle("SM_MOVINGRECOVERY")
+	
+	if ($configlockMap == yuno_fild01 && $HPRecoveryWhileMovingLevel == 1) {
+		do conf lockMap none
+	}
 	
 	#Leveling
-	if ($.lvl <= 25) {
+	if ($.lvl <= 22) {
 		if ($configlockMap != prt_sewb2) {
-			# https://ratemyserver.net/npc_shop_warp.php?map=prt_fild05&re_mob=0&small=1
 			# kafra prt_fild05 290 224
 			# sell prt_fild05 290 221
 			call set_lockmap_prt_sewb2
 			$changed = 1
 		}
+	
+	} elsif ($.lvl <= 35) {
+		if ($configlockMap != pay_fild01) {
+			# kafra oldnewpayon 98 118
+			# sell oldnewpayon 69 117
+			call set_lockmap_pay_fild01
+			$changed = 1
+		}
+		
+	} elsif ($.joblvl >= 35 && $HPRecoveryWhileMovingLevel == 0) {
+		if ($configlockMap != yuno_fild01) {
+			# kafra aldebaran 143 119
+			# sell aldeba_in 94 56
+			call set_lockmap_yuno_fild01
+			$changed = 1
+		}
+		
 	}
 	
 	if ($changed == 1) {
@@ -44,6 +65,40 @@ macro set_lockmap_prt_sewb2 {
 	do conf -f future_saveMap_kafra_map prt_fild05
 	do conf -f future_saveMap_kafra_x 290
 	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_pay_fild01 {
+	[
+	do conf lockMap pay_fild01
+	do iconf 713 50 1 0
+	do iconf 1058 1 1 0
+	
+	do conf -f future_saveMap_map oldnewpayon
+	do conf -f future_saveMap_x 98
+	do conf -f future_saveMap_y 118
+	
+	do conf -f future_saveMap_kafra_map oldnewpayon
+	do conf -f future_saveMap_kafra_x 98
+	do conf -f future_saveMap_kafra_y 118
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_yuno_fild01 {
+	[
+	do conf lockMap yuno_fild01
+	do iconf 713 50 1 0
+	do iconf 1058 1 1 0
+	
+	do conf -f future_saveMap_map aldebaran
+	do conf -f future_saveMap_x 143
+	do conf -f future_saveMap_y 119
+	
+	do conf -f future_saveMap_kafra_map aldebaran
+	do conf -f future_saveMap_kafra_x 143
+	do conf -f future_saveMap_kafra_y 119
 	do conf -f future_saveMap_save_sequence r~/Save/i
 	]
 }

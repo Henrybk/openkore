@@ -56,8 +56,8 @@ macro knight_set_buyauto_weapon {
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 65000
-		$currentZeny = $currentZeny - 65000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 70000
+		$currentZeny = $currentZeny - 70000
 		do iconf 1157 1 0 0
 		
 	} elsif (($TwoHandedSwordCanEquip == 0 || $TwoHandedSwordHas == 0) && $ScimiterEquipped == 0 && $ScimiterCanEquip == 1 && $ScimiterHas >= 1) {
@@ -80,8 +80,8 @@ macro knight_set_buyauto_weapon {
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 20000
-		$currentZeny = $currentZeny - 20000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 25000
+		$currentZeny = $currentZeny - 25000
 		do iconf 1113 1 0 0
 		
 	} elsif (($TwoHandedSwordCanEquip == 0 || $TwoHandedSwordCanBuy == 0) && ($ScimiterCanEquip == 0 || $ScimiterHas == 0) && $KatanaEquipped == 0 && $KatanaCanEquip == 1 && $KatanaHas >= 1) {
@@ -101,8 +101,8 @@ macro knight_set_buyauto_weapon {
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 2100
-		$currentZeny = $currentZeny - 2100
+		do conf -f buyAuto_$nextFreeSlot_zeny > 3000
+		$currentZeny = $currentZeny - 3000
 		do iconf 1116 1 0 0
 	}
 	]
@@ -117,7 +117,7 @@ macro knight_set_Katana {
 	} else {
 		$KatanaCanEquip = 0
 	}
-	if ($currentZeny >= 2100) {
+	if ($currentZeny >= 3000) {
 		$KatanaCanBuy = 1
 	} else {
 		$KatanaCanBuy = 0
@@ -143,7 +143,7 @@ macro knight_set_Scimiter {
 	} else {
 		$ScimiterCanEquip = 0
 	}
-	if ($currentZeny >= 20000) {
+	if ($currentZeny >= 25000) {
 		$ScimiterCanBuy = 1
 	} else {
 		$ScimiterCanBuy = 0
@@ -169,7 +169,7 @@ macro knight_set_TwoHandedSword {
 	} else {
 		$TwoHandedSwordCanEquip = 0
 	}
-	if ($currentZeny >= 65000) {
+	if ($currentZeny >= 70000) {
 		$TwoHandedSwordCanBuy = 1
 	} else {
 		$TwoHandedSwordCanBuy = 0
@@ -227,13 +227,13 @@ macro knight_set_buyauto_armor {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc izlude_in 70 127
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 76 70
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 85000
-		$currentZeny = $currentZeny - 85000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 90000
+		$currentZeny = $currentZeny - 90000
 		do iconf 2316 1 0 0
 		
 	} elsif (($PlateArmorCanEquip == 0 || $PlateArmorHas == 0) && $PaddedArmorEquipped == 0 && $PaddedArmorCanEquip == 1 && $PaddedArmorHas >= 1) {
@@ -251,13 +251,13 @@ macro knight_set_buyauto_armor {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc prt_in 172 132
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 76 70
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 50000
-		$currentZeny = $currentZeny - 50000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 55000
+		$currentZeny = $currentZeny - 55000
 		do iconf 2312 1 0 0
 		
 	} elsif (($PlateArmorCanEquip == 0 || $PlateArmorHas == 0) && ($PaddedArmorCanEquip == 0 || $PaddedArmorHas == 0) && $AdventureSuitEquipped == 0 && $AdventureSuitCanEquip == 1 && $AdventureSuitHas >= 1) {
@@ -272,13 +272,13 @@ macro knight_set_buyauto_armor {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc prt_in 172 132
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 134 51
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 1500
-		$currentZeny = $currentZeny - 1500
+		do conf -f buyAuto_$nextFreeSlot_zeny > 4000
+		$currentZeny = $currentZeny - 4000
 		do iconf 2305 1 0 0
 	}
 	]
@@ -293,7 +293,7 @@ macro knight_set_AdventureSuit {
 	} else {
 		$AdventureSuitCanEquip = 0
 	}
-	if ($currentZeny >= 1500) {
+	if ($currentZeny >= 4000) {
 		$AdventureSuitCanBuy = 1
 	} else {
 		$AdventureSuitCanBuy = 0
@@ -319,7 +319,7 @@ macro knight_set_PaddedArmor {
 	} else {
 		$PaddedArmorCanEquip = 0
 	}
-	if ($currentZeny >= 50000) {
+	if ($currentZeny >= 55000) {
 		$PaddedArmorCanBuy = 1
 	} else {
 		$PaddedArmorCanBuy = 0
@@ -345,7 +345,7 @@ macro knight_set_PlateArmor {
 	} else {
 		$PlateArmorCanEquip = 0
 	}
-	if ($currentZeny >= 85000) {
+	if ($currentZeny >= 90000) {
 		$PlateArmorCanBuy = 1
 	} else {
 		$PlateArmorCanBuy = 0
@@ -403,13 +403,13 @@ macro knight_set_buyauto_shoes {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc izlude_in 70 127
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 134 51
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 20000
-		$currentZeny = $currentZeny - 20000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 25000
+		$currentZeny = $currentZeny - 25000
 		do iconf 2405 1 0 0
 		
 	} elsif (($BootsCanEquip == 0 || $BootsHas == 0) && $ShoesEquipped == 0 && $ShoesCanEquip == 1 && $ShoesHas >= 1) {
@@ -427,13 +427,13 @@ macro knight_set_buyauto_shoes {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc prt_in 172 132
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 134 51
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 4000
-		$currentZeny = $currentZeny - 4000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 8000
+		$currentZeny = $currentZeny - 8000
 		do iconf 2403 1 0 0
 		
 	} elsif (($BootsCanEquip == 0 || $BootsHas == 0) && ($ShoesCanEquip == 0 || $ShoesHas == 0) && $SandalsEquipped == 0 && $SandalsCanEquip == 1 && $SandalsHas >= 1) {
@@ -448,13 +448,13 @@ macro knight_set_buyauto_shoes {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc prt_in 172 132
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 134 51
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 500
-		$currentZeny = $currentZeny - 500
+		do conf -f buyAuto_$nextFreeSlot_zeny > 2000
+		$currentZeny = $currentZeny - 2000
 		do iconf 2401 1 0 0
 	}
 	]
@@ -469,7 +469,7 @@ macro knight_set_Sandals {
 	} else {
 		$SandalsCanEquip = 0
 	}
-	if ($currentZeny >= 500) {
+	if ($currentZeny >= 2000) {
 		$SandalsCanBuy = 1
 	} else {
 		$SandalsCanBuy = 0
@@ -495,7 +495,7 @@ macro knight_set_Shoes {
 	} else {
 		$ShoesCanEquip = 0
 	}
-	if ($currentZeny >= 4000) {
+	if ($currentZeny >= 8000) {
 		$ShoesCanBuy = 1
 	} else {
 		$ShoesCanBuy = 0
@@ -521,7 +521,7 @@ macro knight_set_Boots {
 	} else {
 		$BootsCanEquip = 0
 	}
-	if ($currentZeny >= 20000) {
+	if ($currentZeny >= 25000) {
 		$BootsCanBuy = 1
 	} else {
 		$BootsCanBuy = 0
@@ -569,13 +569,13 @@ macro knight_set_buyauto_robe {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc izlude_in 70 127
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 134 51
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 35000
-		$currentZeny = $currentZeny - 35000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 37000
+		$currentZeny = $currentZeny - 37000
 		do iconf 2505 1 0 0
 		
 	} elsif (($ManteauCanEquip == 0 || $ManteauHas == 0) && $MufflerEquipped == 0 && $MufflerCanEquip == 1 && $MufflerHas >= 1) {
@@ -590,13 +590,13 @@ macro knight_set_buyauto_robe {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc prt_in 172 132
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 134 51
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 1500
-		$currentZeny = $currentZeny - 1500
+		do conf -f buyAuto_$nextFreeSlot_zeny > 9000
+		$currentZeny = $currentZeny - 9000
 		do iconf 2503 1 0 0
 	}
 	]
@@ -611,7 +611,7 @@ macro knight_set_Muffler {
 	} else {
 		$MufflerCanEquip = 0
 	}
-	if ($currentZeny >= 1500) {
+	if ($currentZeny >= 9000) {
 		$MufflerCanBuy = 1
 	} else {
 		$MufflerCanBuy = 0
@@ -637,7 +637,7 @@ macro knight_set_Manteau {
 	} else {
 		$ManteauCanEquip = 0
 	}
-	if ($currentZeny >= 35000) {
+	if ($currentZeny >= 37000) {
 		$ManteauCanBuy = 1
 	} else {
 		$ManteauCanBuy = 0
@@ -695,13 +695,13 @@ macro knight_set_buyauto_topHead {
 		log Setting buyAuto $name
 		$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
 		do conf -f buyAuto_$nextFreeSlot $name
-		do conf -f buyAuto_$nextFreeSlot_npc izlude_in 70 127
+		do conf -f buyAuto_$nextFreeSlot_npc payon_in01 76 70
 		do conf -f buyAuto_$nextFreeSlot_minAmount 0
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 45000
-		$currentZeny = $currentZeny - 45000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 50000
+		$currentZeny = $currentZeny - 50000
 		do iconf 2228 1 0 0
 		
 	} elsif (($HelmCanEquip == 0 || $HelmHas == 0) && $CapEquipped == 0 && $CapCanEquip == 1 && $CapHas >= 1) {
@@ -724,8 +724,8 @@ macro knight_set_buyauto_topHead {
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 15000
-		$currentZeny = $currentZeny - 15000
+		do conf -f buyAuto_$nextFreeSlot_zeny > 20000
+		$currentZeny = $currentZeny - 20000
 		do iconf 2226 1 0 0
 		
 	} elsif (($HelmCanEquip == 0 || $HelmHas == 0) && ($CapCanEquip == 0 || $CapHas == 0) && $HatEquipped == 0 && $HatCanEquip == 1 && $HatHas >= 1) {
@@ -745,8 +745,8 @@ macro knight_set_buyauto_topHead {
 		do conf -f buyAuto_$nextFreeSlot_maxAmount 1
 		do conf -f buyAuto_$nextFreeSlot_minDistance 1
 		do conf -f buyAuto_$nextFreeSlot_maxDistance 10
-		do conf -f buyAuto_$nextFreeSlot_zeny > 1500
-		$currentZeny = $currentZeny - 1500
+		do conf -f buyAuto_$nextFreeSlot_zeny > 4000
+		$currentZeny = $currentZeny - 4000
 		do iconf 2220 1 0 0
 	}
 	]
@@ -761,7 +761,7 @@ macro knight_set_Hat {
 	} else {
 		$HatCanEquip = 0
 	}
-	if ($currentZeny >= 1500) {
+	if ($currentZeny >= 4000) {
 		$HatCanBuy = 1
 	} else {
 		$HatCanBuy = 0
@@ -787,7 +787,7 @@ macro knight_set_Cap {
 	} else {
 		$CapCanEquip = 0
 	}
-	if ($currentZeny >= 15000) {
+	if ($currentZeny >= 20000) {
 		$CapCanBuy = 1
 	} else {
 		$CapCanBuy = 0
@@ -813,7 +813,7 @@ macro knight_set_Helm {
 	} else {
 		$HelmCanEquip = 0
 	}
-	if ($currentZeny >= 45000) {
+	if ($currentZeny >= 50000) {
 		$HelmCanBuy = 1
 	} else {
 		$HelmCanBuy = 0
@@ -833,6 +833,7 @@ macro clear_Helm_buyAuto {
 automacro Go_Job_Change {
 	ConfigKey eventMacro_1_99_stage leveling
 	ConfigKeyNotExist doing_knight_job_change
+	SkillLevel SM_MOVINGRECOVERY = 1
 	IsEquippedID rightHand 1157
     InInventoryID 1157 > 0
 	JobLevel = 50
@@ -946,4 +947,25 @@ automacro Peco_shit_happened_skill {
 	call {
 		do conf -f eventMacro_1_99_stage leveling
 	}
+}
+
+automacro need_to_do_SM_MOVINGRECOVERY_Quest {
+    exclusive 1
+	priority 0
+	ConfigKey eventMacro_1_99_stage leveling
+	SkillLevel SM_MOVINGRECOVERY = 0
+    InInventoryID 713 >= 50
+    InInventoryID 1058 >= 1
+	JobLevel >= 35
+	JobID 1
+    call {
+		do conf -f SM_MOVINGRECOVERY_Quest_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage SM_MOVINGRECOVERY_Quest
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include SM_MOVINGRECOVERY_Quest.pm
+		include off &config(before_event_include)
+		include on SM_MOVINGRECOVERY_Quest.pm
+		
+		do reload eventMacros
+    }
 }
