@@ -356,6 +356,7 @@ automacro EquipSwordmanStuffEnd {
 	exclusive 1
 	call {
 		[
+		do iconf 1104 1 0 0
 		do iconf 1243 0 0 1
 		do iconf 2112 0 0 1
 		do iconf 5055 0 0 1

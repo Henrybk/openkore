@@ -175,3 +175,36 @@ izlude_in 60 127 Weapon Dealer#iz
 izlude_in 70 127 Armor Dealer#iz
 izlude 150 118 Dega#izlude
 izlude 135 78 Charfri#izlude
+moc_ruins 114 63 Tool Dealer#moc0
+moc_ruins 86 103 Thug#rg
+moc_ruins 92 128 Arrow Seller#mocruin
+moc_ruins 71 139 Trader#moc90
+moc_ruins 59 154 Smile Assistance#moc
+moc_ruins 59 157 Kafra Employee
+moc_ruins 61 164 Bulletin Board#27
+moc_prydb1 39 129 Thief Guide
+moc_prydb1 42 133 Comrade
+moc_ruins 91 150 Ponka-Hontas
+moc_ruins 113 181 William
+moc_ruins 118 176 Alchemist
+moc_ruins 128 153 Researcher#moc
+moc_ruins 141 125 Mr. Irrelevant
+morocc 168 79 Dairy Seller#moc
+morocc 139 92 Fruit Vendor#moc4
+morocc 147 102 Tool Dealer#moc6
+morocc 123 58 Assassin Boy#moc
+morocc_in 44 129 Assistant#moc_ex1
+morocc 76 75 Ant Man#moc
+morocc 54 97 Guide#2moc
+morocc 79 111 Picky Lady#moc
+morocc 30 174 Guide#6moc
+morocc 71 267 Spencer#Spencer
+morocc 116 266 Ogleson#moc
+morocc 151 243 Tool Dealer#moc7
+morocc 160 258 Kafra
+morocc 180 259 Merchant#morroc
+morocc 206 250 Item Collector#moc11
+morocc 277 213 Uncle Morroc#moc
+morocc 268 193 Trader#moc14
+morocc 289 230 Citizen#06
+morocc 293 212 Guide#3moc

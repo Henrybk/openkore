@@ -297,7 +297,7 @@ automacro Changed_to_Thief {
 
 automacro EquipThiefStuff {
 	ConfigKey eventMacro_1_99_stage turnthief_after_change
-	IsNotEquippedID rightHand 1104
+	IsNotEquippedID rightHand 1207
 	JobLevel = 1
 	JobID 6
 	exclusive 1
@@ -305,19 +305,20 @@ automacro EquipThiefStuff {
 	call {
 		[
 		call clear_equipauto
-		do conf -f equipAuto_0_rightHand GetNamebyNameID(1104)
+		do conf -f equipAuto_0_rightHand GetNamebyNameID(1207)
 		]
 	}
 }
 
 automacro EquipThiefStuffEnd {
 	ConfigKey eventMacro_1_99_stage turnthief_after_change
-	IsEquippedID rightHand 1104
+	IsEquippedID rightHand 1207
 	JobLevel = 1
 	JobID 6
 	exclusive 1
 	call {
 		[
+		do iconf 1207 1 0 0
 		do iconf 1243 0 0 1
 		do iconf 2112 0 0 1
 		do iconf 5055 0 0 1

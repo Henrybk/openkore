@@ -2783,3 +2783,14 @@ oldnewpayon 38 174 payon_in01 142 45
 
 yuno_fild02 294 24 yuno_fild01 286 368
 yuno_fild01 286 368 yuno_fild02 294 26
+morocc 27 294 moc_ruins 159 39
+moc_ruins 159 39 morocc 30 290
+
+moc_fild06 207 18 moc_fild10 208 295
+moc_fild09 30 162 moc_fild10 381 258
+moc_fild10 189 23 moc_fild11 189 360
+moc_fild10 19 207 morocc 299 207
+moc_fild10 208 298 moc_fild06 207 21
+moc_fild10 384 258 moc_fild09 33 162
+moc_fild11 189 363 moc_fild10 189 26
+

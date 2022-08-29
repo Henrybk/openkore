@@ -391,7 +391,7 @@ automacro SavedAtKafra {
 			do conf -f buyAuto_$nextFreeSlot_minDistance 1
 			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
 			do conf -f buyAuto_$nextFreeSlot_zeny > 2500
-			do conf -f buyAuto_$nextFreeSlot_maxBase 30
+			do conf -f buyAuto_$nextFreeSlot_maxBase 50
 			do conf -f buyAuto_$nextFreeSlot_minBase 1
 			do conf -f buyAuto_$nextFreeSlot_disabled 0
 			do iconf 501 50 1 0
