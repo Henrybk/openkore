@@ -30,8 +30,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 28) {
-	#} elsif ($.lvl <= 32) {
+	} elsif ($.lvl <= 32) {
 		if ($configlockMap != pay_fild01) {
 			# kafra oldnewpayon 98 118
 			# sell oldnewpayon 69 117
@@ -47,7 +46,8 @@ macro baseMacroUp {
 			$changed = 1
 		}
 		
-	} elsif ($.lvl <= 50) {
+	#} elsif ($.lvl <= 50) {
+	} else {
 		if ($configlockMap != lasa_dun01) {
 			# kafra aldebaran 143 119
 			# sell aldeba_in 94 56
