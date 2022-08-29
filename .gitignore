@@ -5,9 +5,6 @@ benchmark-results.txt
 logs
 DUMP.txt
 
-# Plugin files
-/profiles
-
 # Backup files
 *~
 .#*
@@ -55,7 +52,7 @@ tables/iRO/Restart/skillnametable-custom.txt
 # Auto-generated files.
 tables/**/portalsLOS.txt
 tables/pserver/**/portalsLOS.txt
-tables/**/npcs.txt
+tables/**/item_weights.txt
 tables/**/monsters.txt
 *.xpm
 *.weight

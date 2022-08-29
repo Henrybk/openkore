@@ -40,13 +40,13 @@ macro set_class_leveling {
 		do conf -f eventMacro_1_99_stage leveling
 		do conf -f current_event_include Leveling.pm
 		include on Leveling.pm
-		include on Rogue_Equips.pm
+		include on Rogue_Settings.pm
 		
 	} elsif ($configClass = knight) {
 		do conf -f eventMacro_1_99_stage leveling
 		do conf -f current_event_include Leveling.pm
 		include on Leveling.pm
-		include on Knight_Equips.pm
+		include on Knight_Settings.pm
 	}
 	]
 }

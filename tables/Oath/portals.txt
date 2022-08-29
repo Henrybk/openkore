@@ -2774,6 +2774,8 @@ aldebaran 211 172 1@ecl 35 71 0 0 r~/Yes/i
 1@ecl 52 64 lasa_dun01 29 143 0 0 r~/Yes/i
 lasa_dun01 22 143 1@ecl 46 64 0 0 r~/back/i
 
+lasa_dun01 159 98 lasa_dun02 25 171
+
 aldeba_in 94 38 aldebaran 197 68
 aldebaran 139 135 c_tower1 199 159
 payon_in01 145 45 oldnewpayon 38 174
