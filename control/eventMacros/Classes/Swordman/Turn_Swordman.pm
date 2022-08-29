@@ -186,6 +186,8 @@ macro Ajust_to_test {
 	do conf -f lockMap none
 	
 	do conf -f attackAuto -1
+	do conf -f attackCheckLOS 1
+	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
 	do conf -f route_step 1
 	do conf -f portalRecord 0
@@ -208,6 +210,8 @@ macro Ajust_to_move_to_test {
 	do conf -f eventMacro_1_99_stage turnswordman_out
 	do conf -f lockMap none
 	do conf -f attackAuto 0
+	do conf -f attackCheckLOS 1
+	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
 	do conf -f itemsGatherAuto 0
 	do conf -f route_step 15
@@ -260,6 +264,8 @@ macro ended_test {
 	do conf -f eventMacro_1_99_stage turnswordman_after_test
 	do conf -f lockMap none
 	do conf -f attackAuto 0
+	do conf -f attackCheckLOS 1
+	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
 	do conf -f itemsGatherAuto 0
 	do conf -f route_step 15
@@ -364,6 +370,8 @@ automacro EquipSwordmanStuffEnd {
 		do iconf 1058 1 1 0
 		do conf -f useSelf_item_0_hp < 75%
 		do conf -f attackAuto 2
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
         do conf -f itemsGatherAuto 0
         do conf -f itemsTakeAuto 2

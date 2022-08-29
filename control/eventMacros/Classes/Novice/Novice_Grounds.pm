@@ -64,6 +64,8 @@ macro Conf_Stuff {
         do conf -f route_randomWalk 0
         do conf -f statsAddAuto 1
 		do conf -f attackAuto 1
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
 		
         do conf -f autoTalkCont 1
 		
@@ -372,6 +374,8 @@ macro AdjustConfigForGrounds {
 	
 	do conf -f lockMap $.map
 	do conf -f attackAuto 2
+	do conf -f attackCheckLOS 1
+	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1
 	$potName = GetNamebyNameID(569)
 	do conf -f useSelf_item_0 $potName
@@ -398,6 +402,8 @@ automacro Change_to_class_selection {
 	ConfigKey eventMacro_1_99_stage novice_3
 	call {
 		do conf -f attackAuto 0
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 0
 		do conf -f lockMap none
 		
@@ -419,6 +425,8 @@ automacro Change_to_class_selection_bug2 {
 	ConfigKey eventMacro_1_99_stage novice_3
 	call {
 		do conf -f attackAuto 0
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 0
 		do conf -f lockMap none
 		

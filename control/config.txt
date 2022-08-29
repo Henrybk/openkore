@@ -88,8 +88,8 @@ attackMinPortalDistance 4
 attackUseWeapon 1
 attackNoGiveup 0
 attackCanSnipe 0
-attackCheckLOS 0
-attackRouteMaxPathDistance 13
+attackCheckLOS 1
+attackRouteMaxPathDistance 28
 attackLooters 0
 attackChangeTarget 1
 aggressiveAntiKS 0

@@ -19,6 +19,7 @@ macro baseMacroUp {
 	
 	if ($configlockMap == yuno_fild01 && $HPRecoveryWhileMovingLevel == 1) {
 		do conf lockMap none
+		call SetVar
 	}
 	
 	#Leveling

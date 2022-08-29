@@ -2779,3 +2779,5 @@ aldebaran 139 135 c_tower1 199 159
 payon_in01 145 45 oldnewpayon 38 174
 oldnewpayon 38 174 payon_in01 142 45
 
+yuno_fild02 294 24 yuno_fild01 286 368
+yuno_fild01 286 368 yuno_fild02 294 26

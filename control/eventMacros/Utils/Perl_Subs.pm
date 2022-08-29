@@ -28,6 +28,8 @@ macro clear_saveMap_keys {
 
 macro basic_config_leveling_settings {
 	do conf -f attackAuto 2
+	do conf -f attackCheckLOS 1
+	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1
     do conf -f itemsGatherAuto 0
     do conf -f itemsTakeAuto 2
@@ -85,8 +87,8 @@ sub getSkillLevelByHandle {
 	
 	return 0 unless (exists $char->{skills} && $char->{skills});
 	
-	if ($char->{skills}{$handle}) {
-		$level = $char->{skills}{$handle}{lv};
+	if (exists $char->{skills}{$skillhandle}) {
+		$level = $char->{skills}{$skillhandle}{lv};
 	} else {
 		$level = 0;
 	}
