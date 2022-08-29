@@ -5,7 +5,7 @@ macro knight_set_buyauto_equipment {
 	$extraBuyCost = 4000
 	call knight_set_buyauto_rightHand
 	
-	if ($Katana{Equipped} == 1 || $Scimiter{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
+	if ($Katana{Equipped} == 1 || $Slayer{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
 		$hasWeapon = 1
 	} else {
 		$hasWeapon = 0
@@ -21,22 +21,22 @@ macro knight_set_buyauto_equipment {
 
 macro knight_set_buyauto_rightHand {
 	call knight_set_Katana
-	call knight_set_Scimiter
+	call knight_set_Slayer
 	call knight_set_TwoHandedSword
 	[
 	if ($TwoHandedSword{Equipped} == 1) {
 		log TwoHandedSword is {Equipped} DAMNN
 		
-	} elsif ($Scimiter{Equipped} == 1 && $TwoHandedSword{CanEquip} == 0) {
-		log Scimiter is {Equipped} and cannot equip TwoHandedSword DAMNN
+	} elsif ($Slayer{Equipped} == 1 && $TwoHandedSword{CanEquip} == 0) {
+		log Slayer is {Equipped} and cannot equip TwoHandedSword DAMNN
 		
-	} elsif ($Scimiter{Equipped} == 1 && $TwoHandedSword{CanEquip} == 1 && $TwoHandedSword{CanBuy} == 0 && $TwoHandedSword{Has} == 0) {
-		log Scimiter is equipped, can equip TwoHandedSword but cannot buy it DAMNN
+	} elsif ($Slayer{Equipped} == 1 && $TwoHandedSword{CanEquip} == 1 && $TwoHandedSword{CanBuy} == 0 && $TwoHandedSword{Has} == 0) {
+		log Slayer is equipped, can equip TwoHandedSword but cannot buy it DAMNN
 		
-	} elsif ($Katana{Equipped} == 1 && $TwoHandedSword{CanEquip} == 0 && $Scimiter{CanEquip} == 0) {
-		log Katana is {Equipped} and cannot equip TwoHandedSword or Scimiter DAMNN
+	} elsif ($Katana{Equipped} == 1 && $TwoHandedSword{CanEquip} == 0 && $Slayer{CanEquip} == 0) {
+		log Katana is {Equipped} and cannot equip TwoHandedSword or Slayer DAMNN
 		
-	} elsif ($Katana{Equipped} == 1 && ($TwoHandedSword{CanEquip} == 1 || $Scimiter{CanEquip} == 1) && $TwoHandedSword{CanBuy} == 0 && $Scimiter{CanBuy} == 0 && $TwoHandedSword{Has} == 0 && $Scimiter{Has} == 0) {
+	} elsif ($Katana{Equipped} == 1 && ($TwoHandedSword{CanEquip} == 1 || $Slayer{CanEquip} == 1) && $TwoHandedSword{CanBuy} == 0 && $Slayer{CanBuy} == 0 && $TwoHandedSword{Has} == 0 && $Slayer{Has} == 0) {
 		log Katana is equipped, can equip better stuff but not buy it DAMNN
 		
 	} elsif ($Katana{Equipped} == 0 && $Katana{CanBuy} == 0 && $Katana{Has} == 0) {
@@ -44,29 +44,29 @@ macro knight_set_buyauto_rightHand {
 		
 	} elsif ($TwoHandedSword{Equipped} == 0 && $TwoHandedSword{CanEquip} == 1 && $TwoHandedSword{Has} >= 1) {
 		call buyAuto_clear $Katana{id}
-		call buyAuto_clear $Scimiter{id}
+		call buyAuto_clear $Slayer{id}
 		call buyAuto_clear $TwoHandedSword{id}
 		call set_equip $TwoHandedSword{id}
 		
 	} elsif ($TwoHandedSword{Equipped} == 0 && $TwoHandedSword{CanEquip} == 1 && $TwoHandedSword{Has} == 0 && $TwoHandedSword{CanBuy} == 1) {
 		call buyAuto_clear $Katana{id}
-		call buyAuto_clear $Scimiter{id}
+		call buyAuto_clear $Slayer{id}
 		call set_buyAuto $TwoHandedSword{id} $TwoHandedSword{price} $TwoHandedSword{npcMap} $TwoHandedSword{npcX} $TwoHandedSword{npcY}
 		
-	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{Has} == 0) && $Scimiter{Equipped} == 0 && $Scimiter{CanEquip} == 1 && $Scimiter{Has} >= 1) {
+	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{Has} == 0) && $Slayer{Equipped} == 0 && $Slayer{CanEquip} == 1 && $Slayer{Has} >= 1) {
 		call buyAuto_clear $Katana{id}
-		call buyAuto_clear $Scimiter{id}
-		call set_equip $Scimiter{id}
+		call buyAuto_clear $Slayer{id}
+		call set_equip $Slayer{id}
 		
-	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && $Scimiter{Equipped} == 0 && $Scimiter{CanEquip} == 1 && $Scimiter{Has} == 0 && $Scimiter{CanBuy} == 1) {
+	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && $Slayer{Equipped} == 0 && $Slayer{CanEquip} == 1 && $Slayer{Has} == 0 && $Slayer{CanBuy} == 1) {
 		call buyAuto_clear $Katana{id}
-		call set_buyAuto $Scimiter{id} $Scimiter{price} $Scimiter{npcMap} $Scimiter{npcX} $Scimiter{npcY}
+		call set_buyAuto $Slayer{id} $Slayer{price} $Slayer{npcMap} $Slayer{npcX} $Slayer{npcY}
 		
-	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && ($Scimiter{CanEquip} == 0 || $Scimiter{Has} == 0) && $Katana{Equipped} == 0 && $Katana{CanEquip} == 1 && $Katana{Has} >= 1) {
+	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && ($Slayer{CanEquip} == 0 || $Slayer{Has} == 0) && $Katana{Equipped} == 0 && $Katana{CanEquip} == 1 && $Katana{Has} >= 1) {
 		call buyAuto_clear $Katana{id}
 		call set_equip $Katana{id}
 		
-	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && ($Scimiter{CanEquip} == 0 || $Scimiter{CanBuy} == 0) && $Katana{Equipped} == 0 && $Katana{CanEquip} == 1 && $Katana{Has} == 0 && $Katana{CanBuy} == 1) {
+	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && ($Slayer{CanEquip} == 0 || $Slayer{CanBuy} == 0) && $Katana{Equipped} == 0 && $Katana{CanEquip} == 1 && $Katana{Has} == 0 && $Katana{CanBuy} == 1) {
 		call set_buyAuto $Katana{id} $Katana{price} $Katana{npcMap} $Katana{npcX} $Katana{npcY}
 	}
 	]
@@ -97,28 +97,28 @@ macro knight_set_Katana {
 	]
 }
 
-macro knight_set_Scimiter {
+macro knight_set_Slayer {
 	[
-	$item{id} = 1113
+	$item{id} = 1151
 	$item{slot} = rightHand
-	$item{price} = 17000
-	$item{minLevel} = 14
-	$item{npcMap} = prt_in
-	$item{npcX} = 172
-	$item{npcY} = 130
+	$item{price} = 15000
+	$item{minLevel} = 18
+	$item{npcMap} = izlude_in
+	$item{npcX} = 60
+	$item{npcY} = 127
 	call set_item
 	
-	$Scimiter{id} = $item{id}
-	$Scimiter{slot} = $item{slot}
-	$Scimiter{price} = $item{price}
-	$Scimiter{minLevel} = $item{minLevel}
-	$Scimiter{npcMap} = $item{npcMap}
-	$Scimiter{npcX} = $item{npcX}
-	$Scimiter{npcY} = $item{npcY}
-	$Scimiter{Has} = $item{Has}
-	$Scimiter{Equipped} = $item{Equipped}
-	$Scimiter{CanEquip} = $item{CanEquip}
-	$Scimiter{CanBuy} = $item{CanBuy}
+	$Slayer{id} = $item{id}
+	$Slayer{slot} = $item{slot}
+	$Slayer{price} = $item{price}
+	$Slayer{minLevel} = $item{minLevel}
+	$Slayer{npcMap} = $item{npcMap}
+	$Slayer{npcX} = $item{npcX}
+	$Slayer{npcY} = $item{npcY}
+	$Slayer{Has} = $item{Has}
+	$Slayer{Equipped} = $item{Equipped}
+	$Slayer{CanEquip} = $item{CanEquip}
+	$Slayer{CanBuy} = $item{CanBuy}
 	]
 }
 
@@ -130,7 +130,7 @@ macro knight_set_TwoHandedSword {
 	$item{minLevel} = 33
 	$item{npcMap} = izlude_in
 	$item{npcX} = 60
-	$item{npcY} = 127 
+	$item{npcY} = 127
 	call set_item
 	
 	$TwoHandedSword{id} = $item{id}

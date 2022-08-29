@@ -23,9 +23,9 @@ macro baseMacroUp {
 	}
 	
 	call knight_set_Katana
-	call knight_set_Scimiter
+	call knight_set_Slayer
 	call knight_set_TwoHandedSword
-	if ($Katana{Equipped} == 1 || $Scimiter{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
+	if ($Katana{Equipped} == 1 || $Slayer{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
 		$hasWeapon = 1
 	} else {
 		$hasWeapon = 0
