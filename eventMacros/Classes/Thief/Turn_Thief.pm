@@ -146,6 +146,7 @@ macro Ajust_to_kill_mush {
 	do conf -f lockMap $.map
 	
 	do conf -f attackAuto 2
+	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1
@@ -328,8 +329,9 @@ automacro EquipThiefStuffEnd {
 		do iconf 1201 0 0 1
 		do iconf 13040 0 0 1
 		do iconf 2301 0 0 1
-		do conf -f useSelf_item_0_hp < 75%
+		do conf -f useSelf_item_0_hp < 70%
 		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1

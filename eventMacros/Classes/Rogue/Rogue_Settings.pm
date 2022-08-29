@@ -1,7 +1,6 @@
 
 macro baseMacroUp {
 	[
-	
 	call SetVar
 	call set_buyauto_equipment
 	
@@ -17,7 +16,14 @@ macro baseMacroUp {
 	}
 	
 	#Leveling
-	if ($.lvl <= 22) {
+	if ($.lvl <= 20) {
+		if ($configlockMap != prt_fild07) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_fild07
+			$changed = 1
+		}
+	} elsif ($.lvl <= 27) {
 		if ($configlockMap != prt_sewb2) {
 			# kafra prt_fild05 290 224
 			# sell prt_fild05 290 221
@@ -25,7 +31,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 32 || $hasWeapon == 0) {
+	} elsif ($.lvl <= 34 || $hasWeapon == 0) {
 		if ($configlockMap != pay_fild01) {
 			# kafra oldnewpayon 98 118
 			# sell oldnewpayon 69 117
@@ -48,6 +54,11 @@ macro baseMacroUp {
 		call after_lock_change
 	}
 	]
+}
+
+macro rogue_set_skills_stats {
+	do conf -f statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 20 agi, 15 str, 9 vit, 25 agi, 25 dex, 30 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int
+    do conf -f skillsAddAuto_list NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
 }
 
 macro rogue_set_buyauto_equipment {

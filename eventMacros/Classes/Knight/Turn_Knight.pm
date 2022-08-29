@@ -316,6 +316,7 @@ macro adapt_to_test_windsor {
 		do conf -f lockMap $.map
 		
 		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
@@ -337,6 +338,7 @@ macro adapt_to_test_windsor {
 macro out_of_test {
 	[
 	do conf -f attackAuto 2
+	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1
@@ -514,6 +516,7 @@ automacro Got_Out_Of_Sitting_Room {
 	call {
 		[
 		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1

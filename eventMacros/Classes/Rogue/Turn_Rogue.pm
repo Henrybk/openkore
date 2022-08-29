@@ -898,6 +898,7 @@ automacro DiedInMaze {
 	exclusive 1
 	call {
 		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackAuto_party 1
 		do conf -f attackAuto_onlyWhenSafe 0
 		do conf -f attackAuto_followTarget 1
@@ -916,6 +917,7 @@ automacro EndMaze {
 	run-once 1
 	call {
 		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackAuto_party 1
 		do conf -f attackAuto_onlyWhenSafe 0
 		do conf -f attackAuto_followTarget 1

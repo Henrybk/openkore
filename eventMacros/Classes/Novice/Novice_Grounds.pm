@@ -63,7 +63,8 @@ macro Conf_Stuff {
         do conf -f lockMap none
         do conf -f route_randomWalk 0
         do conf -f statsAddAuto 1
-		do conf -f attackAuto 1
+		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		
@@ -374,6 +375,7 @@ macro AdjustConfigForGrounds {
 	
 	do conf -f lockMap $.map
 	do conf -f attackAuto 2
+	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1

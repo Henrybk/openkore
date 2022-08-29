@@ -371,6 +371,7 @@ automacro EquipSwordmanStuffEnd {
 		do iconf 1058 1 1 0
 		do conf -f useSelf_item_0_hp < 75%
 		do conf -f attackAuto 2
+		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1

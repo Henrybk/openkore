@@ -399,7 +399,7 @@ automacro SavedAtKafra {
 			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
 			do conf -f useSelf_item_$nextFreeSlot $name
 			do conf -f useSelf_item_$nextFreeSlot_disabled 0
-			do conf -f useSelf_item_$nextFreeSlot_hp < 70%
+			do conf -f useSelf_item_$nextFreeSlot_hp < 65%
 			
 			# Orange potion
 			$name = GetNamebyNameID(502)
@@ -419,7 +419,7 @@ automacro SavedAtKafra {
 			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
 			do conf -f useSelf_item_$nextFreeSlot $name
 			do conf -f useSelf_item_$nextFreeSlot_disabled 0
-			do conf -f useSelf_item_$nextFreeSlot_hp < 60%
+			do conf -f useSelf_item_$nextFreeSlot_hp < 55%
 			
 			# Concentration potion
 			$name = GetNamebyNameID(645)

@@ -28,6 +28,7 @@ macro clear_saveMap_keys {
 
 macro basic_config_leveling_settings {
 	do conf -f attackAuto 2
+	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1

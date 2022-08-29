@@ -1080,20 +1080,7 @@ moc_prydb1 142 115 moc_prydb1 111 115
 moc_ruins 54 161 moc_pryd01 195 9
 moc_ruins 71 16 moc_fild19 71 170
 monk_test 329 61 job_monk 226 175 0 c c r0 c
-morocc 24 164 moc_fild19 169 107
-morocc 25 294 moc_ruins 159 37
-morocc 46 46 morocc_in 68 75
-morocc 52 259 morocc_in 183 65
-morocc 85 55 morocc_in 44 146
-morocc 98 68 morocc_in 44 178
-morocc 160 17 moc_fild12 159 381
-morocc 160 183 moc_castle 94 183
-morocc 160 297 moc_fild07 198 21
-morocc 197 66 morocc_in 83 90
-morocc 253 56 morocc_in 134 77
-morocc 274 269 morocc_in 136 136
-morocc 284 170 morocc_in 108 179
-moc_ruins 159 37 morocc 25 294
+
 morocc_in 23 161 morocc_in 34 161
 morocc_in 34 161 morocc_in 23 161
 morocc_in 44 146 morocc 85 55
@@ -1129,7 +1116,7 @@ morocc_in 174 109 morocc_in 174 122
 morocc_in 174 122 morocc_in 174 109
 morocc_in 174 151 morocc_in 174 166
 morocc_in 174 166 morocc_in 174 151
-morocc_in 183 65 morocc 52 259
+
 nif_in 88 29 nif_in 34 34
 nif_in 34 34 nif_in 88 29
 nif_in 23 11 niflheim 189 210
@@ -2766,3 +2753,21 @@ moc_ruins 159 39 morocc 30 290
 moc_fild11 379 197 moc_fild15 38 105
 moc_fild15 38 105 moc_fild11 376 197
 moc_fild10 19 207 morocc 299 207
+
+morocc_in 183 65 morocc 52 259
+morocc 24 164 moc_fild19 169 107
+morocc 25 294 moc_ruins 159 37
+morocc 46 46 morocc_in 68 75
+morocc 52 259 morocc_in 183 65
+morocc 85 55 morocc_in 44 146
+morocc 98 68 morocc_in 44 178
+morocc 160 17 moc_fild12 159 381
+
+morocc 160 183 moc_castle 94 183
+
+morocc 160 297 moc_fild07 198 21
+morocc 197 66 morocc_in 83 90
+morocc 253 56 morocc_in 134 77
+morocc 274 269 morocc_in 136 136
+morocc 284 170 morocc_in 108 179
+moc_ruins 159 37 morocc 25 294
