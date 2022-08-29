@@ -7,72 +7,6 @@ automacro leveling_timer {
 	call baseMacroUp
 }
 
-macro baseMacroUp {
-	[
-	log Here we would set lockmap and savemap
-	
-	call SetVar
-	call set_buyauto_equipment
-	
-	$changed = 0
-	$HPRecoveryWhileMovingLevel = getSkillLevelByHandle("SM_MOVINGRECOVERY")
-	
-	if ($configlockMap == yuno_fild01 && $HPRecoveryWhileMovingLevel == 1) {
-		do conf lockMap none
-		call SetVar
-	}
-	
-	call knight_set_Katana
-	call knight_set_Slayer
-	call knight_set_TwoHandedSword
-	if ($Katana{Equipped} == 1 || $Slayer{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
-		$hasWeapon = 1
-	} else {
-		$hasWeapon = 0
-	}
-	
-	#Leveling
-	if ($.lvl <= 22) {
-		if ($configlockMap != prt_sewb2) {
-			# kafra prt_fild05 290 224
-			# sell prt_fild05 290 221
-			call set_lockmap_prt_sewb2
-			$changed = 1
-		}
-	
-	} elsif ($.lvl <= 32 || $hasWeapon == 0) {
-		if ($configlockMap != pay_fild01) {
-			# kafra oldnewpayon 98 118
-			# sell oldnewpayon 69 117
-			call set_lockmap_pay_fild01
-			$changed = 1
-		}
-		
-	} elsif ($.joblvl >= 35 && $HPRecoveryWhileMovingLevel == 0 && $hasWeapon == 1) {
-		if ($configlockMap != yuno_fild01) {
-			# kafra aldebaran 143 119
-			# sell aldeba_in 94 56
-			call set_lockmap_yuno_fild01
-			$changed = 1
-		}
-		
-	#} elsif ($.lvl <= 50 && $hasWeapon == 1) {
-	} elsif ($hasWeapon == 1) {
-		if ($configlockMap != lasa_dun01) {
-			# kafra aldebaran 143 119
-			# sell aldeba_in 94 56
-			call set_lockmap_lasa_dun01
-			$changed = 1
-		}
-		
-	}
-	
-	if ($changed == 1) {
-		call after_lock_change
-	}
-	]
-}
-
 macro set_lockmap_prt_sewb2 {
 	[
 	do conf lockMap prt_sewb2
@@ -110,6 +44,8 @@ macro set_lockmap_yuno_fild01 {
 	do conf lockMap yuno_fild01
 	do iconf 713 50 1 0
 	do iconf 1058 1 1 0
+	
+	do mconf 1369 0 0 0 #Grand Peco
 	
 	do conf -f future_saveMap_map aldebaran
 	do conf -f future_saveMap_x 143

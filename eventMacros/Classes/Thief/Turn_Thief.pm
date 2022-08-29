@@ -24,7 +24,7 @@ automacro talkHanson {
 }
 
 macro TalkHanson {
-	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r1 r1 r0 r0 r0 r1 r1 r0 r0 r0 r1 r0 r1 r1 r1 r2 r2 r2 r0 r2 r2 r0 r1 r0
+	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r1 r0 r0 r0 r1 r1 r0 r0 r0 r1 r0 r1 r1 r1 r2 r2 r2 r0 r2 r2 r0 r1 r0
 }
 
 automacro moved_out_of_novice_grounds {
@@ -43,7 +43,11 @@ automacro moved_out_of_novice_grounds {
 	ConfigKey eventMacro_1_99_stage novice_4
 	priority 1
 	call {
+		include off Move_to_tester.pm
+		
 		do conf -f eventMacro_1_99_stage turnthief_out
+		
+		do reload eventMacros
 	}
 }
 
@@ -292,26 +296,26 @@ automacro Changed_to_Thief {
 }
 
 automacro EquipThiefStuff {
-	exclusive 1
-	JobID 6
-	JobLevel = 1
-	InInventoryID 13041 = 1
 	ConfigKey eventMacro_1_99_stage turnthief_after_change
-	IsNotEquippedID rightHand 13041, armor 2393
+	IsNotEquippedID rightHand 1104
+	JobLevel = 1
+	JobID 6
+	exclusive 1
+	timeout 10
 	call {
-		%toequip = (rightHand => 13041, armor => 2393)
-        call start_equipping
+		[
+		call clear_equipauto
+		do conf -f equipAuto_0_rightHand GetNamebyNameID(1104)
+		]
 	}
 }
 
 automacro EquipThiefStuffEnd {
-	exclusive 1
-	JobID 6
-	JobLevel = 1
-	InInventoryID 13041 = 1
 	ConfigKey eventMacro_1_99_stage turnthief_after_change
-	IsEquippedID rightHand 13041
-	IsEquippedID armor 2393
+	IsEquippedID rightHand 1104
+	JobLevel = 1
+	JobID 6
+	exclusive 1
 	call {
 		[
 		do iconf 1243 0 0 1
@@ -336,8 +340,6 @@ automacro EquipThiefStuffEnd {
 		do conf -f saveMap_warpToBuyOrSell 1
 		
 		include off Turn_Thief.pm
-		include off Brade_Bug.pm
-		include off Move_to_tester.pm
 		
 		call set_class_leveling
 		

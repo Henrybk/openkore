@@ -62,3 +62,51 @@ macro set_buyauto_equipment {
 	}
 	]
 }
+
+macro set_item {
+	[
+	$item{Has} = &invamount($item{id})
+	$item{Equipped} = isEquippedInSlotNameID("$item{slot}", "$item{id}")
+	if ($.lvl >= $item{minLevel}) {
+		$item{CanEquip} = 1
+	} else {
+		$item{CanEquip} = 0
+	}
+	$totalcost = &eval($item{price} + $extraBuyCost)
+	if ($currentZeny >= $totalcost) {
+		$item{CanBuy} = 1
+	} else {
+		$item{CanBuy} = 0
+	}
+	]
+}
+
+macro set_buyAuto {
+	[
+	$name = GetNamebyNameID("$.param[0]")
+	log Setting buyAuto $name
+	$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+	set_common_equip_buyAuto("$nextFreeSlot","$name","$.param[1]","$.param[2]","$.param[3]","$.param[4]")
+	$totalcost = &eval($.param[1] + $extraBuyCost)
+	$currentZeny = &eval($currentZeny - $totalcost)
+	do iconf $.param[0] 1 0 0
+	]
+}
+
+macro set_equip {
+	[
+	$name = GetNamebyNameID("$.param[0]")
+	log Setting equipauto $name
+	do iconf $.param[0] 1 0 0
+	do conf -f equipAuto_0_$.param[1] $name
+	]
+}
+
+macro buyAuto_clear {
+	[
+	$name = GetNamebyNameID("$.param[0]")
+	log Clearing buyAuto $name
+	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
+	do conf -f buyAuto_$foundSlot none
+	]
+}

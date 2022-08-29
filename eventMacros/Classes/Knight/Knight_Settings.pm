@@ -1,4 +1,69 @@
 
+macro baseMacroUp {
+	[
+	
+	call SetVar
+	call set_buyauto_equipment
+	
+	$changed = 0
+	$HPRecoveryWhileMovingLevel = getSkillLevelByHandle("SM_MOVINGRECOVERY")
+	
+	if ($configlockMap == yuno_fild01 && $HPRecoveryWhileMovingLevel == 1) {
+		do conf lockMap none
+		call SetVar
+	}
+	
+	call knight_set_Katana
+	call knight_set_Slayer
+	call knight_set_TwoHandedSword
+	if ($Katana{Equipped} == 1 || $Slayer{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
+		$hasWeapon = 1
+	} else {
+		$hasWeapon = 0
+	}
+	
+	#Leveling
+	if ($.lvl <= 22) {
+		if ($configlockMap != prt_sewb2) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_sewb2
+			$changed = 1
+		}
+	
+	} elsif ($.lvl <= 32 || $hasWeapon == 0) {
+		if ($configlockMap != pay_fild01) {
+			# kafra oldnewpayon 98 118
+			# sell oldnewpayon 69 117
+			call set_lockmap_pay_fild01
+			$changed = 1
+		}
+		
+	} elsif ($.joblvl >= 25 && $.lvl >= 40 && $HPRecoveryWhileMovingLevel == 0 && $hasWeapon == 1) {
+		if ($configlockMap != yuno_fild01) {
+			# kafra aldebaran 143 119
+			# sell aldeba_in 94 56
+			call set_lockmap_yuno_fild01
+			$changed = 1
+		}
+		
+	#} elsif ($.lvl <= 50 && $hasWeapon == 1) {
+	} elsif ($hasWeapon == 1) {
+		if ($configlockMap != lasa_dun01) {
+			# kafra aldebaran 143 119
+			# sell aldeba_in 94 56
+			call set_lockmap_lasa_dun01
+			$changed = 1
+		}
+		
+	}
+	
+	if ($changed == 1) {
+		call after_lock_change
+	}
+	]
+}
+
 macro knight_set_buyauto_equipment {
 	[
 	$currentZeny = $.zeny
@@ -46,7 +111,7 @@ macro knight_set_buyauto_rightHand {
 		call buyAuto_clear $Katana{id}
 		call buyAuto_clear $Slayer{id}
 		call buyAuto_clear $TwoHandedSword{id}
-		call set_equip $TwoHandedSword{id}
+		call set_equip $TwoHandedSword{id} $TwoHandedSword{slot}
 		
 	} elsif ($TwoHandedSword{Equipped} == 0 && $TwoHandedSword{CanEquip} == 1 && $TwoHandedSword{Has} == 0 && $TwoHandedSword{CanBuy} == 1) {
 		call buyAuto_clear $Katana{id}
@@ -56,7 +121,7 @@ macro knight_set_buyauto_rightHand {
 	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{Has} == 0) && $Slayer{Equipped} == 0 && $Slayer{CanEquip} == 1 && $Slayer{Has} >= 1) {
 		call buyAuto_clear $Katana{id}
 		call buyAuto_clear $Slayer{id}
-		call set_equip $Slayer{id}
+		call set_equip $Slayer{id} $Slayer{slot}
 		
 	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && $Slayer{Equipped} == 0 && $Slayer{CanEquip} == 1 && $Slayer{Has} == 0 && $Slayer{CanBuy} == 1) {
 		call buyAuto_clear $Katana{id}
@@ -64,7 +129,7 @@ macro knight_set_buyauto_rightHand {
 		
 	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && ($Slayer{CanEquip} == 0 || $Slayer{Has} == 0) && $Katana{Equipped} == 0 && $Katana{CanEquip} == 1 && $Katana{Has} >= 1) {
 		call buyAuto_clear $Katana{id}
-		call set_equip $Katana{id}
+		call set_equip $Katana{id} $Katana{slot}
 		
 	} elsif (($TwoHandedSword{CanEquip} == 0 || $TwoHandedSword{CanBuy} == 0) && ($Slayer{CanEquip} == 0 || $Slayer{CanBuy} == 0) && $Katana{Equipped} == 0 && $Katana{CanEquip} == 1 && $Katana{Has} == 0 && $Katana{CanBuy} == 1) {
 		call set_buyAuto $Katana{id} $Katana{price} $Katana{npcMap} $Katana{npcX} $Katana{npcY}
@@ -174,7 +239,7 @@ macro knight_set_buyauto_armor {
 		call buyAuto_clear $AdventureSuit{id}
 		call buyAuto_clear $PaddedArmor{id}
 		call buyAuto_clear $PlateArmor{id}
-		call set_equip $PlateArmor{id}
+		call set_equip $PlateArmor{id} $PlateArmor{slot}
 		
 	} elsif ($PlateArmor{Equipped} == 0 && $PlateArmor{CanEquip} == 1 && $PlateArmor{Has} == 0 && $PlateArmor{CanBuy} == 1) {
 		call buyAuto_clear $AdventureSuit{id}
@@ -184,7 +249,7 @@ macro knight_set_buyauto_armor {
 	} elsif (($PlateArmor{CanEquip} == 0 || $PlateArmor{Has} == 0) && $PaddedArmor{Equipped} == 0 && $PaddedArmor{CanEquip} == 1 && $PaddedArmor{Has} >= 1) {
 		call buyAuto_clear $AdventureSuit{id}
 		call buyAuto_clear $PaddedArmor{id}
-		call set_equip $PaddedArmor{id}
+		call set_equip $PaddedArmor{id} $PaddedArmor{slot}
 		
 	} elsif (($PlateArmor{CanEquip} == 0 || $PlateArmor{CanBuy} == 0) && $PaddedArmor{Equipped} == 0 && $PaddedArmor{CanEquip} == 1 && $PaddedArmor{Has} == 0 && $PaddedArmor{CanBuy} == 1) {
 		call buyAuto_clear $AdventureSuit{id}
@@ -192,7 +257,7 @@ macro knight_set_buyauto_armor {
 		
 	} elsif (($PlateArmor{CanEquip} == 0 || $PlateArmor{CanBuy} == 0) && ($PaddedArmor{CanEquip} == 0 || $PaddedArmor{Has} == 0) && $AdventureSuit{Equipped} == 0 && $AdventureSuit{CanEquip} == 1 && $AdventureSuit{Has} >= 1) {
 		call buyAuto_clear $AdventureSuit{id}
-		call set_equip $AdventureSuit{id}
+		call set_equip $AdventureSuit{id} $AdventureSuit{slot}
 		
 	} elsif (($PlateArmor{CanEquip} == 0 || $PlateArmor{CanBuy} == 0) && ($PaddedArmor{CanEquip} == 0 || $PaddedArmor{CanBuy} == 0) && $AdventureSuit{Equipped} == 0 && $AdventureSuit{CanEquip} == 1 && $AdventureSuit{Has} == 0 && $AdventureSuit{CanBuy} == 1) {
 		call set_buyAuto $AdventureSuit{id} $AdventureSuit{price} $AdventureSuit{npcMap} $AdventureSuit{npcX} $AdventureSuit{npcY}
@@ -302,7 +367,7 @@ macro knight_set_buyauto_shoes {
 		call buyAuto_clear $Sandals{id}
 		call buyAuto_clear $Shoes{id}
 		call buyAuto_clear $Boots{id}
-		call set_equip $Boots{id}
+		call set_equip $Boots{id} $Boots{slot}
 		
 	} elsif ($Boots{Equipped} == 0 && $Boots{CanEquip} == 1 && $Boots{Has} == 0 && $Boots{CanBuy} == 1) {
 		call buyAuto_clear $Sandals{id}
@@ -312,7 +377,7 @@ macro knight_set_buyauto_shoes {
 	} elsif (($Boots{CanEquip} == 0 || $Boots{Has} == 0) && $Shoes{Equipped} == 0 && $Shoes{CanEquip} == 1 && $Shoes{Has} >= 1) {
 		call buyAuto_clear $Sandals{id}
 		call buyAuto_clear $Shoes{id}
-		call set_equip $Shoes{id}
+		call set_equip $Shoes{id} $Shoes{slot}
 		
 	} elsif (($Boots{CanEquip} == 0 || $Boots{CanBuy} == 0) && $Shoes{Equipped} == 0 && $Shoes{CanEquip} == 1 && $Shoes{Has} == 0 && $Shoes{CanBuy} == 1) {
 		call buyAuto_clear $Sandals{id}
@@ -320,7 +385,7 @@ macro knight_set_buyauto_shoes {
 		
 	} elsif (($Boots{CanEquip} == 0 || $Boots{CanBuy} == 0) && ($Shoes{CanEquip} == 0 || $Shoes{Has} == 0) && $Sandals{Equipped} == 0 && $Sandals{CanEquip} == 1 && $Sandals{Has} >= 1) {
 		call buyAuto_clear $Sandals{id}
-		call set_equip $Sandals{id}
+		call set_equip $Sandals{id} $Sandals{slot}
 		
 	} elsif (($Boots{CanEquip} == 0 || $Boots{CanBuy} == 0) && ($Shoes{CanEquip} == 0 || $Shoes{CanBuy} == 0) && $Sandals{Equipped} == 0 && $Sandals{CanEquip} == 1 && $Sandals{Has} == 0 && $Sandals{CanBuy} == 1) {
 		call set_buyAuto $Sandals{id} $Sandals{price} $Sandals{npcMap} $Sandals{npcX} $Sandals{npcY}
@@ -430,7 +495,7 @@ macro knight_set_buyauto_topHead {
 		call buyAuto_clear $Hat{id}
 		call buyAuto_clear $Cap{id}
 		call buyAuto_clear $Helm{id}
-		call set_equip $Helm{id}
+		call set_equip $Helm{id} $Helm{slot}
 		
 	} elsif ($Helm{Equipped} == 0 && $Helm{CanEquip} == 1 && $Helm{Has} == 0 && $Helm{CanBuy} == 1) {
 		call buyAuto_clear $Hat{id}
@@ -440,7 +505,7 @@ macro knight_set_buyauto_topHead {
 	} elsif (($Helm{CanEquip} == 0 || $Helm{Has} == 0) && $Cap{Equipped} == 0 && $Cap{CanEquip} == 1 && $Cap{Has} >= 1) {
 		call buyAuto_clear $Hat{id}
 		call buyAuto_clear $Cap{id}
-		call set_equip $Cap{id}
+		call set_equip $Cap{id} $Cap{slot}
 		
 	} elsif (($Helm{CanEquip} == 0 || $Helm{CanBuy} == 0) && $Cap{Equipped} == 0 && $Cap{CanEquip} == 1 && $Cap{Has} == 0 && $Cap{CanBuy} == 1) {
 		call buyAuto_clear $Hat{id}
@@ -448,7 +513,7 @@ macro knight_set_buyauto_topHead {
 		
 	} elsif (($Helm{CanEquip} == 0 || $Helm{CanBuy} == 0) && ($Cap{CanEquip} == 0 || $Cap{Has} == 0) && $Hat{Equipped} == 0 && $Hat{CanEquip} == 1 && $Hat{Has} >= 1) {
 		call buyAuto_clear $Hat{id}
-		call set_equip $Hat{id}
+		call set_equip $Hat{id} $Hat{slot}
 		
 	} elsif (($Helm{CanEquip} == 0 || $Helm{CanBuy} == 0) && ($Cap{CanEquip} == 0 || $Cap{CanBuy} == 0) && $Hat{Equipped} == 0 && $Hat{CanEquip} == 1 && $Hat{Has} == 0 && $Hat{CanBuy} == 1) {
 		call set_buyAuto $Hat{id} $Hat{price} $Hat{npcMap} $Hat{npcX} $Hat{npcY}
@@ -558,7 +623,7 @@ macro knight_set_buyauto_robe {
 		call buyAuto_clear $Hood{id}
 		call buyAuto_clear $Muffler{id}
 		call buyAuto_clear $Manteau{id}
-		call set_equip $Manteau{id}
+		call set_equip $Manteau{id} $Manteau{slot}
 		
 	} elsif ($Manteau{Equipped} == 0 && $Manteau{CanEquip} == 1 && $Manteau{Has} == 0 && $Manteau{CanBuy} == 1) {
 		call buyAuto_clear $Hood{id}
@@ -568,7 +633,7 @@ macro knight_set_buyauto_robe {
 	} elsif (($Manteau{CanEquip} == 0 || $Manteau{Has} == 0) && $Muffler{Equipped} == 0 && $Muffler{CanEquip} == 1 && $Muffler{Has} >= 1) {
 		call buyAuto_clear $Hood{id}
 		call buyAuto_clear $Muffler{id}
-		call set_equip $Muffler{id}
+		call set_equip $Muffler{id} $Muffler{slot}
 		
 	} elsif (($Manteau{CanEquip} == 0 || $Manteau{CanBuy} == 0) && $Muffler{Equipped} == 0 && $Muffler{CanEquip} == 1 && $Muffler{Has} == 0 && $Muffler{CanBuy} == 1) {
 		call buyAuto_clear $Hood{id}
@@ -576,7 +641,7 @@ macro knight_set_buyauto_robe {
 		
 	} elsif (($Manteau{CanEquip} == 0 || $Manteau{CanBuy} == 0) && ($Muffler{CanEquip} == 0 || $Muffler{Has} == 0) && $Hood{Equipped} == 0 && $Hood{CanEquip} == 1 && $Hood{Has} >= 1) {
 		call buyAuto_clear $Hood{id}
-		call set_equip $Hood{id}
+		call set_equip $Hood{id} $Hood{slot}
 		
 	} elsif (($Manteau{CanEquip} == 0 || $Manteau{CanBuy} == 0) && ($Muffler{CanEquip} == 0 || $Muffler{CanBuy} == 0) && $Hood{Equipped} == 0 && $Hood{CanEquip} == 1 && $Hood{Has} == 0 && $Hood{CanBuy} == 1) {
 		call set_buyAuto $Hood{id} $Hood{price} $Hood{npcMap} $Hood{npcX} $Hood{npcY}
@@ -659,59 +724,10 @@ macro knight_set_Manteau {
 	]
 }
 
-macro set_item {
-	[
-	$item{Has} = &invamount($item{id})
-	$item{Equipped} = isEquippedInSlotNameID("$item{slot}", "$item{id}")
-	if ($.lvl >= $item{minLevel}) {
-		$item{CanEquip} = 1
-	} else {
-		$item{CanEquip} = 0
-	}
-	$totalcost = &eval($item{price} + $extraBuyCost)
-	if ($currentZeny >= $totalcost) {
-		$item{CanBuy} = 1
-	} else {
-		$item{CanBuy} = 0
-	}
-	]
-}
-
-macro set_buyAuto {
-	[
-	$name = GetNamebyNameID("$.param[0]")
-	log Setting buyAuto $name
-	$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
-	set_common_equip_buyAuto("$nextFreeSlot","$name","$.param[1]","$.param[2]","$.param[3]","$.param[4]")
-	$totalcost = &eval($.param[1] + $extraBuyCost)
-	$currentZeny = &eval($currentZeny - $totalcost)
-	do iconf $.param[0] 1 0 0
-	]
-}
-macro set_equip {
-	[
-	$name = GetNamebyNameID("$.param[0]")
-	log Setting equipauto $name
-	do iconf $.param[0] 1 0 0
-	do conf -f equipAuto_0_rightHand $name
-	]
-}
-
-macro buyAuto_clear {
-	[
-	$name = GetNamebyNameID("$.param[0]")
-	log Clearing buyAuto $name
-	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
-	do conf -f buyAuto_$foundSlot none
-	]
-}
-
 automacro Go_Job_Change {
 	ConfigKey eventMacro_1_99_stage leveling
 	ConfigKeyNotExist doing_knight_job_change
 	SkillLevel SM_MOVINGRECOVERY = 1
-	IsEquippedID rightHand 1157
-    InInventoryID 1157 > 0
 	JobLevel = 50
     exclusive 1
 	priority 0
@@ -832,7 +848,7 @@ automacro need_to_do_SM_MOVINGRECOVERY_Quest {
 	SkillLevel SM_MOVINGRECOVERY = 0
     InInventoryID 713 >= 50
     InInventoryID 1058 >= 1
-	JobLevel >= 35
+	JobLevel >= 25
 	JobID 1
     call {
 		do conf -f SM_MOVINGRECOVERY_Quest_before &config(eventMacro_1_99_stage)
