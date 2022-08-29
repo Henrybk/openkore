@@ -5,8 +5,8 @@
 
 master OathRO
 server 0
-username henrybk
-password Pi=3141592
+username 
+password 
 loginPinCode
 char 
 ##### Plugins Start
