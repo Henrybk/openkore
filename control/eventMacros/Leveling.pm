@@ -22,6 +22,15 @@ macro baseMacroUp {
 		call SetVar
 	}
 	
+	call knight_set_Katana
+	call knight_set_Scimiter
+	call knight_set_TwoHandedSword
+	if ($Katana{Equipped} == 1 || $Scimiter{Equipped} == 1 || $TwoHandedSword{Equipped} == 1) {
+		$hasWeapon = 1
+	} else {
+		$hasWeapon = 0
+	}
+	
 	#Leveling
 	if ($.lvl <= 22) {
 		if ($configlockMap != prt_sewb2) {
@@ -31,7 +40,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 32) {
+	} elsif ($.lvl <= 32 || $hasWeapon == 0) {
 		if ($configlockMap != pay_fild01) {
 			# kafra oldnewpayon 98 118
 			# sell oldnewpayon 69 117
@@ -39,7 +48,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 		
-	} elsif ($.joblvl >= 35 && $HPRecoveryWhileMovingLevel == 0) {
+	} elsif ($.joblvl >= 35 && $HPRecoveryWhileMovingLevel == 0 && $hasWeapon == 1) {
 		if ($configlockMap != yuno_fild01) {
 			# kafra aldebaran 143 119
 			# sell aldeba_in 94 56
@@ -47,8 +56,8 @@ macro baseMacroUp {
 			$changed = 1
 		}
 		
-	#} elsif ($.lvl <= 50) {
-	} else {
+	#} elsif ($.lvl <= 50 && $hasWeapon == 1) {
+	} elsif ($hasWeapon == 1) {
 		if ($configlockMap != lasa_dun01) {
 			# kafra aldebaran 143 119
 			# sell aldeba_in 94 56

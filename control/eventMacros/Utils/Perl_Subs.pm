@@ -44,6 +44,25 @@ macro SetVar {
 	$joinedSewb = &config(Joined_Sewb)
 }
 
+sub set_common_equip_buyAuto {
+	my $Slot = shift;
+	my $name = shift;
+	my $price = shift;
+	my $place = shift;
+	my $x = shift;
+	my $y = shift;
+	
+	configModify('buyAuto_'.$Slot, $name);
+	configModify('buyAuto_'.$Slot.'_npc', $place.' '.$x.' '.$y);
+	configModify('buyAuto_'.$Slot.'_zeny', '> '.$price);
+	configModify('buyAuto_'.$Slot.'_minAmount', 0);
+	configModify('buyAuto_'.$Slot.'_maxAmount', 1);
+	configModify('buyAuto_'.$Slot.'_minDistance', 1);
+	configModify('buyAuto_'.$Slot.'_maxDistance', 10);
+	
+	return 1;
+}
+
 sub GetEquippedInSlotName {
 	my $slot = shift;
 	
