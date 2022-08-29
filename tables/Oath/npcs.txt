@@ -208,3 +208,15 @@ morocc 277 213 Uncle Morroc#moc
 morocc 268 193 Trader#moc14
 morocc 289 230 Citizen#06
 morocc 293 212 Guide#3moc
+morocc 152 35 Guide#5moc
+morocc 145 44 Jeweler#moc5
+morocc 166 51 Gemstones#moc9
+morocc 201 30 Zaka#cmd
+morocc 208 85 Towner#2moc
+morocc 244 134 Trader#moc12
+morocc 269 167 Pet Groomer#moc15
+morocc 156 97 Kafra Employee
+morocc 160 97 Guide#4moc
+morocc 170 101 Item Collector#moc10
+morocc 152 110 Bulletin Board#11
+morocc 167 110 Communication Node#1i

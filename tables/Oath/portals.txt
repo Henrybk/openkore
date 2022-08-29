@@ -86,29 +86,6 @@ anthell02 171 170 cmd_fild08 344 82
 cmd_fild08 335 355 anthell01 35 263
 cmd_fild08 348 82 anthell02 171 170
 
-# Morroc area (Episode 12)
-moc_fild01 84 19 moc_fild20 209 333
-moc_fild07 380 202 moc_fild20 36 177
-moc_fild11 189 360 moc_fild20 197 24
-moc_fild11 377 197 moc_fild20 36 177
-moc_fild13 32 171 moc_fild20 349 179
-moc_fild16 124 381 moc_fild20 197 24
-moc_fild16 333 380 moc_fild20 197 24
-moc_fild20 38 174 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 38 183 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 189 21 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 200 21 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 354 183 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 354 174 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 203 336 moc_fild01 86 32 0 c r1 c c c c r2
-moc_fild20 215 336 moc_fild01 86 32 0 c r1 c c c c r2
-moc_fild20 203 336 morocc 160 61 0 c r1 c c c c r1 c c r1
-moc_fild20 215 336 morocc 160 61 0 c r1 c c c c r1 c c r1
-morocc 299 207 moc_fild20 36 177
-prt_fild09 95 19 moc_fild20 209 333
-prt_fild09 246 17 moc_fild20 209 333
-prt_fild10 263 23 moc_fild20 209 333
-
 # Dimensional Gorge (Episode 12)
 # moc_fild20 -> moc_fild21 npcs are only available with the quest and a party with at least two members online
 moc_fild20 38 174 moc_fild21 38 193 0 c r1 c c c
@@ -1102,7 +1079,6 @@ moc_prydb1 111 115 moc_prydb1 142 115
 moc_prydb1 142 115 moc_prydb1 111 115
 moc_ruins 54 161 moc_pryd01 195 9
 moc_ruins 71 16 moc_fild19 71 170
-moc_ruins 159 37 morocc 25 294
 monk_test 329 61 job_monk 226 175 0 c c r0 c
 morocc 24 164 moc_fild19 169 107
 morocc 25 294 moc_ruins 159 37
@@ -1117,6 +1093,7 @@ morocc 197 66 morocc_in 83 90
 morocc 253 56 morocc_in 134 77
 morocc 274 269 morocc_in 136 136
 morocc 284 170 morocc_in 108 179
+moc_ruins 159 37 morocc 25 294
 morocc_in 23 161 morocc_in 34 161
 morocc_in 34 161 morocc_in 23 161
 morocc_in 44 146 morocc 85 55
@@ -2628,13 +2605,13 @@ izlude 134 87 aldebaran 168 112 2000 1 c r~/teleport/i c r~/baran/i
 
 # Kafra alberta 1
 alberta 113 60 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
-alberta 113 60 morocc 156 47 1800 c r~/teleport/i c r~/mor/i
-alberta 113 60 prontera 116 72 1800 c r~/teleport/i c r~/prontera/i
+alberta 113 60 morocc 156 47 1800 1 c r~/teleport/i c r~/mor/i
+alberta 113 60 prontera 116 72 1800 1 c r~/teleport/i c r~/prontera/i
 
 # Kafra alberta 2
-alberta 28 229 oldnewpayon 98 118 1200 c r~/teleport/i c r0
-alberta 28 229 morocc 156 47 1800 c r~/teleport/i c r~/mor/i
-alberta 28 229 prontera 116 72 1800 c r~/teleport/i c r~/prontera/i
+alberta 28 229 oldnewpayon 98 118 1200 1 c r~/teleport/i c r0
+alberta 28 229 morocc 156 47 1800 1 c r~/teleport/i c r~/mor/i
+alberta 28 229 prontera 116 72 1800 1 c r~/teleport/i c r~/prontera/i
 
 # Kafra prontera 1
 prontera 146 89 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
@@ -2673,20 +2650,20 @@ prontera 29 207 gef_fild10 52 326 1200 1 c r~/teleport/i c r~/Orc/i
 prontera 29 207 alberta 117 56 2000 1 c r~/teleport/i c r~/alberta/i
 
 # Kafra morocc 1
-morocc 156 97 oldnewpayon 98 118 1200 c r~/teleport/i c r~/payon/i
-morocc 156 97 prontera 116 72 1200 c r~/teleport/i c r~/prontera/i
-morocc 156 97 alberta 117 56 1800 c r~/teleport/i c r~/alberta/i
-morocc 156 97 comodo 209 143 1800 c r~/teleport/i c r~/^Comodo$/
-morocc 156 97 geffen 120 39 2300 c r~/teleport/i c r~/geffen/i
-morocc 156 97 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
+morocc 156 97 oldnewpayon 98 118 1200 1 c r~/teleport/i c r~/payon/i
+morocc 156 97 prontera 116 72 1200 1 c r~/teleport/i c r~/prontera/i
+morocc 156 97 alberta 117 56 1800 1 c r~/teleport/i c r~/alberta/i
+morocc 156 97 comodo 209 143 1800 1 c r~/teleport/i c r~/^Comodo$/
+morocc 156 97 geffen 120 39 2300 1 c r~/teleport/i c r~/geffen/i
+morocc 156 97 cmd_fild07 127 134 1200 1 c r~/teleport/i c r~/Pharos/Faro/i
 
 # Kafra morocc 2
-morocc 156 97 oldnewpayon 98 118 1200 c r~/teleport/i c r~/payon/i
-morocc 156 97 prontera 116 72 1200 c r~/teleport/i c r~/prontera/i
-morocc 156 97 alberta 117 56 1800 c r~/teleport/i c r~/alberta/i
-morocc 156 97 comodo 209 143 1800 c r~/teleport/i c r~/^Comodo$/
-morocc 156 97 geffen 120 39 2300 c r~/teleport/i c r~/geffen/i
-morocc 156 97 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
+morocc 160 258 oldnewpayon 98 118 1200 1 c r~/teleport/i c r~/payon/i
+morocc 160 258 prontera 116 72 1200 1 c r~/teleport/i c r~/prontera/i
+morocc 160 258 alberta 117 56 1800 1 c r~/teleport/i c r~/alberta/i
+morocc 160 258 comodo 209 143 1800 1 c r~/teleport/i c r~/^Comodo$/
+morocc 160 258 geffen 120 39 2300 1 c r~/teleport/i c r~/geffen/i
+morocc 160 258 cmd_fild07 127 134 1200 1 c r~/teleport/i c r~/Pharos/Faro/i
 
 # Kafra geffen 1
 geffen 110 65 oldnewpayon 98 118 2000 1 c r~/teleport/i c r~/payon/i
@@ -2714,7 +2691,7 @@ oldnewpayon 98 118 geffen 120 39 1800 1 c r~/teleport/i c r~/geffen/i
 # Kafra aldebaran 1
 aldebaran 143 119 oldnewpayon 98 118 0 1 c r~/teleport/i c r~/payon/i
 aldebaran 143 119 geffen 120 39 1800 1 c r~/teleport/i c r~/geffen/i
-aldebaran 143 119 yuno 158 125 1200 c r~/teleport/i c r~/Juno/i
+aldebaran 143 119 yuno 158 125 1200 1 c r~/teleport/i c r~/Juno/i
 aldebaran 143 119 prontera 116 72 600 1 c r~/teleport/i c r~/prontera/i
 aldebaran 143 119 izlude 94 103 2000 1 c r~/teleport/i c r~/izlude/i
 aldebaran 143 119 mjolnir_02 99 351 1700 1 c r~/teleport/i c r~/Mjolnir/i
@@ -2725,14 +2702,14 @@ yuno 152 187 aldebaran 168 112 1200 1 c r~/teleport/i c r~/baran/i
 yuno 152 187 prontera 116 72 2400 1 c r~/teleport/i c r~/prontera/i
 
 # Kafra comodo 1
-comodo 195 150 oldnewpayon 98 118 1400 c r~/teleport/i c r~/payon/i
+comodo 195 150 oldnewpayon 98 118 1400 1 c r~/teleport/i c r~/payon/i
 comodo 195 150 morocc 156 47 1800 1 c c r~/teleport/i c r~/mor/i
-comodo 195 150 cmd_fild07 127 134 1200 c r~/teleport/i c r~/Pharos/Faro/i
+comodo 195 150 cmd_fild07 127 134 1200 1 c r~/teleport/i c r~/Pharos/Faro/i
 
 # Kafra Pharos 1
-cmd_fild07 136 134 oldnewpayon 98 118 1400 c r~/teleport/i c r~/payon/i
-cmd_fild07 136 134 comodo 209 143 1200 c c r~/teleport/i c r~/^Comodo$/
-cmd_fild07 136 134 morocc 156 47 1200 c c r~/teleport/i c c r~/mor/i
+cmd_fild07 136 134 oldnewpayon 98 118 1400 1 c r~/teleport/i c r~/payon/i
+cmd_fild07 136 134 comodo 209 143 1200 1 c c r~/teleport/i c r~/^Comodo$/
+cmd_fild07 136 134 morocc 156 47 1200 1 c c r~/teleport/i c c r~/mor/i
 
 
 job_sword1 7 245 izlude_in 43 169
@@ -2786,11 +2763,6 @@ yuno_fild01 286 368 yuno_fild02 294 26
 morocc 27 294 moc_ruins 159 39
 moc_ruins 159 39 morocc 30 290
 
-moc_fild06 207 18 moc_fild10 208 295
-moc_fild09 30 162 moc_fild10 381 258
-moc_fild10 189 23 moc_fild11 189 360
+moc_fild11 379 197 moc_fild15 38 105
+moc_fild15 38 105 moc_fild11 376 197
 moc_fild10 19 207 morocc 299 207
-moc_fild10 208 298 moc_fild06 207 21
-moc_fild10 384 258 moc_fild09 33 162
-moc_fild11 189 363 moc_fild10 189 26
-
