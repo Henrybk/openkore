@@ -179,7 +179,6 @@ Dagger 0 0 1 # 1215
 "Dagger [3]" 0 0 1 # 1214
 "Damascus [1]" 0 0 1 # 1222
 Dirk 0 0 1 # 1212
-"Dirk [2]" 0 0 1 # 1210
 "Dirk [3]" 0 0 1 # 1211
 Falchion 0 0 1 # 1106
 "Falchion [3]" 0 0 1 # 1104
@@ -1765,8 +1764,6 @@ Spearman Scroll 10 0 0 0
 645 5 1 0 #Concentration Potion
 656 5 1 0 #Awakening Potion
 
-1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
-"Dirk [2]" 1 0 0
 
 ## test
+1210 1 0 0 #Dirk [2]
