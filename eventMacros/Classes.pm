@@ -49,7 +49,7 @@ macro set_class_stats_and_skills {
 
 macro rogue_set_skills_stats {
 	[
-	do conf -f statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 20 agi, 15 str, 9 vit, 25 agi, 25 dex, 30 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int
+	do conf -f statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int
     do conf -f skillsAddAuto_list NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
 	]
 }
@@ -75,7 +75,7 @@ macro set_buyauto_equipment {
 
 macro set_item {
 	[
-	$item{Has} = &invamount($item{id})
+	$item{Has} = hasIdentifiedItem("$item{id}")
 	$item{Equipped} = isEquippedInSlotNameID("$item{slot}", "$item{id}")
 	if ($.lvl >= $item{minLevel}) {
 		$item{CanEquip} = 1

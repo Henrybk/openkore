@@ -118,6 +118,19 @@ sub getSkillLevelByHandle {
 	return $level;
 }
 
+sub hasIdentifiedItem {
+	my $itemID = shift;
+	
+	return 0 unless ($char->inventory->isReady);
+	
+	foreach my $item (@{$char->inventory->getItems}) {
+		next unless ($item->{nameID} == $itemID);
+		next unless ($item->{identified});
+		return 1;
+	}
+	return 0;
+}
+
 sub GetNamebyNameID {
 	my $itemID = shift;
 

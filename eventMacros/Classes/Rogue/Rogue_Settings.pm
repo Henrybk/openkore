@@ -40,7 +40,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 34 || $hasWeapon == 0) {
+	} elsif ($.lvl <= 38 || $hasWeapon == 0) {
 		if ($configlockMap != pay_fild01) {
 			# kafra oldnewpayon 98 118
 			# sell oldnewpayon 69 117
