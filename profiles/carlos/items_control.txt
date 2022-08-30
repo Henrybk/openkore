@@ -1764,13 +1764,9 @@ Spearman Scroll 10 0 0 0
 1207 1 0 0 #Main Gauche [3]
 645 5 1 0 #Concentration Potion
 656 5 1 0 #Awakening Potion
+
 1210 1 0 0 #Dirk [2]
 1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
-1210 1 0 0 #Dirk [2]
+"Dirk [2]" 1 0 0
 
 ## test
