@@ -60,6 +60,26 @@ sub set_common_equip_buyAuto {
 	configModify('buyAuto_'.$Slot.'_maxAmount', 1);
 	configModify('buyAuto_'.$Slot.'_minDistance', 1);
 	configModify('buyAuto_'.$Slot.'_maxDistance', 10);
+	configModify('buyAuto_'.$Slot.'_maxBase', 99);
+	configModify('buyAuto_'.$Slot.'_minBase', 1);
+	configModify('buyAuto_'.$Slot.'_disabled', 0);
+	
+	return 1;
+}
+
+sub clear_common_equip_buyAuto {
+	my $Slot = shift;
+	
+	configModify('buyAuto_'.$Slot, undef);
+	configModify('buyAuto_'.$Slot.'_npc', undef);
+	configModify('buyAuto_'.$Slot.'_zeny', undef);
+	configModify('buyAuto_'.$Slot.'_minAmount', undef);
+	configModify('buyAuto_'.$Slot.'_maxAmount', undef);
+	configModify('buyAuto_'.$Slot.'_minDistance', undef);
+	configModify('buyAuto_'.$Slot.'_maxDistance', undef);
+	configModify('buyAuto_'.$Slot.'_maxBase', undef);
+	configModify('buyAuto_'.$Slot.'_minBase', undef);
+	configModify('buyAuto_'.$Slot.'_disabled', undef);
 	
 	return 1;
 }
@@ -171,15 +191,38 @@ sub get_free_slot_index_for_key {
 	while (1) {
 		$key_plus_index = $key.'_'.$index;
 		if (!exists $config{$key_plus_index}) {
-			Log::warning "[get_free_slot_index_for_key] Found new slot in key $key for value $value at index $index\n";
+			Log::warning "[get_free_slot_index_for_key] Found slot in block $key for value $value at index $index (!exists)\n";
 			last;
+			
+		} elsif (!defined $config{$key_plus_index}) {
+			Log::warning "[get_free_slot_index_for_key] Found slot in block $key for value $value at index $index (!defined)\n";
+			last;
+			
 		} elsif ($config{$key_plus_index} eq $value) {
-			Log::warning "[get_free_slot_index_for_key] Found already existent slot in key $key for value $value at index $index\n";
+			Log::warning "[get_free_slot_index_for_key] Found $value in slot $index of block $key (eq)\n";
 			last;
 		}
 		$index++;
 	}
 	return $index;
+}
+
+sub find_key_in_block {
+    my ($key, $value) = @_;
+	my $index = 0;
+	while (1) {
+		$key_plus_index = $key.'_'.$index;
+		
+		if (!exists $config{$key_plus_index}) {
+			Log::warning "[find_key_in_block] Looked until index $index of block $key and did not find $value (!exists)\n";
+			last;
+		} elsif ($config{$key_plus_index} eq $value) {
+			Log::warning "[find_key_in_block] Found $value in slot $index of block $key (eq)\n";
+			return $index;
+		}
+		$index++;
+	}
+	return -1;
 }
 
 sub config_time_not_set {

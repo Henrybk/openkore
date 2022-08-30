@@ -116,7 +116,9 @@ macro buyAuto_clear {
 	[
 	$name = GetNamebyNameID("$.param[0]")
 	log Clearing buyAuto $name
-	$foundSlot = get_free_slot_index_for_key("buyAuto","$name")
-	do conf -f buyAuto_$foundSlot none
+	$foundSlot = find_key_in_block("buyAuto","$name")
+	if ($foundSlot != -1) {
+		clear_common_equip_buyAuto("$foundSlot")
+	}
 	]
 }

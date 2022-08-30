@@ -14,7 +14,6 @@ macro baseMacroUp {
 		do conf -f attackSkillSlot_$nextFreeSlot_sp > 10
 		do conf -f attackSkillSlot_$nextFreeSlot_maxUses 1
 		do conf -f attackSkillSlot_$nextFreeSlot_dist 1
-		do conf -f attackSkillSlot_$nextFreeSlot_target_dist 1
 		do conf -f attackSkillSlot_$nextFreeSlot_timeout 1
 		do conf -f attackSkillSlot_$nextFreeSlot_maxAttempts 1
 		do conf -f attackSkillSlot_$nextFreeSlot_disabled 0
