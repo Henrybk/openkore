@@ -230,11 +230,11 @@ Yellow Plant 0 0 0
 1011 1 0 0 #Chonchon
 1042 0 0 0 #
 1012 1 0 0 #
-1031 1 0 0 # Poporing
+1031 0 0 0 # Poporing
 Spore 0 0 0 #
 Mushroom 1 0 1 #
 Spore 1 0 0 #
 Mushroom 0 0 0 #
-1242 1 0 0 # Marin
-1145 1 0 0 # Martin
-1018 1 0 0 # Creamy
+1242 0 0 0 #Marin
+1145 0 0 0 #Martin
+1018 0 0 0 #Creamy

@@ -355,13 +355,15 @@ automacro AdjustConfigForGrounds {
     JobLevel < 10
     priority 0
 	ConfigKey eventMacro_1_99_stage novice_3
-	ConfigKeyNot attackAuto 2
     InMap new_1-3, new_2-3, new_3-3, new_4-3, new_5-3
+	timeout 60
     call AdjustConfigForGrounds
 }
 
 macro AdjustConfigForGrounds {
 	[
+	call set_class_stats_and_skills
+	
 	do mconf 1002 1 0 0 #Poring
 	do mconf 1113 1 0 0 #Drops
 	do mconf 1063 1 0 0 #Lunatico
@@ -370,8 +372,6 @@ macro AdjustConfigForGrounds {
 	do mconf 1007 1 0 0 #Fabre
 	do mconf 1049 1 0 0 #Picky
 	do mconf 1011 1 0 0 #Chon chon
-	do mconf 1042 0 0 0 #Steel chon chon
-	do mconf 1012 1 0 0 #Rodda
 	
 	do conf -f lockMap $.map
 	do conf -f attackAuto 2

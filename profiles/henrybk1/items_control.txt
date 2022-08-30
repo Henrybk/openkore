@@ -75,9 +75,9 @@ Arrow 3000 1 0
 Adventurer's Suit 1 0 0 # 2305
 Bandana 0 0 1 # 2211
 Biretta 0 0 1 # 2217
-Boots 0 0 1 # 2405
+Boots 1 0 0 # 2405
 Buckler 0 0 1 # 2103
-Cap 0 0 1 # 2227
+Cap 1 0 0 # 2226
 Chain Mail 0 0 1 # 2314
 Circlet 0 0 1 # 2233
 Coat 0 0 1 # 2309
@@ -99,11 +99,11 @@ Hair Band 0 0 1 # 2210
 Hat 1 0 0 # 2220
 Helm 0 0 1 # 2228
 High Heels 0 0 1 # 2409
-Hood 0 0 1 # 2501
+Hood 1 0 0 # 2501
 "Hood [1]" 0 0 1 # 2502
 Jacket 0 0 1 # 2303
 "Jacket [1]" 0 0 1 # 2304
-Manteau 0 0 1 # 2505
+Manteau 1 0 0 # 2505
 Mantle 0 0 1 # 2307
 "Mantle [1]" 0 0 1 # 2308
 Mirror Shield 0 0 1 # 2107
@@ -120,7 +120,7 @@ Sandals 1 0 0 # 2401
 Scapulare 0 0 1 # 2323
 Shackles 0 0 1 # 2408
 Shield 0 0 1 # 2105
-Shoes 0 0 1 # 2403
+Shoes 1 0 0 # 2403
 Silk Robe 0 0 1 # 2321
 Silver Ring 0 0 1 # 2611
 Silver Robe 0 0 1 # 2332
@@ -1766,3 +1766,7 @@ Spearman Scroll 10 0 0 0
 1116 1 0 0 #Katana [3]
 1116 1 0 0 #Katana [3]
 1201 0 0 0 #Knife [3]
+1116 1 0 0 #Katana [3]
+1116 1 0 0 #Katana [3]
+1151 1 0 0 #Slayer [2]
+1151 1 0 0 #Slayer [2]

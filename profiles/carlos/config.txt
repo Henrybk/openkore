@@ -5,10 +5,10 @@
 
 master OathRO
 server 0
-username henrybk3
+username carlos
 password Pi=3141592
 loginPinCode
-char 2
+char 0
 ##### Plugins Start
 
 eventMacro_1_99_stage leveling
@@ -47,7 +47,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword chufrira
+adminPassword brabenap
 callSign
 commandPrefix ;
 callSignGM 0
@@ -949,7 +949,7 @@ saveMap_kafra_x 98
 saveMap_kafra_y 118
 saveMap_save_sequence r~/Save/i
 attackSkillSlot_1 TF_STEAL
-attackSkillSlot_1_lvl 8
+attackSkillSlot_1_lvl 6
 attackSkillSlot_1_sp > 10
 attackSkillSlot_1_maxUses 1
 attackSkillSlot_1_dist 1

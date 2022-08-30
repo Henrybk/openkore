@@ -220,3 +220,28 @@ morocc 160 97 Guide#4moc
 morocc 170 101 Item Collector#moc10
 morocc 152 110 Bulletin Board#11
 morocc 167 110 Communication Node#1i
+lasa_dun01 49 158 Jelring
+morocc 121 109 Roberto
+morocc 152 35 Guide#5moc
+morocc 145 44 Jeweler#moc5
+morocc 166 51 Gemstones#moc9
+morocc 157 72 Butcher#moc8
+morocc 139 92 Fruit Vendor#moc4
+morocc 147 102 Tool Dealer#moc6
+morocc 121 109 Roberto
+prt_fild07 221 37 Poporing
+prt_fild07 95 270 Rocker
+prt_sewb1 246 210 ExALL
+izlude 55 74 Bonne#izlude
+prontera 151 29 Kafra Employee
+prontera 160 29 South Gate-Guide
+prontera 148 49 Bulletin Board#09
+lasa_dun01 53 162 Jelring
+morocc 44 180 Towner#4moc
+prt_fild07 286 199 Poporing
+pay_fild01 222 137 Spore
+lasa_dun01 54 162 Marin
+lasa_dun01 49 161 Marin
+pay_fild01 164 215 Spore
+oldnewpayon 44 93 Fishmonger#np
+oldnewpayon 44 93 Fishmonger#np

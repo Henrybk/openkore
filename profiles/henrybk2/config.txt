@@ -47,7 +47,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword theachos
+adminPassword pieboswo
 callSign
 commandPrefix ;
 callSignGM 0
@@ -261,12 +261,12 @@ sitAuto_look_from_wall
 sitTensionRelax 0
 
 statsAddAuto 1
-statsAddAuto_list 10 agi, 10 dex, 10 str, 10 vit, 15 agi, 15 dex, 15 str, 15 vit, 25 agi, 25 dex, 20 str, 20 vit, 50 agi, 25 vit, 15 luk, 35 dex, 35 str, 35 vit, 70 agi, 50 str, 50 dex, 45 vit, 75 agi, 55 str, 50 vit, 80 agi, 65 str, 60 vit, 70 str, 90 agi
+statsAddAuto_list 10 agi, 10 dex, 10 str, 10 vit, 15 agi, 15 dex, 15 str, 15 vit, 25 agi, 25 dex, 20 str, 20 vit, 50 agi, 25 vit, 25 luk, 35 dex, 35 str, 35 vit, 70 agi, 50 str, 50 dex, 45 vit, 45 luk, 75 agi, 55 str, 50 vit, 80 agi, 65 str, 60 vit, 70 str, 90 agi
 statsAddAuto_dontUseBonus 1
 statsAdd_over_99 1
 
 skillsAddAuto 1
-skillsAddAuto_list NV_BASIC 9, SM_SWORD 1, SM_RECOVERY 10, SM_TWOHAND 10, SM_PROVOKE 5, SM_ENDURE 10, SM_BASH 10, SM_MAGNUM 3, KN_TWOHANDQUICKEN 10, KN_RIDING 1, KN_CAVALIERMASTERY 5, KN_AUTOCOUNTER 5, KN_BOWLINGBASH 10
+skillsAddAuto_list NV_BASIC 9, SM_SWORD 1, SM_TWOHAND 10, SM_RECOVERY 10, SM_BASH 10, SM_PROVOKE 5, SM_ENDURE 10, SM_MAGNUM 3, KN_TWOHANDQUICKEN 10, KN_RIDING 1, KN_CAVALIERMASTERY 5, KN_AUTOCOUNTER 5, KN_BOWLINGBASH 10
 
 tankMode 0
 tankModeTarget
@@ -713,16 +713,16 @@ autoSwitch {
 }
 
 equipAuto {
-	topHead Hat
+	topHead Cap
 	midHead
 	lowHead
 	leftHand
-	rightHand Slayer [2]
+	rightHand Boots
 	leftAccessory
 	rightAccessory
-	robe Muffler
-	armor Adventurer's Suit
-	shoes Shoes
+	robe Manteau
+	armor Padded Armor
+	shoes Boots
 	arrow
 	monsters
 	notMonsters
@@ -965,3 +965,31 @@ buyAuto_8_minAmount 0
 buyAuto_8_maxAmount 1
 buyAuto_8_minDistance 1
 buyAuto_8_maxDistance 10
+buyAuto_9
+buyAuto_9_npc payon_in01 134 51
+buyAuto_9_zeny > 18000
+buyAuto_9_minAmount 0
+buyAuto_9_maxAmount 1
+buyAuto_9_minDistance 1
+buyAuto_9_maxDistance 10
+buyAuto_10
+buyAuto_10_npc prt_in 172 132
+buyAuto_10_zeny > 12000
+buyAuto_10_minAmount 0
+buyAuto_10_maxAmount 1
+buyAuto_10_minDistance 1
+buyAuto_10_maxDistance 10
+buyAuto_11
+buyAuto_11_npc payon_in01 134 51
+buyAuto_11_zeny > 32000
+buyAuto_11_minAmount 0
+buyAuto_11_maxAmount 1
+buyAuto_11_minDistance 1
+buyAuto_11_maxDistance 10
+buyAuto_12
+buyAuto_12_npc payon_in01 76 70
+buyAuto_12_zeny > 48000
+buyAuto_12_minAmount 0
+buyAuto_12_maxAmount 1
+buyAuto_12_minDistance 1
+buyAuto_12_maxDistance 10

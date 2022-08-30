@@ -44,16 +44,16 @@ all 0 1 0
 ##### HEAL/SUPPORT ITEMS #####
 # Adjust these to your needs
 
-602 10 1 0 # Butterfly Wing
-601 100 1 0 # Fly Wing
+602 1 1 0 # Butterfly Wing
+601 5 1 0 # Fly Wing
 
 505 0 1 0 # Blue Potion
 545 50 1 0 # Condensed Red Potion
 547 50 1 0 # Condensed White Potion
 546 50 1 0 # Condensed Yellow Potion
 506 0 1 0 # Green Potion
-501 25 1 0 # Red Potion
-502 25 1 0 # Orange Potion
+501 50 1 0 # Red Potion
+502 50 1 0 # Orange Potion
 504 25 1 0  # White Potion
 503 25 1 0 # Yellow potion
 
@@ -82,7 +82,7 @@ Chain Mail 0 0 1 # 2314
 Circlet 0 0 1 # 2233
 Coat 0 0 1 # 2309
 "Coat [1]" 0 0 1 # 2310
-Cotton Shirt 0 0 1 # 2302
+Cotton Shirt 0 0 1 # 2301
 "Cotton Shirt [1]" 0 0 1
 #Crystal Pumps 0 0 1
 Diamond Ring 0 0 1 # 2613
@@ -440,7 +440,7 @@ Animal Poop 0 0 1
 528 0 0 1 # Monster's Feed
 1057 0 0 1 # Moth Dust
 7148 0 0 1 # Mother's Letter
-1058 0 0 1 # Moth Wings
+1058 1 1 0 # Moth Wings
 7004 0 0 1 # Mud Lump
 921 0 0 1 # Mushroom Spore
 1095 0 0 1 # Needle of Alarm
@@ -607,7 +607,7 @@ Spearman Scroll 10 0 0 0
 1193 0 0 0 0 0 # P_Slayer2
 1197 0 0 0 0 0 # P_Slayer3
 1198 0 0 0 0 0 # Hairtail
-1243 0 0 0 0 0 # Novice_Knife
+1243 0 0 1 # Novice Main-Gauche
 1267 0 0 0 0 0 # Infiltrator_C
 1273 0 0 0 0 0 # Bloody_Roar_C
 1274 0 0 0 0 0 # Unholy_Touch_C
@@ -723,7 +723,7 @@ Spearman Scroll 10 0 0 0
 2002 0 0 0 0 0 # Krieger_Twohand_Staff1
 2018 0 0 0 0 0 # Metal_Staff
 2019 0 0 0 0 0 # TE_Woe_Two_Hand_Staff
-2112 0 0 0 0 0 # Novice_Guard
+2112 0 0 1 # Novice Guard
 2132 0 0 0 0 0 # Shelter_Resistance
 2136 0 0 0 0 0 # Cracked_Buckler
 2137 0 0 0 0 0 # Valkyrja
@@ -732,7 +732,7 @@ Spearman Scroll 10 0 0 0
 2178 0 0 0 0 0 # TE_Woe_Buckler
 2179 0 0 0 0 0 # TE_Woe_Shield
 2180 0 0 0 0 0 # TE_Woe_Magic_Guard
-2352 0 0 0 0 0 # Novice_Plate
+2352 0 0 1 # Tattered Novice Ninja Suit
 2369 0 0 0 0 0 # Freyja_Overcoat
 2376 0 0 0 0 0 # Assaulter_Plate
 2377 0 0 0 0 0 # Elite_Engineer_Armor
@@ -744,11 +744,11 @@ Spearman Scroll 10 0 0 0
 2384 0 0 0 0 0 # Spritual_Tunic
 2385 0 0 0 0 0 # Recuperative_Armor
 2392 0 0 0 0 0 # Old_Pant
-2393 0 0 0 0 0 # N_Adventurer
+2393 0 0 0 # Novice Adventurer's Suit [1]
 2394 0 0 0 0 0 # Krieger_Suit1
 2395 0 0 0 0 0 # Krieger_Suit2
 2396 0 0 0 0 0 # Krieger_Suit3
-2414 0 0 0 0 0 # Novice_Boots
+2414 0 0 1 # Novice Slippers
 2428 0 0 0 0 0 # Freyja_Boots
 2429 0 0 0 0 0 # Iron_Boots01
 2430 0 0 0 0 0 # Iron_Boots02
@@ -769,7 +769,7 @@ Spearman Scroll 10 0 0 0
 2496 0 0 0 0 0 # TE_Woe_Shoes
 2497 0 0 0 0 0 # TE_Woe_Boots
 2498 0 0 0 0 0 # TE_Woe_Magic_Sandal
-2510 0 0 0 0 0 # Novice_Hood
+2510 0 0 1 # Somber Novice Hood
 2533 0 0 0 0 0 # Freyja_Cape
 2535 0 0 0 0 0 # Cloak_Of_Survival_C
 2538 0 0 0 0 0 # Commander_Manteau
@@ -1236,8 +1236,8 @@ Spearman Scroll 10 0 0 0
 6955 0 0 0 0 0 # Piece_Of_Soul_Pig
 6956 0 0 0 0 0 # Captured_Sheep
 6957 0 0 0 0 0 # Lamb_Fleece
-7059 0 0 0 0 0 # Cargo_Free_Ticket
-7060 0 0 0 0 0 # Warp_Free_Ticket
+7059 50 0 0 # Free Ticket for Kafra Storage
+7060 50 0 0 # Free Ticket for Kafra Transportation
 7061 0 0 0 0 0 # Cart_Free_Ticket
 7177 0 0 0 0 0 # Part_Of_Star
 7178 0 0 0 0 0 # Star
@@ -1500,8 +1500,8 @@ Spearman Scroll 10 0 0 0
 12313 0 0 0 0 0 # Protection_Of_Angel
 12314 0 0 0 0 0 # Noive_Box
 12322 0 0 0 0 0 # Chocolate_Pie
-12323 0 0 0 0 0 # N_Fly_Wing
-12324 0 0 0 0 0 # N_Butterfly_Wing
+12323 0 0 0 # [NotForSale] Novice Fly Wing
+12324 0 0 0 # Novice Butterfly Wing
 12325 0 0 0 0 0 # N_Magnifier
 12331 0 0 0 0 0 # Ginseng
 12333 0 0 0 0 0 # Ansila
@@ -1755,3 +1755,13 @@ Spearman Scroll 10 0 0 0
 25150 0 0 0 0 0 # Hugging_Alice_Pilow
 26100 0 0 0 0 0 # Paradise_Foxtail_Staff_II
 26101 0 0 0 0 0 # Paradise_Foxtail_Staff_III
+569 0 0 0 #Novice Potion
+13040 0 0 1 # Novice Cutter [3]
+5055 0 0 1 # Novice False Eggshell
+1201 0 0 0 #Knife [3]
+13041 0 0 0 #Novice Main Gauche [3]
+713 50 1 0 #Empty Bottle
+1207 1 0 0 #Main Gauche [3]
+645 5 1 0 #Concentration Potion
+656 5 1 0 #Awakening Potion
+1210 1 0 0 #Dirk [2]

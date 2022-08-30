@@ -47,7 +47,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword kiethoub
+adminPassword preetwih
 callSign
 commandPrefix ;
 callSignGM 0
@@ -202,7 +202,7 @@ itemsTakeAuto_new 0
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap pay_fild01
+lockMap lasa_dun01
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -234,7 +234,7 @@ runFromTarget_minStep 7
 runFromTarget_maxStep 11
 runFromTarget_maxPathDistance 13
 
-saveMap oldnewpayon
+saveMap aldebaran
 saveMap_warpToBuyOrSell 1
 saveMap_warpChatCommand
 memo1
@@ -261,12 +261,12 @@ sitAuto_look_from_wall
 sitTensionRelax 0
 
 statsAddAuto 1
-statsAddAuto_list 10 agi, 10 dex, 10 str, 10 vit, 15 agi, 15 dex, 15 str, 15 vit, 25 agi, 25 dex, 20 str, 20 vit, 50 agi, 25 vit, 15 luk, 35 dex, 35 str, 35 vit, 70 agi, 50 str, 50 dex, 45 vit, 75 agi, 55 str, 50 vit, 80 agi, 65 str, 60 vit, 70 str, 90 agi
+statsAddAuto_list 10 agi, 10 dex, 10 str, 10 vit, 15 agi, 15 dex, 15 str, 15 vit, 25 agi, 25 dex, 20 str, 20 vit, 50 agi, 25 vit, 25 luk, 35 dex, 35 str, 35 vit, 70 agi, 50 str, 50 dex, 45 vit, 45 luk, 75 agi, 55 str, 50 vit, 80 agi, 65 str, 60 vit, 70 str, 90 agi
 statsAddAuto_dontUseBonus 1
 statsAdd_over_99 1
 
 skillsAddAuto 1
-skillsAddAuto_list NV_BASIC 9, SM_SWORD 1, SM_RECOVERY 10, SM_TWOHAND 10, SM_PROVOKE 5, SM_ENDURE 10, SM_BASH 10, SM_MAGNUM 3, KN_TWOHANDQUICKEN 10, KN_RIDING 1, KN_CAVALIERMASTERY 5, KN_AUTOCOUNTER 5, KN_BOWLINGBASH 10
+skillsAddAuto_list NV_BASIC 9, SM_SWORD 1, SM_TWOHAND 10, SM_RECOVERY 10, SM_BASH 10, SM_PROVOKE 5, SM_ENDURE 10, SM_MAGNUM 3, KN_TWOHANDQUICKEN 10, KN_RIDING 1, KN_CAVALIERMASTERY 5, KN_AUTOCOUNTER 5, KN_BOWLINGBASH 10
 
 tankMode 0
 tankModeTarget
@@ -713,16 +713,16 @@ autoSwitch {
 }
 
 equipAuto {
-	topHead Hat
+	topHead Cap
 	midHead
 	lowHead
 	leftHand
-	rightHand Hat
+	rightHand Slayer [2]
 	leftAccessory
 	rightAccessory
-	robe
-	armor
-	shoes Sandals
+	robe Manteau
+	armor Adventurer's Suit
+	shoes Boots
 	arrow
 	monsters
 	notMonsters
@@ -799,14 +799,14 @@ buyAuto {
 }
 
 sellAuto 1
-sellAuto_npc oldnewpayon 69 117
+sellAuto_npc aldeba_in 94 56
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
 storageAuto 1
-storageAuto_npc oldnewpayon 98 118
+storageAuto_npc aldebaran 143 119
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
@@ -864,7 +864,7 @@ future_saveMap_kafra_y
 future_saveMap_save_sequence
 saveMap_stage_before
 buyAuto_1 Fly Wing
-buyAuto_1_npc oldnewpayon 69 117
+buyAuto_1_npc aldeba_in 94 56
 buyAuto_1_minAmount 0
 buyAuto_1_maxAmount 5
 buyAuto_1_minDistance 1
@@ -874,7 +874,7 @@ buyAuto_1_maxBase 99
 buyAuto_1_minBase 1
 buyAuto_1_disabled 0
 buyAuto_2 Butterfly Wing
-buyAuto_2_npc oldnewpayon 69 117
+buyAuto_2_npc aldeba_in 94 56
 buyAuto_2_minAmount 0
 buyAuto_2_maxAmount 1
 buyAuto_2_minDistance 1
@@ -884,20 +884,20 @@ buyAuto_2_maxBase 99
 buyAuto_2_minBase 1
 buyAuto_2_disabled 0
 buyAuto_3 Red Potion
-buyAuto_3_npc oldnewpayon 69 117
+buyAuto_3_npc aldeba_in 94 56
 buyAuto_3_minAmount 5
 buyAuto_3_maxAmount 50
 buyAuto_3_minDistance 1
 buyAuto_3_maxDistance 10
 buyAuto_3_zeny > 2500
-buyAuto_3_maxBase 30
+buyAuto_3_maxBase 50
 buyAuto_3_minBase 1
 buyAuto_3_disabled 0
 useSelf_item_1 Red Potion
 useSelf_item_1_disabled 0
 useSelf_item_1_hp < 70%
 buyAuto_4 Orange Potion
-buyAuto_4_npc oldnewpayon 69 117
+buyAuto_4_npc aldeba_in 94 56
 buyAuto_4_minAmount 5
 buyAuto_4_maxAmount 50
 buyAuto_4_minDistance 1
@@ -910,7 +910,7 @@ useSelf_item_2 Orange Potion
 useSelf_item_2_disabled 0
 useSelf_item_2_hp < 60%
 buyAuto_5 Concentration Potion
-buyAuto_5_npc oldnewpayon 69 117
+buyAuto_5_npc aldeba_in 94 56
 buyAuto_5_minAmount 1
 buyAuto_5_maxAmount 5
 buyAuto_5_minDistance 1
@@ -926,7 +926,7 @@ useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
 buyAuto_6 Awakening Potion
-buyAuto_6_npc oldnewpayon 69 117
+buyAuto_6_npc aldeba_in 94 56
 buyAuto_6_minAmount 1
 buyAuto_6_maxAmount 5
 buyAuto_6_minDistance 1
@@ -941,12 +941,12 @@ useSelf_item_4_whenStatusInactive EFST_ATTHASTE_POTION2
 useSelf_item_4_inLockOnly 1
 useSelf_item_4_notWhileSitting 1
 useSelf_item_4_timeout 5
-saveMap_map oldnewpayon
-saveMap_x 98
-saveMap_y 118
-saveMap_kafra_map oldnewpayon
-saveMap_kafra_x 98
-saveMap_kafra_y 118
+saveMap_map aldebaran
+saveMap_x 143
+saveMap_y 119
+saveMap_kafra_map aldebaran
+saveMap_kafra_x 143
+saveMap_kafra_y 119
 saveMap_save_sequence r~/Save/i
 buyAuto_7
 buyAuto_7_npc payon_in01 134 51
@@ -957,3 +957,67 @@ buyAuto_7_maxDistance 10
 buyAuto_7_zeny > 2000
 Joined_Haleigh true
 Join_Haleigh_before
+buyAuto_8
+buyAuto_8_npc prt_in 172 130
+buyAuto_8_zeny > 2000
+buyAuto_8_minAmount 0
+buyAuto_8_maxAmount 1
+buyAuto_8_minDistance 1
+buyAuto_8_maxDistance 10
+buyAuto_9
+buyAuto_9_npc payon_in01 134 51
+buyAuto_9_zeny > 1000
+buyAuto_9_minAmount 0
+buyAuto_9_maxAmount 1
+buyAuto_9_minDistance 1
+buyAuto_9_maxDistance 10
+buyAuto_10
+buyAuto_10_npc payon_in01 134 51
+buyAuto_10_zeny > 1000
+buyAuto_10_minAmount 0
+buyAuto_10_maxAmount 1
+buyAuto_10_minDistance 1
+buyAuto_10_maxDistance 10
+SM_MOVINGRECOVERY_Quest_before
+buyAuto_11
+buyAuto_11_npc izlude_in 60 127
+buyAuto_11_zeny > 15000
+buyAuto_11_minAmount 0
+buyAuto_11_maxAmount 1
+buyAuto_11_minDistance 1
+buyAuto_11_maxDistance 10
+buyAuto_12
+buyAuto_12_npc payon_in01 134 51
+buyAuto_12_zeny > 3500
+buyAuto_12_minAmount 0
+buyAuto_12_maxAmount 1
+buyAuto_12_minDistance 1
+buyAuto_12_maxDistance 10
+buyAuto_13
+buyAuto_13_npc payon_in01 134 51
+buyAuto_13_zeny > 5000
+buyAuto_13_minAmount 0
+buyAuto_13_maxAmount 1
+buyAuto_13_minDistance 1
+buyAuto_13_maxDistance 10
+buyAuto_14
+buyAuto_14_npc prt_in 172 132
+buyAuto_14_zeny > 12000
+buyAuto_14_minAmount 0
+buyAuto_14_maxAmount 1
+buyAuto_14_minDistance 1
+buyAuto_14_maxDistance 10
+buyAuto_15
+buyAuto_15_npc payon_in01 134 51
+buyAuto_15_zeny > 18000
+buyAuto_15_minAmount 0
+buyAuto_15_maxAmount 1
+buyAuto_15_minDistance 1
+buyAuto_15_maxDistance 10
+buyAuto_16
+buyAuto_16_npc payon_in01 134 51
+buyAuto_16_zeny > 32000
+buyAuto_16_minAmount 0
+buyAuto_16_maxAmount 1
+buyAuto_16_minDistance 1
+buyAuto_16_maxDistance 10

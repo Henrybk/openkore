@@ -3,6 +3,22 @@ macro baseMacroUp {
 	[
 	call SetVar
 	call set_buyauto_equipment
+	call rogue_set_skills_stats
+	
+	$TFSTEALLevel = getSkillLevelByHandle("TF_STEAL")
+	
+	if ($TFSTEALLevel >= 5) {
+		$nextFreeSlot = get_free_slot_index_for_key("attackSkillSlot","TF_STEAL")
+		do conf -f attackSkillSlot_$nextFreeSlot TF_STEAL
+		do conf -f attackSkillSlot_$nextFreeSlot_lvl $TFSTEALLevel
+		do conf -f attackSkillSlot_$nextFreeSlot_sp > 10
+		do conf -f attackSkillSlot_$nextFreeSlot_maxUses 1
+		do conf -f attackSkillSlot_$nextFreeSlot_dist 1
+		do conf -f attackSkillSlot_$nextFreeSlot_target_dist 1
+		do conf -f attackSkillSlot_$nextFreeSlot_timeout 1
+		do conf -f attackSkillSlot_$nextFreeSlot_maxAttempts 1
+		do conf -f attackSkillSlot_$nextFreeSlot_disabled 0
+	}
 	
 	$changed = 0
 	
@@ -16,18 +32,11 @@ macro baseMacroUp {
 	}
 	
 	#Leveling
-	if ($.lvl <= 20) {
+	if ($.lvl <= 21) {
 		if ($configlockMap != prt_fild07) {
 			# kafra prt_fild05 290 224
 			# sell prt_fild05 290 221
 			call set_lockmap_prt_fild07
-			$changed = 1
-		}
-	} elsif ($.lvl <= 27) {
-		if ($configlockMap != prt_sewb2) {
-			# kafra prt_fild05 290 224
-			# sell prt_fild05 290 221
-			call set_lockmap_prt_sewb2
 			$changed = 1
 		}
 	
@@ -54,11 +63,6 @@ macro baseMacroUp {
 		call after_lock_change
 	}
 	]
-}
-
-macro rogue_set_skills_stats {
-	do conf -f statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 20 agi, 15 str, 9 vit, 25 agi, 25 dex, 30 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int
-    do conf -f skillsAddAuto_list NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
 }
 
 macro rogue_set_buyauto_equipment {
@@ -136,7 +140,7 @@ macro rogue_set_buyauto_rightHand {
 
 macro rogue_set_Dirk {
 	[
-	$item{id} = 11210
+	$item{id} = 1210
 	$item{slot} = rightHand
 	$item{price} = 8500
 	$item{minLevel} = 12
