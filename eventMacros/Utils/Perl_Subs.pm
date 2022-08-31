@@ -2,6 +2,7 @@
 #Perl Subs
 
 macro clear_equipauto {
+	[
 	do conf -f equipAuto_0_topHead none
 	do conf -f equipAuto_0_leftHand none
 	do conf -f equipAuto_0_robe none
@@ -11,6 +12,7 @@ macro clear_equipauto {
 	do conf -f equipAuto_0_topHead none
 	do conf -f equipAuto_0_leftHand none
 	do conf -f equipAuto_0_robe none
+	]
 }
 
 macro clear_saveMap_keys {
@@ -27,6 +29,7 @@ macro clear_saveMap_keys {
 }
 
 macro basic_config_leveling_settings {
+	[
 	do conf -f attackAuto 2
 	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
@@ -37,6 +40,7 @@ macro basic_config_leveling_settings {
 	do conf -f route_step 15
 	do conf -f portalRecord 2
 	do conf -f route_avoidWalls 1
+	]
 }
 
 macro SetVar {
@@ -188,6 +192,8 @@ sub get_jobId {
 sub get_free_slot_index_for_key {
     my ($key, $value) = @_;
 	my $index = 0;
+	my $found = 0;
+	my $first_not_def_index;
 	while (1) {
 		$key_plus_index = $key.'_'.$index;
 		if (!exists $config{$key_plus_index}) {
@@ -195,16 +201,26 @@ sub get_free_slot_index_for_key {
 			last;
 			
 		} elsif (!defined $config{$key_plus_index}) {
-			Log::warning "[get_free_slot_index_for_key] Found slot in block $key for value $value at index $index (!defined)\n";
-			last;
+			$first_not_def_index = $index;
 			
 		} elsif ($config{$key_plus_index} eq $value) {
-			Log::warning "[get_free_slot_index_for_key] Found $value in slot $index of block $key (eq)\n";
+			$found = 1;
 			last;
 		}
 		$index++;
 	}
-	return $index;
+	if ($found) {
+		Log::warning "[get_free_slot_index_for_key] Found $value in slot $index of block $key (eq)\n";
+		return $index;
+		
+	} elsif (!$found && defined $first_not_def_index) {
+		Log::warning "[get_free_slot_index_for_key] Found slot in block $key for value $value at index $index (!defined)\n";
+		return $first_not_def_index;
+		
+	} elsif (!$found && !defined $first_not_def_index) {
+		Log::warning "[get_free_slot_index_for_key] Found slot in block $key for value $value at index $index (!exists)\n";
+		return $index;
+	}
 }
 
 sub find_key_in_block {
@@ -235,4 +251,43 @@ sub time_passed {
 	my ($time, $timeout) = @_;
 	return 1 if (timeOut($time, $timeout));
 	return 0;
+}
+
+sub sanity_check_steal_skill {
+	my $Slot = shift;
+	my $level = shift;
+	
+	check_key('attackSkillSlot_'.$Slot, 'TF_STEAL');
+	check_key('attackSkillSlot_'.$Slot.'_lvl', $level);
+	check_key('attackSkillSlot_'.$Slot.'_sp', '> 10');
+	check_key('attackSkillSlot_'.$Slot.'_maxUses', 1);
+	check_key('attackSkillSlot_'.$Slot.'_dist', 1);
+	check_key('attackSkillSlot_'.$Slot.'_timeout', 1);
+	check_key('attackSkillSlot_'.$Slot.'_maxAttempts', 1);
+	check_key('attackSkillSlot_'.$Slot.'_disabled', 0);
+	
+	return 1;
+}
+
+sub sanity_check_Two_Handed_Quicken {
+	my $Slot = shift;
+	my $level = shift;
+	
+	check_key('useSelf_skill_'.$Slot, 'KN_TWOHANDQUICKEN');
+	check_key('useSelf_skill_'.$Slot.'_lvl', $level);
+	check_key('useSelf_skill_'.$Slot.'_sp', '> 50');
+	check_key('useSelf_skill_'.$Slot.'_whenStatusInactive', 'EFST_TWOHANDQUICKEN');
+	check_key('useSelf_skill_'.$Slot.'_inLockOnly', 1);
+	check_key('useSelf_skill_'.$Slot.'_notWhileSitting', 1);
+	check_key('useSelf_skill_'.$Slot.'_disabled', 0);
+	
+	return 1;
+}
+
+sub check_key {
+	my $key = shift;
+	my $value = shift;
+	if ($config{$key} ne $value) {
+		configModify($key, $value);
+	}
 }

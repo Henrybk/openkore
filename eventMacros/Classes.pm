@@ -107,8 +107,8 @@ macro set_equip {
 	[
 	$name = GetNamebyNameID("$.param[0]")
 	log Setting equipauto $name
-	do iconf $.param[0] 1 0 0
 	do conf -f equipAuto_0_$.param[1] $name
+	do iconf $.param[0] 1 0 0
 	]
 }
 
@@ -120,5 +120,6 @@ macro buyAuto_clear {
 	if ($foundSlot != -1) {
 		clear_common_equip_buyAuto("$foundSlot")
 	}
+	do iconf $.param[0] 0 0 1
 	]
 }

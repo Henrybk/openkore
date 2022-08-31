@@ -8,15 +8,7 @@ macro baseMacroUp {
 	$TFSTEALLevel = getSkillLevelByHandle("TF_STEAL")
 	
 	if ($TFSTEALLevel >= 5) {
-		$nextFreeSlot = get_free_slot_index_for_key("attackSkillSlot","TF_STEAL")
-		do conf -f attackSkillSlot_$nextFreeSlot TF_STEAL
-		do conf -f attackSkillSlot_$nextFreeSlot_lvl $TFSTEALLevel
-		do conf -f attackSkillSlot_$nextFreeSlot_sp > 10
-		do conf -f attackSkillSlot_$nextFreeSlot_maxUses 1
-		do conf -f attackSkillSlot_$nextFreeSlot_dist 1
-		do conf -f attackSkillSlot_$nextFreeSlot_timeout 1
-		do conf -f attackSkillSlot_$nextFreeSlot_maxAttempts 1
-		do conf -f attackSkillSlot_$nextFreeSlot_disabled 0
+		call set_steal
 	}
 	
 	$changed = 0
@@ -61,6 +53,18 @@ macro baseMacroUp {
 	if ($changed == 1) {
 		call after_lock_change
 	}
+	]
+}
+
+macro set_steal {
+	[
+	$foundSlot = find_key_in_block("attackSkillSlot","TF_STEAL")
+	if ($foundSlot == -1) {
+		$nextFreeSlot = get_free_slot_index_for_key("attackSkillSlot","TF_STEAL")
+		do conf -f attackSkillSlot_$nextFreeSlot TF_STEAL
+		$foundSlot = find_key_in_block("attackSkillSlot","TF_STEAL")
+	}
+	sanity_check_steal_skill("$foundSlot", "$TFSTEALLevel")
 	]
 }
 

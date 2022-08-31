@@ -245,3 +245,16 @@ lasa_dun01 49 161 Marin
 pay_fild01 164 215 Spore
 oldnewpayon 44 93 Fishmonger#np
 oldnewpayon 44 93 Fishmonger#np
+alberta 120 53 Stylish Merchant#new30
+alberta 188 63 Fruit Seller#albr
+alberta 201 50 Farmer#alb
+alberta 245 45 Girl#0lou
+alberta 245 69 Kunlun Envoy#gon
+alberta 189 151 Fisk
+alberta 195 151 Paul
+izlude 172 184 Honeymoon Helper#Izlude
+izlude 201 181 Sailor#izlude
+izlu2dun 106 58 Kafra Employee
+izlu2dun 104 92 Bulletin Board#4
+gef_fild10 69 340 Bulletin Board#3
+gef_fild10 73 340 Kafra Employee

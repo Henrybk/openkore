@@ -6,8 +6,13 @@ macro baseMacroUp {
 	call knight_set_skills_stats
 	
 	$changed = 0
-	$HPRecoveryWhileMovingLevel = getSkillLevelByHandle("SM_MOVINGRECOVERY")
 	
+	$TWOHANDQUICKENLevel = getSkillLevelByHandle("KN_TWOHANDQUICKEN")
+	if ($TWOHANDQUICKENLevel >= 7) {
+		call Set_use_Two_Handed_Quicken
+	}
+	
+	$HPRecoveryWhileMovingLevel = getSkillLevelByHandle("SM_MOVINGRECOVERY")
 	if ($configlockMap == yuno_fild01 && $HPRecoveryWhileMovingLevel == 1) {
 		do conf lockMap none
 		call SetVar
@@ -61,6 +66,18 @@ macro baseMacroUp {
 	if ($changed == 1) {
 		call after_lock_change
 	}
+	]
+}
+
+macro Set_use_Two_Handed_Quicken {
+	[
+	$foundSlot = find_key_in_block("useSelf_skill","KN_TWOHANDQUICKEN")
+	if ($foundSlot == -1) {
+		$nextFreeSlot = get_free_slot_index_for_key("useSelf_skill","KN_TWOHANDQUICKEN")
+		do conf -f useSelf_skill_$nextFreeSlot KN_TWOHANDQUICKEN
+		$foundSlot = find_key_in_block("useSelf_skill","KN_TWOHANDQUICKEN")
+	}
+	sanity_check_Two_Handed_Quicken("$foundSlot", "$TWOHANDQUICKENLevel")
 	]
 }
 
@@ -744,24 +761,6 @@ automacro Go_Job_Change {
     }
 }
 
-automacro Set_use_Two_Handed_Quicken {
-	ConfigKey eventMacro_1_99_stage leveling
-    ConfigKeyNot useSelf_skill_0 KN_TWOHANDQUICKEN
-	SkillLevel KN_TWOHANDQUICKEN > 7
-    exclusive 1
-    call {
-		[
-		do conf -f useSelf_skill_0 KN_TWOHANDQUICKEN
-		do conf -f useSelf_skill_0_disabled 0
-		do conf -f useSelf_skill_0_sp > 50
-		do conf -f useSelf_skill_0_whenStatusInactive EFST_TWOHANDQUICKEN
-		do conf -f useSelf_skill_0_lvl 10
-		do conf -f useSelf_skill_0_inLockOnly 1
-		do conf -f useSelf_skill_0_notWhileSitting 1
-		do conf -f useSelf_skill_0_notInTown 1
-		]
-    }
-}
 
 # Peco Peco
 
