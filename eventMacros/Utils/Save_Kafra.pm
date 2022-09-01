@@ -58,7 +58,7 @@ macro move_to_near_kafra {
 }
 
 automacro talkKafra {
-    exclusive 0
+	exclusive 0
 	self_interruptible 0
 	ConfigKey eventMacro_1_99_stage saving_in_kafra
 	ConfigKeyNot saveMap $saveMap

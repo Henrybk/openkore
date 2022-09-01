@@ -1,10 +1,9 @@
 
 # Basic
 	!include ..\..\eventMacros\Classes.pm
-	#!include ..\..\eventMacros\Leveling.pm
-
-# Utils 
 	!include ..\..\eventMacros\Utils\Perl_Subs.pm
+	
+	#!include ..\..\eventMacros\Leveling.pm
 	#!include ..\..\eventMacros\Utils\Save_Kafra.pm
 
 

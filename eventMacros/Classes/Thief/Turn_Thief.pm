@@ -1,10 +1,10 @@
 
 automacro move_to_Hanson {
-    exclusive 1
-    JobLevel = 10
-    priority 0
+	exclusive 1
+	JobLevel = 10
+	priority 0
 	ConfigKey eventMacro_1_99_stage novice_4
-    InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
+	InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
 	NpcNotNear /Hanson/
 	call move_to_Hanson
 }
@@ -14,13 +14,13 @@ macro move_to_Hanson {
 }
 
 automacro talkHanson {
-    exclusive 1
-    JobLevel = 10
-    priority 0
+	exclusive 1
+	JobLevel = 10
+	priority 0
 	ConfigKey eventMacro_1_99_stage novice_4
-    InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
-    NpcNear /Hanson/
-    call TalkHanson
+	InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
+	NpcNear /Hanson/
+	call TalkHanson
 }
 
 macro TalkHanson {
@@ -30,16 +30,16 @@ macro TalkHanson {
 automacro moved_out_of_novice_grounds {
 	exclusive 1
 	JobID 0
-    NotInMap new_1-4
-    NotInMap new_2-4
-    NotInMap new_3-4
-    NotInMap new_4-4
-    NotInMap new_5-4
-    NotInMap new_1-3
-    NotInMap new_2-3
-    NotInMap new_3-3
-    NotInMap new_4-3
-    NotInMap new_5-3
+	NotInMap new_1-4
+	NotInMap new_2-4
+	NotInMap new_3-4
+	NotInMap new_4-4
+	NotInMap new_5-4
+	NotInMap new_1-3
+	NotInMap new_2-3
+	NotInMap new_3-3
+	NotInMap new_4-3
+	NotInMap new_5-3
 	ConfigKey eventMacro_1_99_stage novice_4
 	priority 1
 	call {
@@ -92,7 +92,8 @@ macro Move_to_thief_place {
 }
 
 automacro Talk_to_Thief_Guide {
-	exclusive 1
+	exclusive 0
+	self_interruptible 0
 	JobID 0
 	InMap moc_prydb1
 	QuestInactive 1013
@@ -156,8 +157,8 @@ macro Ajust_to_kill_mush {
 	do pconf Orange Gooey Mushroom 1
 	# Rest 0
 	do pconf all 0
-    do conf -f itemsGatherAuto 0
-    do conf -f itemsTakeAuto 2
+	do conf -f itemsGatherAuto 0
+	do conf -f itemsTakeAuto 2
 	# Mobs
 	do mconf Poporing 0 0 0
 	do mconf Spore 0 0 0
@@ -183,8 +184,8 @@ macro Ajust_to_move_to_mush {
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
-    do conf -f itemsGatherAuto 0
-    do conf -f itemsTakeAuto 2
+	do conf -f itemsGatherAuto 0
+	do conf -f itemsTakeAuto 2
 	]
 }
 
@@ -225,8 +226,8 @@ macro End_mush_Farm {
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
-    do conf -f itemsGatherAuto 0
-    do conf -f itemsTakeAuto 2
+	do conf -f itemsGatherAuto 0
+	do conf -f itemsTakeAuto 2
 	do pconf all 1
 	do mconf Poporing 1 0 0
 	do mconf Spore 1 0 0
@@ -335,8 +336,8 @@ automacro EquipThiefStuffEnd {
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
-        do conf -f itemsGatherAuto 0
-        do conf -f itemsTakeAuto 2
+		do conf -f itemsGatherAuto 0
+		do conf -f itemsTakeAuto 2
 		do conf -f route_step 15
 		
 		do conf -f teleportAuto_minAggressives 4
@@ -347,6 +348,22 @@ automacro EquipThiefStuffEnd {
 		call set_class_leveling
 		
 		do reload eventMacros
+		]
+	}
+}
+
+automacro bug_skills {
+	exclusive 1
+	JobID 0
+	InMap moc_prydb1
+	NpcMsgName /learned all of the Basic Skills/ /Guide/
+	priority 0
+	call  {
+		[
+		call set_skills_stats
+		do conf -f statsAddAuto 1
+		do conf -f statsAddAuto_dontUseBonus 1
+		do conf -f skillsAddAuto 1
 		]
 	}
 }

@@ -20,7 +20,7 @@ macro gotoRec {
 }
 
 automacro talkRec {
-    exclusive 0
+	exclusive 0
 	self_interruptible 0
 	NpcNear /(Recrutador|Recruiter)/
 	ConfigKey eventMacro_1_99_stage Join_Sewb

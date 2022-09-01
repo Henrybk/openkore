@@ -6,8 +6,8 @@ automacro moveRecOutside {
 	ConfigKey eventMacro_1_99_stage SM_MOVINGRECOVERY_Quest
 	NotInMap izlude_in
 	SkillLevel SM_MOVINGRECOVERY = 0
-    InInventoryID 713 >= 50
-    InInventoryID 1058 >= 1
+	InInventoryID 713 >= 50
+	InInventoryID 1058 >= 1
 	call gotoRec
 }
 
@@ -17,8 +17,8 @@ automacro moveRecInside {
 	ConfigKey eventMacro_1_99_stage SM_MOVINGRECOVERY_Quest
 	NpcNotNear /Thomas/
 	SkillLevel SM_MOVINGRECOVERY = 0
-    InInventoryID 713 >= 50
-    InInventoryID 1058 >= 1
+	InInventoryID 713 >= 50
+	InInventoryID 1058 >= 1
 	InMap izlude_in
 	call gotoRec
 }
@@ -28,12 +28,12 @@ macro gotoRec {
 }
 
 automacro talkRec {
-    exclusive 1
+	exclusive 1
 	priority 1
 	NpcNear /Thomas/
 	SkillLevel SM_MOVINGRECOVERY = 0
-    InInventoryID 713 >= 50
-    InInventoryID 1058 >= 1
+	InInventoryID 713 >= 50
+	InInventoryID 1058 >= 1
 	ConfigKey eventMacro_1_99_stage SM_MOVINGRECOVERY_Quest
 	InMap izlude_in
 	call {
@@ -68,8 +68,8 @@ automacro RecOver2 {
 	exclusive 1
 	priority 0
 	SkillLevel SM_MOVINGRECOVERY = 0
-    InInventoryID 713 < 50
-    InInventoryID 1058 < 1
+	InInventoryID 713 < 50
+	InInventoryID 1058 < 1
 	ConfigKey eventMacro_1_99_stage SM_MOVINGRECOVERY_Quest
 	call {
 		do conf -f Joined_Oranpere true

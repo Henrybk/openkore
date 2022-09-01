@@ -157,15 +157,15 @@ automacro Return_To_Job_Change_Orange_Potion {
 	ConfigKey doing_knight_job_change windsor
 	QuestActive 9004, 9005, 9006
 	InInventoryID 502 > 30 
-    exclusive 1
+	exclusive 1
 	priority 0
-    call {
+	call {
 		[
 		do conf -f eventMacro_1_99_stage turning_knight_windsor
 		do conf -f Turn_Knight_lockMap_before &config(lockMap)
 		do conf -f lockMap none
 		]
-    }
+	}
 }
 
 macro Move_to_knight_place_Windsor {

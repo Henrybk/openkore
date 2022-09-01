@@ -258,3 +258,8 @@ izlu2dun 106 58 Kafra Employee
 izlu2dun 104 92 Bulletin Board#4
 gef_fild10 69 340 Bulletin Board#3
 gef_fild10 73 340 Kafra Employee
+izlude 124 178 Soldier#izlude
+izlude 150 143 Kylick#izlude
+alberta 131 139 Drunken Old Man
+alberta 117 135 Elin
+alberta 93 174 Grandmother Alma

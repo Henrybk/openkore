@@ -229,7 +229,6 @@ aldebaran 72 197 aldeba_in 27 34
 aldebaran 89 234 aldeba_in 245 237
 aldebaran 118 63 aldeba_in 208 117
 aldebaran 138 34 mjolnir_12 199 378
-aldebaran 140 135 c_tower1 199 159
 aldebaran 140 243 yuno_fild01 208 18
 aldebaran 197 70 aldeba_in 94 38
 aldebaran 225 54 aldeba_in 149 123
@@ -2739,9 +2738,11 @@ aldebaran 211 172 1@ecl 35 71 0 0 r~/Yes/i
 lasa_dun01 22 143 1@ecl 46 64 0 0 r~/back/i
 
 lasa_dun01 159 98 lasa_dun02 25 171
+lasa_dun02 19 171 lasa_dun01 155 98
 
-aldeba_in 94 38 aldebaran 197 68
 aldebaran 139 135 c_tower1 199 159
+aldeba_in 94 38 aldebaran 197 68
+
 payon_in01 145 45 oldnewpayon 38 174
 oldnewpayon 38 174 payon_in01 142 45
 

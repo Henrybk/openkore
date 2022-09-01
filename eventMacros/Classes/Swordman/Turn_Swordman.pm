@@ -1,10 +1,10 @@
 
 automacro move_to_Hanson {
-    exclusive 1
-    JobLevel = 10
-    priority 0
+	exclusive 1
+	JobLevel = 10
+	priority 0
 	ConfigKey eventMacro_1_99_stage novice_4
-    InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
+	InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
 	NpcNotNear /Hanson/
 	call move_to_Hanson
 }
@@ -14,32 +14,32 @@ macro move_to_Hanson {
 }
 
 automacro talkHanson {
-    exclusive 1
-    JobLevel = 10
-    priority 0
+	exclusive 1
+	JobLevel = 10
+	priority 0
 	ConfigKey eventMacro_1_99_stage novice_4
-    InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
-    NpcNear /Hanson/
-    call TalkHanson
+	InMap new_1-4, new_2-4, new_3-4, new_4-4, new_5-4
+	NpcNear /Hanson/
+	call TalkHanson
 }
 
 macro TalkHanson {
-    do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r1 r1 r1 r1 r1 r1 r1 r1 r0 r0 r1 r0 r1 r1 r1 r0 r2 r0 r1 r1 r1 r1 r0
+	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r1 r1 r1 r1 r1 r1 r1 r1 r0 r0 r1 r0 r1 r1 r1 r0 r2 r0 r1 r1 r1 r1 r0
 }
 
 automacro moved_out_of_novice_grounds {
 	exclusive 1
 	JobID 0
-    NotInMap new_1-4
-    NotInMap new_2-4
-    NotInMap new_3-4
-    NotInMap new_4-4
-    NotInMap new_5-4
-    NotInMap new_1-3
-    NotInMap new_2-3
-    NotInMap new_3-3
-    NotInMap new_4-3
-    NotInMap new_5-3
+	NotInMap new_1-4
+	NotInMap new_2-4
+	NotInMap new_3-4
+	NotInMap new_4-4
+	NotInMap new_5-4
+	NotInMap new_1-3
+	NotInMap new_2-3
+	NotInMap new_3-3
+	NotInMap new_4-3
+	NotInMap new_5-3
 	ConfigKey eventMacro_1_99_stage novice_4
 	priority 1
 	call {
@@ -99,7 +99,8 @@ automacro Talk_to_swordman_Swordman {
 	InMap izlude_in
 	QuestInactive 1014
 	NpcNear /Swordman#swd_1/
-	exclusive 1
+	exclusive 0
+	self_interruptible 0
 	priority 1
 	call {
 		do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r0 r0
@@ -132,7 +133,7 @@ macro Move_to_test_place {
 }
 
 automacro talk_to_move_test_area {
-    exclusive 0
+	exclusive 0
 	self_interruptible 0
 	timeout 5
 	ConfigKey eventMacro_1_99_stage turnswordman_out
@@ -148,7 +149,7 @@ automacro talk_to_move_test_area {
 }
 
 automacro end_bug {
-    exclusive 1
+	exclusive 1
 	ConfigKey eventMacro_1_99_stage turnswordman_out
 	QuestActive 1014
 	NpcMsgName /You need to talk to the Swordman in the center of the room/i /Swordman#swd_2/i
@@ -236,7 +237,7 @@ macro do_test {
 }
 
 automacro Talk_to_mae_end_test {
-    exclusive 0
+	exclusive 0
 	self_interruptible 0
 	ConfigKey eventMacro_1_99_stage turnswordman_test
 	InMap job_sword1
@@ -250,7 +251,7 @@ automacro Talk_to_mae_end_test {
 }
 
 automacro mae_text_end {
-    exclusive 1
+	exclusive 1
 	ConfigKey eventMacro_1_99_stage turnswordman_test
 	QuestActive 1014
 	NpcMsgName /congratulate/i /(Mae)/i
@@ -375,8 +376,8 @@ automacro EquipSwordmanStuffEnd {
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
-        do conf -f itemsGatherAuto 0
-        do conf -f itemsTakeAuto 2
+		do conf -f itemsGatherAuto 0
+		do conf -f itemsTakeAuto 2
 		do conf -f route_step 15
 		do conf -f portalRecord 2
 		do conf -f route_avoidWalls 1
@@ -389,6 +390,22 @@ automacro EquipSwordmanStuffEnd {
 		call set_class_leveling
 		
 		do reload eventMacros
+		]
+	}
+}
+
+automacro bug_skills {
+	exclusive 1
+	JobID 0
+	InMap izlude_in
+	NpcMsgName /learned all of the Basic Skills/ /Swordman/
+	priority 0
+	call  {
+		[
+		call set_skills_stats
+		do conf -f statsAddAuto 1
+		do conf -f statsAddAuto_dontUseBonus 1
+		do conf -f skillsAddAuto 1
 		]
 	}
 }
