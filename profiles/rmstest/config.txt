@@ -3,15 +3,15 @@
 
 ######## Login options and server-specific options ########
 
-master OathRO
-server 0
-username henrybk3
-password Pi=3141592
+master 
+server 
+username 
+password 
 loginPinCode
-char 2
+char 
 ##### Plugins Start
 
-eventMacro_1_99_stage leveling
+eventMacro_1_99_stage start
 eventMacro_goal_class rogue
 
 eventMacro_orphans terminate
@@ -47,7 +47,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword chufrira
+adminPassword hieturus
 callSign
 commandPrefix ;
 callSignGM 0
@@ -76,7 +76,7 @@ attackAuto 2
 attackAuto_party 1
 attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
-attackAuto_inLockOnly 2
+attackAuto_inLockOnly 1
 attackAuto_notInTown 1
 attackDistance 1
 attackDistanceAuto 0
@@ -112,19 +112,6 @@ attackEquip_robe
 attackEquip_armor
 attackEquip_shoes
 attackEquip_arrow
-
-# You need the breakTime plugin: https://openkore.com/wiki/BreakTime
-autoBreakTime {
-	startTime
-	stopTime
-}
-
-autoConfChange {
-	minTime
-	varTime
-	lvl
-	joblvl
-}
 
 autoMakeArrows 0
 
@@ -192,7 +179,7 @@ followBot 0
 
 itemsTakeAuto 2
 itemsTakeAuto_party 0
-itemsGatherAuto 0
+itemsGatherAuto 2
 itemsGatherAuto_notInTown 0
 itemsMaxWeight 89
 itemsMaxWeight_sellOrStore 48
@@ -202,7 +189,7 @@ itemsTakeAuto_new 0
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap pay_fild01
+lockMap
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -221,7 +208,7 @@ route_teleport 0
 route_teleport_minDistance 75
 route_teleport_maxTries 8
 route_teleport_notInMaps
-route_step 15
+route_step 10
 route_removeMissingPortals_NPC 1
 route_removeMissingPortals 0
 route_tryToGuessMissingPortalByDistance 1
@@ -234,7 +221,7 @@ runFromTarget_minStep 7
 runFromTarget_maxStep 11
 runFromTarget_maxPathDistance 13
 
-saveMap oldnewpayon
+saveMap
 saveMap_warpToBuyOrSell 1
 saveMap_warpChatCommand
 memo1
@@ -250,23 +237,23 @@ buyerShopAuto_open 0
 buyerShop_random 0
 
 sitAuto_hp_lower 40
-sitAuto_hp_upper 80
+sitAuto_hp_upper 100
 sitAuto_sp_lower 0
 sitAuto_sp_upper 0
 sitAuto_follow 0
 sitAuto_over_50 0
-sitAuto_idle 0
+sitAuto_idle 1
 sitAuto_look
 sitAuto_look_from_wall
 sitTensionRelax 0
 
-statsAddAuto 1
-statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 20 agi, 15 str, 9 vit, 25 agi, 25 dex, 30 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int
-statsAddAuto_dontUseBonus 1
+statsAddAuto 0
+statsAddAuto_list
+statsAddAuto_dontUseBonus 0
 statsAdd_over_99 1
 
-skillsAddAuto 1
-skillsAddAuto_list NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
+skillsAddAuto 0
+skillsAddAuto_list
 
 tankMode 0
 tankModeTarget
@@ -276,7 +263,7 @@ teleportAuto_sp 0
 teleportAuto_idle 0
 teleportAuto_portal 0
 teleportAuto_search 0
-teleportAuto_minAggressives 4
+teleportAuto_minAggressives 0
 teleportAuto_minAggressivesInLock 0
 teleportAuto_onlyWhenSafe 0
 teleportAuto_maxDmg 500
@@ -510,191 +497,9 @@ pet_return 20
 # You can copy & paste any block multiple times. So if you want to
 # configure two attack skills, just duplicate the attackSkillSlot block.
 
-attackSkillSlot {
-	lvl
-	dist 1
-	maxDist 1
-	maxCastTime 0
-	minCastTime 0
-	hp
-	sp > 10
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	previousDamage
-	stopWhenHit 0
-	inLockOnly 0
-	notInTown 0
-	timeout 0
-	disabled 0
-	monsters
-	notMonsters
-	monstersCount
-	maxAttempts 0
-	maxUses 0
-	target_hp
-	target_whenStatusActive
-	target_whenStatusInactive
-	target_deltaHp
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	isSelfSkill 0
-	equip_topHead
-	equip_midHead
-	equip_lowHead
-	equip_leftHand
-	equip_rightHand
-	equip_leftAccessory
-	equip_rightAccessory
-	equip_robe
-	equip_armor
-	equip_shoes
-	equip_arrow
-	manualAI 0
-}
-
-attackComboSlot {
-	afterSkill
-	waitBeforeUse
-	dist 1
-	maxDist 1
-	isSelfSkill 1
-	target_hp
-	target_deltaHp
-	monsters
-	notMonsters
-	monstersCount
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-}
-
-doCommand {
-	hp
-	sp
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	monsters
-	notMonsters
-	monstersCount
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout
-	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	inCart
-	inMap
-	manualAI 0
-}
-
-useSelf_skill {
-	lvl
-	maxCastTime 0
-	minCastTime 0
-	hp
-	sp
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	monsters
-	notMonsters
-	monstersCount
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout 0
-	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	manualAI 0
-}
-
 useSelf_skill_smartHeal 1
 
 partySkillDistance 0..8
-
-partySkill {
-	lvl
-	dist 1
-	maxDist 8
-	maxCastTime 0
-	minCastTime 0
-	hp
-	sp
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	monsters
-	notMonsters
-	monstersCount
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout 0
-	disabled 0
-	manualAI 0
-	target
-	target_hp
-	target_isJob
-	target_isNotJob
-	target_whenStatusActive
-	target_whenStatusInactive
-	target_aggressives
-	target_monsters
-	target_timeout 0
-	target_deltaHp
-	target_dead 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	isSelfSkill 0
-}
-
-monsterSkill {
-	target
-	maxUses
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	# Skill Use Conditions, including isSelfSkill
-	# Self Conditions
-	# Target Monster Conditions
-}
 
 autoSwitch_default_rightHand
 autoSwitch_default_leftHand
@@ -704,114 +509,22 @@ autoSwitch_default_arrow
 #       duplicate the weapon name for 'rightHand'
 # To attack with bare hands, specify "[NONE]" (without the quotes) for rightHand
 
-autoSwitch {
-	rightHand
-	leftHand
-	arrow
-	distance
-	useWeapon
-}
-
-equipAuto {
-	topHead
-	midHead
-	lowHead
-	leftHand
-	rightHand Main Gauche [3]
-	leftAccessory
-	rightAccessory
-	robe
-	armor
-	shoes
-	arrow
-	monsters
-	notMonsters
-	monstersCount
-	weight 0
-	whileSitting 0
-	hp
-	sp
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout 0
-	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	manualAI 0
-}
-
-useSelf_item Novice Potion {
-	hp < 70%
-	sp
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	monsters
-	notMonsters
-	monstersCount
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout 1
-	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	manualAI 0
-}
-
 ######## Autostorage/autosell ########
 
-buyAuto {
-	npc
-	npc_steps b
-	isMarket 0
-	standpoint
-	distance 3
-	price
-	minAmount 2
-	maxAmount 3
-	batchSize
-	disabled 0
-	maxBase
-	minBase
-}
-
-sellAuto 1
-sellAuto_npc oldnewpayon 69 117
+sellAuto 0
+sellAuto_npc
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
-storageAuto 1
-storageAuto_npc oldnewpayon 98 118
+storageAuto 0
+storageAuto_npc
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
-storageAuto_npc_type 3
-storageAuto_npc_steps r~/storage/i
+storageAuto_npc_type 1
+storageAuto_npc_steps
 storageAuto_password
 storageAuto_keepOpen 0
 storageAuto_useChatCommand
@@ -819,18 +532,10 @@ storageAuto_useItem 0
 storageAuto_useItem_item
 storageAuto_notAfterDeath
 relogAfterStorage 0
-minStorageZeny 100
+minStorageZeny 50
 
 npcTimeResponse
 npcWrongStepsMethod 0
-
-getAuto {
-	minAmount
-	maxAmount
-	batchSize
-	passive
-	disabled 0
-}
 
 ######## Debugging options; only useful for developers ########
 
@@ -849,118 +554,45 @@ logToFile_Messages
 logToFile_Warnings
 history_max 50
 macro_orphans terminate
-current_event_include Leveling.pm
-Joined_Oranpere true
-Join_Oranpere_before
-before_event_include
-Joined_Sewb true
-Join_Sewb_before
-future_saveMap_map
-future_saveMap_x
-future_saveMap_y
-future_saveMap_kafra_map
-future_saveMap_kafra_x
-future_saveMap_kafra_y
-future_saveMap_save_sequence
-saveMap_stage_before
-buyAuto_1 Fly Wing
-buyAuto_1_npc oldnewpayon 69 117
-buyAuto_1_minAmount 0
-buyAuto_1_maxAmount 5
-buyAuto_1_minDistance 1
-buyAuto_1_maxDistance 10
-buyAuto_1_zeny > 300
-buyAuto_1_maxBase 99
-buyAuto_1_minBase 1
-buyAuto_1_disabled 0
-buyAuto_2 Butterfly Wing
-buyAuto_2_npc oldnewpayon 69 117
-buyAuto_2_minAmount 0
-buyAuto_2_maxAmount 1
-buyAuto_2_minDistance 1
-buyAuto_2_maxDistance 10
-buyAuto_2_zeny > 300
-buyAuto_2_maxBase 99
-buyAuto_2_minBase 1
-buyAuto_2_disabled 0
-buyAuto_3 Red Potion
-buyAuto_3_npc oldnewpayon 69 117
-buyAuto_3_minAmount 5
-buyAuto_3_maxAmount 50
-buyAuto_3_minDistance 1
-buyAuto_3_maxDistance 10
-buyAuto_3_zeny > 2500
-buyAuto_3_maxBase 30
-buyAuto_3_minBase 1
-buyAuto_3_disabled 0
-useSelf_item_1 Red Potion
-useSelf_item_1_disabled 0
-useSelf_item_1_hp < 70%
-buyAuto_4 Orange Potion
-buyAuto_4_npc oldnewpayon 69 117
-buyAuto_4_minAmount 5
-buyAuto_4_maxAmount 50
-buyAuto_4_minDistance 1
-buyAuto_4_maxDistance 10
-buyAuto_4_zeny > 10000
-buyAuto_4_maxBase 99
-buyAuto_4_minBase 25
-buyAuto_4_disabled 0
-useSelf_item_2 Orange Potion
-useSelf_item_2_disabled 0
-useSelf_item_2_hp < 60%
-buyAuto_5 Concentration Potion
-buyAuto_5_npc oldnewpayon 69 117
-buyAuto_5_minAmount 1
-buyAuto_5_maxAmount 5
-buyAuto_5_minDistance 1
-buyAuto_5_maxDistance 10
-buyAuto_5_zeny > 5000
-buyAuto_5_maxBase 39
-buyAuto_5_minBase 1
-buyAuto_5_disabled 0
-useSelf_item_3 Concentration Potion
-useSelf_item_3_disabled 0
-useSelf_item_3_whenStatusInactive EFST_ATTHASTE_POTION1
-useSelf_item_3_inLockOnly 1
-useSelf_item_3_notWhileSitting 1
-useSelf_item_3_timeout 5
-buyAuto_6 Awakening Potion
-buyAuto_6_npc oldnewpayon 69 117
-buyAuto_6_minAmount 1
-buyAuto_6_maxAmount 5
-buyAuto_6_minDistance 1
-buyAuto_6_maxDistance 10
-buyAuto_6_zeny > 8000
-buyAuto_6_maxBase 99
-buyAuto_6_minBase 40
-buyAuto_6_disabled 0
-useSelf_item_4 Awakening Potion
-useSelf_item_4_disabled 0
-useSelf_item_4_whenStatusInactive EFST_ATTHASTE_POTION2
-useSelf_item_4_inLockOnly 1
-useSelf_item_4_notWhileSitting 1
-useSelf_item_4_timeout 5
-saveMap_map oldnewpayon
-saveMap_x 98
-saveMap_y 118
-saveMap_kafra_map oldnewpayon
-saveMap_kafra_x 98
-saveMap_kafra_y 118
-saveMap_save_sequence r~/Save/i
-attackSkillSlot_1 TF_STEAL
-attackSkillSlot_1_lvl 8
-attackSkillSlot_1_sp > 10
-attackSkillSlot_1_maxUses 1
-attackSkillSlot_1_dist 1
-attackSkillSlot_1_target_dist 1
-attackSkillSlot_1_timeout 1
-attackSkillSlot_1_maxAttempts 1
-attackSkillSlot_1_disabled 0
-buyAuto_8 Dirk [2]
-buyAuto_8_npc payon_in01 76 58
-buyAuto_8_zeny > 8500
-buyAuto_8_minAmount 0
-buyAuto_8_maxAmount 1
-buyAuto_8_minDistance 1
-buyAuto_8_maxDistance 10
+
+equipAuto { 
+	topHead 
+	midHead 
+	lowHead 
+	leftHand 
+	rightHand 
+	leftAccessory 
+	rightAccessory 
+	robe 
+	armor 
+	shoes 
+	arrow 
+	monsters 
+	notMonsters 
+	monstersCount 
+	weight 0 
+	whileSitting 0 
+	hp 
+	sp 
+	homunculus_hp 
+	homunculus_sp 
+	homunculus_dead 
+	onAction 
+	whenStatusActive 
+	whenStatusInactive 
+	whenFollowing 
+	spirit 
+	amuletType 
+	aggressives 
+	stopWhenHit 0 
+	inLockOnly 0 
+	notWhileSitting 0 
+	notInTown 0 
+	timeout 0 
+	disabled 0 
+	whenPartyMembersNear 
+	whenPartyMembersNearDist 
+	inInventory 
+	manualAI 0 
+}
+

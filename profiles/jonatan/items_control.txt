@@ -44,16 +44,12 @@ all 0 1 0
 ##### HEAL/SUPPORT ITEMS #####
 # Adjust these to your needs
 
-602 1 1 0 # Butterfly Wing
-601 5 1 0 # Fly Wing
 
 505 0 1 0 # Blue Potion
 545 50 1 0 # Condensed Red Potion
 547 50 1 0 # Condensed White Potion
 546 50 1 0 # Condensed Yellow Potion
 506 0 1 0 # Green Potion
-501 50 1 0 # Red Potion
-502 50 1 0 # Orange Potion
 504 25 1 0  # White Potion
 503 25 1 0 # Yellow potion
 
@@ -72,7 +68,6 @@ Arrow 3000 1 0
 ##### WORTHLESS GEARS #####
 # Worthless gears which are sold by default
 
-Adventurer's Suit 0 0 1 # 2305
 Bandana 0 0 1 # 2211
 Biretta 0 0 1 # 2217
 Boots 0 0 1 # 2405
@@ -82,7 +77,6 @@ Chain Mail 0 0 1 # 2314
 Circlet 0 0 1 # 2233
 Coat 0 0 1 # 2309
 "Coat [1]" 0 0 1 # 2310
-Cotton Shirt 0 0 1 # 2301
 "Cotton Shirt [1]" 0 0 1
 #Crystal Pumps 0 0 1
 Diamond Ring 0 0 1 # 2613
@@ -96,10 +90,8 @@ Glasses 0 0 1 # 2204
 Gold Ring 0 0 1 # 2610
 Guard 0 0 1 # 2101
 Hair Band 0 0 1 # 2210
-Hat 0 0 1 # 2221
 Helm 0 0 1 # 2228
 High Heels 0 0 1 # 2409
-Hood 0 0 1 # 2501
 "Hood [1]" 0 0 1 # 2502
 Jacket 0 0 1 # 2303
 "Jacket [1]" 0 0 1 # 2304
@@ -109,18 +101,15 @@ Mantle 0 0 1 # 2307
 Mirror Shield 0 0 1 # 2107
 Mr. Smile 0 0 1 # 2278
 Muffler 0 0 1 # 2503
-Padded Armor 0 0 1 # 2313
 Pantie 0 0 1 # 2371
 Ribbon 0 0 1 # 2208
 "Ribbon [1]" 0 0 1 # 2209
 Rosary 0 0 1 # 2840
 Saint's Robe 0 0 1 # 2325
-Sandals 0 0 1 # 2401
 "Sandals [1]" 0 0 1 # 2402
 Scapulare 0 0 1 # 2323
 Shackles 0 0 1 # 2408
 Shield 0 0 1 # 2105
-Shoes 0 0 1 # 2403
 Silk Robe 0 0 1 # 2321
 Silver Ring 0 0 1 # 2611
 Silver Robe 0 0 1 # 2332
@@ -179,9 +168,9 @@ Dagger 0 0 1 # 1215
 "Dagger [3]" 0 0 1 # 1214
 "Damascus [1]" 0 0 1 # 1222
 Dirk 0 0 1 # 1212
+"Dirk [2]" 0 0 1 # 1210
 "Dirk [3]" 0 0 1 # 1211
 Falchion 0 0 1 # 1106
-"Falchion [3]" 0 0 1 # 1104
 "Finger [1]" 0 0 1 # 1811
 "Finger [2]" 0 0 1 # 1812
 Fist 0 0 1 # 1808
@@ -219,11 +208,9 @@ Javelin 0 0 1 # 1403
 "Javelin [4]" 0 0 1 # 1402
 "Jur [2]" 0 0 1 # 1250
 Katana 0 0 1 # 1118
-"Katana [3]" 0 0 1 # 1116
 "Katana [4]" 0 0 1 # 1117
 "Katar [1]" 0 0 1 # 1252
 Knife 0 0 1 # 1203
-"Knife [3]" 0 0 1 # 1201
 "Knife [4]" 0 0 1 # 1202
 "Knuckle Dusters [2]" 0 0 1 # 1803
 "Knuckle Dusters [3]" 0 0 1 # 1804
@@ -439,7 +426,6 @@ Animal Poop 0 0 1
 528 0 0 1 # Monster's Feed
 1057 0 0 1 # Moth Dust
 7148 0 0 1 # Mother's Letter
-1058 1 1 0 # Moth Wings
 7004 0 0 1 # Mud Lump
 921 0 0 1 # Mushroom Spore
 1095 0 0 1 # Needle of Alarm
@@ -606,7 +592,6 @@ Spearman Scroll 10 0 0 0
 1193 0 0 0 0 0 # P_Slayer2
 1197 0 0 0 0 0 # P_Slayer3
 1198 0 0 0 0 0 # Hairtail
-1243 0 0 1 # Novice Main-Gauche
 1267 0 0 0 0 0 # Infiltrator_C
 1273 0 0 0 0 0 # Bloody_Roar_C
 1274 0 0 0 0 0 # Unholy_Touch_C
@@ -722,7 +707,6 @@ Spearman Scroll 10 0 0 0
 2002 0 0 0 0 0 # Krieger_Twohand_Staff1
 2018 0 0 0 0 0 # Metal_Staff
 2019 0 0 0 0 0 # TE_Woe_Two_Hand_Staff
-2112 0 0 1 # Novice Guard
 2132 0 0 0 0 0 # Shelter_Resistance
 2136 0 0 0 0 0 # Cracked_Buckler
 2137 0 0 0 0 0 # Valkyrja
@@ -731,7 +715,6 @@ Spearman Scroll 10 0 0 0
 2178 0 0 0 0 0 # TE_Woe_Buckler
 2179 0 0 0 0 0 # TE_Woe_Shield
 2180 0 0 0 0 0 # TE_Woe_Magic_Guard
-2352 0 0 1 # Tattered Novice Ninja Suit
 2369 0 0 0 0 0 # Freyja_Overcoat
 2376 0 0 0 0 0 # Assaulter_Plate
 2377 0 0 0 0 0 # Elite_Engineer_Armor
@@ -743,11 +726,9 @@ Spearman Scroll 10 0 0 0
 2384 0 0 0 0 0 # Spritual_Tunic
 2385 0 0 0 0 0 # Recuperative_Armor
 2392 0 0 0 0 0 # Old_Pant
-2393 0 0 0 # Novice Adventurer's Suit [1]
 2394 0 0 0 0 0 # Krieger_Suit1
 2395 0 0 0 0 0 # Krieger_Suit2
 2396 0 0 0 0 0 # Krieger_Suit3
-2414 0 0 1 # Novice Slippers
 2428 0 0 0 0 0 # Freyja_Boots
 2429 0 0 0 0 0 # Iron_Boots01
 2430 0 0 0 0 0 # Iron_Boots02
@@ -768,7 +749,6 @@ Spearman Scroll 10 0 0 0
 2496 0 0 0 0 0 # TE_Woe_Shoes
 2497 0 0 0 0 0 # TE_Woe_Boots
 2498 0 0 0 0 0 # TE_Woe_Magic_Sandal
-2510 0 0 1 # Somber Novice Hood
 2533 0 0 0 0 0 # Freyja_Cape
 2535 0 0 0 0 0 # Cloak_Of_Survival_C
 2538 0 0 0 0 0 # Commander_Manteau
@@ -1235,8 +1215,6 @@ Spearman Scroll 10 0 0 0
 6955 0 0 0 0 0 # Piece_Of_Soul_Pig
 6956 0 0 0 0 0 # Captured_Sheep
 6957 0 0 0 0 0 # Lamb_Fleece
-7059 50 0 0 # Free Ticket for Kafra Storage
-7060 50 0 0 # Free Ticket for Kafra Transportation
 7061 0 0 0 0 0 # Cart_Free_Ticket
 7177 0 0 0 0 0 # Part_Of_Star
 7178 0 0 0 0 0 # Star
@@ -1499,8 +1477,6 @@ Spearman Scroll 10 0 0 0
 12313 0 0 0 0 0 # Protection_Of_Angel
 12314 0 0 0 0 0 # Noive_Box
 12322 0 0 0 0 0 # Chocolate_Pie
-12323 0 0 0 # [NotForSale] Novice Fly Wing
-12324 0 0 0 # Novice Butterfly Wing
 12325 0 0 0 0 0 # N_Magnifier
 12331 0 0 0 0 0 # Ginseng
 12333 0 0 0 0 0 # Ansila
@@ -1754,16 +1730,35 @@ Spearman Scroll 10 0 0 0
 25150 0 0 0 0 0 # Hugging_Alice_Pilow
 26100 0 0 0 0 0 # Paradise_Foxtail_Staff_II
 26101 0 0 0 0 0 # Paradise_Foxtail_Staff_III
+12323 0 0 0 #[NotForSale] Novice Fly Wing
+12324 0 0 0 #Novice Butterfly Wing
 569 0 0 0 #Novice Potion
-13040 0 0 1 # Novice Cutter [3]
-5055 0 0 1 # Novice False Eggshell
-1201 0 0 0 #Knife [3]
+7059 50 0 0 #Free Ticket for Kafra Storage
+7060 50 0 0 #Free Ticket for Kafra Transportation
 13041 0 0 0 #Novice Main Gauche [3]
-713 50 1 0 #Empty Bottle
-1207 1 0 0 #Main Gauche [3]
+1104 1 0 0 #Falchion [3]
+1243 0 0 1 #Novice Main-Gauche
+2112 0 0 1 #Novice Guard
+5055 0 0 1 #Novice False Eggshell
+2393 0 0 1 #Novice Adventurer's Suit [1]
+2414 0 0 1 #Novice Slippers
+2510 0 0 1 #Somber Novice Hood
+2352 0 0 1 #Tattered Novice Ninja Suit
+1201 0 0 1 #Knife [3]
+13040 0 0 1 #Novice Cutter [3]
+2301 0 0 1 #Cotton Shirt
+1116 1 0 0 #Katana [3]
+2312 0 0 1 #Padded Armor
+601 5 1 0 #Fly Wing
+602 1 1 0 #Butterfly Wing
+501 50 1 0 #Red Potion
+502 50 1 0 #Orange Potion
 645 5 1 0 #Concentration Potion
 656 5 1 0 #Awakening Potion
-
-
-## test
-1210 1 0 0 #Dirk [2]
+2305 1 0 0 #Adventurer's Suit
+2501 1 0 0 #Hood
+713 50 1 0 #Empty Bottle
+1058 1 1 0 #Moth Wings
+2220 1 0 0 #Hat
+2401 0 0 1 #Sandals
+2403 1 0 0 #Shoes

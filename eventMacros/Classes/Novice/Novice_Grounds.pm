@@ -35,7 +35,6 @@ macro Conf_Stuff2 {
 	do conf -f autoMoveOnDeath_map none
 	do conf -f saveMap none
 	do conf -f saveMap_warpToBuyOrSell 0
-	do conf -f getAuto_0 none
 	do conf -f sitAuto_idle 0
 	do conf -f sitAuto_hp_lower 40
 	do conf -f sitAuto_hp_upper 80
@@ -47,6 +46,7 @@ macro Conf_Stuff2 {
 	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
+	do conf -f teleportAuto_atkMiss 0
 	
 	do conf -f autoTalkCont 1
 	
@@ -366,6 +366,7 @@ macro AdjustConfigForGrounds {
 	
 	do conf -f lockMap $.map
 	do conf -f attackAuto 2
+	do conf -f teleportAuto_atkMiss 0
 	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28

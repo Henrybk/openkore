@@ -228,5 +228,8 @@ Yellow Plant 0 0 0
 1007 1 0 0 #Fabre
 1049 1 0 0 #Picky
 1011 1 0 0 #Chonchon
-1042 0 0 0 #
-1012 1 0 0 #
+1242 1 0 0 #Marin
+1031 1 0 0 #Poporing
+1145 1 0 0 #Martin
+1018 1 0 0 #Creamy
+1369 0 0 0 #Grand Peco
