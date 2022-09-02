@@ -13,6 +13,7 @@ char
 
 eventMacro_1_99_stage start
 eventMacro_goal_class knight
+eventMacro_test 1
 
 eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
