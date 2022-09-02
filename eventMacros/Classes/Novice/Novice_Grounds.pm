@@ -47,6 +47,7 @@ macro Conf_Stuff2 {
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f teleportAuto_atkMiss 0
+	do conf -f itemsMaxWeight_sellOrStore 68
 	
 	do conf -f autoTalkCont 1
 	
@@ -124,6 +125,7 @@ automacro moveNextToReceptionist {
 	exclusive 1
 	BaseLevel = 2
 	NpcNotNear /Receptionist/
+	ConfigKey eventMacro_1_99_stage novice_1
 	InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
 	priority 1
 	call GotoReceptionist
@@ -138,8 +140,9 @@ automacro talkReceptionist {
 	self_interruptible 0
 	BaseLevel = 2
 	NpcNear /Receptionist/
+	ConfigKey eventMacro_1_99_stage novice_1
 	InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
-	priority 0
+	priority 1
 	call talkReceptionistInside
 }
 
@@ -189,7 +192,7 @@ automacro talkInterfaces {
  
 automacro moveToGirlSkill {
 	exclusive 1
-	BaseLevel < 4
+	BaseLevel = 3
 	priority 0
 	ConfigKey eventMacro_1_99_stage novice_2
 	InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2
@@ -203,7 +206,7 @@ macro MoveSkill {
  
 automacro talkGirlSkill {
 	exclusive 1
-	BaseLevel < 4
+	BaseLevel = 3
 	priority 0
 	ConfigKey eventMacro_1_99_stage novice_2
 	InMap new_1-2, new_2-2, new_3-2, new_4-2, new_5-2

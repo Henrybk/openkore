@@ -18,7 +18,28 @@ macro baseMacroUp {
 	}
 	
 	#Leveling
-	if ($.lvl <= 21) {
+	if ($testvar == 1) {
+		if ($.lvl <= 25) {
+			do mconf 1052 1 0 0 #Rocker
+			do mconf 1014 0 0 0 #Spore
+			do mconf 1127 0 0 0 #Hode
+		} elsif ($.lvl <= 40) {
+			do mconf 1052 0 0 0 #Rocker
+			do mconf 1014 1 0 0 #Spore
+			do mconf 1127 0 0 0 #Hode
+		} else {
+			do mconf 1052 0 0 0 #Rocker
+			do mconf 1014 0 0 0 #Spore
+			do mconf 1127 1 0 0 #Hode
+		}
+		if ($configlockMap != prt_fild05) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_fild05
+			$changed = 1
+		}
+	
+	} elsif ($.lvl <= 21) {
 		if ($configlockMap != prt_fild07) {
 			# kafra prt_fild05 290 224
 			# sell prt_fild05 290 221
@@ -100,7 +121,7 @@ macro set_steal {
 macro set_buyauto_equipment {
 	[
 	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 1) {
+	if ($hasWeaponLevel >= 1 && $testvar == 0) {
 		call set_buyauto_armor
 		call set_buyauto_shoes
 		call set_buyauto_robe
@@ -126,9 +147,15 @@ macro set_Dirk {
 	$item{slot} = rightHand
 	$item{price} = 8500
 	$item{minLevel} = 12
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 58
+	if ($testvar == 1) {
+		$item{npcMap} = prt_in
+		$item{npcX} = 172
+		$item{npcY} = 130
+	} else {
+		$item{npcMap} = payon_in01
+		$item{npcX} = 76
+		$item{npcY} = 58
+	}
 	call set_item
 	]
 }
@@ -140,9 +167,15 @@ macro set_Stiletto {
 	$item{slot} = rightHand
 	$item{price} = 19500
 	$item{minLevel} = 12
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 58
+	if ($testvar == 1) {
+		$item{npcMap} = prt_in
+		$item{npcX} = 172
+		$item{npcY} = 130
+	} else {
+		$item{npcMap} = payon_in01
+		$item{npcX} = 76
+		$item{npcY} = 58
+	}
 	call set_item
 	]
 }
@@ -154,9 +187,15 @@ macro set_Damascus {
 	$item{slot} = rightHand
 	$item{price} = 49000
 	$item{minLevel} = 24
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 58
+	if ($testvar == 1) {
+		$item{npcMap} = prt_in
+		$item{npcX} = 172
+		$item{npcY} = 130
+	} else {
+		$item{npcMap} = payon_in01
+		$item{npcX} = 76
+		$item{npcY} = 58
+	}
 	call set_item
 	]
 }

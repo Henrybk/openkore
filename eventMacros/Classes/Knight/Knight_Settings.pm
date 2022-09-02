@@ -24,7 +24,28 @@ macro baseMacroUp {
 	}
 	
 	#Leveling
-	if ($.lvl <= 17) {
+	if ($testvar == 1) {
+		if ($.lvl <= 25) {
+			do mconf 1052 1 0 0 #Rocker
+			do mconf 1014 0 0 0 #Spore
+			do mconf 1127 0 0 0 #Hode
+		} elsif ($.lvl <= 40) {
+			do mconf 1052 0 0 0 #Rocker
+			do mconf 1014 1 0 0 #Spore
+			do mconf 1127 0 0 0 #Hode
+		} else {
+			do mconf 1052 0 0 0 #Rocker
+			do mconf 1014 0 0 0 #Spore
+			do mconf 1127 1 0 0 #Hode
+		}
+		if ($configlockMap != prt_fild05) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_fild05
+			$changed = 1
+		}
+	
+	} elsif ($.lvl <= 17) {
 		if ($configlockMap != prt_fild07) {
 			# kafra prt_fild05 290 224
 			# sell prt_fild05 290 221
@@ -116,7 +137,7 @@ macro Set_use_Two_Handed_Quicken {
 macro set_buyauto_equipment {
 	[
 	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 1) {
+	if ($hasWeaponLevel >= 1 && $testvar == 0) {
 		call set_buyauto_armor
 		call set_buyauto_shoes
 		call set_buyauto_robe
@@ -156,9 +177,15 @@ macro set_Slayer {
 	$item{slot} = rightHand
 	$item{price} = 15000
 	$item{minLevel} = 18
-	$item{npcMap} = izlude_in
-	$item{npcX} = 60
-	$item{npcY} = 127
+	if ($testvar == 1) {
+		$item{npcMap} = prt_in
+		$item{npcX} = 172
+		$item{npcY} = 130
+	} else {
+		$item{npcMap} = izlude_in
+		$item{npcX} = 60
+		$item{npcY} = 127
+	}
 	call set_item
 	]
 }
@@ -170,9 +197,15 @@ macro set_TwoHandedSword {
 	$item{slot} = rightHand
 	$item{price} = 60000
 	$item{minLevel} = 33
-	$item{npcMap} = izlude_in
-	$item{npcX} = 60
-	$item{npcY} = 127
+	if ($testvar == 1) {
+		$item{npcMap} = prt_in
+		$item{npcX} = 172
+		$item{npcY} = 130
+	} else {
+		$item{npcMap} = izlude_in
+		$item{npcX} = 60
+		$item{npcY} = 127
+	}
 	call set_item
 	]
 }
@@ -385,25 +418,37 @@ macro set_Helm {
 	]
 }
 
+automacro Go_Job_Change_testserver {
+	ConfigKey eventMacro_1_99_stage leveling
+	ConfigKey eventMacro_test 1
+	JobLevel = 50
+	JobID 1
+	exclusive 1
+	priority 0
+	call Knight_job_change
+}
+
 automacro Go_Job_Change {
 	ConfigKey eventMacro_1_99_stage leveling
-	ConfigKeyNotExist doing_knight_job_change
 	SkillLevel SM_MOVINGRECOVERY = 1
 	JobLevel = 50
 	JobID 1
 	exclusive 1
 	priority 0
-	call {
-		do conf -f eventMacro_1_99_stage turning_knight_true_start
-		do conf -f doing_knight_job_change start
-		
-		do conf -f Turn_Knight_lockMap_before &config(lockMap)
-		do conf -f lockMap none
-		
-		include on Turn_Knight.pm
-		
-		do reload eventMacros
-	}
+	call Knight_job_change
+}
+
+macro Knight_job_change {
+	[
+	do conf -f eventMacro_1_99_stage turning_knight_true_start
+	do conf -f doing_knight_job_change start
+	
+	do conf -f lockMap none
+	
+	include on Turn_Knight.pm
+	
+	do reload eventMacros
+	]
 }
 
 
@@ -488,6 +533,7 @@ automacro Peco_shit_happened_skill {
 automacro need_to_do_SM_MOVINGRECOVERY_Quest {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_test 0
 	ConfigKey eventMacro_1_99_stage leveling
 	SkillLevel SM_MOVINGRECOVERY = 0
 	InInventoryID 713 >= 50

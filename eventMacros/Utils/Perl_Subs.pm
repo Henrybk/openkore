@@ -41,12 +41,14 @@ macro basic_config_leveling_settings {
 	do conf -f route_step 15
 	do conf -f portalRecord 2
 	do conf -f route_avoidWalls 1
+	do conf -f itemsMaxWeight_sellOrStore 68
 	]
 }
 
 macro SetVar {
 	$configlockMap = &config(lockMap)
 	$configsaveMap = &config(saveMap)
+	$testvar = &config(eventMacro_test)
 }
 
 sub set_common_equip_buyAuto {

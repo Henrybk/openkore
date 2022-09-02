@@ -143,26 +143,62 @@ automacro set_update_turning_knight {
 
 macro update_turning_knight {
 	[
-	do conf -f eventMacro_1_99_stage leveling
+	do conf -f eventMacro_1_99_stage turning_knight_farming
 	do conf -f doing_knight_job_change windsor
-	
-	[
-	do conf -f lockMap &config(Turn_Knight_lockMap_before)
-	do conf -f Turn_Knight_lockMap_before none
 	]
 }
 
+automacro turning_knight_farming {
+	timeout 60
+	exclusive 1
+	priority 2
+	QuestActive 9004, 9005, 9006
+	InInventoryID 502 < 30
+	ConfigKey eventMacro_1_99_stage turning_knight_farming
+	ConfigKey doing_knight_job_change windsor
+	call knight_farming
+}
+
+macro knight_farming {
+	call SetVar
+	call set_skills_stats
+	$changed = 0
+	
+	if ($testvar == 1) {
+		do mconf 1052 0 0 0 #Rocker
+		do mconf 1014 0 0 0 #Spore
+		do mconf 1127 1 0 0 #Hode
+		if ($configlockMap != prt_fild05) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_fild05
+			$changed = 1
+		}
+	
+	} elsif ($configlockMap != lasa_dun01) {
+		# kafra aldebaran 143 119
+		# sell aldeba_in 94 56
+		call set_lockmap_lasa_dun01
+		$changed = 1
+	}
+	
+	if ($changed == 1) {
+		call after_lock_change
+	} else {
+		log [Knight] Current lockmap $configlockMap is still good
+	}
+}
+
 automacro Return_To_Job_Change_Orange_Potion {
-	ConfigKey eventMacro_1_99_stage leveling
+	ConfigKey eventMacro_1_99_stage turning_knight_farming
 	ConfigKey doing_knight_job_change windsor
 	QuestActive 9004, 9005, 9006
-	InInventoryID 502 > 30 
+	InInventoryID 502 >= 30 
 	exclusive 1
 	priority 0
 	call {
 		[
 		do conf -f eventMacro_1_99_stage turning_knight_windsor
-		do conf -f Turn_Knight_lockMap_before &config(lockMap)
 		do conf -f lockMap none
 		]
 	}
@@ -230,9 +266,7 @@ automacro Got_Out_Of_Waiting_Room {
 	call {
 		[
 		do ai auto
-		do conf -f eventMacro_1_99_stage leveling
-		do conf -f lockMap &config(Turn_Knight_lockMap_before)
-		do conf -f Turn_Knight_lockMap_before none
+		call update_turning_knight
 		]
 	}
 }
@@ -277,9 +311,7 @@ automacro Got_Out_Of_Waiting_Room_chat {
 	call {
 		[
 		do ai auto
-		do conf -f eventMacro_1_99_stage leveling
-		do conf -f lockMap &config(Turn_Knight_lockMap_before)
-		do conf -f Turn_Knight_lockMap_before none
+		call update_turning_knight
 		]
 	}
 }
@@ -316,7 +348,7 @@ macro adapt_to_test_windsor {
 		do conf -f lockMap $.map
 		
 		do conf -f attackAuto 2
-		do conf -f attackAuto_inLockOnly 2
+		do conf -f itemsTakeAuto 0
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
@@ -328,8 +360,6 @@ macro adapt_to_test_windsor {
 		do conf -f teleportAuto_minAggressives none
 		do conf -f teleportAuto_hp none
 		do conf -f teleportAuto_maxDmg none
-		do conf -f teleportAuto_atkMiss none
-		do conf -f teleportAuto_useSkill none
 		
 		do eval AI::clear(qw/storageAuto/)
 	]
@@ -338,7 +368,7 @@ macro adapt_to_test_windsor {
 macro out_of_test {
 	[
 	do conf -f attackAuto 2
-	do conf -f attackAuto_inLockOnly 2
+	do conf -f itemsTakeAuto 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1
@@ -346,8 +376,6 @@ macro out_of_test {
 	do conf -f teleportAuto_minAggressives 4
 	do conf -f teleportAuto_hp 10
 	do conf -f teleportAuto_maxDmg 500
-	do conf -f teleportAuto_atkMiss 10
-	do conf -f teleportAuto_useSkill 3
 	
 	do conf -f sellAuto 1
 	do conf -f storageAuto 1
@@ -375,9 +403,7 @@ automacro Got_Out_Of_test {
 	call {
 		[
 		call out_of_test
-		do conf -f eventMacro_1_99_stage leveling
-		do conf -f lockMap &config(Turn_Knight_lockMap_before)
-		do conf -f Turn_Knight_lockMap_before none
+		call update_turning_knight
 		]
 	}
 }
@@ -500,6 +526,7 @@ automacro Got_To_Sitting_Room {
 	priority 1
 	call {
 		[
+		do ai manual
 		do conf -f attackAuto 0
 		do conf -f route_randomWalk 0
 		do conf eventMacro_1_99_stage turning_knight_sitting
@@ -509,14 +536,15 @@ automacro Got_To_Sitting_Room {
 
 automacro Got_Out_Of_Sitting_Room {
 	ConfigKey eventMacro_1_99_stage turning_knight_sitting
+	CheckOnAI auto, manual
 	JobID 1
 	NotInMap job_knt
 	exclusive 1
 	priority 1
 	call {
 		[
+		do ai auto
 		do conf -f attackAuto 2
-		do conf -f attackAuto_inLockOnly 2
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
@@ -631,8 +659,7 @@ automacro EquipknightStuffEnd {
 	exclusive 1
 	call {
 		[
-		do conf -f lockMap &config(Turn_Knight_lockMap_before)
-		do conf -f Turn_Knight_lockMap_before none
+		do conf -f lockMap none
 		
 		include off Turn_Knight.pm
 		

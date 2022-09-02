@@ -74,6 +74,21 @@ macro set_lockmap_prt_fild07 {
 	]
 }
 
+macro set_lockmap_prt_fild05 {
+	[
+	do conf lockMap prt_fild05
+	
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
 macro set_lockmap_prt_sewb2 {
 	[
 	do conf lockMap prt_sewb2
@@ -203,6 +218,7 @@ macro change_savemap {
 automacro need_to_configure_Sewb {
 	exclusive 1
 	priority 1
+	ConfigKey eventMacro_test 0
 	ConfigKeyNot Joined_Sewb true
 	ConfigKeyNot Joined_Sewb false
 	ConfigKey eventMacro_1_99_stage leveling
@@ -214,6 +230,7 @@ automacro need_to_configure_Sewb {
 automacro need_to_configure_Sewb_2 {
 	exclusive 1
 	priority 1
+	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Sewb true
 	ConfigKey eventMacro_1_99_stage leveling
 	NpcMsgName /we can only allow volunteers for the Culvert Campaign to enter/ /Culvert Guardian/
@@ -225,6 +242,7 @@ automacro need_to_configure_Sewb_2 {
 automacro need_to_Join_Sewb {
 	exclusive 1
 	priority 1
+	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Sewb false
 	ConfigKey eventMacro_1_99_stage leveling
 	call {
@@ -242,6 +260,7 @@ automacro need_to_Join_Sewb {
 automacro need_to_configure_Oranpere {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_test 0
 	ConfigKeyNot Joined_Oranpere true
 	ConfigKeyNot Joined_Oranpere false
 	ConfigKey eventMacro_1_99_stage leveling
@@ -253,6 +272,7 @@ automacro need_to_configure_Oranpere {
 automacro need_to_configure_Oranpere_2 {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Oranpere true
 	StatusInactiveHandle EFST_SWORDCLAN
 	ConfigKey eventMacro_1_99_stage leveling
@@ -264,6 +284,7 @@ automacro need_to_configure_Oranpere_2 {
 automacro need_to_Join_Oranpere {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Oranpere false
 	ConfigKey eventMacro_1_99_stage leveling
 	call {
@@ -281,6 +302,7 @@ automacro need_to_Join_Oranpere {
 automacro need_to_configure_Haleigh {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_test 0
 	ConfigKey lockMap lasa_dun01
 	ConfigKey eventMacro_1_99_stage leveling
 	ConfigKeyNot Joined_Haleigh true
@@ -293,6 +315,7 @@ automacro need_to_configure_Haleigh {
 automacro need_to_Join_Haleigh {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_test 0
 	ConfigKey lockMap lasa_dun01
 	ConfigKey eventMacro_1_99_stage leveling
 	ConfigKey Joined_Haleigh false
@@ -311,10 +334,37 @@ automacro need_to_Join_Haleigh {
 automacro need_to_configure_Haleigh_2 {
 	exclusive 1
 	priority 1
+	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Haleigh true
 	ConfigKey eventMacro_1_99_stage leveling
 	NpcMsgName /Are you here to help the Professor/i /Assistant Eryn/
 	call {
 		do conf -f Joined_Haleigh false
+	}
+}
+
+automacro test_zenyman_1 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage leveling
+	Zeny < 100000
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_2 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage leveling
+	StatusInactiveHandle EFST_BLESSING
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
 	}
 }
