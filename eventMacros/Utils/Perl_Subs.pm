@@ -282,6 +282,19 @@ sub sanity_check_Two_Handed_Quicken {
 	return 1;
 }
 
+sub sanity_check_getauto {
+	my $Slot = shift;
+	my $name = shift;
+	my $amount = shift;
+	
+	check_key('getAuto_'.$Slot, $name);
+	check_key('getAuto_'.$Slot.'_maxAmount', $amount);
+	check_key('getAuto_'.$Slot.'_passive', 1);
+	check_key('getAuto_'.$Slot.'_disabled', 0);
+	
+	return 1;
+}
+
 sub check_key {
 	my $key = shift;
 	my $value = shift;

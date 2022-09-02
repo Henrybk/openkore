@@ -59,7 +59,13 @@ macro set_skills_stats {
 
 sub set_skills_stats {
 	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int';
-	my $skills = 'NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1';
+	my $skills;
+	if ($char->{jobID} == 6) {
+		$skills = 'NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1';
+	} elsif ($char->{jobID} == 17) {
+		$skills = 'RG_SNATCHER 10, RG_STEALCOIN 10, RG_BACKSTAP 4, RG_TUNNELDRIVE 5, RG_RAID 5, RG_INTIMIDATE 5, RG_PLAGIARISM 10';
+	}
+	
 	check_key('statsAddAuto_list', $stats);
 	check_key('skillsAddAuto_list', $skills);
 }
@@ -358,7 +364,6 @@ automacro Go_Job_Change {
 		do conf -f eventMacro_1_99_stage turning_rogue_true_start
 		do conf -f doing_rogue_job_change start
 		
-		do conf -f Turn_rogue_lockMap_before &config(lockMap)
 		do conf -f lockMap none
 		
 		include on Turn_Rogue_.pm

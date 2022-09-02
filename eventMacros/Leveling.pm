@@ -7,6 +7,53 @@ automacro leveling_timer {
 	call baseMacroUp
 }
 
+macro set_lockmap_mjolnir_09 {
+	[
+	do conf lockMap mjolnir_09
+	
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_moc_fild04 {
+	[
+	do conf lockMap moc_fild04
+	
+	do mconf 1138 0 0 0 #Magnolia
+	
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_cmd_fild07 {
+	[
+	do conf lockMap cmd_fild07
+	
+	do conf -f future_saveMap_map cmd_fild07
+	do conf -f future_saveMap_x 136
+	do conf -f future_saveMap_y 134
+	
+	do conf -f future_saveMap_kafra_map cmd_fild07
+	do conf -f future_saveMap_kafra_x 136
+	do conf -f future_saveMap_kafra_y 134
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
 macro set_lockmap_prt_fild07 {
 	[
 	do conf lockMap prt_fild07
@@ -47,6 +94,21 @@ macro set_lockmap_prt_sewb2 {
 	]
 }
 
+macro set_lockmap_pay_dun00 {
+	[
+	do conf lockMap pay_dun00
+	
+	do conf -f future_saveMap_map oldnewpayon
+	do conf -f future_saveMap_x 98
+	do conf -f future_saveMap_y 118
+	
+	do conf -f future_saveMap_kafra_map oldnewpayon
+	do conf -f future_saveMap_kafra_x 98
+	do conf -f future_saveMap_kafra_y 118
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
 macro set_lockmap_pay_fild01 {
 	[
 	do conf lockMap pay_fild01
@@ -56,6 +118,10 @@ macro set_lockmap_pay_fild01 {
 		do iconf 713 50 1 0
 		do iconf 1058 1 1 0
 	}
+	do mconf 1242 1 0 0 #Marin
+	do mconf 1031 1 0 0 #Poporing
+	do mconf 1145 1 0 0 #Martin
+	do mconf 1018 1 0 0 #Creamy
 	
 	do conf -f future_saveMap_map oldnewpayon
 	do conf -f future_saveMap_x 98

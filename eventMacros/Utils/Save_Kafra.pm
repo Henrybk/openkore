@@ -467,6 +467,134 @@ automacro SavedAtKafra {
 			do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
 			do conf -f useSelf_item_$nextFreeSlot_timeout 5
 			]
+		} elsif ($saveMap == cmd_fild07) {
+			[
+			do conf -f minStorageZeny 100
+			do conf -f storageAuto_npc cmd_fild07 136 134
+			do conf -f storageAuto_npc_steps r~/storage/i
+			do conf -f storageAuto 1
+			
+			$toolDealer = cmd_fild07 257 126
+			
+			do conf -f sellAuto 1
+			do conf -f sellAuto_npc $toolDealer
+			
+			# Fly wing
+			$name = GetNamebyNameID(601)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc $toolDealer
+			do conf -f buyAuto_$nextFreeSlot_minAmount 0
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 5
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 300
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 601 5 1 0
+			
+			# Butterly wing
+			$name = GetNamebyNameID(602)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc $toolDealer
+			do conf -f buyAuto_$nextFreeSlot_minAmount 0
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 1
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 300
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 602 1 1 0
+			
+			# Red potion
+			$name = GetNamebyNameID(501)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc $toolDealer
+			do conf -f buyAuto_$nextFreeSlot_minAmount 5
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 50
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 2500
+			do conf -f buyAuto_$nextFreeSlot_maxBase 50
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 501 50 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_hp < 65%
+			
+			# Orange potion
+			$name = GetNamebyNameID(502)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc $toolDealer
+			do conf -f buyAuto_$nextFreeSlot_minAmount 5
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 50
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 10000
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 25
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 502 50 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_hp < 55%
+			
+			# Concentration potion
+			$name = GetNamebyNameID(645)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc $toolDealer
+			do conf -f buyAuto_$nextFreeSlot_minAmount 1
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 5
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 5000
+			do conf -f buyAuto_$nextFreeSlot_maxBase 45
+			do conf -f buyAuto_$nextFreeSlot_minBase 1
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 645 5 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_whenStatusInactive EFST_ATTHASTE_POTION1
+			do conf -f useSelf_item_$nextFreeSlot_inLockOnly 1
+			do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
+			do conf -f useSelf_item_$nextFreeSlot_timeout 5
+			
+			# Awakening Potion
+			$name = GetNamebyNameID(656)
+			$nextFreeSlot = get_free_slot_index_for_key("buyAuto","$name")
+			do conf -f buyAuto_$nextFreeSlot $name
+			do conf -f buyAuto_$nextFreeSlot_npc $toolDealer
+			do conf -f buyAuto_$nextFreeSlot_minAmount 1
+			do conf -f buyAuto_$nextFreeSlot_maxAmount 5
+			do conf -f buyAuto_$nextFreeSlot_minDistance 1
+			do conf -f buyAuto_$nextFreeSlot_maxDistance 10
+			do conf -f buyAuto_$nextFreeSlot_zeny > 8000
+			do conf -f buyAuto_$nextFreeSlot_maxBase 99
+			do conf -f buyAuto_$nextFreeSlot_minBase 46
+			do conf -f buyAuto_$nextFreeSlot_disabled 0
+			do iconf 656 5 1 0
+			
+			$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+			do conf -f useSelf_item_$nextFreeSlot $name
+			do conf -f useSelf_item_$nextFreeSlot_disabled 0
+			do conf -f useSelf_item_$nextFreeSlot_whenStatusInactive EFST_ATTHASTE_POTION2
+			do conf -f useSelf_item_$nextFreeSlot_inLockOnly 1
+			do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
+			do conf -f useSelf_item_$nextFreeSlot_timeout 5
+			]
 		}
 		
 		[
