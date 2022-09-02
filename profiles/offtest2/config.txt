@@ -5,14 +5,14 @@
 
 master Localhost
 server 0
-username player1
+username player2
 password 123456
 loginPinCode
-char 0
+char 
 ##### Plugins Start
 
-eventMacro_1_99_stage novice_2
-eventMacro_goal_class rogue
+eventMacro_1_99_stage start
+eventMacro_goal_class knight
 
 eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
@@ -47,7 +47,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword mavuzobe
+adminPassword hieturus
 callSign
 commandPrefix ;
 callSignGM 0
@@ -76,7 +76,7 @@ attackAuto 2
 attackAuto_party 1
 attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
-attackAuto_inLockOnly 2
+attackAuto_inLockOnly 1
 attackAuto_notInTown 1
 attackDistance 1
 attackDistanceAuto 0
@@ -179,7 +179,7 @@ followBot 0
 
 itemsTakeAuto 2
 itemsTakeAuto_party 0
-itemsGatherAuto 0
+itemsGatherAuto 2
 itemsGatherAuto_notInTown 0
 itemsMaxWeight 89
 itemsMaxWeight_sellOrStore 48
@@ -199,7 +199,7 @@ route_escape_reachedNoPortal 1
 route_escape_randomWalk 1
 route_escape_shout
 route_avoidWalls 1
-route_randomWalk 0
+route_randomWalk 1
 route_randomWalk_inTown 0
 route_randomWalk_maxRouteTime 75
 route_maxWarpFee
@@ -222,7 +222,7 @@ runFromTarget_maxStep 11
 runFromTarget_maxPathDistance 13
 
 saveMap
-saveMap_warpToBuyOrSell 0
+saveMap_warpToBuyOrSell 1
 saveMap_warpChatCommand
 memo1
 memo2
@@ -237,22 +237,22 @@ buyerShopAuto_open 0
 buyerShop_random 0
 
 sitAuto_hp_lower 40
-sitAuto_hp_upper 80
+sitAuto_hp_upper 100
 sitAuto_sp_lower 0
 sitAuto_sp_upper 0
 sitAuto_follow 0
 sitAuto_over_50 0
-sitAuto_idle 0
+sitAuto_idle 1
 sitAuto_look
 sitAuto_look_from_wall
 sitTensionRelax 0
 
-statsAddAuto 1
-statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int
-statsAddAuto_dontUseBonus 1
+statsAddAuto 0
+statsAddAuto_list
+statsAddAuto_dontUseBonus 0
 statsAdd_over_99 1
 
-skillsAddAuto 1
+skillsAddAuto 0
 skillsAddAuto_list
 
 tankMode 0
@@ -523,7 +523,7 @@ storageAuto_npc
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
-storageAuto_npc_type 3
+storageAuto_npc_type 1
 storageAuto_npc_steps
 storageAuto_password
 storageAuto_keepOpen 0
@@ -555,44 +555,44 @@ logToFile_Warnings
 history_max 50
 macro_orphans terminate
 
-equipAuto {
-	topHead
-	midHead
-	lowHead
-	leftHand
-	rightHand
-	leftAccessory
-	rightAccessory
-	robe
-	armor
-	shoes
-	arrow
-	monsters
-	notMonsters
-	monstersCount
-	weight 0
-	whileSitting 0
-	hp
-	sp
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout 0
-	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	manualAI 0
+equipAuto { 
+	topHead 
+	midHead 
+	lowHead 
+	leftHand 
+	rightHand 
+	leftAccessory 
+	rightAccessory 
+	robe 
+	armor 
+	shoes 
+	arrow 
+	monsters 
+	notMonsters 
+	monstersCount 
+	weight 0 
+	whileSitting 0 
+	hp 
+	sp 
+	homunculus_hp 
+	homunculus_sp 
+	homunculus_dead 
+	onAction 
+	whenStatusActive 
+	whenStatusInactive 
+	whenFollowing 
+	spirit 
+	amuletType 
+	aggressives 
+	stopWhenHit 0 
+	inLockOnly 0 
+	notWhileSitting 0 
+	notInTown 0 
+	timeout 0 
+	disabled 0 
+	whenPartyMembersNear 
+	whenPartyMembersNearDist 
+	inInventory 
+	manualAI 0 
 }
 

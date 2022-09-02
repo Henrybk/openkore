@@ -24,6 +24,17 @@ gameGuard 0
 private 1
 itemListType 1
 
+[Localhost]
+ip localhost
+port 6900
+private 1
+master_version 1
+version 28
+serverType kRO_RagexeRE_2020_04_01b
+serverEncoding Western
+addTableFolders Oath;kRO/RagexeRE_2020_04_01b;translated/kRO_english
+charBlockSize 155
+
 #####################
 # Official RO Servers
 
@@ -287,15 +298,6 @@ blockingPlayerCancel 1
 storageEncryptKey 0x050B6F79, 0x0202C179, 0x00E20120, 0x04FA43E3, 0x0179B6C8, 0x05973DF2, 0x07D8D6B, 0x08CB9ED9
 itemListType 1
 
-[Localhost]
-ip localhost
-port 6900
-private 1
-master_version 1
-version 20
-serverType kRO_RagexeRE_2009_11_04a
-serverEncoding Western
-addTableFolders translated/kRO_english;kRO
 
 ####################
 # Dead
