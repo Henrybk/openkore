@@ -263,3 +263,18 @@ izlude 150 143 Kylick#izlude
 alberta 131 139 Drunken Old Man
 alberta 117 135 Elin
 alberta 93 174 Grandmother Alma
+lasa_dun01 48 168 Poporing
+oldnewpayon 122 131 Neko Neko#1np
+oldnewpayon 141 146 Maximus Topper#pay
+oldnewpayon 164 142 Jim's Mother#np
+oldnewpayon 150 164 Merchant#pay
+pay_arche 86 36 Guide#2pay
+pay_arche 77 43 Bulletin Board#07
+pay_arche 54 123 Kafra Employee
+pay_arche 39 134 Bulletin Board#08
+pay_arche 52 145 Linus#hw2021
+oldnewpayon 125 154 Hair Stylist#pay
+oldnewpayon 124 147 Clothes Designer#pay
+lasa_dun01 53 48 Jelring
+lasa_dun01 59 161 Shiro
+lasa_dun01 51 159 Alexis Texas

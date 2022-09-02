@@ -1128,8 +1128,6 @@ orcsdun01 32 172 in_orcs01 30 182
 orcsdun01 183 8 orcsdun02 21 188
 orcsdun02 21 188 orcsdun01 183 8
 orcsdun02 180 15 in_orcs01 108 114
-
-pay_arche 145 165 pay_arche 71 156 pay_arche 92 170 pay_dun00 21 186 pay_arche 36 131
 pay_dun00 184 33 pay_dun01 15 33
 pay_dun01 15 33 pay_dun00 184 33
 pay_dun01 286 25 pay_dun02 16 63
@@ -2772,3 +2770,8 @@ morocc 253 56 morocc_in 134 77
 morocc 274 269 morocc_in 136 136
 morocc 284 170 morocc_in 108 179
 moc_ruins 159 37 morocc 25 294
+
+pay_arche 81 17 oldnewpayon 175 189
+oldnewpayon 175 189 pay_arche 81 22
+pay_dun00 21 186 pay_arche 36 131
+pay_arche 36 131 pay_dun00 21 183
