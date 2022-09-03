@@ -60,6 +60,9 @@ automacro RecOver {
 		do conf -f current_event_include &config(before_event_include)
 		do conf -f before_event_include none
 		
+		do iconf 713 0 1 0
+		do iconf 1058 0 1 0
+		
 		do reload eventMacros
 	}
 }

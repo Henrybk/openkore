@@ -348,13 +348,12 @@ macro adapt_to_test_windsor {
 		do conf -f lockMap $.map
 		
 		do conf -f attackAuto 2
-		do conf -f itemsTakeAuto 0
 		do conf -f attackCheckLOS 1
 		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
 		
+		do conf -f itemsTakeAuto 0
 		do conf -f sellAuto 0
-
 		do conf -f storageAuto 0
 		
 		do conf -f teleportAuto_minAggressives none
@@ -510,16 +509,19 @@ automacro Talk_to_knight_edmond {
 	JobID 1
 	InMap prt_in
 	QuestActive 9009, 9010
+	CheckOnAI auto, manual
 	NpcNear /Edmond/i
 	exclusive 1
 	priority 1
 	call {
+		do ai manual
 		do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0
 	}
 }
 
 automacro Got_To_Sitting_Room {
 	ConfigKey eventMacro_1_99_stage turning_knight_post_test
+	CheckOnAI auto, manual
 	JobID 1
 	InMap job_knt
 	exclusive 1
@@ -527,7 +529,7 @@ automacro Got_To_Sitting_Room {
 	call {
 		[
 		do ai manual
-		do conf -f attackAuto 0
+		do conf -f attackAuto -1
 		do conf -f route_randomWalk 0
 		do conf eventMacro_1_99_stage turning_knight_sitting
 		]

@@ -13,8 +13,15 @@ macro baseMacroUp {
 	$changed = 0
 	
 	$TFSTEALLevel = getSkillLevelByHandle("TF_STEAL")
-	if ($TFSTEALLevel >= 5) {
+	$RGSNATCHERLevel = getSkillLevelByHandle("RG_SNATCHER")
+	$RGSTEALCOINLevel = getSkillLevelByHandle("RG_STEALCOIN")
+	if ($RGSNATCHERLevel >= 1) {
+		call clear_steal
+	} elsif ($TFSTEALLevel >= 5) {
 		call set_steal
+	}
+	if ($RGSTEALCOINLevel >= 5) {
+		call set_STEALCOIN
 	}
 	
 	#Leveling
@@ -79,10 +86,12 @@ macro set_skills_stats {
 }
 
 sub set_skills_stats {
-	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 19 vit, 30 int, 70 agi, 29 str, 40 int, 50 dex, 99 agi, 70 int';
+	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 19 vit, 30 int, 70 agi, 29 str, 50 dex, 40 int, 80 agi, 80 dex, 40 str, 95 agi';
 	my $skills;
-	if ($char->{jobID} == 6) {
-		$skills = 'NV_BASIC 9, TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1';
+	if ($char->{jobID} == 0) {
+		$skills = 'NV_BASIC 9';
+	} elsif ($char->{jobID} == 6) {
+		$skills = 'TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1';
 	} elsif ($char->{jobID} == 17) {
 		$skills = 'RG_SNATCHER 10, RG_STEALCOIN 10, RG_BACKSTAP 4, RG_TUNNELDRIVE 5, RG_RAID 5, RG_INTIMIDATE 5, RG_PLAGIARISM 10';
 	}
@@ -118,10 +127,29 @@ macro set_steal {
 	]
 }
 
+macro clear_steal {
+	$foundSlot = find_key_in_block("attackSkillSlot","TF_STEAL")
+	if ($foundSlot != -1) {
+		sanity_clear_steal_skill("$foundSlot")
+	}
+}
+
+macro set_STEALCOIN {
+	[
+	$foundSlot = find_key_in_block("attackSkillSlot","RG_STEALCOIN")
+	if ($foundSlot == -1) {
+		$nextFreeSlot = get_free_slot_index_for_key("attackSkillSlot","RG_STEALCOIN")
+		do conf -f attackSkillSlot_$nextFreeSlot RG_STEALCOIN
+		$foundSlot = find_key_in_block("attackSkillSlot","RG_STEALCOIN")
+	}
+	sanity_check_stealCoin_skill("$foundSlot", "$RGSTEALCOINLevel")
+	]
+}
+
 macro set_buyauto_equipment {
 	[
 	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 1 && $testvar == 0) {
+	if ($hasWeaponLevel >= 1) {
 		call set_buyauto_armor
 		call set_buyauto_shoes
 		call set_buyauto_robe
@@ -147,15 +175,9 @@ macro set_Dirk {
 	$item{slot} = rightHand
 	$item{price} = 8500
 	$item{minLevel} = 12
-	if ($testvar == 1) {
-		$item{npcMap} = prt_in
-		$item{npcX} = 172
-		$item{npcY} = 130
-	} else {
-		$item{npcMap} = payon_in01
-		$item{npcX} = 76
-		$item{npcY} = 58
-	}
+	$item{npcMap} = payon_in01
+	$item{npcX} = 76
+	$item{npcY} = 58
 	call set_item
 	]
 }
@@ -167,15 +189,9 @@ macro set_Stiletto {
 	$item{slot} = rightHand
 	$item{price} = 19500
 	$item{minLevel} = 12
-	if ($testvar == 1) {
-		$item{npcMap} = prt_in
-		$item{npcX} = 172
-		$item{npcY} = 130
-	} else {
-		$item{npcMap} = payon_in01
-		$item{npcX} = 76
-		$item{npcY} = 58
-	}
+	$item{npcMap} = payon_in01
+	$item{npcX} = 76
+	$item{npcY} = 58
 	call set_item
 	]
 }
@@ -187,15 +203,9 @@ macro set_Damascus {
 	$item{slot} = rightHand
 	$item{price} = 49000
 	$item{minLevel} = 24
-	if ($testvar == 1) {
-		$item{npcMap} = prt_in
-		$item{npcX} = 172
-		$item{npcY} = 130
-	} else {
-		$item{npcMap} = payon_in01
-		$item{npcX} = 76
-		$item{npcY} = 58
-	}
+	$item{npcMap} = payon_in01
+	$item{npcX} = 76
+	$item{npcY} = 58
 	call set_item
 	]
 }
@@ -227,7 +237,7 @@ macro set_AdventureSuit {
 macro set_Coat {
 	[
 	$item{name} = Coat
-	$item{id} = 2312
+	$item{id} = 2309
 	$item{slot} = armor
 	$item{price} = 48000
 	$item{minLevel} = 25
@@ -241,7 +251,7 @@ macro set_Coat {
 macro set_ChainMail {
 	[
 	$item{name} = ChainMail
-	$item{id} = 2316
+	$item{id} = 2314
 	$item{slot} = armor
 	$item{price} = 80000
 	$item{minLevel} = 40
@@ -400,12 +410,12 @@ automacro Go_Job_Change {
 	exclusive 1
 	priority 0
 	call {
-		do conf -f eventMacro_1_99_stage turning_rogue_true_start
+		do conf -f eventMacro_1_99_stage turn_rogue_start
 		do conf -f doing_rogue_job_change start
 		
 		do conf -f lockMap none
 		
-		include on Turn_Rogue_.pm
+		include on Turn_Rogue.pm
 		
 		do reload eventMacros
 	}

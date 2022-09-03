@@ -54,6 +54,21 @@ macro set_lockmap_cmd_fild07 {
 	]
 }
 
+macro set_lockmap_moc_fild18 {
+	[
+	do conf lockMap moc_fild18
+	
+	do conf -f future_saveMap_map cmd_fild07
+	do conf -f future_saveMap_x 136
+	do conf -f future_saveMap_y 134
+	
+	do conf -f future_saveMap_kafra_map cmd_fild07
+	do conf -f future_saveMap_kafra_x 136
+	do conf -f future_saveMap_kafra_y 134
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
 macro set_lockmap_prt_fild07 {
 	[
 	do conf lockMap prt_fild07
@@ -62,6 +77,21 @@ macro set_lockmap_prt_fild07 {
 	do mconf 1031 0 0 0 #Poporing
 	do mconf 1145 0 0 0 #Martin
 	do mconf 1018 0 0 0 #Creamy
+	
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_prt_fild04 {
+	[
+	do conf lockMap prt_fild04
 	
 	do conf -f future_saveMap_map prt_fild05
 	do conf -f future_saveMap_x 290
@@ -363,6 +393,97 @@ automacro test_zenyman_2 {
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage leveling
 	StatusInactiveHandle EFST_BLESSING
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_3 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage leveling
+	CurrentHP < 50%
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_4 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
+	Zeny < 100000
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_5 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
+	StatusInactiveHandle EFST_BLESSING
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_6 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
+	CurrentHP < 50%
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_7 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage turning_knight_farming
+	Zeny < 100000
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_8 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage turning_knight_farming
+	StatusInactiveHandle EFST_BLESSING
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_9 {
+	exclusive 1
+	priority 1
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage turning_knight_farming
+	CurrentHP < 50%
 	call {
 		do move prt_fild05 283 223
 		do talknpc 290 219 r0

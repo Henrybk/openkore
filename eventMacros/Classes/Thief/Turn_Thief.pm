@@ -152,11 +152,6 @@ macro Ajust_to_kill_mush {
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 1
 	
-	# Mush 1
-	do pconf Orange Net Mushroom 1
-	do pconf Orange Gooey Mushroom 1
-	# Rest 0
-	do pconf all 0
 	do conf -f itemsGatherAuto 0
 	do conf -f itemsTakeAuto 2
 	# Mobs
@@ -228,7 +223,6 @@ macro End_mush_Farm {
 	do conf -f route_randomWalk 0
 	do conf -f itemsGatherAuto 0
 	do conf -f itemsTakeAuto 2
-	do pconf all 1
 	do mconf Poporing 1 0 0
 	do mconf Spore 1 0 0
 	do mconf Mushroom 0 0 0
@@ -356,7 +350,7 @@ automacro bug_skills {
 	exclusive 1
 	JobID 0
 	InMap moc_prydb1
-	NpcMsgName /learned all of the Basic Skills/ /Guide/
+	NpcMsgName /gotta learn all of the Basic Skills/ /Guide/
 	priority 0
 	call  {
 		[

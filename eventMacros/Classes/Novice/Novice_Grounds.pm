@@ -78,8 +78,10 @@ macro Conf_Stuff2 {
 	do iconf 13041 0 0 0
 	do iconf 2393 0 0 0
 	do iconf 2301 0 0 0
-	do iconf 713 50 1 0
-	do iconf 1058 1 1 0
+	if ($configClass = knight) {
+		do iconf 713 50 1 0
+		do iconf 1058 1 1 0
+	}
 	
 	do conf -f eventMacro_1_99_stage novice_1
 	]

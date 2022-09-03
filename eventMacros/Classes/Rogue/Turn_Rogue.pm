@@ -29,7 +29,7 @@ automacro FirstStartTalk {
 	priority 0
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	timeout 2
-	NpcMsg /E então, o que alguém jovem/
+	NpcMsg /(E então, o que alguém jovem|Let's get started)/
 	call {
 		do talk resp 0
 	}
@@ -38,7 +38,7 @@ automacro FirstStartTalk {
 automacro AfterFailTalk {
 	priority 0
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
-	NpcMsg /Ok, você provavelmente fez tudo errado da última vez porque estava muito nervoso/
+	NpcMsg /(Ok, você provavelmente fez tudo errado da última vez porque estava muito nervoso|you probably screwed up last time)/
 	call {
 		do talk resp 0
 	}
@@ -69,7 +69,7 @@ automacro RespQuestions01-03 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /correct description for the skill/
 	call {
-		do talk resp /Steal Zeny/i
+		do talk resp /Zeny.+monsters/i
 	}
 }
 
@@ -79,7 +79,7 @@ automacro RespQuestions01-04 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /How many Rogues does it require/
 	call {
-		do talk resp /(2 Rogues)/i
+		do talk resp /(2.+Rogues)/i
 	}
 }
 
@@ -89,7 +89,7 @@ automacro RespQuestions01-05 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /Choose the skill that you can learn/
 	call {
-		do talk resp /Divest Shield/i
+		do talk resp /Shield/i
 	}
 }
 
@@ -118,7 +118,7 @@ automacro RespQuestions01-08 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /weapon with the Vadon card/
 	call {
-		do talk resp /Elder Willow/i
+		do talk resp /Elder/i
 	}
 }
 
@@ -128,7 +128,7 @@ automacro RespQuestions01-09 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /require when used with a Dagger/
 	call {
-		do talk resp /Passive skill/i
+		do talk resp /Passive/i
 	}
 }
 
@@ -207,7 +207,7 @@ automacro RespQuestions02-07 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /Choose the monster that receives more damage from a Dagger with the Fire property/
 	call {
-		do talk resp /Hammer Goblin/i
+		do talk resp /Hammer/i
 	}
 }
 
@@ -226,7 +226,7 @@ automacro RespQuestions02-09 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /Choose the plant that drops Blue Herbs/
 	call {
-		do talk resp /Blue Plant/i
+		do talk resp /Blue/i
 	}
 }
 
@@ -305,7 +305,7 @@ automacro RespQuestions03-07 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /possible to change jobs from Thief to Rogue/
 	call {
-		do talk resp /Job Level 50/i
+		do talk resp /50/i
 	}
 }
 
@@ -314,7 +314,7 @@ automacro RespQuestions03-08 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /You want to dye your hair blue/
 	call {
-		do talk resp /Prontera, 7/i
+		do talk resp /Prontera.+7/i
 	}
 }
 
@@ -334,7 +334,7 @@ automacro RespQuestions03-10 {
 	ConfigKey eventMacro_1_99_stage turn_rogue_start
 	NpcMsg /Choose the card that least benefits the Rogue class/
 	call {
-		do talk resp /Elder Willow/i
+		do talk resp /Elder/i
 	}
 }
 
@@ -454,35 +454,54 @@ automacro checkItemsSet2 {
 }
 
 macro SetVarSet2 {
+	[
+	do conf -f turn_rogue_collect_set 2
 	$id = 508
-	$amount = 6
+	$amount = 10
 	$YellowHerb = GetNamebyNameID("$id")
 	$YellowHerb = &invamount($YellowHerb)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 940
 	$amount = 10
 	$Grasshopper = GetNamebyNameID("$id")
 	$Grasshopper = &invamount($Grasshopper)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 935
 	$amount = 10
 	$Shell = GetNamebyNameID("$id")
 	$Shell = &invamount($Shell)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
-	$id = 958
+	$id = 948
 	$amount = 10
 	$BearFootskin = GetNamebyNameID("$id")
 	$BearFootskin = &invamount($BearFootskin)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
+	]
 }
 
 macro OrganizeItems2 {
 	call SetVar
 	call set_skills_stats
-	call SetVarSet2
+	call SetVarSet2 0
 	$changed = 0
 	
 	if ($YellowHerb < 10) {
@@ -494,9 +513,16 @@ macro OrganizeItems2 {
 		}
 	
 	} elsif ($Grasshopper < 10 || $Shell < 10) {
-		if ($configlockMap != moc_fild04) {
-			call set_lockmap_moc_fild04
-			$changed = 1
+		if ($testvar == 1) {
+			if ($configlockMap != moc_fild18) {
+				call set_lockmap_moc_fild18
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != moc_fild04) {
+				call set_lockmap_moc_fild04
+				$changed = 1
+			}
 		}
 	
 	} elsif ($BearFootskin < 10) {
@@ -506,9 +532,16 @@ macro OrganizeItems2 {
 		}
 	
 	} elsif ($.zeny < 15000) {
-		if ($configlockMap != lasa_dun01) {
-			call set_lockmap_lasa_dun01
-			$changed = 1
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild05) {
+				call set_lockmap_prt_fild05
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != lasa_dun01) {
+				call set_lockmap_lasa_dun01
+				$changed = 1
+			}
 		}
 	} else {
 		do conf -f lockMap none
@@ -533,44 +566,70 @@ automacro checkItemsSet3 {
 	call OrganizeItems3
 }
 
-macro SetVarSet3 {#511,10,910,10,926,10,964,10;
+macro SetVarSet3 {
+	[
+	do conf -f turn_rogue_collect_set 3
 	$id = 910
 	$amount = 10
 	$Garlet = GetNamebyNameID("$id")
 	$Garlet = &invamount($Garlet)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 926
 	$amount = 10
 	$SnakeScale = GetNamebyNameID("$id")
 	$SnakeScale = &invamount($SnakeScale)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 511
 	$amount = 10
 	$GreenHerb = GetNamebyNameID("$id")
 	$GreenHerb = &invamount($GreenHerb)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 964
 	$amount = 10
 	$CrabShell = GetNamebyNameID("$id")
 	$CrabShell = &invamount($CrabShell)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
+	]
 }
 
 macro OrganizeItems3 {
 	call SetVar
 	call set_skills_stats
-	call SetVarSet3
+	call SetVarSet3 0
 	$changed = 0
 	
-	if ($Garlet < 10 || $SnakeScale < 10 || $.zeny < 15000) {
-		if ($configlockMap != lasa_dun01) {
-			# kafra aldebaran 143 119
-			# sell aldeba_in 94 56
-			call set_lockmap_lasa_dun01
-			$changed = 1
+	if ($Garlet < 10 || $SnakeScale < 10) {
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild04) {
+				call set_lockmap_prt_fild04
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != lasa_dun01) {
+				# kafra aldebaran 143 119
+				# sell aldeba_in 94 56
+				call set_lockmap_lasa_dun01
+				$changed = 1
+			}
 		}
 	
 	} elsif ($GreenHerb < 10) {
@@ -587,6 +646,19 @@ macro OrganizeItems3 {
 			# sell cmd_fild07 257 126
 			call set_lockmap_cmd_fild07
 			$changed = 1
+		}
+	
+	} elsif ($.zeny < 15000) {
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild05) {
+				call set_lockmap_prt_fild05
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != lasa_dun01) {
+				call set_lockmap_lasa_dun01
+				$changed = 1
+			}
 		}
 	
 	} else {
@@ -613,64 +685,104 @@ automacro checkItemsSet4 {
 }
 
 macro SetVarSet4 {
+	[
+	do conf -f turn_rogue_collect_set 4
 	$id = 510
 	$amount = 6
 	$ervaAzul = GetNamebyNameID("$id")
 	$ervaAzul = &invamount($ervaAzul)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 932
 	$amount = 10
 	$osso = GetNamebyNameID("$id")
 	$osso = &invamount($osso)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 957
 	$amount = 10
 	$unhaApodrecida = GetNamebyNameID("$id")
 	$unhaApodrecida = &invamount($unhaApodrecida)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
 	
 	$id = 958
 	$amount = 10
 	$mandibulaHorrenda = GetNamebyNameID("$id")
 	$mandibulaHorrenda = &invamount($mandibulaHorrenda)
-	call set_getauto
+	if ($.param[0] == 0) {
+		call set_getauto
+	} else {
+		call clear_getauto
+	}
+	]
 }
 
 macro OrganizeItems4 {
 	call SetVar
 	call set_skills_stats
-	call SetVarSet4
+	call SetVarSet4 0
 	$changed = 0
 	
 	if ($ervaAzul < 6) {
-		if ($configlockMap != pay_fild01) {
-			# kafra oldnewpayon 98 118
-			# sell oldnewpayon 69 117
-			call set_lockmap_pay_fild01
-			$changed = 1
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild05) {
+				call set_lockmap_prt_fild05
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != pay_fild01) {
+				call set_lockmap_pay_fild01
+				$changed = 1
+			}
 		}
 	
 	} elsif ($osso < 10 || $unhaApodrecida < 10 || $mandibulaHorrenda < 10) {
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild07) {
+				do mconf 1015 1 0 0
+				do mconf 1076 1 0 0
+				do mconf 1031 0 0 0
+				do mconf 1005 0 0 0
+				call set_lockmap_prt_fild07
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != pay_dun00) {
+				do mconf 1015 1 0 0
+				do mconf 1076 1 0 0
+				do mconf 1031 0 0 0
+				do mconf 1005 0 0 0
+				call set_lockmap_pay_dun00
+				$changed = 1
+			}
+		}
 		if ($osso >= 10) {
 			do mconf 1076 0 0 0
 		}
-		if ($configlockMap != pay_dun00) {
-			do mconf 1015 1 0 0
-			do mconf 1076 1 0 0
-			do mconf 1031 0 0 0
-			do mconf 1005 0 0 0
-			call set_lockmap_pay_dun00
-			$changed = 1
-		}
 	
 	} elsif ($.zeny < 15000) {
-		if ($configlockMap != lasa_dun01) {
-			# kafra aldebaran 143 119
-			# sell aldeba_in 94 56
-			call set_lockmap_lasa_dun01
-			$changed = 1
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild05) {
+				call set_lockmap_prt_fild05
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != lasa_dun01) {
+				call set_lockmap_lasa_dun01
+				$changed = 1
+			}
 		}
 	} else {
 		do conf -f lockMap none
@@ -689,8 +801,19 @@ macro OrganizeItems4 {
 macro set_getauto {
 	$name = GetNamebyNameID("$id")
 	$nextFreeGetAutoSlot = get_free_slot_index_for_key("getAuto","$name")
+	log We need $amount of item $name ($id)
 	do iconf $id $amount 1 0
 	sanity_check_getauto($nextFreeGetAutoSlot, $name, $amount)
+}
+
+macro clear_getauto {
+	$name = GetNamebyNameID("$id")
+	log Clearing getauto $name
+	$foundSlot = find_key_in_block("getAuto","$name")
+	if ($foundSlot != -1) {
+		clear_common_getauto("$foundSlot")
+	}
+	do iconf $id 0 1 0
 } 
 
 automacro moveSmithratoCompleteQuest {
@@ -721,9 +844,85 @@ automacro talkSmithCompletedQuest {
 	ConfigKey eventMacro_1_99_stage turn_rogue_deliver
 	priority 1
 	call {
-		do conf -f eventMacro_1_99_stage turn_rogue_getToNpc
+		do conf -f eventMacro_1_99_stage turn_rogue_getToNpc_farming
 		do conf -f turn_rogue_getToNpc_type $.QuestActiveLastID
+		$collectset = &config(turn_rogue_collect_set)
+		if ($collectset == 2) {
+			call SetVarSet2 1
+		} elsif ($collectset == 3) {
+			call SetVarSet3 1
+		} elsif ($collectset == 3) {
+			call SetVarSet4 1
+		}
 		do relog
+	}
+}
+
+automacro return_rogue_getToNpc_farming {
+	exclusive 1
+	InSaveMap 1
+	priority 0
+	QuestActive 2022, 2023, 2024, 2026
+	InInventoryID 502 < 30
+	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc
+	call {
+		do conf -f eventMacro_1_99_stage turn_rogue_getToNpc_farming
+	}
+}
+
+automacro turn_rogue_getToNpc_farming {
+	timeout 60
+	exclusive 1
+	priority 2
+	QuestActive 2022, 2023, 2024, 2026
+	InInventoryID 502 < 30
+	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
+	call rogue_farming
+}
+
+macro rogue_farming {
+	call SetVar
+	call set_skills_stats
+	$changed = 0
+	
+	if ($testvar == 1) {
+		do mconf 1052 0 0 0 #Rocker
+		do mconf 1014 0 0 0 #Spore
+		do mconf 1127 1 0 0 #Hode
+		if ($configlockMap != prt_fild05) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_fild05
+			$changed = 1
+		}
+	
+	} elsif ($configlockMap != lasa_dun01) {
+		# kafra aldebaran 143 119
+		# sell aldeba_in 94 56
+		call set_lockmap_lasa_dun01
+		$changed = 1
+	}
+	
+	if ($changed == 1) {
+		call after_lock_change
+	} else {
+		log [Rogue] Current lockmap $configlockMap is still good
+	}
+}
+
+automacro Return_To_Job_Change_Orange_Potion {
+	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
+	QuestActive 2022, 2023, 2024, 2026
+	InInventoryID 502 >= 30 
+	exclusive 1
+	priority 0
+	call {
+		[
+		do conf -f eventMacro_1_99_stage turn_rogue_getToNpc
+		do conf -f itemsTakeAuto 0
+		do conf -f teleportAuto_maxDmg 900
+		do conf -f lockMap none
+		]
 	}
 }
 
@@ -931,7 +1130,20 @@ automacro DoMaze {
 	call {
 		[
 		do conf -f attackAuto -1
-		do conf -f route_randomWalk 0
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
+		do conf -f route_randomWalk 1
+		
+		do conf -f itemsTakeAuto 0
+		do conf -f sellAuto 0
+		do conf -f storageAuto 0
+		
+		do conf -f teleportAuto_minAggressives none
+		do conf -f teleportAuto_hp none
+		do conf -f teleportAuto_maxDmg none
+		
+		do eval AI::clear(qw/storageAuto/)
+		
 		do conf -f eventMacro_1_99_stage turn_rogue_maze
 		do move in_rogue 359 117
 		]
@@ -954,8 +1166,19 @@ automacro DiedInMaze {
 	exclusive 1
 	call {
 		do conf -f attackAuto 2
+		do conf -f itemsTakeAuto 2
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
-		do conf -f eventMacro_1_99_stage turn_rogue_getToNpc
+		
+		do conf -f teleportAuto_minAggressives 4
+		do conf -f teleportAuto_hp 10
+		do conf -f teleportAuto_maxDmg 500
+		
+		do conf -f sellAuto 1
+		do conf -f storageAuto 1
+		
+		do conf -f eventMacro_1_99_stage turn_rogue_getToNpc_farming
 	}
 }
 
@@ -966,9 +1189,22 @@ automacro EndMaze {
 	IsInMapAndCoordinate in_rogue 359 117
 	run-once 1
 	call {
+		[
 		do conf -f attackAuto 2
+		do conf -f itemsTakeAuto 2
+		do conf -f attackCheckLOS 1
+		do conf -f attackRouteMaxPathDistance 28
 		do conf -f route_randomWalk 1
+		
+		do conf -f teleportAuto_minAggressives 4
+		do conf -f teleportAuto_hp 10
+		do conf -f teleportAuto_maxDmg 500
+		
+		do conf -f sellAuto 1
+		do conf -f storageAuto 1
+		
 		do conf -f eventMacro_1_99_stage turn_rogue_end
+		]
 	}
 }
 

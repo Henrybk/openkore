@@ -137,7 +137,7 @@ macro Set_use_Two_Handed_Quicken {
 macro set_buyauto_equipment {
 	[
 	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 1 && $testvar == 0) {
+	if ($hasWeaponLevel >= 1) {
 		call set_buyauto_armor
 		call set_buyauto_shoes
 		call set_buyauto_robe
@@ -177,15 +177,9 @@ macro set_Slayer {
 	$item{slot} = rightHand
 	$item{price} = 15000
 	$item{minLevel} = 18
-	if ($testvar == 1) {
-		$item{npcMap} = prt_in
-		$item{npcX} = 172
-		$item{npcY} = 130
-	} else {
-		$item{npcMap} = izlude_in
-		$item{npcX} = 60
-		$item{npcY} = 127
-	}
+	$item{npcMap} = izlude_in
+	$item{npcX} = 60
+	$item{npcY} = 127
 	call set_item
 	]
 }
@@ -197,15 +191,9 @@ macro set_TwoHandedSword {
 	$item{slot} = rightHand
 	$item{price} = 60000
 	$item{minLevel} = 33
-	if ($testvar == 1) {
-		$item{npcMap} = prt_in
-		$item{npcX} = 172
-		$item{npcY} = 130
-	} else {
-		$item{npcMap} = izlude_in
-		$item{npcX} = 60
-		$item{npcY} = 127
-	}
+	$item{npcMap} = izlude_in
+	$item{npcX} = 60
+	$item{npcY} = 127
 	call set_item
 	]
 }

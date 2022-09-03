@@ -270,6 +270,35 @@ sub sanity_check_steal_skill {
 	return 1;
 }
 
+sub sanity_clear_steal_skill {
+	my $Slot = shift;
+	
+	check_key('attackSkillSlot_'.$Slot, undef);
+	check_key('attackSkillSlot_'.$Slot.'_lvl', undef);
+	check_key('attackSkillSlot_'.$Slot.'_sp', undef);
+	check_key('attackSkillSlot_'.$Slot.'_maxUses', undef);
+	check_key('attackSkillSlot_'.$Slot.'_timeout', undef);
+	check_key('attackSkillSlot_'.$Slot.'_maxAttempts', undef);
+	check_key('attackSkillSlot_'.$Slot.'_disabled', undef);
+	
+	return 1;
+}
+
+sub sanity_check_stealCoin_skill {
+	my $Slot = shift;
+	my $level = shift;
+	
+	check_key('attackSkillSlot_'.$Slot, 'RG_STEALCOIN');
+	check_key('attackSkillSlot_'.$Slot.'_lvl', $level);
+	check_key('attackSkillSlot_'.$Slot.'_sp', '> 15');
+	check_key('attackSkillSlot_'.$Slot.'_target_notCoinStolen', 1);
+	check_key('attackSkillSlot_'.$Slot.'_timeout', 1);
+	check_key('attackSkillSlot_'.$Slot.'_maxAttempts', 4);
+	check_key('attackSkillSlot_'.$Slot.'_disabled', 0);
+	
+	return 1;
+}
+
 sub sanity_check_Two_Handed_Quicken {
 	my $Slot = shift;
 	my $level = shift;
@@ -294,6 +323,17 @@ sub sanity_check_getauto {
 	check_key('getAuto_'.$Slot.'_maxAmount', $amount);
 	check_key('getAuto_'.$Slot.'_passive', 1);
 	check_key('getAuto_'.$Slot.'_disabled', 0);
+	
+	return 1;
+}
+
+sub clear_common_getauto {
+	my $Slot = shift;
+	
+	check_key('getAuto_'.$Slot, undef);
+	check_key('getAuto_'.$Slot.'_maxAmount', undef);
+	check_key('getAuto_'.$Slot.'_passive', undef);
+	check_key('getAuto_'.$Slot.'_disabled', undef);
 	
 	return 1;
 }
@@ -326,9 +366,15 @@ macro set_item {
 	$itemHash{$item{name}slot} = $item{slot}
 	$itemHash{$item{name}price} = $item{price}
 	$itemHash{$item{name}minLevel} = $item{minLevel}
-	$itemHash{$item{name}npcMap} = $item{npcMap}
-	$itemHash{$item{name}npcX} = $item{npcX}
-	$itemHash{$item{name}npcY} = $item{npcY}
+	if ($testvar == 1) {
+		$itemHash{$item{name}npcMap} = prt_fild05
+		$itemHash{$item{name}npcX} = 290
+		$itemHash{$item{name}npcY} = 217
+	} else {
+		$itemHash{$item{name}npcMap} = $item{npcMap}
+		$itemHash{$item{name}npcX} = $item{npcX}
+		$itemHash{$item{name}npcY} = $item{npcY}
+	}
 	$itemHash{$item{name}Has} = $item{Has}
 	$itemHash{$item{name}Equipped} = $item{Equipped}
 	$itemHash{$item{name}CanEquip} = $item{CanEquip}
