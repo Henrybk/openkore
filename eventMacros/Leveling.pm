@@ -375,7 +375,7 @@ automacro need_to_configure_Haleigh_2 {
 
 automacro test_zenyman_1 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage leveling
@@ -388,7 +388,7 @@ automacro test_zenyman_1 {
 
 automacro test_zenyman_2 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage leveling
@@ -401,7 +401,7 @@ automacro test_zenyman_2 {
 
 automacro test_zenyman_3 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage leveling
@@ -414,7 +414,7 @@ automacro test_zenyman_3 {
 
 automacro test_zenyman_4 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
@@ -427,7 +427,7 @@ automacro test_zenyman_4 {
 
 automacro test_zenyman_5 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
@@ -440,7 +440,7 @@ automacro test_zenyman_5 {
 
 automacro test_zenyman_6 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage turn_rogue_getToNpc_farming
@@ -453,7 +453,7 @@ automacro test_zenyman_6 {
 
 automacro test_zenyman_7 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage turning_knight_farming
@@ -466,7 +466,7 @@ automacro test_zenyman_7 {
 
 automacro test_zenyman_8 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage turning_knight_farming
@@ -479,7 +479,7 @@ automacro test_zenyman_8 {
 
 automacro test_zenyman_9 {
 	exclusive 1
-	priority 1
+	priority 3
 	ConfigKey eventMacro_test 1
 	InMap prt_fild05
 	ConfigKey eventMacro_1_99_stage turning_knight_farming
