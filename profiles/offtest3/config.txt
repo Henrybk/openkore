@@ -5,7 +5,7 @@
 
 master Localhost
 server 0
-username player1
+username player3
 password 123456
 loginPinCode
 char 
