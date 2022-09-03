@@ -24,7 +24,7 @@ automacro talkHanson {
 }
 
 macro TalkHanson {
-	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r~/Exercise/i r~/Change/i r~/Seller/i r~/Prudence/i r~/Experience/i r~/Future/i r~/No/i r~/No/i r~/Yes/i r~/No/i r~/Yes/i r~/Yes/i r~/Yes/i r~/No/i r~/Schedule/i r~/Check/i r~/Don/i r~/Ask/i r~/Assess/i r~/Leave/i r~/Change/i r~/Promise/i r0
+	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r~/Exercise/i r~/Change/i r~/Seller/i r~/Prudence/i r~/Experience/i r~/Future/i r~/No/i r~/No/i r~/Yes/i r~/No/i r~/Yes/i r~/Yes/i r~/Yes/i r~/No/i r~/Schedule/i r~/Check/i r~/Don/i r~/Ask/i r~/Assess/i r~/Leave/i r~/Change/i r~/Promise/i
 }
 
 automacro moved_out_of_novice_grounds {
