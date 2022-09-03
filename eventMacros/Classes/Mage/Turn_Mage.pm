@@ -24,7 +24,7 @@ automacro talkHanson {
 }
 
 macro TalkHanson {
-	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r~/Exercise/i r~/Change/i r~/Seller/i r~/Prudence/i r~/Experience/i r~/Future/i r~/No/i r~/No/i r~/Yes/i r~/No/i r~/Yes/i r~/Yes/i r~/Yes/i r~/No/i r~/Schedule/i r~/Check/i r~/Don/i r~/Ask/i r~/Assess/i r~/Leave/i r~/Change/i r~/Promise/i
+	do talknpc &arg("$.NpcNearLastPos", 1) &arg("$.NpcNearLastPos", 2) r0 r~/Study/i r~/Conserve/i r~/Producer/i r~/Prudence/i r~/Theory/i r~/Future/i r~/Yes/i r~/No/i r~/No/i r~/Yes/i r~/No/i r~/No/i r~/No/i r~/No/i r~/satisfied/i r~/Consider/i r~/Don/i r~/Ask/i r~/hospital/i r~/Wonder/i r~/Change/i r~/Promise/i r0
 }
 
 automacro moved_out_of_novice_grounds {
@@ -45,7 +45,7 @@ automacro moved_out_of_novice_grounds {
 	call {
 		include off Move_to_tester.pm
 		
-		do conf -f eventMacro_1_99_stage turnarcher_out
+		do conf -f eventMacro_1_99_stage turnmage_out
 		
 		do reload eventMacros
 	}
@@ -60,7 +60,7 @@ automacro move_to_guild_outside_far {
 	NotInMap payon_in01
 	NotInMap payon_in02
 	QuestInactive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_out
+	ConfigKey eventMacro_1_99_stage turnmage_out
 	priority 1
 	call {
 		do is Novice Butterfly Wing
@@ -72,9 +72,9 @@ automacro move_to_guild_outside {
 	JobID 0
 	InMap oldnewpayon, payon, pay_arche, payon_in01
 	QuestInactive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_out
+	ConfigKey eventMacro_1_99_stage turnmage_out
 	priority 1
-	call Move_to_archer_place
+	call Move_to_mage_place
 }
 
 automacro move_to_guild_inside {
@@ -82,23 +82,23 @@ automacro move_to_guild_inside {
 	JobID 0
 	InMap payon_in02
 	QuestInactive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_out
+	ConfigKey eventMacro_1_99_stage turnmage_out
 	NpcNotNear /Guildsman/
 	priority 1
-	call Move_to_archer_place
+	call Move_to_mage_place
 }
 
-macro Move_to_archer_place {
+macro Move_to_mage_place {
 	do move payon_in02 65 65
 }
 
-automacro Talk_to_Archer_Guildsman {
+automacro Talk_to_Mage_Guildsman {
 	exclusive 0
 	self_interruptible 0
 	JobID 0
 	InMap payon_in02
 	QuestInactive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_out
+	ConfigKey eventMacro_1_99_stage turnmage_out
 	NpcNear /Guildsman/
 	priority 1
 	call {
@@ -110,10 +110,10 @@ automacro Move_to_trunk_guy {
 	exclusive 1
 	JobID 0
 	QuestActive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_out
+	ConfigKey eventMacro_1_99_stage turnmage_out
 	priority 1
 	call {
-		do conf -f eventMacro_1_99_stage turnarcher_give_trunk
+		do conf -f eventMacro_1_99_stage turnmage_give_trunk
 	}
 }
 
@@ -121,28 +121,28 @@ automacro Move_to_end_quest_outside {
 	exclusive 1
 	JobID 0
 	QuestActive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_give_trunk
+	ConfigKey eventMacro_1_99_stage turnmage_give_trunk
 	NotInMap payon_in02
 	priority 1
-	call Move_to_archer_place
+	call Move_to_mage_place
 }
 
 automacro Move_to_end_quest_inside {
 	exclusive 1
 	JobID 0
 	QuestActive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_give_trunk
+	ConfigKey eventMacro_1_99_stage turnmage_give_trunk
 	InMap payon_in02
 	NpcNotNear /Guildsman/
 	priority 1
-	call Move_to_archer_place
+	call Move_to_mage_place
 }
 
 automacro Talk_to_end_quest_guy {
 	exclusive 1
 	JobID 0
 	QuestActive 1004
-	ConfigKey eventMacro_1_99_stage turnarcher_give_trunk
+	ConfigKey eventMacro_1_99_stage turnmage_give_trunk
 	InMap payon_in02
 	NpcNear /Guildsman/
 	priority 1
@@ -151,19 +151,19 @@ automacro Talk_to_end_quest_guy {
 	}
 }
 
-automacro Changed_to_Archer {
+automacro Changed_to_Mage {
 	exclusive 1
 	JobID 3
 	JobLevel = 1
-	ConfigKey eventMacro_1_99_stage turnarcher_give_trunk
+	ConfigKey eventMacro_1_99_stage turnmage_give_trunk
 	priority 1
 	call {
-		do conf -f eventMacro_1_99_stage turnarcher_after_change
+		do conf -f eventMacro_1_99_stage turnmage_after_change
 	}
 }
 
-automacro EquipArcherStuff {
-	ConfigKey eventMacro_1_99_stage turnarcher_after_change
+automacro EquipMageStuff {
+	ConfigKey eventMacro_1_99_stage turnmage_after_change
 	IsNotEquippedID rightHand 1702
 	JobLevel = 1
 	JobID 3
@@ -177,8 +177,8 @@ automacro EquipArcherStuff {
 	}
 }
 
-automacro EquipArcherStuffEnd {
-	ConfigKey eventMacro_1_99_stage turnarcher_after_change
+automacro EquipMageStuffEnd {
+	ConfigKey eventMacro_1_99_stage turnmage_after_change
 	IsEquippedID rightHand 1702
 	JobLevel = 1
 	JobID 3
@@ -210,7 +210,7 @@ automacro EquipArcherStuffEnd {
 		do conf -f teleportAuto_minAggressives 4
 		do conf -f saveMap_warpToBuyOrSell 1
 		
-		include off Turn_Archer.pm
+		include off Turn_Mage.pm
 		
 		call set_class_leveling
 		
