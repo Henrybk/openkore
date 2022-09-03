@@ -1,0 +1,147 @@
+
+# Basic
+	!include ..\..\eventMacros\Utils\Perl_Subs.pm
+	#!include ..\..\eventMacros\Utils\Save_Kafra.pm
+
+# Leveling
+automacro leveling_timer {
+	timeout 180
+	ConfigKey eventMacro_1_99_stage leveling
+	exclusive 1
+	priority 2
+	call baseMacroUp
+}
+
+macro set_lockmap_prt_fild05 {
+	[
+	do conf lockMap prt_fild05
+	
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro baseMacroUp {
+	[
+	call SetVar
+	$changed = 0
+	
+	#Leveling
+	if ($testvar == 1) {
+		if ($.lvl <= 25) {
+			do mconf 1052 1 0 0 #Rocker
+			do mconf 1014 0 0 0 #Spore
+			do mconf 1127 0 0 0 #Hode
+		} elsif ($.lvl <= 40) {
+			do mconf 1052 0 0 0 #Rocker
+			do mconf 1014 1 0 0 #Spore
+			do mconf 1127 0 0 0 #Hode
+		} else {
+			do mconf 1052 0 0 0 #Rocker
+			do mconf 1014 0 0 0 #Spore
+			do mconf 1127 1 0 0 #Hode
+		}
+		if ($configlockMap != prt_fild05) {
+			# kafra prt_fild05 290 224
+			# sell prt_fild05 290 221
+			call set_lockmap_prt_fild05
+			$changed = 1
+		}
+	
+	}
+	
+	if ($changed == 1) {
+		call after_lock_change
+	} else {
+		log Current lockmap $configlockMap is still good
+	}
+	]
+}
+
+macro archer_config_leveling_settings {
+	[
+	do conf -f attackAuto 2
+	do conf -f attackCheckLOS 1
+	do conf -f attackDistanceAuto 1
+	do conf -f attackCanSnipe 1
+	
+	do conf -f attackAuto_inLockOnly 2
+	
+	do conf -f teleportAuto_atkMiss 0
+	do conf -f attackRouteMaxPathDistance 28
+	do conf -f route_randomWalk 1
+	do conf -f itemsGatherAuto 0
+	do conf -f itemsTakeAuto 2
+	do conf -f route_step 15
+	do conf -f portalRecord 2
+	do conf -f route_avoidWalls 1
+	do conf -f itemsMaxWeight_sellOrStore 68
+	]
+}
+
+macro after_lock_change {
+	call SetVar
+	call archer_config_leveling_settings
+	if ($configsaveMap != &config(future_saveMap_map)) {
+		call change_savemap
+	} else {
+		call clear_saveMap_keys
+	}
+}
+
+macro change_savemap {
+	[
+	do conf -f saveMap_stage_before &config(eventMacro_1_99_stage)
+	do conf -f eventMacro_1_99_stage saving_in_kafra
+	do conf -f before_event_include &config(current_event_include)
+	do conf -f current_event_include Save_Kafra.pm
+	]
+	include off &config(before_event_include)
+	include on Save_Kafra.pm
+	do reload eventMacros
+}
+
+automacro test_zenyman_1 {
+	exclusive 1
+	priority 3
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage leveling
+	Zeny < 100000
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_2 {
+	exclusive 1
+	priority 3
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage leveling
+	StatusInactiveHandle EFST_BLESSING
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
+
+automacro test_zenyman_3 {
+	exclusive 1
+	priority 3
+	ConfigKey eventMacro_test 1
+	InMap prt_fild05
+	ConfigKey eventMacro_1_99_stage leveling
+	CurrentHP < 50%
+	call {
+		do move prt_fild05 283 223
+		do talknpc 290 219 r0
+	}
+}
