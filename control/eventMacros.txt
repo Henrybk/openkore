@@ -19,7 +19,7 @@
 		
 	# Thief
 		#!include ..\..\eventMacros\Classes\Thief\Turn_Thief.pm
-		#!include ..\..\eventMacros\Classes\Rogue\Rogue_Knight.pm
+		#!include ..\..\eventMacros\Classes\Rogue\Turn_Rogue.pm
 		#!include ..\..\eventMacros\Classes\Rogue\Rogue_Settings.pm
 
 # Quests 
