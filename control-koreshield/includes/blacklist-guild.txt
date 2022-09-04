@@ -1,0 +1,4 @@
+.* GM.*
+#^GM.*
+#.* Staff.*
+^Game Master\.$
