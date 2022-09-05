@@ -79,6 +79,9 @@ attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
 attackAuto_inLockOnly 1
 attackAuto_notInTown 1
+attackAuto_notWhile_storageAuto 1
+attackAuto_notWhile_buyAuto 1
+attackAuto_notWhile_sellAuto 1
 attackDistance 1
 attackDistanceAuto 0
 attackMaxDistance 1
@@ -186,7 +189,6 @@ itemsMaxWeight 89
 itemsMaxWeight_sellOrStore 48
 itemsMaxNum_sellOrStore 99
 cartMaxWeight 7900
-itemsTakeAuto_new 0
 itemsTakeGreed 0
 itemsCheckWeight 1
 
