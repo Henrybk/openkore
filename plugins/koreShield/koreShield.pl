@@ -290,13 +290,29 @@ sub detectGM_someonesMuted {
 }
 
 sub detectGM_msg {
-	my ($self, $args) = @_;
+	my ($caller, $args) = @_;
 	if ($args->{pubID} && isIn_Array(unpack("V",$args->{pubID}), \@{$core_databases{GMIDS}}) eq 1) {
-		error sprintf("Player de ID blacklisted %s falou em $self! \n", unpack("V",$args->{pubID})), "koreShield_detect";
-		&core_eventsReaction($self);
+		error sprintf("Player de ID blacklisted %s falou em $caller! \n", unpack("V",$args->{pubID})), "koreShield_detect";
+		&core_eventsReaction($caller);
 	} elsif ($args->{MsgUser} && (isIn_Array_Regex($args->{MsgUser}, \@{$core_databases{NAMES}}))) {
-		error sprintf("Player de nome blacklisted %s falou em $self! \n", $args->{pubMsgUser}), "koreShield_detect";
-		&core_eventsReaction($self);
+		error sprintf("Player de nome blacklisted %s falou em $caller! \n", $args->{pubMsgUser}), "koreShield_detect";
+		&core_eventsReaction($caller);
+	}
+	if ($caller eq 'packet_pubMsg') {
+		my $actor = Actor::get($args->{pubID});
+		my $unpID = unpack("V",$args->{pubID});
+		if ($actor->isa('Actor::Unknown')) {
+			error "[detectGM_msg] Sus Unknown (probably \@hide) | ID $unpID | nameID $actor->{nameID} | name $args->{pubMsgUser} | msg $args->{pubMsg}\n";
+			&core_eventsReaction($caller);
+		}
+		if ($actor->isa('Actor::Monster')) {
+			error "[detectGM_msg] Sus Monster (probably \@disguise) | ID $unpID | nameID $actor->{nameID} | name $args->{pubMsgUser} | msg $args->{pubMsg}\n";
+			&core_eventsReaction($caller);
+		}
+		if ($actor->{nameID} != $unpID) {
+			error "[detectGM_msg] diff id | nameID $actor->{nameID} != $unpID ID | name $args->{pubMsgUser} | msg $args->{pubMsg}\n";
+			&core_eventsReaction($caller);
+		}
 	}
 }
 
@@ -720,6 +736,9 @@ sub core_actorInfo {
 	
 	my $player;
 	# get stored actor info
+	
+	my $actor = Actor::get($args->{ID});
+	
 	if ($ID) {
 		$player = $playersList->getByID(pack("V1", $ID)) if $playersList;
 	}	
@@ -751,6 +770,13 @@ sub core_actorInfo {
 	} elsif (defined $player && defined $player->{guild} && (isIn_Array_Regex($player->{guild}{title}, \@{$core_databases{GUILDTITLE}}))) {
 		$detect_reason = 'Guild title na blacklist';
 	}
+	
+	if ($actor->isa('Actor::Monster')) {
+		if (defined $args->{partyName} || defined $args->{guildName}) {
+			$detect_reason = 'Monster com partyName/guildName';
+		}
+	}
+	
 	if ($detect_reason) {
 		$ping_idArrayPosition = 0;
 		
