@@ -682,13 +682,21 @@ sub sendRestart {
 
 sub sendStorageAdd {
 	my ($self, $ID, $amount) = @_;
-	$self->sendToServer($self->reconstruct({switch => 'storage_item_add', ID => $ID, amount => $amount}));
+	if ($config{storageAuto_type} == 1) {
+		$self->sendToServer($self->reconstruct({switch => 'guild_storage_item_add', ID => $ID, amount => $amount}));
+	} else {
+		$self->sendToServer($self->reconstruct({switch => 'storage_item_add', ID => $ID, amount => $amount}));
+	}
 	debug sprintf("Sent Storage Add: %s x $amount\n", unpack('v', $ID)), "sendPacket", 2;
 }
 
 sub sendStorageGet {
 	my ($self, $ID, $amount) = @_;
-	$self->sendToServer($self->reconstruct({switch => 'storage_item_remove', ID => $ID, amount => $amount}));
+	if ($config{storageAuto_type} == 1) {
+		$self->sendToServer($self->reconstruct({switch => 'guild_storage_item_remove', ID => $ID, amount => $amount}));
+	} else {
+		$self->sendToServer($self->reconstruct({switch => 'storage_item_remove', ID => $ID, amount => $amount}));
+	}
 	debug sprintf("Sent Storage Get: %s x $amount\n", unpack('v', $ID)), "sendPacket", 2;
 }
 
@@ -2384,24 +2392,38 @@ sub sendWarpTele {
 
 sub sendStorageGetToCart {
 	my ($self, $ID, $amount) = @_;
-
-	$self->sendToServer($self->reconstruct({
-		switch => 'storage_to_cart',
-		ID => $ID,
-		amount => $amount,
-	}));
+	if ($config{storageAuto_type} == 1) {
+			$self->sendToServer($self->reconstruct({
+			switch => 'guild_storage_to_cart',
+			ID => $ID,
+			amount => $amount,
+		}));
+	} else {
+		$self->sendToServer($self->reconstruct({
+			switch => 'storage_to_cart',
+			ID => $ID,
+			amount => $amount,
+		}));
+	}
 
 	debug "Sent Storage Get From Cart: " . getHex($ID) . " x $amount\n", "sendPacket", 2;
 }
 
 sub sendStorageAddFromCart {
 	my ($self, $ID, $amount) = @_;
-
-	$self->sendToServer($self->reconstruct({
-		switch => 'cart_to_storage',
-		ID => $ID,
-		amount => $amount,
-	}));
+	if ($config{storageAuto_type} == 1) {
+		$self->sendToServer($self->reconstruct({
+			switch => 'cart_to_guild_storage',
+			ID => $ID,
+			amount => $amount,
+		}));
+	} else {
+		$self->sendToServer($self->reconstruct({
+			switch => 'cart_to_storage',
+			ID => $ID,
+			amount => $amount,
+		}));
+	}
 
 	debug "Sent Storage Add From Cart: " . getHex($ID) . " x $amount\n", "sendPacket", 2;
 }
@@ -3464,6 +3486,38 @@ sub sendInventoryExpansionRejected {
 sub sendPing {
 	my ($self, $args) = @_;
 	$self->sendToServer($self->reconstruct({ switch => 'ping' }));
+}
+
+# 0A5A - PACKET_CZ_MACRO_DETECTOR_DOWNLOAD
+# Let Server know that we already downloaded Captcha Image
+sub sendMacroDetectorDownload {
+	my ($self) = @_;
+
+	$self->sendToServer($self->reconstruct({
+		switch => 'macro_detector_download',
+	}));
+}
+
+# 0A5C - PACKET_CZ_MACRO_DETECTOR_ANSWER
+# Send Captcha Answer
+sub sendMacroDetectorAnswer {
+	my ($self, $answer) = @_;
+
+	$self->sendToServer($self->reconstruct({
+		switch => 'macro_detector_answer',
+		answer => $answer,
+	}));
+}
+
+# 0A69 - PACKET_CZ_CAPTCHA_PREVIEW_REQUEST
+# Request to preview a captcha (privilege is required)
+sub sendCaptchaPreviewRequest {
+	my ($self, $captcha_key) = @_;
+
+	$self->sendToServer($self->reconstruct({
+		switch => 'captcha_preview_request',
+		captcha_key => $captcha_key,
+	}));
 }
 
 1;
