@@ -26,12 +26,6 @@ sub Unload {
 sub onmiss {
 	my ($self, $args) = @_;
 	
-	#$plugin_args{x} = $self->{mapSolution}[0]{pos}{x};
-	#$plugin_args{y} = $self->{mapSolution}[0]{pos}{y};
-	#$plugin_args{steps} = $self->{mapSolution}[0]{steps};
-	#$plugin_args{plugin_retry} = $self->{mapSolution}[0]{plugin_retry};
-	#$plugin_args{return} = 0;
-	
 	return if ($args->{plugin_retry} > 0);
 	
 	my $closest_portal_binID;

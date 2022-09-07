@@ -194,7 +194,7 @@ sub iterate {
 					$plugin_args{y} = $self->{mapSolution}[0]{pos}{y};
 					$plugin_args{steps} = $self->{mapSolution}[0]{steps};
 					$plugin_args{plugin_retry} = $self->{mapSolution}[0]{plugin_retry};
-					$plugin_args{plugin_retry} = 0 if (defined $plugin_args{plugin_retry});
+					$plugin_args{plugin_retry} = 0 if (!defined $plugin_args{plugin_retry});
 					
 					$plugin_args{return} = 0;
 					
