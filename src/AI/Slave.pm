@@ -221,7 +221,7 @@ sub processFollow {
 	) {
 		$slave->clear('move', 'route');
 		if (!$field->canMove($slave->{pos_to}, $char->{pos_to})) {
-			$slave->route(undef, @{$char->{pos_to}}{qw(x y)}, isFollow => 1);
+			$slave->route(undef, @{$char->{pos_to}}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, isFollow => 1);
 			debug TF("%s follow route (distance: %d)\n", $slave, $slave->{master_dist}), 'slave';
 
 		} elsif (timeOut($slave->{move_retry}, 0.5)) {
@@ -270,7 +270,7 @@ sub processIdleWalk {
 				splice(@cells, $index, 1);
 			}
 			return unless ($walk_pos);
-			$slave->route(undef, @{$walk_pos}{qw(x y)}, attackOnRoute => 2, noMapRoute => 1, noAvoidWalls => 1, isIdleWalk => 1);
+			$slave->route(undef, @{$walk_pos}{qw(x y)}, attackOnRoute => 2, noMapRoute => 1, avoidWalls => 0, isIdleWalk => 1);
 			debug TF("%s IdleWalk route\n", $slave), 'slave';
 		}
 	}
@@ -484,7 +484,7 @@ sub processAttack {
 			}
 
 		} elsif ($config{$slave->{configPrefix}.'runFromTarget'} && ($realMonsterDist < $config{$slave->{configPrefix}.'runFromTarget_dist'} || $hitYou)) {
-			my $cell = get_kite_position($field, $slave, $target, $config{$slave->{configPrefix}.'runFromTarget_dist'}, $config{$slave->{configPrefix}.'runFromTarget_minStep'}, $config{$slave->{configPrefix}.'runFromTarget_maxStep'}, $config{$slave->{configPrefix}.'attackCheckLOS'}, $config{$slave->{configPrefix}.'attackCanSnipe'}, $config{$slave->{configPrefix}.'runFromTarget_maxPathDistance'}, $char, $config{$slave->{configPrefix}.'followDistanceMax'});
+			my $cell = get_kite_position($slave, 2, $target);
 			if ($cell) {
 				debug TF("%s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'slave';
 				$slave->args->{avoiding} = 1;
@@ -516,16 +516,27 @@ sub processAttack {
 					@{$pos}{qw(x y)},
 					maxRouteTime => $config{$slave->{configPrefix}.'attackMaxRouteTime'},
 					attackID => $ID,
-					noMapRoute => 1,
 					avoidWalls => 0,
-					meetingSubRoute => 1
+					meetingSubRoute => 1,
+					noMapRoute => 1
 				);
-			}
-			if (!$result) {
-				# Unable to calculate a route to target
+				
+				if (!$result) {
+					# Unable to calculate a route to target
+					$target->{$slave->{ai_attack_failed_timeout}} = time;
+					$slave->dequeue;
+					message TF("Unable to calculate a route to %s target, dropping target\n", $slave), 'slave_attack';
+					if ($config{$slave->{configPrefix}.'teleportAuto_dropTarget'}) {
+						message TF("Teleport due to dropping %s attack target\n", $slave), 'teleport';
+						useTeleport(1);
+					} else {
+						debug "Attack $slave - successufully routing to $target\n", 'attack';
+					}
+				}
+			} else {
 				$target->{$slave->{ai_attack_failed_timeout}} = time;
 				$slave->dequeue;
- 				message TF("Unable to calculate a route to %s target, dropping target\n", $slave), 'slave_attack';
+				message T("Unable to calculate a meetingPosition to target, dropping target\n"), 'slave_attack';
 				if ($config{$slave->{configPrefix}.'teleportAuto_dropTarget'}) {
 					message TF("Teleport due to dropping %s attack target\n", $slave), 'teleport';
 					useTeleport(1);
@@ -544,7 +555,7 @@ sub processAttack {
 			my $msg = TF("%s has no LOS from (%d, %d) to target %s (%d, %d) (distance: %d)", $slave, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist);
 			if ($best_spot) {
 				message TF("%s; moving to (%d, %d)\n", $msg, $best_spot->{x}, $best_spot->{y}), 'slave_attack';
-				$slave->route(undef, @{$best_spot}{qw(x y)}, LOSSubRoute => 1, avoidWalls => 0);
+				$slave->route(undef, @{$best_spot}{qw(x y)}, noMapRoute => 1, avoidWalls => 0);
 			} else {
 				$target->{attack_failedLOS} = time;
 				warning TF("%s; no acceptable place to stand\n", $msg);
@@ -564,7 +575,7 @@ sub processAttack {
 			my $msg = TF("%s has no LOS in melee from (%d, %d) to target %s (%d, %d) (distance: %d)", $slave, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist);
 			if ($best_spot) {
 				message TF("%s; moving to (%d, %d)\n", $msg, $best_spot->{x}, $best_spot->{y}), 'slave_attack';
-				$slave->route(undef, @{$best_spot}{qw(x y)}, LOSSubRoute => 1, avoidWalls => 0);
+				$slave->route(undef, @{$best_spot}{qw(x y)}, noMapRoute => 1, avoidWalls => 0);
 			} else {
 				$target->{attack_failedLOS} = time;
 				warning TF("%s; no acceptable place to stand\n", $msg);
@@ -592,26 +603,49 @@ sub processAttack {
 			}
 
 			if ($args->{attackMethod}{type} eq "weapon") {
-				if ($config{$slave->{configPrefix}.'attack_dance_melee'}) {
+				if ($config{$slave->{configPrefix}.'attack_dance_melee'} && $args->{attackMethod}{distance} == 1) {
 					if (timeOut($timeout{$slave->{ai_dance_attack_melee_timeout}})) {
 						my $cell = get_dance_position($slave, $target);
+						debug TF("Slave %s will dance type %d from (%d, %d) to (%d, %d), target %s at (%d, %d).\n", $slave, $config{$slave->{configPrefix}.'attack_dance_melee'}, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y});
 						$slave->sendMove ($cell->{x}, $cell->{y});
-						$slave->sendAttack ($ID);
 						$slave->sendMove ($realMyPos->{x},$realMyPos->{y});
+						$slave->sendAttack ($ID);
 						$timeout{$slave->{ai_dance_attack_melee_timeout}}{time} = time;
 					}
 					
 				} elsif ($config{$slave->{configPrefix}.'attack_dance_ranged'} && $args->{attackMethod}{distance} > 2) {
 					if (timeOut($timeout{$slave->{ai_dance_attack_ranged_timeout}})) {
-						my $cell = get_kite_position($field, $slave, $target, $realMonsterDist+1, $realMonsterDist+2, $realMonsterDist+2, $char, $config{$slave->{configPrefix}.'followDistanceMax'});
-						$slave->sendAttack ($ID);
+						my $cell = get_dance_position($slave, $target);
+						debug TF("Slave %s will range dance type %d from (%d, %d) to (%d, %d), target %s at (%d, %d).\n", $slave, $config{$slave->{configPrefix}.'attack_dance_ranged'}, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y});
 						$slave->sendMove ($cell->{x}, $cell->{y});
+						$slave->sendMove ($realMyPos->{x},$realMyPos->{y});
+						$slave->sendAttack ($ID);
+						if ($config{$slave->{configPrefix}.'runFromTarget'} && $config{$slave->{configPrefix}.'runFromTarget_inAdvance'} && $realMonsterDist < $config{$slave->{configPrefix}.'runFromTarget_minStep'}) {
+							my $cell = get_kite_position($slave, 1, $target);
+							if ($cell) {
+								debug TF("%s kiting in advance (%d %d) to (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
+								$args->{avoiding} = 1;
+								$slave->sendMove($cell->{x}, $cell->{y});
+							} else {
+								debug TF("%s no acceptable place to kite in advance from (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
+							}
+						}
 						$timeout{$slave->{ai_dance_attack_ranged_timeout}}{time} = time;
 					}
 				
 				} else {
 					if (timeOut($timeout{$slave->{ai_attack_timeout}})) {
 						$slave->sendAttack ($ID);
+						if ($config{$slave->{configPrefix}.'runFromTarget'} && $config{$slave->{configPrefix}.'runFromTarget_inAdvance'} && $realMonsterDist < $config{$slave->{configPrefix}.'runFromTarget_minStep'}) {
+							my $cell = get_kite_position($slave, 1, $target);
+							if ($cell) {
+								debug TF("%s kiting in advance (%d %d) to (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
+								$args->{avoiding} = 1;
+								$slave->sendMove($cell->{x}, $cell->{y});
+							} else {
+								debug TF("%s no acceptable place to kite in advance from (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
+							}
+						}
 						$timeout{$slave->{ai_attack_timeout}}{time} = time;
 					}
 				}

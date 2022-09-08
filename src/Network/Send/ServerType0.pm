@@ -51,9 +51,9 @@ sub new {
 		'0090' => ['npc_talk', 'a4 C', [qw(ID type)]],
 		'0094' => ['actor_info_request', 'a4', [qw(ID)]],
 		'0096' => ['private_message', 'x2 Z24 Z*', [qw(privMsgUser privMsg)]],
+		'0099' => ['gm_broadcast', 'v Z*', [qw(len message)]],
 		'009B' => ['actor_look_at', 'v C', [qw(head body)]],
 		'009F' => ['item_take', 'a4', [qw(ID)]],
-		'0099' => ['gm_broadcast', 'v Z*', [qw(len message)]],
 		'00A2' => ['item_drop', 'a2 v', [qw(ID amount)]],
 		'00A7' => ['item_use', 'a2 a4', [qw(ID targetID)]],#8
 		'00A9' => ['send_equip', 'a2 v', [qw(ID type)]],#6
@@ -143,10 +143,10 @@ sub new {
 		'01A9' => ['pet_emotion', 'V', [qw(ID)]],
 		'01AE' => ['make_arrow', 'v', [qw(nameID)]],
 		'01AF' => ['change_cart', 'v', [qw(lvl)]],
+		'01B2' => ['shop_open', 'v a80 C a*', [qw(len title result vendingInfo)]],
 		'01BA' => ['gm_remove', 'a24', [qw(playerName)]],
 		'01BB' => ['gm_shift', 'a24', [qw(playerName)]],
 		'01BC' => ['gm_recall', 'a24', [qw(playerName)]],
-		'01B2' => ['shop_open', 'v a80 C a*', [qw(len title result vendingInfo)]],
 		'01BD' => ['gm_summon_player', 'a24', [qw(playerName)]],
 		'01C0' => ['request_remain_time'],
 		'01CE' => ['auto_spell', 'V', [qw(ID)]],
@@ -171,7 +171,7 @@ sub new {
 		'021D' => ['less_effect'], # TODO
 		'0222' => ['refine_item', 'V', [qw(ID)]],
 		'0225' => ['rank_taekwon'],
-		'022D' => ['homunculus_command', 'v C', [qw(commandType, commandID)]],
+		'022D' => ['homunculus_command', 'v C', [qw(commandType commandID)]],
 		'0231' => ['homunculus_name', 'a24', [qw(name)]],
 		'0232' => ['actor_move', 'a4 a3', [qw(ID coords)]], # should be called slave_move...
 		'0233' => ['slave_attack', 'a4 a4 C', [qw(slaveID targetID flag)]],
@@ -221,12 +221,12 @@ sub new {
 		'0368' => ['actor_info_request', 'a4', [qw(ID)]],
 		'0369' => ['actor_name_request', 'a4', [qw(ID)]],
 		'0436' => ['map_login', 'a4 a4 a4 V C', [qw(accountID charID sessionID tick sex)]],
-		'0437' => ['character_move','a3', [qw(coords)]],
+		'0437' => ['actor_action', 'a4 C', [qw(targetID type)]],
 		'0438' => ['skill_use', 'v2 a4', [qw(lv skillID targetID)]],
 		'0439' => ['item_use', 'a2 a4', [qw(ID targetID)]],
 		'0443' => ['skill_select', 'V v', [qw(why skillID)]],
-		'044A' => ['client_version', 'V', [qw(clientVersion)]],
 		'0447' => ['blocking_play_cancel'],
+		'044A' => ['client_version', 'V', [qw(clientVersion)]],
 		'07DA' => ['party_leader', 'a4', [qw(accountID)]],
 		'07D7' => ['party_setting', 'V C2', [qw(exp itemPickup itemDivision)]],
 		'07E4' => ['item_list_window_selected', 'v V V a*', [qw(len type act itemInfo)]],
@@ -250,8 +250,8 @@ sub new {
 		'083C' => ['search_store_select', 'a4 a4 v', [qw(accountID storeID nameID)]],
 		'0842' => ['recall_sso', 'V', [qw(ID)]],
 		'0843' => ['remove_aid_sso', 'V', [qw(ID)]],
-		'0846' => ['req_cash_tabcode', 'v', [qw(ID)]],
 		'0844' => ['cash_shop_open'],#2
+		'0846' => ['req_cash_tabcode', 'v', [qw(ID)]],
 		'0848' => ($rpackets{'0848'}{minLength} == 6) ?
 			['cash_shop_buy', 'v v a*', [qw(len count buy_info)]] :
 			['cash_shop_buy', 'v v V a*', [qw(len count kafra_points buy_info)]],
@@ -268,7 +268,7 @@ sub new {
 		'097C' => ['rank_general', 'v', [qw(type)]],
 		'0987' => ['master_login', 'V Z24 a32 C', [qw(version username password_md5_hex master_version)]],
 		'098D' => ['clan_chat', 'v Z*', [qw(len message)]],
-		'098F' => ['char_delete2_accept', 'v a4 a*', [qw(length charID code)]],
+		'098F' => ['char_delete2_accept', 'v a4 a*', [qw(len charID code)]],
 		'0998' => ['send_equip', 'a2 V', [qw(ID type)]],#8
 		'09A1' => ['sync_received_characters'],
 		'09A7' => ['banking_deposit_request', 'a4 V', [qw(accountID zeny)]],
@@ -278,16 +278,19 @@ sub new {
 		'09D4' => ['sell_buy_complete'],
 		'09D6' => ['buy_bulk_market', 'v a*', [qw(len buyInfo)]],
 		'09D8' => ['market_close'],
-		'0A25' => ['achievement_get_reward', 'V', [qw(achievementID)]],
+		'09E1' => ['guild_storage_item_add', 'a2 V', [qw(ID amount)]],
+		'09E2' => ['guild_storage_item_remove', 'a2 V', [qw(ID amount)]],
+		'09E3' => ['cart_to_guild_storage', 'a2 V', [qw(ID amount)]],
+		'09E4' => ['guild_storage_to_cart', 'a2 V', [qw(ID amount)]],
 		#'08BE' => ['change_pin_password','a*', [qw(accountID oldPin newPin)]], # TODO: PIN change system/command?
-		'09E9' => ['rodex_close_mailbox'],   # 2 -- RodexCloseMailbox
-		'09EF' => ['rodex_refresh_maillist', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexRefreshMaillist
-		'09F5' => ['rodex_delete_mail', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexDeleteMail
-		'09EA' => ['rodex_read_mail', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexReadMail
 		'09E8' => ['rodex_open_mailbox', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexOpenMailbox
+		'09E9' => ['rodex_close_mailbox'],   # 2 -- RodexCloseMailbox
+		'09EA' => ['rodex_read_mail', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexReadMail
 		'09EE' => ['rodex_next_maillist', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexNextMaillist
+		'09EF' => ['rodex_refresh_maillist', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexRefreshMaillist
 		'09F1' => ['rodex_request_zeny', 'V2 C', [qw(mailID1 mailID2 type)]],   # 11 -- RodexRequestZeny
 		'09F3' => ['rodex_request_items', 'V2 C', [qw(mailID1 mailID2 type)]],   # 11 -- RodexRequestItems
+		'09F5' => ['rodex_delete_mail', 'C V2', [qw(type mailID1 mailID2)]],   # 11 -- RodexDeleteMail
 		'09FB' => ['pet_evolution', 'a4 a*', [qw(ID itemInfo)]],
 		'0A03' => ['rodex_cancel_write_mail'],   # 2 -- RodexCancelWriteMail
 		'0A04' => ['rodex_add_item', 'a2 v', [qw(ID amount)]],   # 6 -- RodexAddItem
@@ -299,10 +302,18 @@ sub new {
 		'0A1D' => ['roulette_close'],
 		'0A1F' => ['roulette_start'],
 		'0A21' => ['roulette_claim_prize'],
+		'0A25' => ['achievement_get_reward', 'V', [qw(achievementID)]],
 		'0A2E' => ['send_change_title', 'V', [qw(ID)]],
 		'0A39' => ['char_create', 'a24 C v4 C', [qw(name slot hair_color hair_style job_id unknown sex)]],
 		'0A46' => ['stylist_change', 'v6' ,[qw(hair_color hair_style cloth_color head_top head_mid head_bottom)]],
 		'0A49' => ['private_airship_request', 'Z16 v' ,[qw(map_name nameID)]],
+		'0A52' => ['captcha_register', 'Z16 v', [qw(answer image_size)]],
+		'0A54' => ['captcha_upload_request_ack', 'v Z4 a*', [qw(len captcha_key captcha_image)]],
+		'0A56' => ['macro_reporter_ack', 'a4', [qw(ID)]],
+		'0A5A' => ['macro_detector_download'],
+		'0A5C' => ['macro_detector_answer', 'Z16', [qw(answer)]],
+		'0A69' => ['captcha_preview_request', 'V', [qw(captcha_key)]],
+		'0A6C' => ['macro_reporter_select', 'v2 C', [qw(x y range)]],
 		'0A68' => ['open_ui_request', 'C', [qw(UIType)]],
 		'0A6E' => ['rodex_send_mail', 'v Z24 Z24 V2 v v V a* a*', [qw(len receiver sender zeny1 zeny2 title_len body_len char_id title body)]],   # -1 -- RodexSendMail
 		'0A76' => ['master_login', 'V Z40 a32 v', [qw(version username password_rijndael master_version)]],
@@ -319,8 +330,12 @@ sub new {
 		'0ACF' => ['master_login', 'a4 Z25 a32 a5', [qw(game_code username password_rijndael flag)]],
 		'0AE8' => ['change_dress'],
 		'0AEF' => ['attendance_reward_request'],
+		'0AF4' => ['skill_use_location', 'v4 C', [qw(lv skillID x y unknown)]], #11
 		'0B10' => ['start_skill_use', 'v2 a4', [qw(skillID lv targetID)]],
 		'0B11' => ['stop_skill_use', 'v', [qw(skillID)]],
+		'0B14' => ['inventory_expansion_request'], #2
+		'0B19' => ['inventory_expansion_rejected'], #2
+		'0B1C' => ['ping'], #2
 		'0B21' => ['hotkey_change', 'v2 C V v', [qw(tab idx type id lvl)]],
 	);
 	$self->{packet_list}{$_} = $packets{$_} for keys %packets;
@@ -442,20 +457,6 @@ sub sendPartyOrganize {
 
 	$self->sendToServer($msg);
 	debug "Sent Organize Party: $name\n", "sendPacket", 2;
-}
-
-# 0x0102,6,partychangeoption,2:4
-# note: item share changing seems disabled in newest clients
-sub sendPartyOption {
-	my ($self, $exp, $itemPickup, $itemDivision) = @_;
-
-	$self->sendToServer($self->reconstruct({
-		switch => 'party_setting',
-		exp => $exp,
-		itemPickup => $itemPickup,
-		itemDivision => $itemDivision,
-	}));
-	debug "Sent Party Option\n", "sendPacket", 2;
 }
 
 sub sendPreLoginCode {

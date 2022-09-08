@@ -788,30 +788,20 @@ sub processTake {
 		if ($char->{sitting}) {
 			stand();
 
-		} elsif ($dist > 1) {
-			if (!$config{itemsTakeAuto_new}) {
-				my (%vec, %pos);
-				getVector(\%vec, $item->{pos}, $myPos);
-				moveAlongVector(\%pos, $myPos, \%vec, $dist - 1);
-				$char->move(@pos{qw(x y)});
-			} else {
-				my $pos = $item->{pos};
-				message TF("Routing to (%s, %s) to take %s (%s), distance %s\n", $pos->{x}, $pos->{y}, $item->{name}, $item->{binID}, $dist);
-				ai_route($field->baseName, $pos->{x}, $pos->{y}, maxRouteDistance => $config{'attackMaxRouteDistance'}, noSitAuto => 1);
-			}
-
+		} elsif ($dist <= 2 && $config{'itemsTakeGreed'} && $char->{skills}{BS_GREED}{lv} >= 1) {
+			my $skill = new Skill(handle => 'BS_GREED');
+			ai_skillUse2($skill, $char->{skills}{BS_GREED}{lv}, 1, 0, $char, "BS_GREED");
+		} elsif ($dist > 1 && timeOut(AI::args->{time_route}, $timeout{ai_take_giveup}{timeout})) {
+			my $pos = $item->{pos};
+			AI::args->{time_route} = time;
+			ai_route($field->baseName, $pos->{x}, $pos->{y}, maxRouteDistance => $config{'attackMaxRouteDistance'}, noSitAuto => 1, distFromGoal => 1);
 		} elsif (timeOut($timeout{ai_take})) {
-			if ($config{'itemsTakeGreed'} && $char->{skills}{BS_GREED}{lv} >= 1) {
-					my $skill = new Skill(handle => 'BS_GREED');
-					ai_skillUse2($skill, $char->{skills}{BS_GREED}{lv}, 1, 0, $char, "BS_GREED");
-			} else {
-				my %vec;
-				my $direction;
-				getVector(\%vec, $item->{pos}, $myPos);
-				$direction = int(sprintf("%.0f", (360 - vectorToDegree(\%vec)) / 45)) % 8;
-				$messageSender->sendLook($direction, 0) if ($direction != $char->{look}{body});
-				$messageSender->sendTake($item->{ID});
-			}
+			my %vec;
+			my $direction;
+			getVector(\%vec, $item->{pos}, $myPos);
+			$direction = int(sprintf("%.0f", (360 - vectorToDegree(\%vec)) / 45)) % 8;
+			$messageSender->sendLook($direction, 0) if ($direction != $char->{look}{body});
+			$messageSender->sendTake($item->{ID});
 			$timeout{ai_take}{time} = time;
 		}
 	}
@@ -872,23 +862,12 @@ sub processPartyAuto {
 		if ($config{partyAuto} == 1) {
 			message T("Auto-denying party request\n");
 			# JOIN_REFUSE
-			if ($incomingParty{ACK} eq '02C7') {
-				$messageSender->sendPartyJoinRequestByNameReply($incomingParty{ID}, 0);
-			} else {
-				$messageSender->sendPartyJoin($incomingParty{ID}, 0);
-			}
+			Commands::run('party join 0');
 		} elsif ($config{partyAuto} == 2) {
 			message T("Auto-accepting party request\n");
 			# JOIN_ACCEPT
-			$messageSender->sendPartyJoin($incomingParty{'ID'}, 1);
-			if ($incomingParty{ACK} eq '02C7') {
-				$messageSender->sendPartyJoinRequestByNameReply($incomingParty{ID}, 1);
-			} else {
-				$messageSender->sendPartyJoin($incomingParty{ID}, 1);
-			}
-		}
+			Commands::run('party join 1');		}
 		$timeout{'ai_partyAuto'}{'time'} = time;
-		undef %incomingParty;
 	}
 }
 
@@ -1293,13 +1272,14 @@ sub processAutoStorage {
 				$args->{done} = 1;
 				return;
 			}
+
 			if (!AI::args->{distance}) {
 				if ($config{storageAuto_standpoint}) {
 					AI::args->{distance} = 1;
-				} elsif ($config{'storageAuto_minDistance'} && $config{'storageAuto_maxDistance'}) {	# Calculate variable or fixed (old) distance
-					AI::args->{distance} = $config{'storageAuto_minDistance'} + round(rand($config{'storageAuto_maxDistance'} - $config{'storageAuto_minDistance'}));
+				} elsif ($config{'storageAuto_maxDistance'} && $config{'storageAuto_distance'}) {	# Calculate variable or fixed (old) distance
+					AI::args->{distance} = $config{'storageAuto_distance'} + round(rand($config{'storageAuto_maxDistance'} - $config{'storageAuto_distance'}));
 				} else {
-					AI::args->{distance} = $config{'storageAuto_distance'};
+					AI::args->{distance} = $config{'storageAuto_distance'} || 3;
 				}
 			}
 
@@ -1713,10 +1693,10 @@ sub processAutoSell {
 		if (!$args->{distance}) {
 			if ($config{'sellAuto_standpoint'}) {
 				$args->{distance} = 1;
-			} elsif ($config{'sellAuto_minDistance'} && $config{'sellAuto_maxDistance'}) {
-				$args->{distance} = $config{'sellAuto_minDistance'} + round(rand($config{'sellAuto_maxDistance'} - $config{'sellAuto_minDistance'}));
+			} elsif ($config{'sellAuto_maxDistance'} && $config{'sellAuto_distance'}) {
+				$args->{distance} = $config{'sellAuto_distance'} + round(rand($config{'sellAuto_maxDistance'} - $config{'sellAuto_distance'}));
 			} else {
-				$args->{distance} = $config{'sellAuto_distance'};
+				$args->{distance} = $config{'sellAuto_distance'} || 3;
 			}
 		}
 
@@ -2041,7 +2021,7 @@ sub processAutoBuy {
 			getNPCInfo($config{"buyAuto_".$args->{lastIndex}."_npc"}, $realpos);
 
 			if ( $config{"buyAuto_".$args->{lastIndex}."_isMarket"} ) {
-				ai_talkNPC($realpos->{pos}{x}, $realpos->{pos}{y}, undef);
+				ai_talkNPC($realpos->{pos}{x}, $realpos->{pos}{y}, $config{"buyAuto_".$args->{lastIndex}."_npc_steps"} || undef);
 			} else {
 				ai_talkNPC($realpos->{pos}{x}, $realpos->{pos}{y}, $config{"buyAuto_".$args->{lastIndex}."_npc_steps"} || 'b');
 			}
@@ -2383,7 +2363,7 @@ sub processFollow {
 				if ($dist > $config{followDistanceMax} && timeOut($args->{move_timeout}, 0.25)) {
 					$args->{move_timeout} = time;
 					$args->{masterLastMoveTime} = $player->{time_move};
-					
+
 					ai_route(
 						$field->baseName,
 						$player->{pos_to}{x},
@@ -2425,7 +2405,7 @@ sub processFollow {
 
 			$args->{move_timeout} = time;
 			$args->{masterLastMoveTime} = $player->{time_move};
-			
+
 			ai_route(
 				$field->baseName,
 				$player->{pos_to}{x},
@@ -2544,7 +2524,7 @@ sub processFollow {
 		} elsif ($args->{'ai_follow_lost_warped'} && $ai_v{'temp'}{'warp_pos'} && %{$ai_v{'temp'}{'warp_pos'}}) {
 			my $pos = $ai_v{'temp'}{'warp_pos'};
 
-			if ($config{followCheckLOS} && !$field->canMove($char->{pos_to}, $pos)) {
+			if (!$field->canMove($char->{pos_to}, $pos)) {
 				ai_route($field->baseName, $pos->{x}, $pos->{y},
 					attackOnRoute => 0); #distFromGoal => 0);
 			} else {
@@ -2797,12 +2777,8 @@ sub processPartySkillUse {
 						next unless $char->{party}{joined} && $char->{party}{users}{$ID};
 
 						# party member should be online, otherwise it's another character on the same account (not in party)
-						next unless $char->{party}{users}{$ID}{online};
+						next unless $char->{party}{users}{$ID} && $char->{party}{users}{$ID}{online};
 					}
-
-					# if that intended to distinguish between party members and other characters on the same accounts, then it didn't work
-					my $player = $playersList->getByID($ID);
-					next if (($char->{party}{users}{$ID}{name} ne $player->{name}) && !$config{"partySkill_$i"."_notPartyOnly"});
 				}
 
 				my $player = Actor::get($ID);
@@ -3006,7 +2982,12 @@ sub processAutoAttack {
 	  && timeOut($timeout{ai_attack_auto})
 	  # If !teleportAuto_search, then searchMonsters >= teleportAuto_search will be true - no need for first condition?
 	  && (!$config{teleportAuto_search} || $ai_v{temp}{searchMonsters} >= $config{teleportAuto_search})
-	  && (!$config{attackAuto_notInTown} || !$field->isCity)) {
+	  && (!$config{attackAuto_notInTown} || !$field->isCity)
+	  && ($config{attackAuto_inLockOnly} <= 1 || $field->baseName eq $config{'lockMap'})
+	  && (!$config{attackAuto_notWhile_storageAuto} || !AI::inQueue("storageAuto"))
+	  && (!$config{attackAuto_notWhile_buyAuto} || !AI::inQueue("buyAuto"))
+	  && (!$config{attackAuto_notWhile_sellAuto} || !AI::inQueue("sellAuto"))
+	) {
 
 		# If we're in tanking mode, only attack something if the person we're tanking for is on screen.
 		my $foundTankee;
@@ -3056,7 +3037,7 @@ sub processAutoAttack {
 			foreach (@monstersID) {
 				next if (!$_ || !checkMonsterCleanness($_));
 				my $monster = $monsters{$_};
-				
+
 				# Never attack monsters that we failed to get LOS with
 				next if (!timeOut($monster->{attack_failedLOS}, $timeout{ai_attack_failedLOS}{timeout}));
 
@@ -3089,7 +3070,8 @@ sub processAutoAttack {
 				 && $attackOnRoute >= 2
 				 && !$monster->{dmgFromYou}
 				 && ($control->{dist} eq '' || blockDistance($monster->{pos}, calcPosition($char)) <= $control->{dist})
-				 && timeOut($monster->{attack_failed}, $timeout{ai_attack_unfail}{timeout})) {
+				 && timeOut($monster->{attack_failed}, $timeout{ai_attack_unfail}{timeout})
+				 && timeOut($monster->{attack_failedLOS}, $timeout{ai_attack_failedLOS}{timeout})) {
 					my %hookArgs;
 					$hookArgs{monster} = $monster;
 					$hookArgs{return} = 1;
@@ -3166,8 +3148,9 @@ sub processItemsTake {
 ##### ITEMS AUTO-GATHER #####
 sub processItemsAutoGather {
 	if ( (AI::isIdle || AI::action eq "follow"
-		|| ( AI::is("route", "mapRoute", "checkMonsters") && (!AI::args->{ID} || $config{'itemsGatherAuto'} >= 2)  && !$config{itemsTakeAuto_new}))
+		|| ( AI::is("route", "mapRoute", "checkMonsters") && (!AI::args->{ID} || $config{'itemsGatherAuto'} >= 2) ))
 	  && $config{'itemsGatherAuto'}
+	  && (!$config{itemsGatherAuto_notInTown} || !$field->isCity)
 	  && !$ai_v{sitAuto_forcedBySitCommand}
 	  && ($config{'itemsGatherAuto'} >= 2 || !ai_getAggressives())
 	  && percent_weight($char) < $config{'itemsMaxWeight'}
@@ -3219,19 +3202,11 @@ sub processItemsGather {
 			AI::suspend();
 			stand();
 
-		} elsif (( $dist = blockDistance($items{$ID}{pos}, ( $myPos = calcPosition($char) )) > 2 )) {
-			if (!$config{itemsTakeAuto_new}) {
-				my (%vec, %pos);
-				getVector(\%vec, $items{$ID}{pos}, $myPos);
-				moveAlongVector(\%pos, $myPos, \%vec, $dist - 1);
-				$char->move(@pos{qw(x y)});
-			} else {
-				my $item = $items{$ID};
-				my $pos = $item->{pos};
-				message TF("Routing to (%s, %s) to take %s (%s), distance %s\n", $pos->{x}, $pos->{y}, $item->{name}, $item->{binID}, $dist);
-				ai_route($field->baseName, $pos->{x}, $pos->{y}, maxRouteDistance => $config{'attackMaxRouteDistance'}, noSitAuto => 1);
-			}
-
+		} elsif (blockDistance($items{$ID}{pos}, $char->{pos}) > 2 && timeOut(AI::args->{time_route} = time, $timeout{ai_take_giveup}{timeout})) {
+			my $item = $items{$ID};
+			my $pos = $item->{pos};
+			AI::args->{time_route} = time;
+			ai_route($field->baseName, $pos->{x}, $pos->{y}, maxRouteDistance => $config{'attackMaxRouteDistance'}, noSitAuto => 1, distFromGoal => 1);
 		} else {
 			AI::dequeue;
 			take($ID);

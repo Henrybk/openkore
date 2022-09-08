@@ -347,9 +347,13 @@ sub initHandlers {
 			["", T("request guild info")],
 			["info", T("displays guild info")],
 			["members", T("displays guild member info")],
+			[T("create <guild name>"), T("create a guild")],
 			[T("request <player name|player #>"), T("request player to join your guild")],
 			[T("join <flag>"), T("accepts a guild join request if <flag> is 1, deny if 0")],
-			["leave", T("leave the guild")]
+			[T("ally <player name|player #>"), T("request alliance to another guild")],
+			["leave", T("leave the guild")],
+			[T("kick <guild member #> <reason>"), T("kick a guild member out of the guild")],
+			[T("break  <guild name>"), T("disband your guild")]
 			], \&cmdGuild],
 		['help', [
 			T("Help displays commands"),
@@ -425,7 +429,10 @@ sub initHandlers {
 			T("Party management."),
 			["", T("displays party member info")],
 			[T("create \"<party name>\""), T("organize a party")],
-			[T("share <flag>"), T("sets party exp sharing to even if flag is 1, individual take if 0")],
+			[T("share <flag>"), T("sets party EXP sharing to even if flag is 1, individual take if 0")],
+			[T("shareitem <flag>"), T("sets party ITEM sharing to even if flag is 1, individual take if 0")],
+			[T("sharediv  <flag>"), T("sets party ITEM  PICKUP sharing to even if flag is 1, individual take if 0")],
+			[T("shareauto"), T("set party EXP sharing auto by AI")],
 			[T("request <player #>"), T("request player to join your party")],
 			[T("join <flag>"), T("accept a party join request if <flag> is 1, deny if 0")],
 			[T("kick <party member #>"), T("kick party member from party")],
@@ -566,6 +573,12 @@ sub initHandlers {
 			], \&cmdSkills],
 		['sll', T("Display a list of slaves in your immediate area."), \&cmdSlaveList],
 		['spells', T("List area effect spells on screen."), \&cmdSpells],
+		['starplace', [
+			T("Starplace Agree"),
+			["sun", T("select sun as starplace")],
+			["moon", T("select mon as starplace")],
+			["star", T("select star as starplace")],
+			], \&cmdStarplace],
 		['storage', [
 			T("Handle items in Kafra storage."),
 			["", T("lists items in storage")],
@@ -688,38 +701,20 @@ sub initHandlers {
 		['where', T("Shows your current location."), \&cmdWhere],
 		['who', T("Display the number of people on the current server."), \&cmdWho],
 		['whoami', T("Display your character and account ID."), \&cmdWhoAmI],
-
-		['m', T("Displays Mail commands."), \&cmdMail],	# see commands
-		['ms', [
-			T("Sends Mail."),
-			[T("<receiver> <title> <message>"), T("sends mail to <receiver>")]
-			], \&cmdMail],	# send
-		['mi', T("Opens Mailbox."), \&cmdMail],	# inbox
-		['mo', [
-			T("Open a mail."),
-			[T("<mail #>"), T("open the mail with a corresponding number from the mail list when you open your mailbox")]
-			], \&cmdMail],
-		['md', [
-			T("Deletes a Mail."),
-			[T("<mail #>"), T("delete a mail with a corresponding number from the mail list when you open your mailbox")]
-			], \&cmdMail],	# delete
-		['mw', [
-			T("Interacts with mail box window."),
-			["0", T("write mail")],
-			["1", T("take attached items back")],
-			["2", T("inputs zenys")]
-			], \&cmdMail],	# window
-		['mr', [
-			T("Returns the mail to the sender."),
-			[T("<mail #>"), T("a corresponding number from the mail list when you open your mailbox")]
-			], \&cmdMail],	# return
-		['ma', [
-			T("Mail & Attachment."),
-			[T("get <mail #>"), T("takes items attached from mail")],
-			[T("add zeny <amount>"), T("attaches zenys in the mail")],
-			[T("add item <amount> <inventory item>"), T("attaches items in the mail")]
-			], \&cmdMail],	# attachement
-
+		['mail', [
+			T("Mailbox use (not Rodex)"),
+			["open", T("open Mailbox")], # mi
+			["list", T("list your Mailbox")],
+			["refresh", T("refresh Mailbox")], # new
+			[T("read <mail #>"), T("read the selected mail")], # mo
+			[T("get <mail #>"), T("take attachments from mail")], # ma get
+			[T("setzeny <amount|none>"), T("attach zeny to mail or return it back")], # ma add zeny, mw 2
+			[T("add <item #|none> <amount>"), T("attach item to mail or return it back")], # ma add item, mw 1
+			[T("send <receiver> <title> <body>"), T("send mail to <receiver>")], # ms
+			[T("delete <mail #>"), T("delete selected mail")], #md
+			["write", T("start writing a mail")], #mw 0
+			["return <mail #>", T("returns the mail to the sender")] #mr
+		], \&cmdMail],
 		['au', T("Display possible commands for auction."), \&cmdAuction],	# see commands
 		['aua', [
 			T("Adds an item to the auction."),
@@ -3430,7 +3425,8 @@ sub cmdGuild {
 
 			$job   = $jobs_lut{$guild{member}[$i]{jobID}};
 			$lvl   = $guild{member}[$i]{lv};
-			$title = $guild{member}[$i]{title};
+			$title = $guild{positions}[ $guild{member}[$i]{position} ]{title};
+
  			# Translation Comment: Guild member online
 			$online = $guild{member}[$i]{online} ? T("Yes") : T("No");
 			$ID = unpack("V",$guild{member}[$i]{ID});
@@ -4235,7 +4231,7 @@ sub cmdParty {
 		error T("Error in function 'party' (Party Functions)\n" .
 			"You're already in a party.\n");
 	} elsif ($arg1 eq "" || $arg1 eq "info") {
-		my $msg = center(T(" Party Information "), 79, '-') ."\n".
+		my $msg = center(T(" Party Information "), 84, '-') ."\n".
 			TF("Party name: %s\n" .
 			"EXP Take: %s       Item Take: %s       Item Division: %s\n\n".
 			"#    Name                   Map           Coord     Online  HP\n",
@@ -4272,10 +4268,10 @@ sub cmdParty {
 					."%)" if ($char->{'party'}{'users'}{$partyUsersID[$i]}{'hp_max'} && $char->{'party'}{'users'}{$partyUsersID[$i]}{'online'});
 			}
 			$msg .= swrite(
-				"@< @ @<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<< @<<<<<<<  @<<     @<<<<<<<<<<<<<<<<<<",
+				"@< @ @<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<< @<<<<<<<  @<<     @<<<<<<<<<<<<<<<<<<<<<<<",
 				[$i, $admin_string, $name_string, $map_string, $coord_string, $online_string, $hp_string]);
 		}
-		$msg .= ('-'x79) . "\n";
+		$msg .= ('-'x84) . "\n";
 		message $msg, "list";
 
 	} elsif ($arg1 eq "leave") {
@@ -4729,9 +4725,7 @@ sub cmdPlugin {
 		my @names;
 
 		if ($args[1] =~ /^\d+$/) {
-			if ($Plugins::plugins[$args[1]]) {
-				push @names, $Plugins::plugins[$args[1]]{name};
-			}
+			Plugins::reloadPlugins([$Plugins::plugins[$args[1]]]);
 
 		} elsif ($args[1] eq '') {
 			error T("Syntax Error in function 'plugin reload' (Reload Plugin)\n" .
@@ -4739,29 +4733,10 @@ sub cmdPlugin {
 			return;
 
 		} elsif ($args[1] eq 'all') {
-			foreach my $plugin (@Plugins::plugins) {
-				next unless $plugin;
-				next unless $plugin->{name};
-				push @names, $plugin->{name};
-			}
+			Plugins::reloadAll();
 
 		} else {
-			foreach my $plugin (@Plugins::plugins) {
-				next unless $plugin;
-				if ($plugin->{name} =~ /$args[1]/i) {
-					push @names, $plugin->{name};
-				}
-			}
-		}
-
-		if (!@names) {
-				warning T("Error in function 'plugin reload' (Reload Plugin)\n" .
-					"The specified plugin do not exist.\n");
-			return;
-		}
-
-		foreach (my $i = 0; $i < @names; $i++) {
-			Plugins::reload($names[$i]);
+			Plugins::reloadByRegexp($args[1]);
 		}
 
 	} elsif ($args[0] eq 'load') {
@@ -4772,28 +4747,12 @@ sub cmdPlugin {
 		} elsif ($args[1] eq 'all') {
 			Plugins::loadAll();
 		} else {
-			my @folders = Settings::getPluginsFolders();
-			my $name = $args[1];
-			$name =~ s/.pl$//g;
-			if (-f $folders[0]."\\".$name.".pl") {
-				# plugins\$name.pl
-				Plugins::load($folders[0]."\\".$name.".pl");
-			} elsif (-f $folders[0]."\\".$name."\\".$name.".pl") {
-				# plugins\$name\$name.pl
-				Plugins::load($folders[0]."\\".$name."\\".$name.".pl");
-			} else {
-				error TF("Plugin '%s' does not exist\n", $name);
-				return;
-			}
+			Plugins::loadByRegexp($args[1]);
 		}
 
 	} elsif ($args[0] eq 'unload') {
-		my $name;
-
 		if ($args[1] =~ /^\d+$/) {
-			if ($Plugins::plugins[$args[1]]) {
-				$name = $Plugins::plugins[$args[1]]{name};
-			}
+			Plugins::unloadPlugins([$Plugins::plugins[$args[1]]]);
 
 		} elsif ($args[1] eq '') {
 			error T("Syntax Error in function 'plugin unload' (Unload Plugin)\n" .
@@ -4806,20 +4765,7 @@ sub cmdPlugin {
 			return;
 
 		} else {
-			foreach my $plugin (@Plugins::plugins) {
-				next unless $plugin;
-				if ($plugin->{name} =~ /$args[1]/i) {
-					$name = $plugin->{name};
-				}
-			}
-		}
-
-		if ($name) {
-			Plugins::unload($name);
-			message TF("Plugin %s unloaded.\n", $name), "system";
-		} else {
-			warning T("Error in function 'plugin unload' (Unload Plugin)\n" .
-				"The specified plugin do not exist.\n");
+			Plugins::unloadByRegexp($args[1]);
 		}
 
 	} else {
@@ -5305,6 +5251,31 @@ sub cmdSpells {
 	}
 	$msg .= ('-'x66) . "\n";
 	message $msg, "list";
+}
+
+sub cmdStarplace {
+	my (undef, $args) = @_;
+	my ($type) = parseArgs( $args );
+
+	if (!$net || $net->getState() != Network::IN_GAME) {
+		error TF("You must be logged in the game to use this command '%s'\n", shift);
+		return;
+	}
+
+	my $flag;
+	if ($type eq "sun") {
+		$flag = 0;
+	} elsif ($type eq "moon") {
+		$flag = 1;
+	} elsif ($type eq "star") {
+		$flag = 2;
+	} else {
+		error T("Syntax Error in function 'starplace' (starplace agree)\n" .
+			"Usage: starplace [<sun | moon | star>]\n");
+		return;
+	}
+
+	$messageSender->sendFeelSaveOk($flag);
 }
 
 sub cmdStand {
@@ -6564,113 +6535,144 @@ sub cmdMail {
 		return;
 	}
 
-	my ($cmd, $args_string) = @_;
-	my @args = parseArgs($args_string, 4);
+	my (undef, $args_string) = @_;
+	my @args = parseArgs($args_string, 3);
 
-	# mail send
-	if ($cmd eq 'ms') {
-		unless ($args[0] && $args[1] && $args[2]) {
-			message T("Usage: ms <receiver> <title> <message>\n"), "info";
+	if ($args[0] eq 'open') {
+		if (defined $mailList) {
+			error T("Your Mailbox is already opened.\n");
 		} else {
-			my ($receiver, $title, $msg) = ($args[0], $args[1], $args[2]);
-			$messageSender->sendMailSend($receiver, $title, $msg);
+			message T("Sending request to open Mailbox.\n");
+			$messageSender->sendMailboxOpen();
 		}
 
-	# mail open
-	} elsif ($cmd eq 'mo') {
-
-		unless ($args[0] =~ /^\d+$/) {
-			message T("Usage: mo <mail #>\n"), "info";
-		} elsif (!$mailList->[$args[0]]) {
-			if (@{$mailList}) {
-				message TF("No mail found with index: %s. (might need to re-open mailbox)\n", $args[0]), "info";
-			} else {
-				message T("Mailbox has not been opened or is empty.\n"), "info";
-			}
-		} else {
-			$messageSender->sendMailRead($mailList->[$args[0]]->{mailID});
-		}
-
-	# mail inbox => set on begin as standard?
-	} elsif ($cmd eq 'mi') {
-		# if mail not already opened needed?
+	} elsif ($args[0] eq 'refresh') {
 		$messageSender->sendMailboxOpen();
 
-	# mail window (almost useless?)
-	} elsif ($cmd eq 'mw') {
-		unless (defined $args[0]) {
-			message T("Usage: mw [0|1|2] (0:write, 1:take item back, 2:zeny input ok)\n"), "info";
-		} elsif ($args[0] =~ /^[0-2]$/) {
-			$messageSender->sendMailOperateWindow($args[0]);
-		} else {
-			error T("Syntax error in function 'mw' (mailbox window)\n" .
-			"Usage: mw [0|1|2] (0:write, 1:take item back, 2:zeny input ok)\n");
+	} elsif ($args[0] eq 'read') {
+		unless ($args[1] =~ /^\d+$/) {
+			error T("Syntax Error in function 'mail read' (Mailbox)\n" .
+				"Usage: mail read <mail #>\n");
+		} elsif (!defined $mailList) {
+			warning T("Your Mailbox is not open. Use the command 'mail open'.\n");
+		} elsif (!$mailList->[$args[1]]) {
+				warning TF("No mail found with index: %s\n", $args[1]);
+		} elsif ($mailList->[$args[1]]->{mailID}) {
+			$messageSender->sendMailRead($mailList->[$args[1]]->{mailID});
 		}
 
-	# mail attachment control
-	} elsif ($cmd eq 'ma') {
-		if ($args[0] eq "get" && $args[1] =~ /^\d+$/) {
-			unless ($mailList->[$args[1]]->{mailID}) {
-				if (@{$mailList}) {
-					message TF("No mail found with index: %s. (might need to re-open mailbox)\n", $args[1]), "info";
-				} else {
-					message T("Mailbox has not been opened or is empty.\n"), "info";
-				}
-			} else {
-				$messageSender->sendMailGetAttach($mailList->[$args[1]]->{mailID});
-			}
-		} elsif ($args[0] eq "add") {
-			unless ($args[2] =~ /^\d+$/) {
-				message T("Usage: ma add [zeny <amount>]|[item <amount> (<item #>|<item name>)]\n"), "info";
-			} elsif ($args[1] eq "zeny") {
-				$messageSender->sendMailSetAttach($args[2], undef);
-			} elsif ($args[1] eq "item" && defined $args[3]) {
-				my $item = Actor::Item::get($args[3]);
-				if ($item) {
-					my $serverIndex = $item->{ID};
-					$messageSender->sendMailSetAttach($args[2], $serverIndex);
-				} else {
-					message TF("Item with index or name: %s does not exist in inventory.\n", $args[3]), "info";
-				}
-			} else {
-				error T("Syntax error in function 'ma' (mail attachment control)\n" .
-				"Usage: ma add [zeny <amount>]|[item <amount> (<item #>|<item name>)]\n");
-			}
+	} elsif ($args[0] eq 'get') {
+		unless ($args[1] =~ /^\d+$/) {
+			error T("Syntax Error in function 'mail get' (Mailbox)\n" .
+				"Usage: mail get <mail #>\n");
+		} elsif (!defined $mailList) {
+			warning T("Your Mailbox is not open. Use the command 'mail open'.\n");
+		} elsif (!$mailList->[$args[1]]) {
+				warning TF("No mail found with index: %s\n", $args[1]);
+		} elsif ($mailList->[$args[1]]->{mailID}) {
+			$messageSender->sendMailGetAttach($mailList->[$args[1]]->{mailID});
+		}
+
+	} elsif ($args[0] eq 'setzeny') {
+		if ($args[1] =~ /^\d+$/) {
+			$messageSender->sendMailSetAttach($args[1], undef);
+		} elsif ($args[1] eq 'none') {
+			$messageSender->sendMailOperateWindow(2);
 		} else {
-			message T("Usage: ma (get <mail #>)|(add [zeny <amount>]|[item <amount> (<item #>|<item name>)])\n"), "info";
+			error T("Syntax Error in function 'mail setzeny' (Mailbox)\n" .
+				"Usage: mail setzeny <amount|none>\n");
+		}
+
+	} elsif ($args[0] eq 'add') {
+		unless (defined $args[1]) {
+			error T("Syntax Error in function 'mail add' (Mailbox)\n" .
+				"Usage: mail add <item #> <amount>\n");
+		} elsif ($args[1] eq 'none') {
+			$messageSender->sendMailOperateWindow(1);
+		} else {
+			my $item = Actor::Item::get($args[1]);
+			if ($item) {
+				my $amount = $args[2] ? $args[2] : $item->{amount};
+				warning TF("Attention: Inventory Item '%s' is equipped.\n", $item->{name}) if ($item->{equipped});
+				$messageSender->sendMailSetAttach($amount, $item->{ID});
+			} else {
+				warning TF("Inventory Item '%s' does not exist.\n", $args[2]);
+			}
+		}
+
+	} elsif ($args[0] eq 'send') {
+		unless ($args[1] && $args[2]) {
+			error T("Syntax Error in function 'mail send' (Mailbox)\n" .
+				"Usage: mail send <receiver> <title> <body>\n");
+		} else {
+			$messageSender->sendMailSend($args[1], $args[2], $args[3]);
 		}
 
 	# mail delete (can't delete mail without removing attachment/zeny first)
-	} elsif ($cmd eq 'md') {
-		unless ($args[0] =~ /^\d+$/) {
-			message T("Usage: md <mail #>\n"), "info";
-		} elsif (!$mailList->[$args[0]]) {
+	} elsif ($args[0] eq 'delete') {
+		unless ($args[1] =~ /^\d+$/) {
+			error T("Syntax Error in function 'mail delete' (Mailbox)\n" .
+				"Usage: mail delete <mail #>\n");
+		} elsif (!$mailList->[$args[1]]) {
 			if (@{$mailList}) {
-				message TF("No mail found with index: %s. (might need to re-open mailbox)\n", $args[0]), "info";
+				warning TF("No mail found with index: %d. (might need to re-open mailbox)\n", $args[1]);
 			} else {
-				message T("Mailbox has not been opened or is empty.\n"), "info";
+				warning T("Mailbox has not been opened or is empty.\n");
 			}
 		} else {
-			$messageSender->sendMailDelete($mailList->[$args[0]]->{mailID});
+			$messageSender->sendMailDelete($mailList->[$args[1]]->{mailID});
+			delete $mailList->[$args[1]];
 		}
+
+	# mail window (almost useless?)
+	} elsif ($args[0] eq 'write') {
+		$messageSender->sendMailOperateWindow(0);
 
 	# mail return
-	} elsif ($cmd eq 'mr') {
-		unless ($args[0] =~ /^\d+$/) {
-			message T("Usage: mr <mail #>\n"), "info";
-		} elsif (!$mailList->[$args[0]]) {
+	} elsif ($args[0] eq 'return') {
+		unless ($args[1] =~ /^\d+$/) {
+			error T("Syntax Error in function 'mail retutn' (Mailbox)\n" .
+				"Usage: mail return <mail #>\n");
+		} elsif (!$mailList->[$args[1]]) {
 			if (@{$mailList}) {
-				message TF("No mail found with index: %s. (might need to re-open mailbox)\n", $args[1]), "info";
+				warning TF("No mail found with index: %s. (might need to re-open mailbox)\n", $args[1]);
 			} else {
-				message T("Mailbox has not been opened or is empty.\n"), "info";
+				warning T("Mailbox has not been opened or is empty.\n");
 			}
 		} else {
-			$messageSender->sendMailReturn($mailList->[$args[0]]->{mailID}, $mailList->[$args[0]]->{sender});
+			$messageSender->sendMailReturn($mailList->[$args[1]]->{mailID}, $mailList->[$args[1]]->{sender});
 		}
 
-	# with command mail, list of possebilities: $cmd eq 'm'
+	} elsif ($args[0] eq 'list') {
+		if (!defined $mailList) {
+			error T("Your Mailbox is is closed.\n");
+		} elsif (!$mailList) {
+			message T("Your Mailbox is empty.\n");
+		} else {
+			my $msg = center(" " . T("Inbox") . " ", 86, '-') . "\n";
+			# truncating the title from 39 to 34, the user will be able to read the full title when reading the mail
+			# truncating the date with precision of minutes and leave year out
+			$msg .= swrite(sprintf("\@> \@ \@%s \@%s \@%s", ('<'x34), ('<'x24), ('<'x19)),
+					["#", T("R"), T("Title"), T("Sender"), T("Date")]);
+			$msg .= sprintf("%s\n", ('-'x86));
+			my $index = 0;
+			foreach my $mail (@{$mailList}) {
+				if ($mail) {
+					$msg .= swrite(sprintf("\@> \@ \@%s \@%s \@%s", ('<'x34), ('<'x24), ('<'x19)),
+						[$index, $mail->{read}, $mail->{title}, $mail->{sender}, getFormattedDate(int($mail->{timestamp}))]);
+				} else {
+					$msg .= swrite(sprintf("\@> \@%s", ('<'x83)), [$index, T("the mail was deleted")]);
+				}
+				$index++;
+			}
+
+			$msg .= sprintf("%s\n", ('-'x86));
+			message $msg, "list";
+		}
+
 	} else {
-		message T("Mail commands: ms, mi, mo, md, mw, mr, ma\n"), "info";
+		error T("Syntax Error in function 'mail' (Mailbox)\n" .
+			"Usage: help mail\n");
 	}
 }
 
@@ -6911,7 +6913,11 @@ sub cmdWeaponRefine {
 }
 
 sub cmdAnswerCaptcha {
-	$messageSender->sendCaptchaAnswer($_[1]);
+	if ($net->getState() == Network::IN_GAME()) {
+		$messageSender->sendMacroDetectorAnswer($_[1]);
+	} else {
+		$messageSender->sendCaptchaAnswer($_[1]);
+	}
 }
 
 ### CATEGORY: Private functions
@@ -7117,7 +7123,7 @@ sub cmdRodex {
 		}
 		my $msg .= center(" " . "Rodex Mail List" . " ", 79, '-') . "\n";
 		my $index = 0;
-		foreach my $mail_id (keys %{$rodexList}) {
+		foreach my $mail_id (keys %{$rodexList->{mails}}) {
 			my $mail = $rodexList->{mails}{$mail_id};
 			$msg .= swrite(sprintf("\@%s \@%s \@%s \@%s \@%s", ('>'x2), ('<'x8), ('<'x9), ('<'x28), ('<'x28)), [$index, $mail_id, $mail->{isRead} ? "read" : "not read", "From: ".$mail->{sender}, "Title: ".$mail->{title}]);
 			$index++;
@@ -7294,6 +7300,9 @@ sub cmdRodex {
 		} elsif ($arg2 eq "") {
 			error T("Syntax Error in function 'rodex settitle' (Set title of rodex mail)\n" .
 				"Usage: rodex settitle <title>\n");
+			return;
+		} elsif (length($arg2) < 4) {
+			error $msgTable[2597] ? $msgTable[2597] . "\n" : T("The title must be 4 to 24 characters long\n");
 			return;
 		}
 
