@@ -581,7 +581,7 @@ sub getRoute {
 	}
 
 	# Calculate path
-	my $pathfinding = new PathFinding(
+	my $pathfinding = new DrunkPath(
 		start => $closest_start,
 		dest  => $closest_dest,
 		field => $field,
