@@ -28,9 +28,14 @@ sub onmiss {
 	
 	return if ($args->{plugin_retry} > 0);
 	
+	my ($from,$to) = split(/=/, $args->{portal});
+	
+	return unless ($portals_lut{$from}{dest}{$to}{allow_ticket});
+	
+	
 	my $closest_portal_binID;
 	my $closest_portal_dist;
-	my $closest_name;
+	my $closest;
 	my $closest_x;
 	my $closest_y;
 	
@@ -44,13 +49,13 @@ sub onmiss {
 		next if (defined $closest_portal_dist && $closest_portal_dist < $dist);
 		$closest_portal_binID = $actor->{binID};
 		$closest_portal_dist = $dist;
-		$closest_name = $actor->{name};
+		$closest = $actor;
 		$closest_x = $pos->{x};
 		$closest_y = $pos->{y};
 	}
 	
 	if (defined $closest_portal_binID) {
-		warning TF("[tryFixKafra] Guessing our desired kafra to be %s (%s,%s).\n", $closest_name, $closest_x, $closest_y), "system";
+		warning TF("[tryFixKafra] Guessing our desired kafra to be %s (%s,%s).\n", $closest, $closest_x, $closest_y), "system";
 		$args->{x} = $closest_x;
 		$args->{y} = $closest_y;
 		$args->{return} = 1;
