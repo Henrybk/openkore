@@ -1,4 +1,4 @@
-﻿# 繁體中文化OpenKore config.txt 17092015
+# 繁體中文化OpenKore config.txt 17092015
 # 來源: Try71023, howie50417 drkn
 # 修改: Shun
 #
@@ -33,9 +33,6 @@ bindIp
 # 如果您的電腦有多個 IP 地址，你可以選擇要使用哪一個 要是您不確定，這個選項您應該保留空白。
 forceMapIP
 # 指定地圖伺服器IP [ twRO 請留空 ]
-
-storageEncryptKey 0x050B6F79, 0x0202C179, 0x00E20120, 0x04FA43E3, 0x0179B6C8, 0x05973DF2, 0x07D8D6B, 0x08CB9ED9
-# 倉庫加密金鑰編碼
 
 #════════════════
 #║ 網路連線細節 ║
@@ -367,11 +364,6 @@ itemsMaxNum_sellOrStore 99
 cartMaxWeight 7900
 # 手推車到達此重量便不再將物品欄內物品加入手推車［相關檔案 items_control.txt］
 
-
-itemsTakeAuto_new 0
-# 正常情況下建議關閉 開啟可能會造成 無法撿取 無主物品
-# 這會啟用另一組專為弓手系撿取物品的實驗性程式碼，而非原本的撿取程式碼。
-# 如果撿取物品常常失敗的話
 
 #════════════════
 #║ 自動使用物品 ║
@@ -1636,8 +1628,6 @@ followLostStep 50
 followSitAuto 0
 # 是否自動跟著主人坐下
 followBot 0
-# 主人是否也是 Bot
-followCheckLOS 0
 # 會否向向主人的方向進行checkLOS [有待更正]
 followRandom 0
 followRandomDistance 4
@@ -1847,10 +1837,8 @@ cachePlayerNames_maxSize 100
 # 快取玩家名字的最大數量
 # 當超過這個數量，會從最舊的資料開始刪，讓新的資料進入快取。
 
-clientSight 20
+clientSight 15
 # 偵測玩家 魔物 NPC 的視野範圍
-
-removeActorWithDistance
 # 設定讓 kore 忽略幾格外的動態資訊 ［玩家、怪物、寵物..最重要的是GM］
 # 在人多的地圖中，若忽略 5 格以外的動態資訊，
 # 可讓 kore 少送出很多 getPlayerInfo 封包，使移動較不 lag。

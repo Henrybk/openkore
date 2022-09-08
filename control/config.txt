@@ -43,11 +43,12 @@ commandPrefix ;
 callSignGM 0
 inGameAuth 0
 
-pauseCharLogin 1
+macAddress
+
+pauseCharLogin 2
 pauseCharServer 0
 pauseMapServer 0
 ignoreInvalidLogin 0
-secureLogin_requestCode
 
 # Opening cash shop when connected to map server (recv/ST0)
 whenInGame_requestCashPoints 0
@@ -67,6 +68,9 @@ attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
 attackAuto_inLockOnly 1
 attackAuto_notInTown 1
+attackAuto_notWhile_storageAuto 1
+attackAuto_notWhile_buyAuto 1
+attackAuto_notWhile_sellAuto 1
 attackDistance 1
 attackDistanceAuto 0
 attackMaxDistance 1
@@ -77,7 +81,7 @@ attackMinPortalDistance 4
 attackUseWeapon 1
 attackNoGiveup 0
 attackCanSnipe 0
-attackCheckLOS 1
+attackCheckLOS 0
 attackRouteMaxPathDistance 13
 attackLooters 0
 attackChangeTarget 1
@@ -150,7 +154,7 @@ cachePlayerNames 1
 cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
-clientSight 20
+clientSight 15
 
 dcPause 1
 dcOnDeath 0
@@ -182,11 +186,11 @@ followBot 0
 itemsTakeAuto 2
 itemsTakeAuto_party 0
 itemsGatherAuto 2
+itemsGatherAuto_notInTown 0
 itemsMaxWeight 89
 itemsMaxWeight_sellOrStore 48
 itemsMaxNum_sellOrStore 99
 cartMaxWeight 7900
-itemsTakeAuto_new 0
 itemsTakeGreed 0
 itemsCheckWeight 1
 
@@ -361,7 +365,6 @@ repairAuto_list
 status_mapProperty 0
 status_mapType 0
 
-removeActorWithDistance
 monster_filter
 
 ######## Mercenary Support ########
@@ -532,6 +535,8 @@ attackSkillSlot {
 	target_whenStatusActive
 	target_whenStatusInactive
 	target_deltaHp
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	isSelfSkill 0
 	equip_topHead
@@ -559,6 +564,8 @@ attackComboSlot {
 	monsters
 	notMonsters
 	monstersCount
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 }
 
 doCommand {
@@ -583,6 +590,8 @@ doCommand {
 	notInTown 0
 	timeout
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	inCart
 	inMap
@@ -614,6 +623,8 @@ useSelf_skill {
 	notInTown 0
 	timeout 0
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	manualAI 0
 }
@@ -661,6 +672,8 @@ partySkill {
 	target_timeout 0
 	target_deltaHp
 	target_dead 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	isSelfSkill 0
 }
@@ -668,6 +681,8 @@ partySkill {
 monsterSkill {
 	target
 	maxUses
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	# Skill Use Conditions, including isSelfSkill
 	# Self Conditions
 	# Target Monster Conditions
@@ -724,6 +739,8 @@ equipAuto {
 	notInTown 0
 	timeout 0
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	manualAI 0
 }
@@ -750,6 +767,8 @@ useSelf_item {
 	notInTown 0
 	timeout 0
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	manualAI 0
 }
@@ -775,16 +794,18 @@ sellAuto 0
 sellAuto_npc
 sellAuto_standpoint
 sellAuto_distance 3
+sellAuto_maxDistance
 sellAuto_npc_steps s
 
 storageAuto 0
 storageAuto_npc
 storageAuto_standpoint
 storageAuto_distance 3
+storageAuto_maxDistance
 storageAuto_npc_type 1
+storageAuto_type 0
 storageAuto_npc_steps
 storageAuto_password
-storageEncryptKey
 storageAuto_keepOpen 0
 storageAuto_useChatCommand
 storageAuto_useItem 0
@@ -820,4 +841,3 @@ logToFile_Errors
 logToFile_Messages
 logToFile_Warnings
 history_max 50
-gameGuard 0
