@@ -317,8 +317,14 @@ sub ai_getAggressives {
 		# Never attack monsters that we failed to get LOS with
 		next if (!timeOut($monster->{attack_failedLOS}, $timeout{ai_attack_failedLOS}{timeout}));
 		next if (!timeOut($monster->{attack_failed}, $timeout{ai_attack_unfail}{timeout}));
+		
+		my %plugin_args;
+		$plugin_args{monster} = $monster;
+		$plugin_args{return} = 0;
+		Plugins::callHook( ai_check_Aggressiveness => \%plugin_args );
 
 		if (($type && ($control->{attack_auto} == 2)) ||
+			($plugin_args{return}) ||
 			(($monster->{dmgToYou} || $monster->{missedYou}) && Misc::checkMonsterCleanness($ID)) ||
 			($party && ($monster->{dmgToParty} || $monster->{missedToParty} || $monster->{dmgFromParty})) &&
 			timeOut($monster->{attack_failed}, $timeout{ai_attack_unfail}{timeout}))
