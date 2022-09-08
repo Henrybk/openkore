@@ -323,12 +323,13 @@ sub ai_getAggressives {
 		$plugin_args{return} = 0;
 		Plugins::callHook( ai_check_Aggressiveness => \%plugin_args );
 
-		if (($type && ($control->{attack_auto} == 2)) ||
+		if (
+			($type && ($control->{attack_auto} == 2)) ||
 			($plugin_args{return}) ||
 			(($monster->{dmgToYou} || $monster->{missedYou}) && Misc::checkMonsterCleanness($ID)) ||
-			($party && ($monster->{dmgToParty} || $monster->{missedToParty} || $monster->{dmgFromParty})) &&
-			timeOut($monster->{attack_failed}, $timeout{ai_attack_unfail}{timeout}))
-		{
+			($config{"attackAuto_considerDamagedAggressive"} && $monster->{dmgFromYou} > 0 && Misc::checkMonsterCleanness($ID)) ||
+			($party && ($monster->{dmgToParty} || $monster->{missedToParty} || $monster->{dmgFromParty}))
+		) {
 			# Continuing, check whether the forced Agro is really a clean monster;
 			next if (($type && $control->{attack_auto} == 2) && !Misc::checkMonsterCleanness($ID));
 
