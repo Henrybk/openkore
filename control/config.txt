@@ -10,6 +10,8 @@ password
 loginPinCode
 char
 
+drunk 10
+
 # Poseidon Settings: https://openkore.com/wiki/Poseidon
 # They must be the same as Query Server config in Poseidon.txt
 poseidonServer 127.0.0.1

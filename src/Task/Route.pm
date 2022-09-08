@@ -581,12 +581,24 @@ sub getRoute {
 	}
 
 	# Calculate path
-	my $pathfinding = new PathFinding(
-		start => $closest_start,
-		dest  => $closest_dest,
-		field => $field,
-		avoidWalls => $avoidWalls
-	);
+	my $pathfinding;
+	
+	if ($config{"drunk"}) {
+		$pathfinding = new DrunkPath(
+			start => $closest_start,
+			dest  => $closest_dest,
+			field => $field,
+			avoidWalls => $avoidWalls
+		);
+	} else {
+		$pathfinding = new PathFinding(
+			start => $closest_start,
+			dest  => $closest_dest,
+			field => $field,
+			avoidWalls => $avoidWalls
+		);
+	}
+	
 	return undef if (!$pathfinding);
 
 	my $ret;
