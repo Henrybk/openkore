@@ -54,6 +54,13 @@ sources += [
 ]
 XS_sources['PathFinding/PathFinding.xs'] = 'PathFinding/PathFinding.xs.cpp'
 
+### DrunkPath
+sources += [
+	'DrunkPath/algorithm.cpp',
+	'DrunkPath/PathFinding.xs.cpp'
+]
+XS_sources['DrunkPath/PathFinding.xs'] = 'DrunkPath/PathFinding.xs.cpp'
+
 ### Translation
 sources += [
 	'Translation/filereader.cpp',

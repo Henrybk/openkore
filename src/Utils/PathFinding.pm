@@ -34,6 +34,8 @@ use XSTools;
 use Modules 'register';
 XSTools::bootModule("PathFinding");
 
+XSTools::bootModule("DrunkPath");
+
 
 
 ##
