@@ -1,4 +1,4 @@
-package tryFixKafra;
+package fixKafraTeleport;
  
 use strict;
 use Plugins;
@@ -12,7 +12,7 @@ use Network;
  
 #########
 # startup
-Plugins::register('tryFixKafra', '', \&Unload, \&Unload);
+Plugins::register('fixKafraTeleport', '', \&Unload, \&Unload);
 
 my $hooks = Plugins::addHooks(
 	['npc_teleport_missing',   \&onmiss,    undef]
@@ -55,7 +55,7 @@ sub onmiss {
 	}
 	
 	if (defined $closest_portal_binID) {
-		warning TF("[tryFixKafra] Guessing our desired kafra to be %s (%s,%s).\n", $closest, $closest_x, $closest_y), "system";
+		warning TF("[fixKafraTeleport] Guessing our desired kafra to be %s (%s,%s).\n", $closest, $closest_x, $closest_y), "system";
 		$args->{x} = $closest_x;
 		$args->{y} = $closest_y;
 		$args->{return} = 1;
