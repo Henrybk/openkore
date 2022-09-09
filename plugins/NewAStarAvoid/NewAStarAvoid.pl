@@ -81,6 +81,8 @@ my %obstaclesList;
 
 my $mustRePath = 0;
 
+my $weight_limit = 127;
+
 sub on_packet_mapChange {
 	undef %obstaclesList;
 	$mustRePath = 0;
@@ -195,8 +197,8 @@ sub get_final_grid {
 		my $position = $change->{y} * $field->{width} + $change->{x};
 		my $current_weight = unpack('C', substr($grid, $position, 1));
 		my $weight_changed = $current_weight + $change->{weight};
-		if ($weight_changed >= 127) {
-			$weight_changed = 127;
+		if ($weight_changed >= $weight_limit) {
+			$weight_changed = $weight_limit;
 		}
 		#warning "[".PLUGIN_NAME."] after  $change->{x} $change->{y} | $current_weight -> $weight_changed.\n";
 		substr($grid, $position, 1, pack('C', $weight_changed));
@@ -211,8 +213,8 @@ sub get_weight_for_block {
 		$dist = 1;
 	}
 	my $weight = int($ratio/($dist*$dist));
-	if ($weight >= 127) {
-		$weight = 127;
+	if ($weight >= $weight_limit) {
+		$weight = $weight_limit;
 	}
 	return $weight;
 }
