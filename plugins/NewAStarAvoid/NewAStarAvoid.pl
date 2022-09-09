@@ -14,7 +14,7 @@ Plugins::register('NewAStarAvoid', 'Enables smart pathing using the dynamic aspe
 use constant {
 	PLUGIN_NAME => 'NewAStarAvoid',
 	ENABLE_MOVE => 1,
-	ENABLE_REMOVE => 1,
+	ENABLE_REMOVE => ,
 };
 
 my $hooks = Plugins::addHooks(
@@ -55,7 +55,7 @@ my %mob_nameID_obstacles = (
 	},
 	1368 => { # planta carnivora
 		weight => 1000,
-		dist => 4
+		dist => 10
 	},
 	1372 => { # bode
 		weight => 1000,
@@ -195,6 +195,9 @@ sub get_final_grid {
 		my $position = $change->{y} * $field->{width} + $change->{x};
 		my $current_weight = unpack('C', substr($grid, $position, 1));
 		my $weight_changed = $current_weight + $change->{weight};
+		if ($weight_changed >= 127) {
+			$weight_changed = 127;
+		}
 		#warning "[".PLUGIN_NAME."] after  $change->{x} $change->{y} | $current_weight -> $weight_changed.\n";
 		substr($grid, $position, 1, pack('C', $weight_changed));
 	}
