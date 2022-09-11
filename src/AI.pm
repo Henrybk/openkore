@@ -317,21 +317,10 @@ sub ai_getAggressives {
 		# Never attack monsters that we failed to get LOS with
 		next if (!timeOut($monster->{attack_failedLOS}, $timeout{ai_attack_failedLOS}{timeout}));
 		next if (!timeOut($monster->{attack_failed}, $timeout{ai_attack_unfail}{timeout}));
-		
-		my %plugin_args;
-		$plugin_args{monster} = $monster;
-		$plugin_args{return} = 0;
-		Plugins::callHook( ai_check_Aggressiveness => \%plugin_args );
+		next if (!Misc::checkMonsterCleanness($ID));
 
-		if (
-			($type && ($control->{attack_auto} == 2)) ||
-			($plugin_args{return}) ||
-			(($monster->{dmgToYou} || $monster->{missedYou}) && Misc::checkMonsterCleanness($ID)) ||
-			($config{"attackAuto_considerDamagedAggressive"} && $monster->{dmgFromYou} > 0 && Misc::checkMonsterCleanness($ID)) ||
-			($party && ($monster->{dmgToParty} || $monster->{missedToParty} || $monster->{dmgFromParty}))
-		) {
+		if (Misc::is_aggressive($monster, $control, $type, $party)) {
 			# Continuing, check whether the forced Agro is really a clean monster;
-			next if (($type && $control->{attack_auto} == 2) && !Misc::checkMonsterCleanness($ID));
 
 			if ($wantArray) {
 				# Function is called in array context
