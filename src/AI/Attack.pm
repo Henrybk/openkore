@@ -39,26 +39,6 @@ sub process {
 	Benchmark::begin("ai_attack") if DEBUG;
 	my $args = AI::args;
 
-	if ($args->{ID}) {
-		my $target = Actor::get($args->{ID});
-		if ($target) {
-			my $target_is_aggressive = is_aggressive($target);
-			my @aggressives = ai_getAggressives();
-			if ($config{attackChangeTarget} && !$target_is_aggressive && @aggressives) {
-				my $attackTarget = getBestTarget(\@aggressives, $config{attackCheckLOS}, $config{attackCanSnipe});
-				if ($attackTarget) {
-					$char->sendAttackStop;
-					AI::dequeue while (AI::inQueue("attack"));
-					ai_setSuspend(0);
-					warning TF("[attackChangeTarget] %s, target %s is not aggressive, changing target to aggressive %s.\n", $char, $target, $attackTarget), 'ai_attack';
-					$char->attack($attackTarget);
-					AI::Attack::process();
-					return;
-				}
-			}
-		}
-	}
-
 	if (AI::action eq "attack" && AI::args->{suspended}) {
 		$args->{ai_attack_giveup}{time} += time - $args->{suspended};
 		delete $args->{suspended};
