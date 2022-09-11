@@ -8,7 +8,7 @@ server 0
 username player1
 password 123456
 loginPinCode
-char 
+char 7
 ##### Plugins Start
 
 eventMacro_1_99_stage start
@@ -48,7 +48,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword hieturus
+adminPassword dreacauc
 callSign
 commandPrefix ;
 callSignGM 0
@@ -73,27 +73,148 @@ alias_heal sp 28
 allowedMaps
 allowedMaps_reaction 1
 
+
+
+
+
+
+
+runFromTarget 1
+runFromTarget_inAdvance 0
+runFromTarget_dist 7
+runFromTarget_minStep 10
+runFromTarget_maxPathDistance 15
+
 attackAuto 2
 attackAuto_party 1
 attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
 attackAuto_inLockOnly 1
 attackAuto_notInTown 1
-attackDistance 1
+attackAuto_notWhile_storageAuto 1
+attackAuto_notWhile_buyAuto 1
+attackAuto_notWhile_sellAuto 1
+attackAuto_considerDamagedAggressive 1
+attackBeyondMaxDistance_waitForAgressive 1
+attackDistance 12
 attackDistanceAuto 0
-attackMaxDistance 1
+attackMaxDistance 12
 attackMaxRouteDistance 50
 attackMaxRouteTime 4
 attackMinPlayerDistance 2
 attackMinPortalDistance 4
 attackUseWeapon 1
 attackNoGiveup 0
-attackCanSnipe 0
+attackCanSnipe 1
 attackCheckLOS 1
-attackRouteMaxPathDistance 28
+attackRouteMaxPathDistance 15
 attackLooters 0
 attackChangeTarget 1
 aggressiveAntiKS 0
+
+
+itemsTakeAuto 0
+itemsTakeAuto_party 0
+itemsGatherAuto 0
+itemsGatherAuto_notInTown 0
+itemsMaxWeight 89
+itemsMaxWeight_sellOrStore 48
+itemsMaxNum_sellOrStore 99
+cartMaxWeight 7900
+itemsTakeAuto_new 0
+itemsTakeGreed 0
+itemsCheckWeight 1
+
+lockMap prt_fild05
+lockMap_x
+lockMap_y
+lockMap_randX
+lockMap_randY
+
+route_escape_reachedNoPortal 1
+route_escape_randomWalk 1
+route_escape_shout
+route_avoidWalls 1
+route_randomWalk 1
+route_randomWalk_inTown 0
+route_randomWalk_maxRouteTime 75
+route_maxWarpFee
+route_maxNpcTries 5
+route_teleport 0
+route_teleport_minDistance 75
+route_teleport_maxTries 8
+route_teleport_notInMaps
+route_step 10
+route_removeMissingPortals_NPC 1
+route_removeMissingPortals 0
+route_tryToGuessMissingPortalByDistance 1
+route_reAddMissingPortals 1
+
+
+
+######## Mercenary Support ########
+
+mercenary_attackAuto 2
+mercenary_attackAuto_party 1
+mercenary_attackAuto_notInTown 1
+mercenary_attackAuto_onlyWhenSafe 0
+mercenary_attackAuto_duringRandomWalk 1
+mercenary_attackAuto_duringItemsTake 0
+mercenary_attackDistance 10
+mercenary_attackMaxDistance 10
+mercenary_attackDistanceAuto 0
+mercenary_attackMaxRouteTime 4
+mercenary_attackCanSnipe 1
+mercenary_attackCheckLOS 1
+mercenary_attackRouteMaxPathDistance 30
+mercenary_attackNoGiveup 0
+mercenary_attackChangeTarget 1
+mercenary_attack_dance_melee 0
+mercenary_attack_dance_ranged 0
+
+mercenary_lost_teleportToMaster_maxTries 3
+
+mercenary_route_randomWalk_rescueWhenLost 1
+mercenary_route_randomWalk_stopDuringAttack 1
+mercenary_route_randomWalk_waitMinDistance 10
+
+mercenary_runFromTarget 1
+mercenary_runFromTarget_inAdvance 0
+mercenary_runFromTarget_dist 7
+mercenary_runFromTarget_minStep 7
+mercenary_runFromTarget_maxPathDistance 20
+
+mercenary_followDistanceMax 14
+mercenary_followDistanceMin 3
+
+mercenary_moveNearWhenIdle 1
+mercenary_moveNearWhenIdle_minDistance 3
+mercenary_moveNearWhenIdle_maxDistance 12
+
+mercenary_idleWalkType 2
+
+mercenary_route_step 10
+
+mercenary_tankMode 0
+mercenary_tankModeTarget
+
+mercenary_teleportAuto_hp 10
+mercenary_teleportAuto_maxDmg 500
+mercenary_teleportAuto_maxDmgInLock 0
+mercenary_teleportAuto_deadly 1
+mercenary_teleportAuto_unstuck 0
+mercenary_teleportAuto_dropTarget 0
+mercenary_teleportAuto_dropTargetKS 0
+mercenary_teleportAuto_totalDmg 0
+mercenary_teleportAuto_totalDmgInLock 0
+mercenary_teleportAuto_attackedWhenSitting 0
+
+
+
+
+
+
+
 
 attackUpdateMonsterPos 1
 
@@ -177,50 +298,6 @@ followDistanceMin 3
 followLostStep 12
 followSitAuto 0
 followBot 0
-
-itemsTakeAuto 2
-itemsTakeAuto_party 0
-itemsGatherAuto 2
-itemsGatherAuto_notInTown 0
-itemsMaxWeight 89
-itemsMaxWeight_sellOrStore 48
-itemsMaxNum_sellOrStore 99
-cartMaxWeight 7900
-itemsTakeAuto_new 0
-itemsTakeGreed 0
-itemsCheckWeight 1
-
-lockMap
-lockMap_x
-lockMap_y
-lockMap_randX
-lockMap_randY
-
-route_escape_reachedNoPortal 1
-route_escape_randomWalk 1
-route_escape_shout
-route_avoidWalls 1
-route_randomWalk 1
-route_randomWalk_inTown 0
-route_randomWalk_maxRouteTime 75
-route_maxWarpFee
-route_maxNpcTries 5
-route_teleport 0
-route_teleport_minDistance 75
-route_teleport_maxTries 8
-route_teleport_notInMaps
-route_step 10
-route_removeMissingPortals_NPC 1
-route_removeMissingPortals 0
-route_tryToGuessMissingPortalByDistance 1
-route_reAddMissingPortals 1
-
-runFromTarget 0
-runFromTarget_inAdvance 0
-runFromTarget_dist 5
-runFromTarget_minStep 7
-runFromTarget_maxStep 11
-runFromTarget_maxPathDistance 13
 
 saveMap
 saveMap_warpToBuyOrSell 1
@@ -363,63 +440,6 @@ status_mapType 0
 
 monster_filter
 
-######## Mercenary Support ########
-
-mercenary_attackAuto 2
-mercenary_attackAuto_party 1
-mercenary_attackAuto_notInTown 1
-mercenary_attackAuto_onlyWhenSafe 0
-mercenary_attackAuto_duringRandomWalk 0
-mercenary_attackAuto_duringItemsTake 0
-mercenary_attackDistance 1
-mercenary_attackMaxDistance 1
-mercenary_attackDistanceAuto 0
-mercenary_attackMaxRouteTime 4
-mercenary_attackCanSnipe 0
-mercenary_attackCheckLOS 1
-mercenary_attackRouteMaxPathDistance 13
-mercenary_attackNoGiveup 0
-mercenary_attackChangeTarget 1
-mercenary_attack_dance_melee 0
-mercenary_attack_dance_ranged 0
-
-mercenary_lost_teleportToMaster_maxTries 6
-
-mercenary_route_randomWalk_rescueWhenLost 0
-mercenary_route_randomWalk_stopDuringAttack 0
-mercenary_route_randomWalk_waitMinDistance 0
-
-mercenary_runFromTarget 0
-mercenary_runFromTarget_inAdvance 0
-mercenary_runFromTarget_dist 5
-mercenary_runFromTarget_minStep 7
-mercenary_runFromTarget_maxStep 11
-mercenary_runFromTarget_maxPathDistance 13
-
-mercenary_followDistanceMax 12
-mercenary_followDistanceMin 3
-
-mercenary_moveNearWhenIdle 1
-mercenary_moveNearWhenIdle_minDistance 2
-mercenary_moveNearWhenIdle_maxDistance 12
-
-mercenary_idleWalkType 1
-
-mercenary_route_step 10
-
-mercenary_tankMode 0
-mercenary_tankModeTarget
-
-mercenary_teleportAuto_hp 10
-mercenary_teleportAuto_maxDmg 500
-mercenary_teleportAuto_maxDmgInLock 0
-mercenary_teleportAuto_deadly 1
-mercenary_teleportAuto_unstuck 0
-mercenary_teleportAuto_dropTarget 0
-mercenary_teleportAuto_dropTargetKS 0
-mercenary_teleportAuto_totalDmg 0
-mercenary_teleportAuto_totalDmgInLock 0
-mercenary_teleportAuto_attackedWhenSitting 0
 
 ######## Homunculus Support ########
 
@@ -449,8 +469,7 @@ homunculus_route_randomWalk_waitMinDistance 0
 homunculus_runFromTarget 0
 homunculus_runFromTarget_dist 5
 homunculus_runFromTarget_minStep 7
-homunculus_runFromTarget_maxStep 11
-homunculus_runFromTarget_maxPathDistance 13
+homunculus_runFromTarget_maxPathDistance 20
 
 homunculus_followDistanceMax 12
 homunculus_followDistanceMin 3
@@ -540,7 +559,7 @@ npcWrongStepsMethod 0
 
 ######## Debugging options; only useful for developers ########
 
-debug 0
+debug 2
 debugPacket_unparsed 0
 debugPacket_received 0
 debugPacket_ro_sent 0
@@ -556,44 +575,43 @@ logToFile_Warnings
 history_max 50
 macro_orphans terminate
 
-equipAuto { 
-	topHead 
-	midHead 
-	lowHead 
-	leftHand 
-	rightHand 
-	leftAccessory 
-	rightAccessory 
-	robe 
-	armor 
-	shoes 
-	arrow 
-	monsters 
-	notMonsters 
-	monstersCount 
-	weight 0 
-	whileSitting 0 
-	hp 
-	sp 
-	homunculus_hp 
-	homunculus_sp 
-	homunculus_dead 
-	onAction 
-	whenStatusActive 
-	whenStatusInactive 
-	whenFollowing 
-	spirit 
-	amuletType 
-	aggressives 
-	stopWhenHit 0 
-	inLockOnly 0 
-	notWhileSitting 0 
-	notInTown 0 
-	timeout 0 
-	disabled 0 
-	whenPartyMembersNear 
-	whenPartyMembersNearDist 
-	inInventory 
-	manualAI 0 
+equipAuto {
+	topHead
+	midHead
+	lowHead
+	leftHand
+	rightHand
+	leftAccessory
+	rightAccessory
+	robe
+	armor
+	shoes
+	arrow
+	monsters
+	notMonsters
+	monstersCount
+	weight 0
+	whileSitting 0
+	hp
+	sp
+	homunculus_hp
+	homunculus_sp
+	homunculus_dead
+	onAction
+	whenStatusActive
+	whenStatusInactive
+	whenFollowing
+	spirit
+	amuletType
+	aggressives
+	stopWhenHit 0
+	inLockOnly 0
+	notWhileSitting 0
+	notInTown 0
+	timeout 0
+	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
+	inInventory
+	manualAI 0
 }
-
