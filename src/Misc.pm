@@ -118,6 +118,7 @@ our @EXPORT = (
 	checkFollowMode
 	isMySlaveID
 	is_aggressive
+	is_aggressive_slave
 	checkMonsterCleanness
 	slave_checkMonsterCleanness
 	createCharacter
@@ -1484,6 +1485,28 @@ sub is_aggressive {
 	return 0;
 }
 
+sub is_aggressive_slave {
+	my ($slave, $monster, $control, $type) = @_;
+
+	my %plugin_args;
+	$plugin_args{slave} = $slave;
+	$plugin_args{monster} = $monster;
+	$plugin_args{control} = $control;
+	$plugin_args{type} = $type;
+	$plugin_args{return} = 0;
+	Plugins::callHook( ai_slave_check_Aggressiveness => \%plugin_args );
+
+	if (
+		($plugin_args{return}) ||
+		($type && ($control->{attack_auto} == 2)) ||
+		($monster->{dmgToPlayer}{$slave->{ID}} || $monster->{missedToPlayer}{$slave->{ID}}) ||
+		($config{$slave->{configPrefix}."attackAuto_considerDamagedAggressive"} && $monster->{dmgFromPlayer}{$slave->{ID}} > 0)
+	) {
+		return 1;
+	}
+	return 0;
+}
+
 ##
 # boolean checkMonsterCleanness(Bytes ID)
 # ID: the monster's ID.
@@ -1491,8 +1514,8 @@ sub is_aggressive {
 #
 # Checks whether a monster is "clean" (not being attacked by anyone).
 sub checkMonsterCleanness {
+	my ($ID) = @_;
 	return 1 if (!$config{attackAuto});
-	my $ID = $_[0];
 	return 1 if $playersList->getByID($ID) || $slavesList->getByID($ID);
 	my $monster = $monstersList->getByID($ID);
 
