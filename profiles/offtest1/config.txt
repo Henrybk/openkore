@@ -157,6 +157,12 @@ route_reAddMissingPortals 1
 mercenary_attackAuto 2
 mercenary_attackAuto_party 1
 mercenary_attackAuto_notInTown 1
+mercenary_attackAuto_inLockOnly 1
+mercenary_attackAuto_notWhile_storageAuto 1
+mercenary_attackAuto_notWhile_buyAuto 1
+mercenary_attackAuto_notWhile_sellAuto 1
+mercenary_attackAuto_considerDamagedAggressive 1
+mercenary_attackBeyondMaxDistance_waitForAgressive 1
 mercenary_attackAuto_onlyWhenSafe 0
 mercenary_attackAuto_duringRandomWalk 1
 mercenary_attackAuto_duringItemsTake 0
@@ -166,7 +172,7 @@ mercenary_attackDistanceAuto 0
 mercenary_attackMaxRouteTime 4
 mercenary_attackCanSnipe 1
 mercenary_attackCheckLOS 1
-mercenary_attackRouteMaxPathDistance 30
+mercenary_attackRouteMaxPathDistance 20
 mercenary_attackNoGiveup 0
 mercenary_attackChangeTarget 1
 mercenary_attack_dance_melee 0
@@ -181,10 +187,10 @@ mercenary_route_randomWalk_waitMinDistance 10
 mercenary_runFromTarget 1
 mercenary_runFromTarget_inAdvance 0
 mercenary_runFromTarget_dist 7
-mercenary_runFromTarget_minStep 7
+mercenary_runFromTarget_minStep 10
 mercenary_runFromTarget_maxPathDistance 20
 
-mercenary_followDistanceMax 14
+mercenary_followDistanceMax 12
 mercenary_followDistanceMin 3
 
 mercenary_moveNearWhenIdle 1
@@ -211,6 +217,67 @@ mercenary_teleportAuto_attackedWhenSitting 0
 
 
 
+######## Homunculus Support ########
+
+homunculus_attackAuto 2
+homunculus_attackAuto_party 1
+homunculus_attackAuto_notInTown 1
+homunculus_attackAuto_inLockOnly 1
+homunculus_attackAuto_notWhile_storageAuto 1
+homunculus_attackAuto_notWhile_buyAuto 1
+homunculus_attackAuto_notWhile_sellAuto 1
+homunculus_attackAuto_considerDamagedAggressive 1
+homunculus_attackBeyondMaxDistance_waitForAgressive 1
+homunculus_attackAuto_onlyWhenSafe 0
+homunculus_attackAuto_duringRandomWalk 0
+homunculus_attackAuto_duringItemsTake 0
+homunculus_attackDistance 1
+homunculus_attackMaxDistance 1
+homunculus_attackDistanceAuto 0
+homunculus_attackMaxRouteTime 4
+homunculus_attackCanSnipe 0
+homunculus_attackCheckLOS 1
+homunculus_attackRouteMaxPathDistance 13
+homunculus_attackNoGiveup 0
+homunculus_attackChangeTarget 1
+homunculus_attack_dance_melee 0
+
+homunculus_lost_teleportToMaster_maxTries 6
+
+homunculus_route_randomWalk_rescueWhenLost 0
+homunculus_route_randomWalk_stopDuringAttack 0
+homunculus_route_randomWalk_waitMinDistance 0
+
+homunculus_runFromTarget 0
+homunculus_runFromTarget_dist 5
+homunculus_runFromTarget_minStep 7
+homunculus_runFromTarget_maxPathDistance 20
+
+homunculus_followDistanceMax 12
+homunculus_followDistanceMin 3
+
+homunculus_moveNearWhenIdle 1
+homunculus_moveNearWhenIdle_minDistance 2
+homunculus_moveNearWhenIdle_maxDistance 12
+
+homunculus_idleWalkType 1
+
+homunculus_route_step 10
+
+homunculus_tankMode 0
+homunculus_tankModeTarget
+
+homunculus_StandByAuto 0
+homunculus_teleportAuto_hp 10
+homunculus_teleportAuto_maxDmg 500
+homunculus_teleportAuto_maxDmgInLock 0
+homunculus_teleportAuto_deadly 1
+homunculus_teleportAuto_unstuck 0
+homunculus_teleportAuto_dropTarget 0
+homunculus_teleportAuto_dropTargetKS 0
+homunculus_teleportAuto_totalDmg 0
+homunculus_teleportAuto_totalDmgInLock 0
+homunculus_teleportAuto_attackedWhenSitting 0
 
 
 
@@ -439,63 +506,6 @@ status_mapProperty 0
 status_mapType 0
 
 monster_filter
-
-
-######## Homunculus Support ########
-
-homunculus_attackAuto 2
-homunculus_attackAuto_party 1
-homunculus_attackAuto_notInTown 1
-homunculus_attackAuto_onlyWhenSafe 0
-homunculus_attackAuto_duringRandomWalk 0
-homunculus_attackAuto_duringItemsTake 0
-homunculus_attackDistance 1
-homunculus_attackMaxDistance 1
-homunculus_attackDistanceAuto 0
-homunculus_attackMaxRouteTime 4
-homunculus_attackCanSnipe 0
-homunculus_attackCheckLOS 1
-homunculus_attackRouteMaxPathDistance 13
-homunculus_attackNoGiveup 0
-homunculus_attackChangeTarget 1
-homunculus_attack_dance_melee 0
-
-homunculus_lost_teleportToMaster_maxTries 6
-
-homunculus_route_randomWalk_rescueWhenLost 0
-homunculus_route_randomWalk_stopDuringAttack 0
-homunculus_route_randomWalk_waitMinDistance 0
-
-homunculus_runFromTarget 0
-homunculus_runFromTarget_dist 5
-homunculus_runFromTarget_minStep 7
-homunculus_runFromTarget_maxPathDistance 20
-
-homunculus_followDistanceMax 12
-homunculus_followDistanceMin 3
-
-homunculus_moveNearWhenIdle 1
-homunculus_moveNearWhenIdle_minDistance 2
-homunculus_moveNearWhenIdle_maxDistance 12
-
-homunculus_idleWalkType 1
-
-homunculus_route_step 10
-
-homunculus_tankMode 0
-homunculus_tankModeTarget
-
-homunculus_StandByAuto 0
-homunculus_teleportAuto_hp 10
-homunculus_teleportAuto_maxDmg 500
-homunculus_teleportAuto_maxDmgInLock 0
-homunculus_teleportAuto_deadly 1
-homunculus_teleportAuto_unstuck 0
-homunculus_teleportAuto_dropTarget 0
-homunculus_teleportAuto_dropTargetKS 0
-homunculus_teleportAuto_totalDmg 0
-homunculus_teleportAuto_totalDmgInLock 0
-homunculus_teleportAuto_attackedWhenSitting 0
 
 # Turn on/off homunculus autofeeding
 homunculus_autoFeed 1
