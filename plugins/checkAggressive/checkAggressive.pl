@@ -69,9 +69,19 @@ sub on_ai_check_Aggressiveness {
 	#$mobs_info->{$monster->{nameID}}{lvl}
 	#$mobs_info->{$monster->{nameID}}{is_aggressive}
 	
-	return unless (Misc::checkMonsterCleanness($ID));
 	
-	return unless (Misc::objectIsMovingTowards($monster, $char));
+	my $found_clean = 0;
+	my $found_moving = 0;
+	
+	$found_clean = 1  if (Misc::checkMonsterCleanness($ID));
+	$found_moving = 1 if (Misc::objectIsMovingTowards($monster, $char));
+	
+	foreach my $slave (values %{$char->{slaves}}) {
+		$found_clean = 1  if (Misc::slave_checkMonsterCleanness($slave, $ID));
+		$found_moving = 1 if (Misc::objectIsMovingTowards($monster, $slave));
+	}
+	
+	return unless ($found_clean && $found_moving);
 	
 	debug "[".PLUGIN_NAME."] Monster $monster at ($monster->{pos}{x} $monster->{pos}{y}) | Lvl $mobs_info->{$monster->{nameID}}{lvl} | is Aggressive, clean, and coming to us\n";
 	
