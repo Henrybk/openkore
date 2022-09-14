@@ -1517,9 +1517,21 @@ sub is_aggressive {
 	if (
 		($plugin_args{return}) ||
 		($type && $control->{attack_auto} == 2) ||
-		(($monster->{dmgToYou} || $monster->{missedYou})) ||
+		(($monster->{dmgToYou} || $monster->{missedYou} || $monster->{castOnToYou})) ||
 		($config{"attackAuto_considerDamagedAggressive"} && $monster->{dmgFromYou} > 0) ||
-		($party && ($monster->{dmgToParty} || $monster->{missedToParty} || $monster->{dmgFromParty}))
+		($party &&
+		 (
+			   $monster->{dmgToParty}
+			|| $monster->{missedToParty}
+			|| $monster->{dmgFromParty}
+			|| scalar(grep { isMySlaveID($_) } keys %{$monster->{missedFromPlayer}})
+			|| scalar(grep { isMySlaveID($_) } keys %{$monster->{dmgFromPlayer}})
+			|| scalar(grep { isMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
+			|| scalar(grep { isMySlaveID($_) } keys %{$monster->{missedToPlayer}})
+			|| scalar(grep { isMySlaveID($_) } keys %{$monster->{dmgToPlayer}})
+			|| scalar(grep { isMySlaveID($_) } keys %{$monster->{castOnToPlayer}})
+		 )
+		)
 	) {
 		return 1;
 	}
@@ -1527,7 +1539,7 @@ sub is_aggressive {
 }
 
 sub is_aggressive_slave {
-	my ($slave, $monster, $control, $type) = @_;
+	my ($slave, $monster, $control, $type, $party) = @_;
 
 	my %plugin_args;
 	$plugin_args{slave} = $slave;
@@ -1540,8 +1552,24 @@ sub is_aggressive_slave {
 	if (
 		($plugin_args{return}) ||
 		($type && ($control->{attack_auto} == 2)) ||
-		($monster->{dmgToPlayer}{$slave->{ID}} || $monster->{missedToPlayer}{$slave->{ID}}) ||
-		($config{$slave->{configPrefix}."attackAuto_considerDamagedAggressive"} && $monster->{dmgFromPlayer}{$slave->{ID}} > 0)
+		($monster->{dmgToPlayer}{$slave->{ID}} || $monster->{missedToPlayer}{$slave->{ID}} || $monster->{castOnToPlayer}{$slave->{ID}}) ||
+		($config{$slave->{configPrefix}."attackAuto_considerDamagedAggressive"} && $monster->{dmgFromPlayer}{$slave->{ID}} > 0) ||
+		($party &&
+		 (
+			   $monster->{missedFromYou}
+			|| $monster->{dmgFromYou}
+			|| $monster->{castOnByYou}
+			|| $monster->{dmgToYou}
+			|| $monster->{missedYou}
+			|| $monster->{castOnToYou}
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{missedFromPlayer}})
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{dmgFromPlayer}})
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{castOnByPlayer}})
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{missedToPlayer}})
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{dmgToPlayer}})
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{castOnToPlayer}})
+		 )
+		)
 	) {
 		return 1;
 	}
@@ -1568,10 +1596,10 @@ sub checkMonsterCleanness {
 	if (
 		   scalar(grep { isMySlaveID($_) } keys %{$monster->{missedFromPlayer}})
 		|| scalar(grep { isMySlaveID($_) } keys %{$monster->{dmgFromPlayer}})
+		|| scalar(grep { isMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
 		|| scalar(grep { isMySlaveID($_) } keys %{$monster->{missedToPlayer}})
 		|| scalar(grep { isMySlaveID($_) } keys %{$monster->{dmgToPlayer}})
 		|| scalar(grep { isMySlaveID($_) } keys %{$monster->{castOnToPlayer}})
-		|| scalar(grep { isMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
 	) {
 		return 1;
 	}
@@ -1586,10 +1614,10 @@ sub checkMonsterCleanness {
 		if (
 			   scalar(grep { isNotMySlaveID($_) } keys %{$monster->{missedFromPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{dmgFromPlayer}})
+			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{missedToPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{dmgToPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{castOnToPlayer}})
-			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
 		) {
 			return 0;
 		}
@@ -1689,16 +1717,16 @@ sub slave_checkMonsterCleanness {
 		(
 			   $monster->{dmgFromYou}
 			|| $monster->{missedFromYou}
+			|| $monster->{castOnByYou}
 			|| $monster->{dmgToYou}
 			|| $monster->{missedYou}
-			|| $monster->{castOnByYou}
 			|| $monster->{castOnToYou}
 			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{missedFromPlayer}})
 			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{dmgFromPlayer}})
+			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{castOnByPlayer}})
 			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{missedToPlayer}})
 			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{dmgToPlayer}})
 			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{castOnToPlayer}})
-			|| scalar(grep { isMySlaveID($_, $slave->{ID}) } keys %{$monster->{castOnByPlayer}})
 		)
 	) {
 		return 1;
@@ -1714,10 +1742,10 @@ sub slave_checkMonsterCleanness {
 		if (
 			   scalar(grep { isNotMySlaveID($_) } keys %{$monster->{missedFromPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{dmgFromPlayer}})
+			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{missedToPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{dmgToPlayer}})
 			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{castOnToPlayer}})
-			|| scalar(grep { isNotMySlaveID($_) } keys %{$monster->{castOnByPlayer}})
 		) {
 			return 0;
 		}
@@ -3294,7 +3322,7 @@ sub countCastOn {
 
 	if ($targetID eq $accountID) {
 		$source->{castOnToYou}++;
-	} elsif ($target->isa('Actor::Player')) {
+	} elsif ($target->isa('Actor::Player') || $target->isa('Actor::Slave')) {
 		$source->{castOnToPlayer}{$targetID}++;
 	} elsif ($target->isa('Actor::Monster')) {
 		$source->{castOnToMonster}{$targetID}++;
@@ -3302,7 +3330,7 @@ sub countCastOn {
 
 	if ($sourceID eq $accountID) {
 		$target->{castOnByYou}++;
-	} elsif ($source->isa('Actor::Player')) {
+	} elsif ($source->isa('Actor::Player') || $source->isa('Actor::Slave')) {
 		$target->{castOnByPlayer}{$sourceID}++;
 	} elsif ($source->isa('Actor::Monster')) {
 		$target->{castOnByMonster}{$sourceID}++;
