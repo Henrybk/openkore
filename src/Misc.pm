@@ -4672,7 +4672,7 @@ sub checkSelfCondition {
 	}
 
 	if ($config{$prefix."_homunculus"} =~ /\S/) {
-		return 0 if (!!$config{$prefix."_homunculus"}) ^ ($char->{homunculus} && !$char->{homunculus}{state});
+		return 0 if (!!$config{$prefix."_homunculus"}) ^ ($char->{homunculus});
 	}
 
 	if ($char->{homunculus}) {
@@ -4693,11 +4693,11 @@ sub checkSelfCondition {
 		}
 
 		if ($config{$prefix."_homunculus_dead"}) {
-			return 0 unless (!($char->{homunculus}{state} & 4)); # 4 = dead
+			return 0 unless ($char->{homunculus}{dead});
 		}
 
 		if ($config{$prefix."_homunculus_resting"}) {
-			return 0 unless ($char->{homunculus}{state} & 2); # 2 = rest
+			return 0 unless ($char->{homunculus}{vaporized});
 		}
 
 		if ($config{$prefix."_homunculus_onAction"}) {
