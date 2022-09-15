@@ -111,11 +111,11 @@ sub get_zenyPerSP {
 	my $skill_lvl = get_skill_lvl();
 	return 0 if ($skill_lvl == 0);
 	
-	my $success_chance = get_success_chance();
+	my $success_chance = get_success_chance($monster);
 	return 0 if ($success_chance <= 0);
 	
 	my $skill_sp_cost = get_skill_sp_cost();
-	my $medium_zeny_gained = get_medium_zeny_gained();
+	my $medium_zeny_gained = get_medium_zeny_gained($monster);
 
 	my $zeny_to_chance = ($medium_zeny_gained * $success_chance) / 100;
 

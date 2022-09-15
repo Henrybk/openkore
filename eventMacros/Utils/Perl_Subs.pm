@@ -32,6 +32,7 @@ macro basic_config_leveling_settings {
 	[
 	do conf -f attackAuto 2
 	do conf -f teleportAuto_atkMiss 0
+	do conf -f teleportAuto_deadly 1
 	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28

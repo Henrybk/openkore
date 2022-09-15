@@ -372,6 +372,7 @@ macro AdjustConfigForGrounds {
 	do conf -f lockMap $.map
 	do conf -f attackAuto 2
 	do conf -f teleportAuto_atkMiss 0
+	do conf -f teleportAuto_deadly 0
 	do conf -f attackAuto_inLockOnly 2
 	do conf -f attackCheckLOS 1
 	do conf -f attackRouteMaxPathDistance 28

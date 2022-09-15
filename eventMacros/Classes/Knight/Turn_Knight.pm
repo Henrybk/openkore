@@ -359,6 +359,7 @@ macro adapt_to_test_windsor {
 		do conf -f teleportAuto_minAggressives none
 		do conf -f teleportAuto_hp none
 		do conf -f teleportAuto_maxDmg none
+		do conf -f teleportAuto_deadly 0
 		
 		do eval AI::clear(qw/storageAuto/)
 	]
@@ -375,6 +376,7 @@ macro out_of_test {
 	do conf -f teleportAuto_minAggressives 4
 	do conf -f teleportAuto_hp 10
 	do conf -f teleportAuto_maxDmg 500
+	do conf -f teleportAuto_deadly 1
 	
 	do conf -f sellAuto 1
 	do conf -f storageAuto 1
