@@ -499,6 +499,7 @@ macro SetVarSet2 {
 }
 
 macro OrganizeItems2 {
+	[
 	call SetVar
 	call set_skills_stats
 	call SetVarSet2 0
@@ -553,6 +554,7 @@ macro OrganizeItems2 {
 	} else {
 		log [Rogue] Current lockmap $configlockMap is still good
 	}
+	]
 }
 
 ####################
@@ -612,6 +614,7 @@ macro SetVarSet3 {
 }
 
 macro OrganizeItems3 {
+	[
 	call SetVar
 	call set_skills_stats
 	call SetVarSet3 0
@@ -671,6 +674,7 @@ macro OrganizeItems3 {
 	} else {
 		log [Rogue] Current lockmap $configlockMap is still good
 	}
+	]
 }
 
 ####################
@@ -730,6 +734,7 @@ macro SetVarSet4 {
 }
 
 macro OrganizeItems4 {
+	[
 	call SetVar
 	call set_skills_stats
 	call SetVarSet4 0
@@ -794,6 +799,7 @@ macro OrganizeItems4 {
 	} else {
 		log [Rogue] Current lockmap $configlockMap is still good
 	}
+	]
 }
 
 ######################
