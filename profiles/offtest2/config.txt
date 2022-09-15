@@ -372,6 +372,9 @@ monster_filter
 mercenary_attackAuto 2
 mercenary_attackAuto_party 1
 mercenary_attackAuto_notInTown 1
+mercenary_attackAuto_inLockOnly 1
+mercenary_attackAuto_considerDamagedAggressive 1
+mercenary_attackBeyondMaxDistance_waitForAgressive 1
 mercenary_attackAuto_onlyWhenSafe 0
 mercenary_attackAuto_duringRandomWalk 0
 mercenary_attackAuto_duringItemsTake 0
@@ -429,6 +432,9 @@ mercenary_teleportAuto_attackedWhenSitting 0
 homunculus_attackAuto 2
 homunculus_attackAuto_party 1
 homunculus_attackAuto_notInTown 1
+homunculus_attackAuto_inLockOnly 1
+homunculus_attackAuto_considerDamagedAggressive 1
+homunculus_attackBeyondMaxDistance_waitForAgressive 1
 homunculus_attackAuto_onlyWhenSafe 0
 homunculus_attackAuto_duringRandomWalk 0
 homunculus_attackAuto_duringItemsTake 0
@@ -558,6 +564,10 @@ logToFile_Warnings
 history_max 50
 macro_orphans terminate
 
+useSelf_skill_smartHeal 1
+
+partySkillDistance 0..8
+
 equipAuto { 
 	topHead 
 	midHead 
@@ -577,9 +587,24 @@ equipAuto {
 	whileSitting 0 
 	hp 
 	sp 
-	homunculus_hp 
-	homunculus_sp 
-	homunculus_dead 
+	homunculus
+	homunculus_hp
+	homunculus_sp
+	homunculus_dead
+	homunculus_resting
+	homunculus_onAction
+	homunculus_notOnAction
+	homunculus_whenIdle
+	homunculus_whenNotIdle
+	mercenary
+	mercenary_hp
+	mercenary_sp
+	mercenary_whenStatusActive
+	mercenary_whenStatusInactive
+	mercenary_onAction
+	mercenary_notOnAction
+	mercenary_whenIdle
+	mercenary_whenNotIdle
 	onAction 
 	whenStatusActive 
 	whenStatusInactive 
