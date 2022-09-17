@@ -17,7 +17,6 @@ my $commands_hooks = Commands::register(
 
 my $hooks = Plugins::addHooks(
 	['docycle',		\&cmdcycleification, undef],
-	['docycle2',		\&cmdcycleification2, undef],
 );
 
 sub core_Unload {
@@ -37,15 +36,6 @@ sub core_SafeUnload {
 
 sub cmdcycleification {
 	warning "Finding memory cycles\n";
-	find_cycle($char->{homunculus});
-	my $count = refcount( $char->{homunculus} );
-	warning "Refcount is $count\n";
-}
-
-sub cmdcycleification2 {
-	#warning "Finding memory cycles in args\n";
-	find_cycle($char->{homunculus}->args);
-	my $count = refcount( $char->{homunculus}->args );
-	warning "Refcount args is $count\n";
+	find_cycle($char);
 }
 1;

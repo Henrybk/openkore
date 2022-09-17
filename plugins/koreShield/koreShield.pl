@@ -737,7 +737,7 @@ sub core_actorInfo {
 	my $player;
 	# get stored actor info
 	
-	my $actor = Actor::get($args->{ID});
+	my $actor = Actor::get($ID);
 	
 	if ($ID) {
 		$player = $playersList->getByID(pack("V1", $ID)) if $playersList;
@@ -772,8 +772,11 @@ sub core_actorInfo {
 	}
 	
 	if ($actor->isa('Actor::Monster')) {
-		if (defined $args->{partyName} || defined $args->{guildName}) {
-			$detect_reason = 'Monster com partyName/guildName';
+		if (defined $args->{guildName} && $args->{guildName}) {
+			$detect_reason = 'Monster com guildName';
+			
+		} elsif (defined $args->{partyName} && $args->{partyName} && $args->{partyName} !~ /^HP:/) {
+			$detect_reason = 'Monster com partyName';
 		}
 	}
 	
