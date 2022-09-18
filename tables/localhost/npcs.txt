@@ -1,0 +1,291 @@
+izlude_in 62 170 Swordman#swd_2
+izlude_in 30 163 Test Hall Staff#swd_1
+job_sword1 230 242 Test Hall Staff#swd_2
+job_sword1 230 245 Medic#swd_1
+job_sword1 230 204 Test Hall Staff#2swd_3
+job_sword1 230 207 Medic#2swd_2
+job_sword1 223 167 Mae#swd_1_success
+izlude_in 74 172 Swordman#swd_1
+new_1-1 45 111 Dr. Gerber
+new_1-1 53 114 Shion#nv1
+new_1-1 66 114 Welcome Sign#nv
+new_1-1 144 107 Guard#nv2
+new_1-1 144 116 Guard#nv1
+new_1-2 100 29 Receptionist#nv1
+new_1-2 121 101 Guide Soldier#nv1
+new_1-2 99 105 Interfaces Tutor#nv1
+new_1-2 83 111 Skill Tutor#nv
+new_1-2 115 111 Item Tutor#nv
+new_1-2 118 108 Kafra Employee#nv1
+new_1-2 38 182 Entrance Guard#nv
+new_1-2 28 185 Potato Merchant
+new_1-2 17 182 Helper#nv
+new_1-3 95 30 Trainer#nv1
+new_1-3 96 174 Test Examiner#nv1
+new_1-4 91 22 Bruce#nv
+new_1-4 107 23 Stat Specialist#01
+new_1-4 100 29 Hanson#nv
+izlude_in 30 175 Swordman#swd_3
+izlude 58 126 Cebalis#izlude
+izlude 56 126 Red#izlude
+izlude 105 99 Butcher#iz
+izlude 94 98 Fruit Gardener#iz
+izlude 119 121 Cuskoal#izlude
+izlude 105 92 Vendor from Milk Ranch#i
+izlude 129 118 Smile Assistance#iz
+izlude 121 87 Guide#iz
+izlude 134 87 Kafra Employee#iz
+prontera 105 87 Gift Merchant#prt
+prontera 123 102 Merchant#pron
+prontera 106 116 Merideth#pront
+prontera 78 150 Dairenne#pront
+prontera 73 134 Vendor from Milk Ranch#p
+prontera 73 140 Milk Vendor
+prontera 58 182 Flower Girl#prt
+prontera 92 210 Marie Oliver#pront
+prontera 54 240 Tono#pront
+prontera 109 295 Shuger#pront
+prontera 69 302 Paul#xm2021
+prontera 47 339 Knight Guard#pront
+prontera 63 340 Laperm Oranpere
+prontera 41 337 Sir Merton#skre
+prontera 55 350 Peco Peco Breeder#knt
+prontera 69 351 #tour
+prontera 72 352 Grand Master
+prontera 78 354 Knight#zabii
+prontera 78 357 Knight#sasword
+prontera 73 357 Knight#drake
+prontera 66 358 Knight#gattack
+prt_in 71 91 Sir Siracuse#knt
+prt_in 75 88 Leon Von Frich
+prt_in 79 94 Sir Windsor#knt
+prt_in 87 92 Sir Gray#knt
+prt_in 70 99 Sir Edmond#knt
+prt_in 82 98 Simon Mayace#q_wiz
+prt_fild05 270 212 Culvert Guardian
+prt_fild05 278 220 Bulletin Board#16
+prt_fild05 290 221 Tool Dealer#prt
+prt_fild05 290 224 Kafra Employee
+prontera 29 200 West Gate-Guide
+prontera 29 207 Kafra Employee
+prontera 129 219 Novice Jacob#pront
+prontera 146 195 Clan Helper#clan
+prontera 147 204 Sansa#pront
+prontera 165 232 Nephia#1
+prt_in 172 132 Armor Dealer#prt
+prt_in 172 130 Weapon Dealer#prt
+prt_in 165 140 Novice Weapons#prt3
+prt_in 171 140 Weapon Dealer#prt2
+prontera 32 210 Communication Node#1e
+izlude_in 125 164 Aaron#izlude
+izlude_in 118 175 Knight De Thomas
+izlude 134 92 Communication Node#1l
+aldebaran 146 124 Town Girl#alde
+aldebaran 143 136 Bell Keeper#A
+aldebaran 136 135 Smile Assistance#alde
+aldebaran 117 181 Phracon Guy#alde
+aldebaran 132 184 Girl#prince
+aldebaran 145 222 Arrow Seller#alde
+aldebaran 121 231 Alchemy Guy#alde
+aldebaran 159 242 Insect Guy#alde
+aldebaran 90 170 Slot Guy#alde
+aldebaran 136 133 Bulletin Board#19
+aldebaran 143 119 Kafra Employee
+aldebaran 145 115 Communication Node#1j
+oldnewpayon 69 117 Tool Dealer#np2
+oldnewpayon 81 118 Guide#np1
+oldnewpayon 98 118 Kafra Employee
+oldnewpayon 104 118 Communication Node#1np
+oldnewpayon 131 107 Bag Seller#np
+oldnewpayon 134 104 Sham Rumi#clannp
+oldnewpayon 133 120 Glasses and Glamour#np
+oldnewpayon 61 118 Market Staff#np
+oldnewpayon 58 94 Vegetable Farmer#np
+oldnewpayon 61 93 Fruit Vendor#np
+oldnewpayon 50 101 Baker#np
+prontera 160 133 Marta#pront
+prontera 154 187 Guide#prt
+prontera 157 187 Smile Assistance#prt
+prontera 160 191 Communication Node#1d
+prontera 218 211 Pet Groomer#prt
+prontera 279 210 Communication Node#1g
+prontera 282 200 Kafra Employee
+prontera 282 208 East Gate-Guide
+alberta 97 51 Fabian
+alberta 113 53 Smile Assistance#alb
+alberta 108 59 Communication Node#1b
+alberta 91 70 Kinsey#tur
+alberta 58 80 Shakir
+alberta 83 96 Necko
+alberta 62 156 Sonya
+alberta 28 229 Kafra Employee
+alberta 28 238 Communication Node#1c
+alberta 26 229 Kafra Employee#bunny
+oldnewpayon 44 119 Yakitori Vendor#np
+oldnewpayon 40 132 Talpiz#np
+oldnewpayon 53 145 Guild Dungeons#pay
+oldnewpayon 50 149 WoE Informant#pay
+oldnewpayon 20 164 Pet Merchant#np
+oldnewpayon 50 177 Magic Vendor#np
+payon_in01 76 58 Aldebaran Weaponmaster#p
+payon_in01 68 64 Arrow Seller#pay
+payon_in01 76 70 Aldebaran Armorer#p
+payon_in01 99 72 Granny
+payon_in01 123 41 Young Man#3oldpay
+payon_in01 139 40 Novice Weapons#pay2
+payon_in01 125 51 Weapon Dealer#np
+payon_in01 134 51 Armor Dealer#np
+payon_in01 69 90 Palace Guardsman#3oldpay
+payon_in01 95 21 Repairman#pay
+payon_in01 81 31 Hakhim#oldpay
+payon_in01 84 26 Begnahd#oldpay
+payon_in01 91 31 Antonio
+oldnewpayon 31 113 Young Man#1np
+oldnewpayon 37 107 WoE Test Room#1
+
+aldebaran 211 172 Assistant Eryn#smo1
+aldebaran 218 134 Payon Trader#alde
+aldebaran 228 165 Professor Haleigh#1
+1@ecl 42 63 Assistant Eryn#smo2
+1@ecl 52 64 Guard Renic#smo1
+lasa_dun01 22 143 Anchor Point#smo1
+aldebaran 145 105 Bulletin Board#18
+aldebaran 133 108 Soldier#2alde
+aldebaran 139 63 Soldier#alde
+aldebaran 152 63 Merchant#alde
+aldebaran 180 46 Joo Jahk#alde
+aldebaran 175 72 Provisions#alde
+aldeba_in 85 60 Payon Armorsmith#np
+aldeba_in 80 60 Payon Battlemaster#np
+aldeba_in 94 56 Tool Dealer#alde
+aldeba_in 92 58 Inn Maid#Rilim
+aldebaran 213 115 Mainland Curios#np
+aldebaran 212 122 Citizen#alde
+aldebaran 234 129 Payon Delicacies#alde
+lasa_dun01 60 67 Fabre
+aldebaran 233 198 Ichiro Honda#oa
+aldebaran 223 222 Mr. Claus
+yuno_fild01 191 140 Border Guard#bgrd1
+yuno_fild01 193 158 Border Guard#bgrd2
+yuno_fild01 173 325 Border Guard#bgrd3
+prontera 146 74 Communication Node#1f
+prontera 146 89 Kafra Employee
+izlude_in 55 105 Monster Tamer#iz
+izlude_in 60 127 Weapon Dealer#iz
+izlude_in 70 127 Armor Dealer#iz
+izlude 150 118 Dega#izlude
+izlude 135 78 Charfri#izlude
+moc_ruins 114 63 Tool Dealer#moc0
+moc_ruins 86 103 Thug#rg
+moc_ruins 92 128 Arrow Seller#mocruin
+moc_ruins 71 139 Trader#moc90
+moc_ruins 59 154 Smile Assistance#moc
+moc_ruins 59 157 Kafra Employee
+moc_ruins 61 164 Bulletin Board#27
+moc_prydb1 39 129 Thief Guide
+moc_prydb1 42 133 Comrade
+moc_ruins 91 150 Ponka-Hontas
+moc_ruins 113 181 William
+moc_ruins 118 176 Alchemist
+moc_ruins 128 153 Researcher#moc
+moc_ruins 141 125 Mr. Irrelevant
+morocc 168 79 Dairy Seller#moc
+morocc 139 92 Fruit Vendor#moc4
+morocc 147 102 Tool Dealer#moc6
+morocc 123 58 Assassin Boy#moc
+morocc_in 44 129 Assistant#moc_ex1
+morocc 76 75 Ant Man#moc
+morocc 54 97 Guide#2moc
+morocc 79 111 Picky Lady#moc
+morocc 30 174 Guide#6moc
+morocc 71 267 Spencer#Spencer
+morocc 116 266 Ogleson#moc
+morocc 151 243 Tool Dealer#moc7
+morocc 160 258 Kafra
+morocc 180 259 Merchant#morroc
+morocc 206 250 Item Collector#moc11
+morocc 277 213 Uncle Morroc#moc
+morocc 268 193 Trader#moc14
+morocc 289 230 Citizen#06
+morocc 293 212 Guide#3moc
+morocc 152 35 Guide#5moc
+morocc 145 44 Jeweler#moc5
+morocc 166 51 Gemstones#moc9
+morocc 201 30 Zaka#cmd
+morocc 208 85 Towner#2moc
+morocc 244 134 Trader#moc12
+morocc 269 167 Pet Groomer#moc15
+morocc 156 97 Kafra Employee
+morocc 160 97 Guide#4moc
+morocc 170 101 Item Collector#moc10
+morocc 152 110 Bulletin Board#11
+morocc 167 110 Communication Node#1i
+lasa_dun01 49 158 Jelring
+morocc 121 109 Roberto
+morocc 152 35 Guide#5moc
+morocc 145 44 Jeweler#moc5
+morocc 166 51 Gemstones#moc9
+morocc 157 72 Butcher#moc8
+morocc 139 92 Fruit Vendor#moc4
+morocc 147 102 Tool Dealer#moc6
+morocc 121 109 Roberto
+prt_fild07 221 37 Poporing
+prt_fild07 95 270 Rocker
+prt_sewb1 246 210 ExALL
+izlude 55 74 Bonne#izlude
+prontera 151 29 Kafra Employee
+prontera 160 29 South Gate-Guide
+prontera 148 49 Bulletin Board#09
+lasa_dun01 53 162 Jelring
+morocc 44 180 Towner#4moc
+prt_fild07 286 199 Poporing
+pay_fild01 222 137 Spore
+lasa_dun01 54 162 Marin
+lasa_dun01 49 161 Marin
+pay_fild01 164 215 Spore
+oldnewpayon 44 93 Fishmonger#np
+oldnewpayon 44 93 Fishmonger#np
+alberta 120 53 Stylish Merchant#new30
+alberta 188 63 Fruit Seller#albr
+alberta 201 50 Farmer#alb
+alberta 245 45 Girl#0lou
+alberta 245 69 Kunlun Envoy#gon
+alberta 189 151 Fisk
+alberta 195 151 Paul
+izlude 172 184 Honeymoon Helper#Izlude
+izlude 201 181 Sailor#izlude
+izlu2dun 106 58 Kafra Employee
+izlu2dun 104 92 Bulletin Board#4
+gef_fild10 69 340 Bulletin Board#3
+gef_fild10 73 340 Kafra Employee
+izlude 124 178 Soldier#izlude
+izlude 150 143 Kylick#izlude
+alberta 131 139 Drunken Old Man
+alberta 117 135 Elin
+alberta 93 174 Grandmother Alma
+lasa_dun01 48 168 Poporing
+oldnewpayon 122 131 Neko Neko#1np
+oldnewpayon 141 146 Maximus Topper#pay
+oldnewpayon 164 142 Jim's Mother#np
+oldnewpayon 150 164 Merchant#pay
+pay_arche 86 36 Guide#2pay
+pay_arche 77 43 Bulletin Board#07
+pay_arche 54 123 Kafra Employee
+pay_arche 39 134 Bulletin Board#08
+pay_arche 52 145 Linus#hw2021
+oldnewpayon 125 154 Hair Stylist#pay
+oldnewpayon 124 147 Clothes Designer#pay
+lasa_dun01 53 48 Jelring
+lasa_dun01 59 161 Shiro
+lasa_dun01 51 159 Alexis Texas
+prontera 34 212 Mailbox#3prt
+prontera 147 125 Cool Event Staff#prt
+prontera 146 95 Mergician#pron
+prontera 146 86 Mailbox#prt
+prontera 165 60 Apprentice Craftsman
+prontera 163 53 Promotional Staff#prt
+prt_fild08 159 371 Poring War Recruiter#wop
+prt_fild08 175 374 Bard#brising
+prontera 149 184 Helper
+prontera 146 194 Swanhild#17
+prontera 143 203 Fadhgridh#15

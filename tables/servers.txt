@@ -32,7 +32,7 @@ master_version 1
 version 28
 serverType kRO_RagexeRE_2020_04_01b
 serverEncoding Western
-addTableFolders Oath;kRO/RagexeRE_2020_04_01b;translated/kRO_english
+addTableFolders localhost;kRO/RagexeRE_2020_04_01b;translated/kRO_english
 charBlockSize 155
 
 #####################
