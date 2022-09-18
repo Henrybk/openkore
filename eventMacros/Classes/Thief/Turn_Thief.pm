@@ -154,10 +154,13 @@ macro Ajust_to_kill_mush {
 	
 	do conf -f itemsGatherAuto 0
 	do conf -f itemsTakeAuto 2
+	
 	# Mobs
-	do mconf Poporing 0 0 0
-	do mconf Spore 0 0 0
-	do mconf Mushroom 1 0 1
+	do mconf 1182 1 0 0 # Orange Mushroom
+	do mconf 1184 0 0 0 # Fabre
+	do mconf 1183 0 0 0 # Chonchon
+	do mconf 1014 0 0 0 # Spore
+	
 	]
 }
 
@@ -223,9 +226,11 @@ macro End_mush_Farm {
 	do conf -f route_randomWalk 0
 	do conf -f itemsGatherAuto 0
 	do conf -f itemsTakeAuto 2
-	do mconf Poporing 1 0 0
-	do mconf Spore 1 0 0
-	do mconf Mushroom 0 0 0
+	# Mobs
+	do mconf 1182 0 0 0 # Orange Mushroom
+	do mconf 1184 1 0 0 # Fabre
+	do mconf 1183 1 0 0 # Chonchon
+	do mconf 1014 1 0 0 # Spore
 	]
 }
 
