@@ -2719,15 +2719,16 @@ oldnewpayon 89 22 pay_fild01 333 356
 pay_fild01 333 361 oldnewpayon 89 26
 
 payon_in01 144 45 oldnewpayon 38 171
-oldnewpayon 38 173 payon_in01 142 45
+
+oldnewpayon 33 174 payon_in01 142 45
+oldnewpayon 25 176 payon_in01 80 63
+oldnewpayon 18 174 payon_in01 101 25
 
 payon_in01 83 63 oldnewpayon 30 176
-oldnewpayon 30 176 payon_in01 80 63
 payon_in01 130 36 payon_in01 70 75
 payon_in01 70 75 payon_in01 130 39
 payon_in01 86 37 payon_in01 70 52
 payon_in01 70 52 payon_in01 86 34
-oldnewpayon 22 174 payon_in01 101 25
 payon_in01 101 25 oldnewpayon 22 171
 
 aldebaran 211 172 1@ecl 35 71 0 0 r~/Yes/i
@@ -2775,3 +2776,5 @@ pay_arche 81 17 oldnewpayon 175 189
 oldnewpayon 175 189 pay_arche 81 22
 pay_dun00 21 186 pay_arche 36 131
 pay_arche 36 131 pay_dun00 21 183
+oldnewpayon 33 175 payon_in01 142 45
+oldnewpayon 25 177 payon_in01 83 63
