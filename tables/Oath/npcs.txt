@@ -278,3 +278,7 @@ oldnewpayon 124 147 Clothes Designer#pay
 lasa_dun01 53 48 Jelring
 lasa_dun01 59 161 Shiro
 lasa_dun01 51 159 Alexis Texas
+aldebaran 113 70 Forger Munster#alde
+aldebaran 81 61 Shell Gathering Lady#ald
+aldebaran 93 80 Issei#alde
+aldebaran 60 70 Sylvia#alde
