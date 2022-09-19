@@ -1046,8 +1046,11 @@ sub core_eventsReaction {
 		)) 
 	{
 			if (!$core_config{testMode}) {
-				relog(999999999); # infinite?
-				offlineMode();
+				#relog(999999999); # infinite?
+				#offlineMode();
+				AI::clear;
+				AI::state(AI::OFF);
+				pushover($danger, sprintf("Mapa %s", ($field?$field->baseName:"Unknown")), 0);
 			} else {
 				Commands::run("c detected $danger");
 			}

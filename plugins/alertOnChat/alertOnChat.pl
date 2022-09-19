@@ -69,7 +69,7 @@ sub on_Pub {
 	return 0 if ($field->isCity());
 	
 	my $total = scalar @{$playersList->getItems()};
-	return 0 if ($total <= 2);
+	return 0 if ($total > 2);
 	
 	my ($Type, $Args) = @_;
 	my $player = $Args->{'MsgUser'};
