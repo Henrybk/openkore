@@ -405,7 +405,6 @@ beach_dun2 258 244 um_fild01 31 274
 beach_dun3 17 265 comodo 333 175
 beach_dun3 286 57 cmd_fild01 26 318
 c_tower1 123 22 alde_dun01 302 25
-c_tower1 200 157 aldebaran 139 135
 c_tower1 235 226 c_tower2 273 26
 c_tower2 24 24 alde_dun03 277 183
 c_tower2 142 283 c_tower3 60 147
@@ -2740,6 +2739,8 @@ lasa_dun01 159 98 lasa_dun02 25 171
 lasa_dun02 19 171 lasa_dun01 155 98
 
 aldebaran 139 135 c_tower1 199 159
+c_tower1 200 157 aldebaran 139 135
+
 aldeba_in 94 38 aldebaran 197 68
 
 payon_in01 145 45 oldnewpayon 38 174
