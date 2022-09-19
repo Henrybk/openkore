@@ -38,3 +38,4 @@ prt_maze01 10000
 prt_fild08a 10000
 
 # Add your map weights here. Format: <mapname> <weight>
+c_tower1 10000
