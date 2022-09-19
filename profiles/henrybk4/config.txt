@@ -19,6 +19,8 @@ eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
 eventMacro_file eventMacros.txt
 
+drunk 8
+
 ##### Plugins End
 
 # Poseidon Settings: https://openkore.com/wiki/Poseidon
