@@ -106,7 +106,7 @@ sub new {
 		ArgumentException->throw(error => "Invalid Coordinates argument.");
 	}
 
-	my $allowed = new Set('maxDistance', 'maxTime', 'distFromGoal', 'pyDistFromGoal', 'avoidWalls', 'notifyUponArrival', 'isRandomWalk', 'isSlaveRescue', 'LOSSubRoute', 'meetingSubRoute');
+	my $allowed = new Set('maxDistance', 'maxTime', 'distFromGoal', 'pyDistFromGoal', 'avoidWalls', 'notifyUponArrival', 'isRandomWalk', 'isSlaveRescue', 'isMoveNearSlave', 'LOSSubRoute', 'meetingSubRoute');
 	foreach my $key (keys %args) {
 		if ($allowed->has($key) && defined($args{$key})) {
 			$self->{$key} = $args{$key};
@@ -587,6 +587,7 @@ sub getRoute {
 	}
 
 	my %plugin_args;
+	$plugin_args{self} = $class;
 	$plugin_args{self_call} = $self_call;
 	$plugin_args{start} = $closest_start;
 	$plugin_args{dest} = $closest_dest;
