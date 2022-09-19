@@ -76,7 +76,7 @@ ai_route_unstuck 2
 # Pause for the specified number of seconds after taking something,
 # it increases the interval between taking several items and between
 # taking the last item and continuing the actions.
-ai_items_take_delay 1.4
+ai_items_take_delay 1.0
 
 # When your monster died, start checking for loot after x seconds
 ai_items_take_start 0.4
