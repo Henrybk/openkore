@@ -400,7 +400,7 @@ macro set_equip {
 	$name = GetNamebyNameID("$.param[0]")
 	log Setting equipauto $name
 	do conf -f equipAuto_0_$.param[1] $name
-	do iconf $.param[0] 1 0 0
+	do iconf $.param[0] 1 0 1
 	]
 }
 
