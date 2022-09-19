@@ -622,3 +622,4 @@ equipAuto {
 	inInventory
 	manualAI 0
 }
+drunk 50
