@@ -86,14 +86,14 @@ macro set_skills_stats {
 }
 
 sub set_skills_stats {
-	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 19 vit, 30 int, 70 agi, 29 str, 50 dex, 40 int, 80 agi, 80 dex, 40 str, 95 agi';
+	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 10 int, 30 agi, 25 dex, 40 agi, 30 dex, 15 int, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 20 int, 15 vit, 30 int, 70 agi, 29 str, 50 dex, 40 int, 80 agi, 80 dex, 40 str, 95 agi';
 	my $skills;
 	if ($char->{jobID} == 0) {
 		$skills = 'NV_BASIC 9';
 	} elsif ($char->{jobID} == 6) {
 		$skills = 'TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1';
 	} elsif ($char->{jobID} == 17) {
-		$skills = 'RG_SNATCHER 10, RG_STEALCOIN 10, RG_BACKSTAP 4, RG_TUNNELDRIVE 5, RG_RAID 5, RG_INTIMIDATE 5, RG_PLAGIARISM 10';
+		$skills = 'RG_SNATCHER 5, RG_STEALCOIN 10, RG_SNATCHER 10, SM_SWORD 10, RG_BACKSTAP 4, RG_TUNNELDRIVE 5, RG_RAID 5, RG_INTIMIDATE 5, RG_PLAGIARISM 10';
 	}
 	
 	check_key('statsAddAuto_list', $stats);
@@ -405,7 +405,7 @@ macro set_Cap {
 
 automacro Go_Job_Change {
 	ConfigKey eventMacro_1_99_stage leveling
-	JobLevel = 50
+	JobLevel >= 40
 	JobID 6
 	exclusive 1
 	priority 0

@@ -749,6 +749,10 @@ macro OrganizeItems4 {
 		} else {
 			if ($configlockMap != pay_fild01) {
 				call set_lockmap_pay_fild01
+				do mconf 1031 0 0 0 #Poporing
+				do mconf 1010 0 0 0 #Willow
+				do mconf 1002 0 0 0 #Poring
+				do mconf 1014 1 0 0 #Spore
 				$changed = 1
 			}
 		}
@@ -756,20 +760,20 @@ macro OrganizeItems4 {
 	} elsif ($osso < 10 || $unhaApodrecida < 10 || $mandibulaHorrenda < 10) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild07) {
+				call set_lockmap_prt_fild07
 				do mconf 1015 1 0 0
 				do mconf 1076 1 0 0
 				do mconf 1031 0 0 0
 				do mconf 1005 0 0 0
-				call set_lockmap_prt_fild07
 				$changed = 1
 			}
 		} else {
 			if ($configlockMap != pay_dun00) {
+				call set_lockmap_pay_dun00
 				do mconf 1015 1 0 0
 				do mconf 1076 1 0 0
 				do mconf 1031 0 0 0
 				do mconf 1005 0 0 0
-				call set_lockmap_pay_dun00
 				$changed = 1
 			}
 		}

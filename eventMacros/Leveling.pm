@@ -73,10 +73,7 @@ macro set_lockmap_prt_fild07 {
 	[
 	do conf lockMap prt_fild07
 	
-	do mconf 1242 0 0 0 #Marin
 	do mconf 1031 0 0 0 #Poporing
-	do mconf 1145 0 0 0 #Martin
-	do mconf 1018 0 0 0 #Creamy
 	
 	do conf -f future_saveMap_map prt_fild05
 	do conf -f future_saveMap_x 290
@@ -123,10 +120,7 @@ macro set_lockmap_prt_sewb2 {
 	[
 	do conf lockMap prt_sewb2
 	
-	do mconf 1242 1 0 0 #Marin
 	do mconf 1031 1 0 0 #Poporing
-	do mconf 1145 1 0 0 #Martin
-	do mconf 1018 1 0 0 #Creamy
 	
 	do conf -f future_saveMap_map prt_fild05
 	do conf -f future_saveMap_x 290
@@ -163,10 +157,22 @@ macro set_lockmap_pay_fild01 {
 		do iconf 713 50 1 0
 		do iconf 1058 1 1 0
 	}
-	do mconf 1242 1 0 0 #Marin
 	do mconf 1031 1 0 0 #Poporing
-	do mconf 1145 1 0 0 #Martin
-	do mconf 1018 1 0 0 #Creamy
+	
+	do conf -f future_saveMap_map oldnewpayon
+	do conf -f future_saveMap_x 98
+	do conf -f future_saveMap_y 118
+	
+	do conf -f future_saveMap_kafra_map oldnewpayon
+	do conf -f future_saveMap_kafra_x 98
+	do conf -f future_saveMap_kafra_y 118
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_pay_fild05 {
+	[
+	do conf lockMap pay_fild05
 	
 	do conf -f future_saveMap_map oldnewpayon
 	do conf -f future_saveMap_x 98
