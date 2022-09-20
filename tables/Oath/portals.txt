@@ -2729,6 +2729,14 @@ payon_in01 70 75 payon_in01 130 39
 payon_in01 86 37 payon_in01 70 52
 payon_in01 70 52 payon_in01 86 34
 payon_in01 101 25 oldnewpayon 22 171
+oldnewpayon 33 175 payon_in01 142 45
+oldnewpayon 25 177 payon_in01 83 63
+
+pay_arche 81 17 oldnewpayon 175 189
+oldnewpayon 175 189 pay_arche 81 22
+
+oldnewpayon 189 68 pay_fild08 20 74
+pay_fild08 17 75 oldnewpayon 185 68
 
 aldebaran 211 172 1@ecl 35 71 0 0 r~/Yes/i
 1@ecl 42 63 aldebaran 211 169 0 0 r~/Yes/i
@@ -2773,9 +2781,7 @@ morocc 274 269 morocc_in 136 136
 morocc 284 170 morocc_in 108 179
 moc_ruins 159 37 morocc 25 294
 
-pay_arche 81 17 oldnewpayon 175 189
-oldnewpayon 175 189 pay_arche 81 22
 pay_dun00 21 186 pay_arche 36 131
 pay_arche 36 131 pay_dun00 21 183
-oldnewpayon 33 175 payon_in01 142 45
-oldnewpayon 25 177 payon_in01 83 63
+in_rogue 375 34 in_rogue 380 125
+cmd_fild07 193 117 in_rogue 379 46
