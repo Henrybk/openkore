@@ -43,18 +43,20 @@ use I18N qw(bytesToString stringToBytes);
 Plugins::register('MarketWatcher', 'automatically buy items from merchant vendors', \&Unload);
 
 my $base_hooks = Plugins::addHooks(
+	['postloadfiles', 			\&checkConfig],
 	['AI_pre',					\&AI_pre],
 	['npc_chat',				\&on_npc_chat],
+	['force_check_market',		\&AI_pre],
 );
 
 use constant {
 	PLUGIN_NAME => 'MarketWatcher',
-	RECHECK_TIMEOUT => 5,
+	RECHECK_TIMEOUT => 30,
 	INACTIVE => 0,
 	ACTIVE => 1
 };
 
-my $time = time;
+my $time = 0;
 my %recently_checked;
 my %in_AI_queue;
 my $shopping_hooks;
@@ -70,10 +72,19 @@ sub Unload {
 	message "[".PLUGIN_NAME."] Plugin unloading or reloading.\n", 'success';
 }
 
+sub checkConfig {
+	if (exists $config{'MarketWatcher_on'} && $config{'MarketWatcher_on'} == 1) {
+		#message "[".PLUGIN_NAME."] Config set to '1' MarketWatcher will be active.\n", 'success';
+	} else {
+		#message "[".PLUGIN_NAME."] Config set to '0' MarketWatcher will be inactive.\n", 'success';
+	}
+}
+
 sub AI_pre {
-	return unless (main::timeOut($time, RECHECK_TIMEOUT));
-	return unless ($config{PLUGIN_NAME.'_on'});
-	return unless (exists $config{PLUGIN_NAME.'_0'});
+	my ($hook) = @_;
+	return unless ($hook eq 'force_check_market' || main::timeOut($time, RECHECK_TIMEOUT));
+	return unless ($config{MarketWatcher_on});
+	return unless (exists $config{MarketWatcher_0});
 	
 	my $prefix = PLUGIN_NAME.'_';
 	my $current = $lastIndex;
@@ -99,13 +110,14 @@ my @found;
 
 sub on_npc_chat {
 	my ($hook, $args) = @_;
-	return unless ($config{PLUGIN_NAME.'_on'});
-	return unless (exists $config{PLUGIN_NAME.'_0'});
+	return unless ($config{MarketWatcher_on});
+	return unless (exists $config{MarketWatcher_0});
 	return unless (defined $lastSentID);
 	
 	if (defined $lastSentID && $args->{message} =~ /SHOPS CONTAINING YOUR QUERY/) {
 		#//==SHOPS CONTAINING YOUR QUERY===================================//
 		$started = 1;
+		undef @found;
 		warning "[".PLUGIN_NAME."] Started QUERY for item $lastSentID\n", "MarketWatcher", 1;
 		
 		
@@ -116,9 +128,20 @@ sub on_npc_chat {
 		
 		@found = sort { $a->{Cost} <=> $b->{Cost} } @found;
 		
+		my $first = 0;
 		foreach my $found (@found) {
+			if ($first == 0) {
+				$first = 1;
+				configModify('MarketWatcher_'.$found->{id}.'_found', 1);
+				configModify('MarketWatcher_'.$found->{id}.'_map', $found->{Map});
+				configModify('MarketWatcher_'.$found->{id}.'_x', $found->{x});
+				configModify('MarketWatcher_'.$found->{id}.'_y', $found->{y});
+				configModify('MarketWatcher_'.$found->{id}.'_price', $found->{Cost});
+				configModify('MarketWatcher_'.$found->{id}.'_name', $found->{Seller});
+			}
 			warning "[".PLUGIN_NAME."] Found item $found->{id}, sold at $found->{Cost}, quant $found->{quant}, map $found->{Map} ($found->{x} $found->{y}), by $found->{Seller}\n", "MarketWatcher", 1;
 		}
+		undef @found;
 		
 	} elsif (defined $lastSentID && $started && $args->{message} =~ /^ID (\d+) \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+), (\d+)\] \| Seller: (.+)$/) {
 		#ID 958 | Cost: 1350z | Qty: 26 | Map: oldnewpayon [110, 96] | Seller: arnaldo
@@ -130,6 +153,7 @@ sub on_npc_chat {
 		$found{x} = $5;
 		$found{y} = $6;
 		$found{Seller} = $7;
+		return if ($found{Map} ne 'oldnewpayon' && $found{Map} ne 'aldebaran');
 		if ($found{id} == $lastSentID && $found{quant} >= $last_minAmount && $found{Cost} <= $last_maxPrice) {
 			push(@found, \%found);
 		}
