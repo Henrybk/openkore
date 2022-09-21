@@ -10,6 +10,7 @@
 #
 # Config keys (put in config.txt):
 #	BetterShopper_on 1/0  # Activates the plugin
+#	BetterShopper_name
 #
 #
 # Config blocks: (used to buy items)
@@ -79,18 +80,19 @@ sub Unload {
 }
 
 sub checkConfig {
-	if (exists $config{PLUGIN_NAME.'_on'} && $config{PLUGIN_NAME.'_on'} == 1) {
-		message "[".PLUGIN_NAME."] Config set to 'on' shopper will be active.\n", 'success';
+	if (exists $config{'BetterShopper_on'} && $config{'BetterShopper_on'} == 1) {
+		#message "[".PLUGIN_NAME."] Config set to '1' shopper will be active.\n", 'success';
 		return changeStatus(ACTIVE);
 	} else {
+		#message "[".PLUGIN_NAME."] Config set to '0' shopper will be inactive.\n", 'success';
 		return changeStatus(INACTIVE);
 	}
 }
 
 sub on_configModify {
 	my (undef, $args) = @_;
-	return unless ($args->{key} eq (PLUGIN_NAME.'_on'));
-	return if ($args->{val} eq $config{PLUGIN_NAME.'_on'});
+	return unless ($args->{key} eq ('BetterShopper_on'));
+	return if ($args->{val} eq $config{'BetterShopper_on'});
 	if ($args->{val} == 1) {
 		message "[".PLUGIN_NAME."] Config set to 'on' shopper will be active.\n", 'success';
 		return changeStatus(ACTIVE);
@@ -132,6 +134,17 @@ sub changeStatus {
 			next unless (defined $venderID);
 			my $vender = $venderLists{$venderID};
 			
+			my $name = get_player_name($venderID);
+			if ($config{BetterShopper_name}) {
+				if ($config{BetterShopper_name} ne $name) {
+					#warning "[".PLUGIN_NAME."] Found shop '".$vender->{'title'}."' of player '$name' not wanted name $config{BetterShopper_name}.\n", "shopper", 1;
+					next;
+				} else {
+					debug "[".PLUGIN_NAME."] Adding shop '".$vender->{'title'}."' of player '$name' to AI queue check list from $config{BetterShopper_name}.\n", "shopper", 1;
+					AI::queue('checkShop', {vendorID => $venderID});
+				}
+			}
+			
 			debug "[".PLUGIN_NAME."] Adding shop '".$vender->{'title'}."' of player '".get_player_name($venderID)."' to AI queue check list.\n", "shopper", 1;
 			AI::queue('checkShop', {vendorID => $venderID});
 		}
@@ -150,7 +163,7 @@ sub mapchange {
 sub get_player_name {
 	my ($ID) = @_;
 	my $player = Actor::get($ID);
-	my $name = $player->nameIdx;
+	my $name = $player->name;
 	return $name;
 }
 
@@ -174,10 +187,13 @@ sub shop_found {
 	my $ID = $args->{ID};
 	my $title = $args->{title};
 	
+	my $name = get_player_name($ID);
+	return if ($config{BetterShopper_name} && $config{BetterShopper_name} ne $name);
+	
 	if (!exists $in_AI_queue{$ID}) {
 		if ( !exists $recently_checked{$ID} || ( exists $recently_checked{$ID} && main::timeOut($recently_checked{$ID}, RECHECK_TIMEOUT) ) ) {
 			$in_AI_queue{$ID} = 1;
-			debug "[".PLUGIN_NAME."] Adding shop '".$title."' of player ".get_player_name($ID)." to AI queue check list.\n", "shopper", 1;
+			warning "[".PLUGIN_NAME."] Adding shop '".$title."' of player ".get_player_name($ID)." ($config{BetterShopper_name}) to AI queue check list.\n", "shopper", 1;
 			AI::queue('checkShop', {vendorID => $ID});
 		}
 	}
@@ -304,7 +320,7 @@ sub storeList {
 		
 		next if ($will_buy == 0);
 		
-		warning("[".PLUGIN_NAME."] Found item $name with good price! Price is $price, max price for it is $maxPrice! The store has $store_amount of it, with our zeny we can buy $max_possible! Buying $will_buy of it!");
+		message "[".PLUGIN_NAME."] Found item $name with good price! Price is $price, max price for it is ".$maxPrice."! The store has $store_amount of it, with our zeny we can buy $max_possible_buy_by_zeny, store amount limits us by $max_possible_buy_by_store_amount, inventory amount by $max_possible_buy_by_inventory_amount, and char weight by $max_possible_buy_by_weight_percent. Buying $will_buy of it!\n";
 		
 		my $zeny_wasted = $will_buy * $price;
 		$current_zeny -= $zeny_wasted;
