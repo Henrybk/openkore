@@ -6691,10 +6691,10 @@ sub misc_effect {
 	my ($self, $args) = @_;
 
 	my $actor = Actor::get($args->{ID});
-	message sprintf(
-		$actor->verb(T("%s use effect: %s\n"), T("%s uses effect: %s\n")),
-		$actor, defined $effectName{$args->{effect}} ? $effectName{$args->{effect}} : T("Unknown #")."$args->{effect}"
-	), 'effect'
+	#message sprintf(
+	#	$actor->verb(T("%s use effect: %s\n"), T("%s uses effect: %s\n")),
+	#	$actor, defined $effectName{$args->{effect}} ? $effectName{$args->{effect}} : T("Unknown #")."$args->{effect}"
+	#), 'effect'
 }
 
 # Plays/stops a wave sound (ZC_SOUND).
@@ -7275,17 +7275,17 @@ sub hat_effect {
 		$i++;
 	}
 
-	if ($args->{flag} == 1) {
-		message sprintf(
-			$actor->verb(T("%s use effect: %s\n"), T("%s uses effect: %s\n")),
-			$actor, $hatName
-		), 'effect';
-	} else {
-		message sprintf(
-			$actor->verb(T("%s are no longer: %s\n"), T("%s is no longer: %s\n")),
-			$actor, $hatName
-		), 'effect';
-	}
+	#if ($args->{flag} == 1) {
+	#	message sprintf(
+	#		$actor->verb(T("%s use effect: %s\n"), T("%s uses effect: %s\n")),
+	#		$actor, $hatName
+	#	), 'effect';
+	#} else {
+	#	message sprintf(
+	#		$actor->verb(T("%s are no longer: %s\n"), T("%s is no longer: %s\n")),
+	#		$actor, $hatName
+	#	), 'effect';
+	#}
 }
 
 # Displays an NPC dialog message (ZC_SAY_DIALOG).
