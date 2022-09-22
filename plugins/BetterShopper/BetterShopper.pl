@@ -113,7 +113,7 @@ my $lastSentID;
 my $last_minShopAmount;
 my $last_maxPrice;
 my $started = 0;
-my @found;
+my @sellers_found;
 
 my $received = 0;
 my $itemList;
@@ -125,8 +125,8 @@ my $buy_fallback_sucess = 0;
 my $buy_fallback_fail = 0;
 
 my %found_best_shops;
-my %fallback;
-my %last_recv_query_time;
+my %shopper_npc_fallback_items;
+my %last_recv_seller_query_time;
 
 sub GetItemName {
 	my $itemID = shift;
@@ -177,7 +177,7 @@ sub check_market_found {
 	
 	my $id = $args->{id};
 	
-	if(exists $found_best_shops{$id} && exists $last_recv_query_time{$id} && !main::timeOut($last_recv_query_time{$id}, 60)) {
+	if(exists $found_best_shops{$id} && exists $last_recv_seller_query_time{$id} && !main::timeOut($last_recv_seller_query_time{$id}, 60)) {
 		warning "[BetterShopper] Sucess found seller for forced check id $id\n";
 		$args->{return} = 1;
 	} else {
@@ -224,7 +224,7 @@ sub on_npc_chat {
 	if (defined $lastSentID && $args->{message} =~ /SHOPS CONTAINING YOUR QUERY/) {
 		#//==SHOPS CONTAINING YOUR QUERY===================================//
 		$started = 1;
-		undef @found;
+		undef @sellers_found;
 		delete $found_best_shops{$lastSentID};
 		#warning "[BetterShopper] Started QUERY for item $lastSentID\n", "BetterShopper", 1;
 		
@@ -232,9 +232,9 @@ sub on_npc_chat {
 	} elsif (defined $lastSentID && $started && $args->{message} =~ /Nobody is selling that item at this time/) {
 		#//==END OF SEARCH RESULTS=========================================//
 		$started = 0;
-		undef @found;
+		undef @sellers_found;
 		delete $found_best_shops{$lastSentID};
-		$last_recv_query_time{$lastSentID} = time;
+		$last_recv_seller_query_time{$lastSentID} = time;
 		#warning "[BetterShopper] No one is selling item $lastSentID\n", "BetterShopper", 1;
 		return;
 		
@@ -243,14 +243,14 @@ sub on_npc_chat {
 		$started = 0;
 		#warning "[BetterShopper] Ended QUERY for item $lastSentID\n", "BetterShopper", 1;
 		
-		@found = sort { $a->{Cost} <=> $b->{Cost} } @found;
+		@sellers_found = sort { $a->{Cost} <=> $b->{Cost} } @sellers_found;
 		
-		if (!scalar @found) {
+		if (!scalar @sellers_found) {
 			delete $found_best_shops{$lastSentID} if (exists $found_best_shops{$lastSentID});
 			#warning "[BetterShopper] No one is selling item $lastSentID in the right amount, price and place\n", "BetterShopper", 1;
 		} else {
 			my $first = 0;
-			foreach my $found (@found) {
+			foreach my $found (@sellers_found) {
 				if ($first == 0) {
 					$first = 1;
 					$found_best_shops{$found->{id}} = $found;
@@ -258,37 +258,37 @@ sub on_npc_chat {
 				}
 			}
 		}
-		undef @found;
-		$last_recv_query_time{$lastSentID} = time;
+		undef @sellers_found;
+		$last_recv_seller_query_time{$lastSentID} = time;
 		
 		
 	} elsif (defined $lastSentID && $started && $args->{message} =~ /^ID (\d+) \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+), (\d+)\] \| Seller: (.+)$/) {
 		#ID 958 | Cost: 1350z | Qty: 26 | Map: oldnewpayon [110, 96] | Seller: arnaldo
-		my %found;
-		$found{id} = $1;
-		$found{Cost} = $2;
-		$found{quant} = $3;
-		$found{Map} = $4;
-		$found{x} = $5;
-		$found{y} = $6;
-		$found{Seller} = $7;
-		return if ($found{Map} ne 'oldnewpayon' && $found{Map} ne 'aldebaran');
-		if ($found{id} == $lastSentID && $found{quant} >= $last_minShopAmount && $found{Cost} <= $last_maxPrice) {
-			push(@found, \%found);
+		my %store_found;
+		$store_found{id} = $1;
+		$store_found{Cost} = $2;
+		$store_found{quant} = $3;
+		$store_found{Map} = $4;
+		$store_found{x} = $5;
+		$store_found{y} = $6;
+		$store_found{Seller} = $7;
+		return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
+		if ($store_found{id} == $lastSentID && $store_found{quant} >= $last_minShopAmount && $store_found{Cost} <= $last_maxPrice) {
+			push(@sellers_found, \%store_found);
 		}
 	} elsif (defined $lastSentID && $started && $args->{message} =~ /^\+\d (\d+)\[\d\] \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+) , (\d+)\] \| Seller: (.+)$/) {
 		#+0 2339[0] | Cost: 9999z | Qty: 1 | Map: aldebaran [150 , 122] | Seller: Alfamart
-		my %found;
-		$found{id} = $1;
-		$found{Cost} = $2;
-		$found{quant} = $3;
-		$found{Map} = $4;
-		$found{x} = $5;
-		$found{y} = $6;
-		$found{Seller} = $7;
-		return if ($found{Map} ne 'oldnewpayon' && $found{Map} ne 'aldebaran');
-		if ($found{id} == $lastSentID && $found{quant} >= $last_minShopAmount && $found{Cost} <= $last_maxPrice) {
-			push(@found, \%found);
+		my %store_found;
+		$store_found{id} = $1;
+		$store_found{Cost} = $2;
+		$store_found{quant} = $3;
+		$store_found{Map} = $4;
+		$store_found{x} = $5;
+		$store_found{y} = $6;
+		$store_found{Seller} = $7;
+		return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
+		if ($store_found{id} == $lastSentID && $store_found{quant} >= $last_minShopAmount && $store_found{Cost} <= $last_maxPrice) {
+			push(@sellers_found, \%store_found);
 		}
 	}
 	
@@ -313,8 +313,8 @@ sub AI_pre_fallback {
 		my @delete_ids;
 		my $bai;
 		my $tprice;
-		foreach my $fallback_id (keys %fallback) {
-			my $fallback_item = $fallback{$fallback_id};
+		foreach my $fallback_id (keys %shopper_npc_fallback_items) {
+			my $fallback_item = $shopper_npc_fallback_items{$fallback_id};
 			
 			my $i = $fallback_item->{'index'};
 			
@@ -363,7 +363,7 @@ sub AI_pre_fallback {
 		}
 		foreach my $del (@delete_ids) {
 			warning "Deleting fallback ".$del."\n";
-			delete $fallback{$del};
+			delete $shopper_npc_fallback_items{$del};
 		}
 		
 		return unless (defined $bai);
@@ -638,9 +638,9 @@ sub AI_pre_buying {
 			my $maxAmount = $config{$item_prefix."_maxAmount"};
 			
 			#warning "[Better Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
-			if (exists $last_recv_query_time{$itemID}) {
+			if (exists $last_recv_seller_query_time{$itemID}) {
 				#warning "[Better Test] (".GetItemName($itemID).") 21 - Exists\n";
-				if (!main::timeOut($last_recv_query_time{$itemID}, 60)) {
+				if (!main::timeOut($last_recv_seller_query_time{$itemID}, 60)) {
 					#warning "[Better Test] (".GetItemName($itemID).") 22 - Recent\n";
 				}
 			}
@@ -648,8 +648,8 @@ sub AI_pre_buying {
 				(checkSelfCondition($item_prefix)) &&
 				$char_total <= $minInventoryAmount &&
 				$char_total < $maxAmount &&
-				exists $last_recv_query_time{$itemID} &&
-				!main::timeOut($last_recv_query_time{$itemID}, 60)
+				exists $last_recv_seller_query_time{$itemID} &&
+				!main::timeOut($last_recv_seller_query_time{$itemID}, 60)
 			) {
 				my $amount_want = $config{$item_prefix."_maxAmount"};
 				my $amount_have = $char_total;
@@ -670,11 +670,11 @@ sub AI_pre_buying {
 					my $total_price = $price_per_amount * $amount_need_buy;
 					#warning "[Better Test] (".GetItemName($itemID).") 42 - char->{zeny} $char->{zeny} | total_price $total_price\n";
 					if ($char->{zeny} >= $total_price) {
-						if (!exists $fallback{$itemID}) {
-							$fallback{$itemID}{'index'} = $i;
-							$fallback{$itemID}{'item'} = $itemID;
-							$fallback{$itemID}{'npc'} = $config{$item_prefix."_fallbackNpc"};
-							$fallback{$itemID}{'totalprice'} = $total_price;
+						if (!exists $shopper_npc_fallback_items{$itemID}) {
+							$shopper_npc_fallback_items{$itemID}{'index'} = $i;
+							$shopper_npc_fallback_items{$itemID}{'item'} = $itemID;
+							$shopper_npc_fallback_items{$itemID}{'npc'} = $config{$item_prefix."_fallbackNpc"};
+							$shopper_npc_fallback_items{$itemID}{'totalprice'} = $total_price;
 							warning "Adding item ".$itemID." to Fallback list\n";
 						}
 					}
@@ -697,7 +697,7 @@ sub AI_pre_buying {
 
 		if (exists AI::args->{'error'}) {
 			error AI::args->{'error'}.".\n";
-			delete $last_recv_query_time{$prefix} if (exists $last_recv_query_time{$prefix});
+			delete $last_recv_seller_query_time{$prefix} if (exists $last_recv_seller_query_time{$prefix});
 		}
 
 		# Shopping finished
