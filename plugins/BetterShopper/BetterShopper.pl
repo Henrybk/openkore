@@ -66,6 +66,7 @@ my $shopping_hooks = Plugins::addHooks(
 my $buying_hooks = Plugins::addHooks(
 	['AI_pre',					\&AI_pre_buying],
 	['AI_pre',					\&AI_pre_fallback],
+	['buy_result',				\&on_buy_result],
 );
 
 use constant {
@@ -102,8 +103,12 @@ my @found;
 
 my $received = 0;
 my $itemList;
+
 my $buy_sucess = 0;
 my $buy_fail = 0;
+
+my $buy_fallback_sucess = 0;
+my $buy_fallback_fail = 0;
 
 my %found_best_shops;
 my %fallback;
@@ -179,9 +184,8 @@ sub on_npc_chat {
 		@found = sort { $a->{Cost} <=> $b->{Cost} } @found;
 		
 		if (!scalar @found) {
-			delete $found_best_shops{$lastSentID};
+			delete $found_best_shops{$lastSentID} if (exists $found_best_shops{$lastSentID});
 			#warning "[BetterShopper] No one is selling item $lastSentID in the right amount, price and place\n", "BetterShopper", 1;
-			return;
 		} else {
 			my $first = 0;
 			foreach my $found (@found) {
@@ -230,16 +234,23 @@ sub on_npc_chat {
 
 sub AI_pre_fallback {
 	return if( $shopstarted || $buyershopstarted );
-	my $needitem;
 	if (
-		   (AI::isIdle || AI::action eq "route" || AI::action eq "move" || AI::action eq "follow")
+		   $char->inventory->isReady()
 		&& $config{BetterShopper_on}
-		&& !AI::inQueue("eventMacro") && !AI::inQueue("Shopping")
-		&& timeOut($timeout{'ai_buyAuto'})
-		&& $char->inventory->isReady()
+		&& (AI::isIdle || AI::action eq "route" || AI::action eq "move" || AI::action eq "checkMonsters" || AI::action eq "sitAuto")
+		&& !AI::inQueue("storageAuto")
+		&& !AI::inQueue("buyAuto")
+		&& !AI::inQueue("sellAuto")
+		&& !AI::inQueue("teleport", "NPC")
+		&& !AI::inQueue("skill_use")
+		&& !AI::inQueue("eventMacro")
+		&& !AI::inQueue("Shopping")
+		&& !AI::inQueue("Shopping_fallBack")
+		&& timeOut($timeout{'ai_Shopping_fallBack'})
 	) {
-		undef $ai_v{'temp'}{'found'};
 		my @delete_ids;
+		my $bai;
+		my $tprice;
 		foreach my $fallback_id (keys %fallback) {
 			my $fallback_item = $fallback{$fallback_id};
 			
@@ -250,14 +261,21 @@ sub AI_pre_fallback {
 			
 			my $amount;
 			my $cart_amount;
-			if ($itemID =~ /^\d{3,}$/) {
-				$amount = $char->inventory->sumByNameID($fallback_id);
-				$cart_amount = $char->cart->sumByNameID($fallback_id);
-			}
+			
+			$amount = $char->inventory->sumByNameID($fallback_id);
+			$cart_amount = $char->cart->sumByNameID($fallback_id);
+			
 			my $char_total = $amount + $cart_amount;
+			
+			next unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "");
+			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
+			
+			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "");
+			my $maxAmount = $config{$item_prefix."_maxAmount"};
+			
+			#warning "[Fallback Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
+			
 			if (
-				$config{$item_prefix."_minInventoryAmount"} ne "" &&
-				$config{$item_prefix."_maxAmount"} ne "" &&
 				(checkSelfCondition($item_prefix)) &&
 				$char_total <= $config{$item_prefix."_minInventoryAmount"} &&
 				$char_total < $config{$item_prefix."_maxAmount"}
@@ -267,126 +285,88 @@ sub AI_pre_fallback {
 				my $amount_need_buy = $amount_want - $amount_have;
 				my $price_per_amount = $config{$item_prefix."_price"};
 				my $total_price = $price_per_amount * $amount_need_buy;
+				#warning "[Fallback Test] (".GetItemName($itemID).") 3 - char->{zeny} $char->{zeny} | total_price $total_price\n";
 				if ($char->{zeny} >= $total_price) {
-					$ai_v{'temp'}{'found'} = 1;
-					my $bai = $itemID;
-					if ($needitem eq "") {
-						$needitem = "$bai";
-					} else {
-						$needitem = "$needitem, $bai";
-					}
+					$bai = $i;
+					$tprice = $total_price;
+					warning "[SUCESS] fallback ".$itemID." being created\n";
 				} else {
+					#warning "[FAIL] fallback ".$itemID." failed money\n";
 					push(@delete_ids, $fallback_id);
 				}
 			} else {
+				#warning "[FAIL] fallback ".$itemID." failed amounts\n";
 				push(@delete_ids, $fallback_id);
 			}
 		}
 		foreach my $del (@delete_ids) {
+			warning "Deleting fallback ".$del."\n";
 			delete $fallback{$del};
 		}
-		$ai_v{'temp'}{'ai_route_index'} = AI::findAction("route");
-		if ($ai_v{'temp'}{'ai_route_index'} ne "") {
-			$ai_v{'temp'}{'ai_route_attackOnRoute'} = AI::args($ai_v{'temp'}{'ai_route_index'})->{'attackOnRoute'};
-		}
-		if (!($ai_v{'temp'}{'ai_route_index'} ne "" && AI::findAction("buyAuto")) && $ai_v{'temp'}{'found'}) {
-			AI::queue("buyAuto");
-		}
-		$timeout{'ai_buyAuto'}{'time'} = time;
+		
+		return unless (defined $bai);
+		AI::clear("move");
+		AI::clear("route");
+		AI::queue("Shopping_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
+		$buy_fallback_sucess = 0;
+		$buy_fallback_fail = 0;
+		$timeout{'ai_Shopping_fallBack'}{'time'} = time;
+		$timeout{'ai_Shopping_fallBack'}{'timeout'} = 1;
 	}
 
-	if (AI::action eq "buyAuto" && AI::args->{'done'}) {
+	if (AI::action eq "Shopping_fallBack" && AI::args->{'done'}) {
 
 		if (exists AI::args->{'error'}) {
 			error AI::args->{'error'}.".\n";
 		}
 
-		# buyAuto finished
-		$ai_v{'temp'}{'var'} = AI::args->{'forcedBySell'};
-		$ai_v{'temp'}{'var2'} = AI::args->{'forcedByStorage'};
-		AI::dequeue;
-		Plugins::callHook('AI_buy_auto_done');
+		# Shopping_fallBack finished
+		AI::dequeue while AI::inQueue("Shopping_fallBack");
 
-		if ($ai_v{'temp'}{'var'} && $config{storageAuto}) {
-			AI::queue("storageAuto", {forcedBySell => 1});
-		} elsif (!$ai_v{'temp'}{'var2'} && $config{storageAuto}) {
-			AI::queue("storageAuto", {forcedByBuy => 1});
-		}
-
-	} elsif (AI::action eq "buyAuto" && timeOut($timeout{ai_buyAuto_wait})) {
-		Plugins::callHook('AI_buy_auto');
+	} elsif (AI::action eq "Shopping_fallBack" && timeOut($timeout{ai_Shopping_fallBack_wait}, $timeout{ai_buyAuto_wait}{timeout})) {
 		my $args = AI::args;
-
-		if (exists $args->{sentBuyPacket_time} && exists $args->{index_failed}{$args->{lastIndex}}) {
-			if (timeOut($args->{sentBuyPacket_time}, $timeout{ai_buyAuto_wait_after_restart}{timeout})) {
-				delete $args->{sentBuyPacket_time};
-				delete $args->{lastIndex};
-				delete $args->{distance};
-			}
+		
+		$args->{index} = $args->{Better_index};
+		#$args->{needed_zeny}
+		my $prefixN = "BetterShopper_".$args->{Better_index};
+		my $prefix = $config{$prefixN};
+		
+		if ($buy_fallback_sucess == 1) {
+			Log::warning "[$prefix] Sucesssssss CARAIO!!!\n";
+			$args->{'done'} = 1;
 			return;
-
-		} elsif (exists $args->{sentBuyPacket_time} && !exists $args->{index_failed}{$args->{lastIndex}}) {
-			if (exists $args->{recv_buy_packet}) {
-				delete $args->{sentBuyPacket_time};
-				delete $args->{recv_buy_packet};
-				$args->{recv_buy_packet_time} = time;
-
-			} elsif (timeOut($args->{sentBuyPacket_time}, $timeout{ai_buyAuto_wait_after_packet_giveup}{timeout})) {
+		}
+		
+		if ($buy_fallback_fail == 1) {
+			$args->{'error'} = "[$prefix] Buy failed";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if (exists $args->{sentBuyPacket_time}) {
+			if (
+				timeOut($args->{sentBuyPacket_time}, $timeout{ai_buyAuto_wait_after_packet_giveup}{timeout}) &&
+				!$buy_fallback_sucess &&
+				!$buy_fallback_fail
+			) {
 				$args->{'error'} = 'Did not received the buy result from server after buy packet was sent';
 				$args->{'done'} = 1;
 			}
 			return;
-
-		} elsif (exists $args->{recv_buy_packet_time}) {
-			if (timeOut($args->{recv_buy_packet_time}, $timeout{ai_buyAuto_wait_after_restart}{timeout})) {
-				delete $args->{recv_buy_packet_time};
-				delete $args->{lastIndex};
-				delete $args->{distance};
-			}
+		}
+		
+		if (!exists $args->{sentBuyPacket_time} && $char->{zeny} < $args->{needed_zeny}) {
+			$args->{'error'} = 'We do not have enough zeny anymore';
+			$args->{'done'} = 1;
 			return;
-
 		}
 
 		if (!exists $args->{lastIndex}) {
-
-			delete $args->{index};
-			for (my $i = 0; exists $config{"BetterShopper_$i"}; $i++) {
-				next if (!$config{"BetterShopper_$i"} || $config{"BetterShopper_${i}_disabled"});
-				next unless (!exists $fallback{$config{"BetterShopper_$i"}});
-				next if ($config{"BetterShopper_${i}_maxBase"} =~ /^\d{1,}$/ && $char->{lv} > $config{"BetterShopper_${i}_maxBase"});
-				next if ($config{"BetterShopper_${i}_minBase"} =~ /^\d{1,}$/ && $char->{lv} < $config{"BetterShopper_${i}_minBase"});
-				# did we already fail to do this buyAuto slot? (only fails in this way if the item is nonexistant)
-				next if (exists $args->{index_failed}{$i});
-
-				my $amount;
-				if ($config{"BetterShopper_$i"} =~ /^\d{3,}$/) {
-					$amount = $char->inventory->sumByNameID($config{"BetterShopper_$i"}, $config{"BetterShopper_${i}_onlyIdentified"});
-				}
-				else {
-					$amount = $char->inventory->sumByName($config{"BetterShopper_$i"}, $config{"BetterShopper_${i}_onlyIdentified"});
-				}
-
-				if ($config{"BetterShopper_$i"."_maxAmount"} ne "" && $amount < $config{"BetterShopper_$i"."_maxAmount"}) {
-					next if (($config{"BetterShopper_$i"."_price"} && ($char->{zeny} < $config{"BetterShopper_$i"."_price"})) || ($config{"BetterShopper_$i"."_zeny"} && !inRange($char->{zeny}, $config{"BetterShopper_$i"."_zeny"})));
-
-					# get NPC info, use standpoint if provided
-					$args->{npc} = {};
-					my $destination = $config{"BetterShopper_$i"."_fallbackNpc"};
-					getNPCInfo($destination, $args->{npc});
-
-					# did we succeed to load NPC info from this slot?
-					if ($args->{npc}{ok}) {
-						$args->{index} = $i;
-					}
-					last;
-				}
-			}
-
-			# Failed to load any slots for buyAuto (we're done or they're all invalid)
-			if (!exists $args->{index}) {
-				$args->{'done'} = 1;
-				return;
-			}
+			#warning "[test 0] args->{Better_index} $args->{Better_index} | prefixN $prefixN | prefix $prefix\n";
+			
+			$args->{npc} = {};
+			my $destination = $config{$prefixN."_fallbackNpc"};
+			getNPCInfo($destination, $args->{npc});
 
 			undef $ai_v{'temp'}{'do_route'};
 			if (!$args->{distance}) {
@@ -423,7 +403,7 @@ sub AI_pre_fallback {
 					undef $args->{warpedToSave};
 				}
 
-				my $msgneeditem;
+				my $msgneeditem = "Auto-buy: $prefix\n";
 				if (
 					$config{'saveMap'} ne "" &&
 					$config{'saveMap_warpToBuyOrSell'} &&
@@ -436,24 +416,20 @@ sub AI_pre_fallback {
 						stand();
 					} else {
 						$args->{warpedToSave} = 1;
-						if ($needitem ne "") {
-							$msgneeditem = "Auto-buy: $needitem\n";
-						}
 						# If we still haven't warped after a certain amount of time, fallback to walking
 						$args->{warpStart} = time unless $args->{warpStart};
 						message T($msgneeditem."Teleporting to auto-buy\n"), "teleport";
 						useTeleport(2);
 					}
-					$timeout{ai_buyAuto_wait}{time} = time;
+					$timeout{ai_Shopping_fallBack_wait}{time} = time;
 
 				} else {
-					if ($needitem ne "") {
-						$msgneeditem = "Auto-buy: $needitem\n";
-					}
 					message TF($msgneeditem."Calculating auto-buy route to: %s (%s): %s, %s\n", $maps_lut{$args->{npc}{map}.'.rsw'}, $args->{npc}{map}, $args->{npc}{pos}{x}, $args->{npc}{pos}{y}), "route";
-					ai_route($args->{npc}{map}, $args->{npc}{pos}{x}, $args->{npc}{pos}{y},
+					ai_route(
+						$args->{npc}{map}, $args->{npc}{pos}{x}, $args->{npc}{pos}{y},
 						attackOnRoute => 1,
-						distFromGoal => $args->{distance});
+						distFromGoal => $args->{distance}
+					);
 				}
 				return;
 			}
@@ -464,10 +440,11 @@ sub AI_pre_fallback {
 			return;
 
 		} elsif (!exists $args->{'sentNpcTalk'}) {
-
 			# load the real npc location just in case we used standpoint
 			my $realpos = {};
-			getNPCInfo($config{"BetterShopper_".$args->{lastIndex}."_fallbackNpc"}, $realpos);
+			my $destination = $config{"BetterShopper_".$args->{lastIndex}."_fallbackNpc"};
+			#warning "[test 2] dest is $destination\n";
+			getNPCInfo($destination, $realpos);
 
 			ai_talkNPC($realpos->{pos}{x}, $realpos->{pos}{y}, $config{"BetterShopper_".$args->{lastIndex}."_npc_steps"} || 'b');
 
@@ -484,6 +461,8 @@ sub AI_pre_fallback {
 			return;
 
 		} elsif (!exists $args->{'recv_buyList_time'}) {
+			$buy_fallback_sucess = 0;
+			$buy_fallback_fail = 0;
 			$args->{'recv_buyList_time'} = time;
 			return;
 
@@ -505,7 +484,7 @@ sub AI_pre_fallback {
 
 		if (!exists $args->{'nameID'}) {
 			$args->{index_failed}{$args->{lastIndex}} = 1;
-			error "buyAuto index ".$args->{lastIndex}." (".$config{"BetterShopper_".$args->{lastIndex}}.") failed, item doesn't exist in npc sell list.\n", "npc";
+			error "Shopping_fallBack index ".$args->{lastIndex}." (".$config{"BetterShopper_".$args->{lastIndex}}.") failed, item doesn't exist in npc sell list.\n", "npc";
 
 		} else {
 			my $maxbuy = ($config{"BetterShopper_".$args->{lastIndex}."_price"}) ? int($char->{zeny}/$config{"BetterShopper_$args->{index}"."_price"}) : 30000; # we assume we can buy 30000, when price of the item is set to 0 or undef
@@ -569,6 +548,7 @@ sub AI_pre_buying {
 		&& !AI::inQueue("skill_use")
 		&& !AI::inQueue("eventMacro")
 		&& !AI::inQueue("Shopping")
+		&& !AI::inQueue("Shopping_fallBack")
 		&& main::timeOut($timeout{'Shopping'})
 		&& (scalar keys %found_best_shops)
 	) {
@@ -590,21 +570,34 @@ sub AI_pre_buying {
 			
 			my $char_total = $amount + $cart_amount;
 			
+			next unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "");
+			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
+			
+			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "");
+			my $maxAmount = $config{$item_prefix."_maxAmount"};
+			
+			#warning "[Better Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
+			if (exists $last_recv_query_time{$itemID}) {
+				#warning "[Better Test] (".GetItemName($itemID).") 21 - Exists\n";
+				if (!main::timeOut($last_recv_query_time{$itemID}, 60)) {
+					#warning "[Better Test] (".GetItemName($itemID).") 22 - Recent\n";
+				}
+			}
 			if (
-				$config{$item_prefix."_minInventoryAmount"} ne "" &&
-				$config{$item_prefix."_maxAmount"} ne "" &&
 				(checkSelfCondition($item_prefix)) &&
-				$char_total <= $config{$item_prefix."_minInventoryAmount"} &&
-				$char_total < $config{$item_prefix."_maxAmount"} &&
+				$char_total <= $minInventoryAmount &&
+				$char_total < $maxAmount &&
 				exists $last_recv_query_time{$itemID} &&
 				!main::timeOut($last_recv_query_time{$itemID}, 60)
 			) {
 				my $amount_want = $config{$item_prefix."_maxAmount"};
 				my $amount_have = $char_total;
 				my $amount_need_buy = $amount_want - $amount_have;
+				#warning "[Better Test] (".GetItemName($itemID).") 3 - amount_need_buy $amount_need_buy\n";
 				if (exists $found_best_shops{$itemID} && $found_best_shops{$itemID}) {
 					my $price_per_amount = $found_best_shops{$itemID}{Cost};
 					my $total_price = $price_per_amount * $amount_need_buy;
+					#warning "[Better Test] (".GetItemName($itemID).") 41 - char->{zeny} $char->{zeny} | total_price $total_price\n";
 					if ($char->{zeny} >= $total_price) {
 						$bai = $i;
 						$tprice = $total_price;
@@ -614,6 +607,7 @@ sub AI_pre_buying {
 				} elsif ($config{$item_prefix."_fallbackNpc"}) {
 					my $price_per_amount = $config{$item_prefix."_price"};
 					my $total_price = $price_per_amount * $amount_need_buy;
+					#warning "[Better Test] (".GetItemName($itemID).") 42 - char->{zeny} $char->{zeny} | total_price $total_price\n";
 					if ($char->{zeny} >= $total_price) {
 						if (!exists $fallback{$itemID}) {
 							$fallback{$itemID}{'index'} = $i;
@@ -923,7 +917,7 @@ sub AI_pre_buying {
 		@last_buy_log = @current_buy_log;
 		
 		$messageSender->sendBuyBulkVender($venderID, \@current_buyList, $venderCID);
-		warning "[".PLUGIN_NAME."] Sent Buy!\n";
+		warning "[".PLUGIN_NAME."] Sent Buy from player store!\n";
 			
 		delete $args->{'sentOpenShop'};
 		delete $args->{'sentOpenShop_time'};
@@ -953,6 +947,19 @@ sub storeList {
 	$itemList = \@{$args->{itemList}->getItems};
 	
 	warning "[test] Received Correct item list\n";
+}
+
+sub on_buy_result {
+	my ($packet, $args) = @_;
+	return unless (AI::action eq "Shopping_fallBack");
+	AI::args->{recv_buy_packet} = 1;
+	if ($args->{fail} == 0) {
+		warning "[".PLUGIN_NAME."] Successfully bought.\n";
+		$buy_fallback_sucess = 1;
+	} else {
+		error "[".PLUGIN_NAME."] Failed to buy.\n";
+		$buy_fallback_fail = 1;
+	}
 }
 
 sub buy_fail {
