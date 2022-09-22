@@ -82,7 +82,9 @@ macro baseMacroUp {
 }
 
 macro set_skills_stats {
+	[
 	set_skills_stats()
+	]
 }
 
 sub set_skills_stats {
@@ -101,6 +103,7 @@ sub set_skills_stats {
 }
 
 macro set_has_weapon_level {
+	[
 	$hasWeaponLevel = 0
 	$Item1 = Dirk
 	$Item2 = Stiletto
@@ -113,6 +116,7 @@ macro set_has_weapon_level {
 	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
 		$hasWeaponLevel = 3
 	}
+	]
 }
 
 macro set_steal {
@@ -166,6 +170,7 @@ macro set_buyauto_rightHand {
 	$Item2 = Stiletto
 	$Item3 = Damascus
 	call organize_and_run_buyauto_3
+	]
 }
 
 macro set_Dirk {
@@ -215,9 +220,10 @@ macro set_Damascus {
 macro set_buyauto_armor {
 	[
 	$Item1 = AdventureSuit
-	$Item2 = Coat
-	$Item3 = ChainMail
-	call organize_and_run_buyauto_3
+	$Item2 = WoodenMail
+	$Item3 = Pantie
+	call organize_and_run_buyauto_2_plus1
+	]
 }
 
 macro set_AdventureSuit {
@@ -234,30 +240,28 @@ macro set_AdventureSuit {
 	]
 }
 
-macro set_Coat {
+macro set_WoodenMail {
 	[
-	$item{name} = Coat
-	$item{id} = 2309
+	$item{name} = WoodenMail
+	$item{id} = 2328
 	$item{slot} = armor
-	$item{price} = 48000
-	$item{minLevel} = 25
+	$item{price} = 5500
+	$item{minLevel} = 20
 	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 70 
+	$item{npcX} = 134
+	$item{npcY} = 51
 	call set_item
 	]
 }
 
-macro set_ChainMail {
+macro set_Pantie {
 	[
-	$item{name} = ChainMail
-	$item{id} = 2314
+	$item{name} = Pantie
+	$item{id} = 2339
 	$item{slot} = armor
-	$item{price} = 80000
-	$item{minLevel} = 40
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 70 
+	$item{price} = player
+	$item{maxPrice} = 10000
+	$item{minLevel} = 22
 	call set_item
 	]
 }
@@ -270,6 +274,7 @@ macro set_buyauto_shoes {
 	$Item2 = Shoes
 	$Item3 = Boots
 	call organize_and_run_buyauto_3
+	]
 }
 
 macro set_Sandals {
@@ -320,8 +325,9 @@ macro set_buyauto_robe {
 	[
 	$Item1 = Hood
 	$Item2 = Muffler
-	$Item3 = Manteau
-	call organize_and_run_buyauto_3
+	$Item3 = Undershirt
+	call organize_and_run_buyauto_2_plus1
+	]
 }
 
 macro set_Hood {
@@ -352,16 +358,14 @@ macro set_Muffler {
 	]
 }
 
-macro set_Manteau {
+macro set_Undershirt {
 	[
-	$item{name} = Manteau
-	$item{id} = 2505
+	$item{name} = Undershirt
+	$item{id} = 2522
 	$item{slot} = robe
-	$item{price} = 32000
-	$item{minLevel} = 33
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{price} = player
+	$item{maxPrice} = 65000
+	$item{minLevel} = 22
 	call set_item
 	]
 }
@@ -373,6 +377,7 @@ macro set_buyauto_topHead {
 	$Item1 = Hat
 	$Item2 = Cap
 	call organize_and_run_buyauto_2
+	]
 }
 
 macro set_Hat {

@@ -50,10 +50,14 @@ use Translation qw( T TF );
 
 Plugins::register('BetterShopper', 'automatically buy items from merchant vendors', \&Unload);
 
+my $basic_hooks = Plugins::addHooks(
+	['AI_pre',					\&AI_pre],
+);
+
 my $market_hooks = Plugins::addHooks(
-	['AI_pre',					\&AI_pre_market],
 	['npc_chat',				\&on_npc_chat],
-	['force_check_market',		\&AI_pre_market],
+	['force_check_market',		\&on_force_check_market],
+	['check_market_found',		\&check_market_found],
 );
 
 my $shopping_hooks = Plugins::addHooks(
@@ -64,9 +68,17 @@ my $shopping_hooks = Plugins::addHooks(
 );
 
 my $buying_hooks = Plugins::addHooks(
-	['AI_pre',					\&AI_pre_buying],
-	['AI_pre',					\&AI_pre_fallback],
 	['buy_result',				\&on_buy_result],
+);
+
+my $extra_hooks = Plugins::addHooks(
+	['AI_storage_auto_weight_start',				\&manage_storage_buy_sell_hooks],
+	['AI_storage_auto_get_auto_start',				\&manage_storage_buy_sell_hooks],
+	['AI_sell_auto_start',							\&manage_storage_buy_sell_hooks],
+	['AI_buy_auto_start',							\&manage_storage_buy_sell_hooks],
+	['AI_storage_auto_queued',						\&storage_buy_sell_clear_route],
+	['AI_sell_auto_queued',							\&storage_buy_sell_clear_route],
+	['AI_buy_auto_queued',							\&storage_buy_sell_clear_route],
 );
 
 use constant {
@@ -82,9 +94,11 @@ my @last_buy_log;
 my @last_buyList;
 
 sub Unload {
+	Plugins::delHook($basic_hooks);
 	Plugins::delHook($market_hooks);
 	Plugins::delHook($shopping_hooks);
 	Plugins::delHook($buying_hooks);
+	Plugins::delHook($extra_hooks);
 	message "[".PLUGIN_NAME."] Plugin unloading or reloading.\n", 'success';
 }
 
@@ -126,31 +140,79 @@ sub GetItemName {
 	return $name;
 }
 
+sub manage_storage_buy_sell_hooks {
+	my ($hook, $args) = @_;
+	if(AI::inQueue("eventMacro", "Shopping", "Shopping_fallBack", "teleport", "NPC", "skill_use")) {
+		$args->{return} = 1;
+	}
+}
+
+sub storage_buy_sell_clear_route {
+	AI::clear("move", "route", "checkMonsters");
+}
+
+sub AI_pre {
+	AI_pre_market();
+	AI_pre_buying();
+	AI_pre_fallback();
+}
+
+sub on_force_check_market {
+	my ($hook, $args) = @_;
+	
+	my $index = $args->{slot};
+	my $prefix = 'BetterShopper_';
+	my $item_prefix = $prefix.$index;
+	
+	if (defined $config{$item_prefix}) {
+		warning "[BetterShopper] Forcing send WS Query on block $index: item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
+		sendQuery($index, $item_prefix);
+	} else {
+		error "[BetterShopper] Failed forced send WS Query\n";
+	}
+}
+
+sub check_market_found {
+	my ($hook, $args) = @_;
+	
+	my $id = $args->{id};
+	
+	if(exists $found_best_shops{$id} && exists $last_recv_query_time{$id} && !main::timeOut($last_recv_query_time{$id}, 60)) {
+		warning "[BetterShopper] Sucess found seller for forced check id $id\n";
+		$args->{return} = 1;
+	} else {
+		error "[BetterShopper] Did not find seller for forced check id $id\n";
+	}
+}
+
 sub AI_pre_market {
-	my ($hook) = @_;
-	return unless ($hook eq 'force_check_market' || main::timeOut($market_time, MARKET_RECHECK_TIMEOUT));
+	return unless (main::timeOut($market_time, MARKET_RECHECK_TIMEOUT));
 	return unless ($config{BetterShopper_on});
 	return unless (exists $config{BetterShopper_0});
 	
-	my $prefix = PLUGIN_NAME.'_';
-	my $current = $lastIndex;
-	my $item_prefix = $prefix.$current;
+	my $prefix = 'BetterShopper_';
+	my $item_prefix = $prefix.$lastIndex;
 	
 	if (defined $config{$item_prefix}) {
-		warning "[BetterShopper] Sending WS Query on block $current: item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
-		my $msg = '@ws '.$config{$item_prefix};
-		sendMessage($messageSender, 'c', $msg);
-		$lastSentID = $config{$item_prefix};
-		$last_minShopAmount = $config{$item_prefix.'_minShopAmount'};
-		$last_maxPrice = $config{$item_prefix.'_maxPrice'};
+		sendQuery($lastIndex, $item_prefix);
 		$market_time = time;
 	}
 	
-	my $next = $current + 1;
+	my $next = $lastIndex + 1;
 	if (!exists $config{$prefix.$next}) {
 		$next = 0;
 	}
 	$lastIndex = $next;
+}
+
+sub sendQuery {
+	my ($lastIndex, $item_prefix) = @_;
+	warning "[BetterShopper] Sending WS Query on block $lastIndex: item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
+	my $msg = '@ws '.$config{$item_prefix};
+	sendMessage($messageSender, 'c', $msg);
+	$lastSentID = $config{$item_prefix};
+	$last_minShopAmount = $config{$item_prefix.'_minShopAmount'};
+	$last_maxPrice = $config{$item_prefix.'_maxPrice'};
 }
 
 sub on_npc_chat {
@@ -305,8 +367,7 @@ sub AI_pre_fallback {
 		}
 		
 		return unless (defined $bai);
-		AI::clear("move");
-		AI::clear("route");
+		AI::clear("move", "route", "checkMonsters");
 		AI::queue("Shopping_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
 		$buy_fallback_sucess = 0;
 		$buy_fallback_fail = 0;
@@ -621,8 +682,7 @@ sub AI_pre_buying {
 			}
 		}
 		return unless (defined $bai);
-		AI::clear("move");
-		AI::clear("route");
+		AI::clear("move", "route", "checkMonsters");
 		AI::queue("Shopping", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
 		$buy_sucess = 0;
 		$buy_fail = 0;

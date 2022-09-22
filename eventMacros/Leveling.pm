@@ -217,6 +217,13 @@ macro set_lockmap_lasa_dun01 {
 		do iconf 713 50 1 0
 		do iconf 1058 1 1 0
 	}
+	do iconf 7312 0 0 1 #Jubilee
+	do iconf 1602 0 0 1 #Bastão [4]
+	do iconf 1105 0 0 1 #Falchion [4]
+	do iconf 516 0 0 1 #batata
+	do iconf 580 0 0 1 #pao
+	do iconf 700 0 0 1 #Cold_Scroll
+	do iconf 1019 0 0 1 #Trunk
 	
 	do conf -f future_saveMap_map aldebaran
 	do conf -f future_saveMap_x 143

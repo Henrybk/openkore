@@ -722,6 +722,7 @@ macro SetVarSet4 {
 	}
 	
 	$id = 958
+	$maxPrice = 1500
 	$amount = 10
 	$mandibulaHorrenda = GetNamebyNameID("$id")
 	$mandibulaHorrenda = &invamount($mandibulaHorrenda)
@@ -731,6 +732,19 @@ macro SetVarSet4 {
 		call clear_getauto
 	}
 	]
+	if ($mandibulaHorrenda < $amount) {
+		[
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
+		force_market_search("$nextFreeSlot")
+		]
+		pause 3
+		[
+		$canBuyMadibula = check_MarketWatcher("$id")
+		log [Mandibula] canBuyMadibula $canBuyMadibula
+		]
+	} else {
+		call BetterbuyAuto_clear_item $id
+	}
 }
 
 macro OrganizeItems4 {
@@ -757,7 +771,7 @@ macro OrganizeItems4 {
 			}
 		}
 	
-	} elsif ($osso < 10 || $unhaApodrecida < 10 || $mandibulaHorrenda < 10) {
+	} elsif ($osso < 10 || $unhaApodrecida < 10 || ($mandibulaHorrenda < 10 && $canBuyMadibula == 0)) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild07) {
 				call set_lockmap_prt_fild07
@@ -781,7 +795,7 @@ macro OrganizeItems4 {
 			do mconf 1076 0 0 0
 		}
 	
-	} elsif ($.zeny < 15000) {
+	} elsif ($.zeny < 15000 || ($mandibulaHorrenda < 10 && $canBuyMadibula == 1)) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild05) {
 				call set_lockmap_prt_fild05
@@ -809,14 +823,17 @@ macro OrganizeItems4 {
 ######################
 #### Deliver
 macro set_getauto {
+	[
 	$name = GetNamebyNameID("$id")
 	$nextFreeGetAutoSlot = get_free_slot_index_for_key("getAuto","$name")
 	log We need $amount of item $name ($id)
 	do iconf $id $amount 1 0
 	sanity_check_getauto($nextFreeGetAutoSlot, $name, $amount)
+	]
 }
 
 macro clear_getauto {
+	[
 	$name = GetNamebyNameID("$id")
 	log Clearing getauto $name
 	$foundSlot = find_key_in_block("getAuto","$name")
@@ -824,6 +841,7 @@ macro clear_getauto {
 		clear_common_getauto("$foundSlot")
 	}
 	do iconf $id 0 1 0
+	]
 } 
 
 automacro moveSmithratoCompleteQuest {
@@ -861,10 +879,9 @@ automacro talkSmithCompletedQuest {
 			call SetVarSet2 1
 		} elsif ($collectset == 3) {
 			call SetVarSet3 1
-		} elsif ($collectset == 3) {
+		} elsif ($collectset == 4) {
 			call SetVarSet4 1
 		}
-		do relog
 	}
 }
 
@@ -1244,7 +1261,6 @@ automacro TalktoGuildsWomanEnd {
 }
 
 automacro TurnRogueAfterEquipped {
-	ConfigKey eventMacro_1_99_stage turn_rogue_end
 	JobID 17
 	priority 2
 	exclusive 1
