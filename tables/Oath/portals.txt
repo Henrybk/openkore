@@ -2693,6 +2693,13 @@ cmd_fild07 136 134 oldnewpayon 98 118 1400 1 c r~/teleport/i c r~/payon/i
 cmd_fild07 136 134 comodo 209 143 1200 1 c c r~/teleport/i c r~/^Comodo$/
 cmd_fild07 136 134 morocc 156 47 1200 1 c c r~/teleport/i c c r~/mor/i
 
+# NPC Exists: Winslow (29, 45) (ID 110003986)
+oldnewpayon 29 45 izlude 134 87 300 0 c r~/Izlude/i
+oldnewpayon 29 45 alberta 117 56 1000 0 c r~/Alberta/i
+oldnewpayon 29 45 comodo 195 150 2500 0 c r~/Comodo/i
+oldnewpayon 29 45 amatsu 197 83 2500 0 c r~/Amatsu/i
+oldnewpayon 29 45 gonryun 159 201 2500 0 c r~/Kunlun/i
+oldnewpayon 29 45 louyang 218 22 1000 0 c r~/Louyang/i
 
 job_sword1 7 245 izlude_in 43 169
 izlude_in 43 169 job_sword1 10 245

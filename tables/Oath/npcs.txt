@@ -162,7 +162,6 @@ aldeba_in 92 58 Inn Maid#Rilim
 aldebaran 213 115 Mainland Curios#np
 aldebaran 212 122 Citizen#alde
 aldebaran 234 129 Payon Delicacies#alde
-lasa_dun01 60 67 Fabre
 aldebaran 233 198 Ichiro Honda#oa
 aldebaran 223 222 Mr. Claus
 yuno_fild01 191 140 Border Guard#bgrd1
@@ -220,7 +219,6 @@ morocc 160 97 Guide#4moc
 morocc 170 101 Item Collector#moc10
 morocc 152 110 Bulletin Board#11
 morocc 167 110 Communication Node#1i
-lasa_dun01 49 158 Jelring
 morocc 121 109 Roberto
 morocc 152 35 Guide#5moc
 morocc 145 44 Jeweler#moc5
@@ -236,12 +234,9 @@ izlude 55 74 Bonne#izlude
 prontera 151 29 Kafra Employee
 prontera 160 29 South Gate-Guide
 prontera 148 49 Bulletin Board#09
-lasa_dun01 53 162 Jelring
 morocc 44 180 Towner#4moc
 prt_fild07 286 199 Poporing
 pay_fild01 222 137 Spore
-lasa_dun01 54 162 Marin
-lasa_dun01 49 161 Marin
 pay_fild01 164 215 Spore
 oldnewpayon 44 93 Fishmonger#np
 oldnewpayon 44 93 Fishmonger#np
@@ -263,7 +258,6 @@ izlude 150 143 Kylick#izlude
 alberta 131 139 Drunken Old Man
 alberta 117 135 Elin
 alberta 93 174 Grandmother Alma
-lasa_dun01 48 168 Poporing
 oldnewpayon 122 131 Neko Neko#1np
 oldnewpayon 141 146 Maximus Topper#pay
 oldnewpayon 164 142 Jim's Mother#np
@@ -275,10 +269,23 @@ pay_arche 39 134 Bulletin Board#08
 pay_arche 52 145 Linus#hw2021
 oldnewpayon 125 154 Hair Stylist#pay
 oldnewpayon 124 147 Clothes Designer#pay
-lasa_dun01 53 48 Jelring
-lasa_dun01 59 161 Shiro
 lasa_dun01 51 159 Alexis Texas
 aldebaran 113 70 Forger Munster#alde
 aldebaran 81 61 Shell Gathering Lady#ald
 aldebaran 93 80 Issei#alde
 aldebaran 60 70 Sylvia#alde
+oldnewpayon 29 45 Winslow
+oldnewpayon 37 43 Captain Graham
+izlude 164 138 Pet Groomer#iz
+oldnewpayon 87 159 Promotions#pront
+oldnewpayon 108 162 Stylist Exchanger#pay
+oldnewpayon 100 163 Swanhild Flag
+oldnewpayon 86 168 Palace Guardsman#2np
+oldnewpayon 93 168 Palace Guardsman#1np
+oldnewpayon 79 163 Skoegul Flag
+lasa_dun01 167 171 Jelring
+oldnewpayon 82 169 Repherion Flag
+lasa_dun01 152 63 Marin
+lasa_dun01 27 70 Jelring
+lasa_dun01 151 72 Jelring
+lasa_dun01 18 67 Doughring
