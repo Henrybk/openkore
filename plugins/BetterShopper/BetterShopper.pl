@@ -82,6 +82,7 @@ my $extra_hooks = Plugins::addHooks(
 );
 
 use constant {
+	QUERY_TIMEOUT => 2,
 	MARKET_RECHECK_TIMEOUT => 10,
 	PLUGIN_NAME => 'BetterShopper',
 	RECHECK_TIMEOUT => 10,
@@ -90,8 +91,8 @@ use constant {
 	MAX_INVENTORY_SIZE => 100,
 };
 
-my @last_buy_log;
-my @last_buyList;
+my @last_seller_buy_log;
+my @last_seller_buyList;
 
 sub Unload {
 	Plugins::delHook($basic_hooks);
@@ -103,30 +104,45 @@ sub Unload {
 }
 
 sub mapchange {
-	undef @last_buy_log;
-	undef @last_buyList;
+	undef @last_seller_buy_log;
+	undef @last_seller_buyList;
 }
 
-my $market_time = 0;
-my $lastIndex = 0;
-my $lastSentID;
-my $last_minShopAmount;
-my $last_maxPrice;
-my $started = 0;
+my $query_time = 0;
+
+
+my @sellers_query_queue;
+my $market_time_seller = 0;
+my $last_Shopper_seller_index = 0;
+my $last_sell_query_item_id;
+my $last_sell_query_minShopAmount;
+my $last_sell_query_maxPrice;
 my @sellers_found;
-
-my $received = 0;
+my %found_best_seller_shops;
+my %last_recv_seller_query_time;
+my $received_shop_list = 0;
 my $itemList;
-
 my $buy_sucess = 0;
 my $buy_fail = 0;
 
+my %shopper_npc_fallback_items;
 my $buy_fallback_sucess = 0;
 my $buy_fallback_fail = 0;
 
-my %found_best_shops;
-my %shopper_npc_fallback_items;
-my %last_recv_seller_query_time;
+my @buyers_query_queue;
+my $market_time_buyer = 0;
+my $last_Shopper_buyer_index = 0;
+my $last_buy_query_item_id;
+my $last_buy_query_minBuyShopAmount;
+my $last_buy_query_minPrice;
+my @buyers_found;
+my %found_best_buyer_shops;
+my %last_recv_buyer_query_time;
+
+my $received_start = 0;
+my $received_first_item = 0;
+my $receiving_Wbuy = 0;
+my $receiving_Wsell = 0;
 
 sub GetItemName {
 	my $itemID = shift;
@@ -148,28 +164,114 @@ sub manage_storage_buy_sell_hooks {
 }
 
 sub storage_buy_sell_clear_route {
-	AI::clear("move", "route", "checkMonsters");
+	AI::clear("move", "route", "checkMonsters", "attack");
 }
 
 sub AI_pre {
 	AI_pre_market();
 	AI_pre_buying();
 	AI_pre_fallback();
+	AI_pre_buyer();
+}
+
+sub AI_pre_buyer {
+	return unless (main::timeOut($query_time, QUERY_TIMEOUT));
+	return unless (main::timeOut($market_time_buyer, MARKET_RECHECK_TIMEOUT));
+	return unless ($config{BetterSeller_on});
+	return unless (exists $config{BetterSeller_0});
+	
+	if (!@buyers_query_queue) {
+		create_buyers_query_queue();
+		return;
+	} else {
+		sendNext_buyers_queue();
+	}
+}
+
+sub sendNext_buyers_queue {
+	my $item_query = shift @buyers_query_queue;
+	sendBuyerQuery($item_query);
+	$market_time_buyer = time;
+}
+
+sub create_buyers_query_queue {
+	my $prefix = 'BetterSeller_';
+	my $current_index = 0;
+	
+	while (exists $config{$prefix.$current_index}) {
+		my $item_prefix = $prefix.$current_index;
+		if (defined $config{$item_prefix}) {
+			push(@buyers_query_queue, $item_prefix);
+		}
+	} continue {
+		$current_index++;
+	}
+}
+
+sub sendBuyerQuery {
+	my ($item_prefix) = @_;
+	warning "[BetterSeller] Sending Whobuy Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
+	my $msg = '@wb '.$config{$item_prefix};
+	sendMessage($messageSender, 'c', $msg);
+	$last_buy_query_item_id = $config{$item_prefix};
+	$last_buy_query_minBuyShopAmount = $config{$item_prefix.'_minBuyShopAmount'};
+	$last_buy_query_minPrice = $config{$item_prefix.'_minPrice'};
+	$query_time = time;
+}
+
+sub AI_pre_market {
+	return unless (main::timeOut($query_time, QUERY_TIMEOUT));
+	return unless (main::timeOut($market_time_seller, MARKET_RECHECK_TIMEOUT));
+	return unless ($config{BetterShopper_on});
+	return unless (exists $config{BetterShopper_0});
+	
+	if (!@sellers_query_queue) {
+		create_sellers_query_queue();
+	} else {
+		sendNext_sellers_queue();
+	}
+}
+
+sub sendNext_sellers_queue {
+	my $item_query = shift @sellers_query_queue;
+	sendQuery($item_query);
+	$market_time_seller = time;
+}
+
+sub sendQuery {
+	my ($item_prefix) = @_;
+	warning "[BetterShopper] Sending Whosell Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
+	my $msg = '@ws '.$config{$item_prefix};
+	sendMessage($messageSender, 'c', $msg);
+	$last_sell_query_item_id = $config{$item_prefix};
+	$last_sell_query_minShopAmount = $config{$item_prefix.'_minShopAmount'};
+	$last_sell_query_maxPrice = $config{$item_prefix.'_maxPrice'};
+	$query_time = time;
+}
+
+sub create_sellers_query_queue {
+	my $prefix = 'BetterShopper_';
+	my $current_index = 0;
+	
+	while (exists $config{$prefix.$current_index}) {
+		my $item_prefix = $prefix.$current_index;
+		if (defined $config{$item_prefix}) {
+			push(@sellers_query_queue, $item_prefix);
+		}
+	} continue {
+		$current_index++;
+	}
 }
 
 sub on_force_check_market {
 	my ($hook, $args) = @_;
 	
-	my $index = $args->{slot};
-	my $prefix = 'BetterShopper_';
-	my $item_prefix = $prefix.$index;
+	my $id = $args->{id};
 	
-	if (defined $config{$item_prefix}) {
-		warning "[BetterShopper] Forcing send WS Query on block $index: item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
-		sendQuery($index, $item_prefix);
-	} else {
-		error "[BetterShopper] Failed forced send WS Query\n";
-	}
+	unshift(@sellers_query_queue, $id);
+	warning "[BetterShopper] Force adding item $id (".GetItemName($id).") to the top of queue and reseting timeouts\n";
+	$query_time = 0;
+	$market_time_seller = 0;
 }
 
 sub check_market_found {
@@ -177,7 +279,7 @@ sub check_market_found {
 	
 	my $id = $args->{id};
 	
-	if(exists $found_best_shops{$id} && exists $last_recv_seller_query_time{$id} && !main::timeOut($last_recv_seller_query_time{$id}, 60)) {
+	if(exists $found_best_seller_shops{$id} && exists $last_recv_seller_query_time{$id} && !main::timeOut($last_recv_seller_query_time{$id}, 60)) {
 		warning "[BetterShopper] Sucess found seller for forced check id $id\n";
 		$args->{return} = 1;
 	} else {
@@ -185,110 +287,177 @@ sub check_market_found {
 	}
 }
 
-sub AI_pre_market {
-	return unless (main::timeOut($market_time, MARKET_RECHECK_TIMEOUT));
-	return unless ($config{BetterShopper_on});
-	return unless (exists $config{BetterShopper_0});
-	
-	my $prefix = 'BetterShopper_';
-	my $item_prefix = $prefix.$lastIndex;
-	
-	if (defined $config{$item_prefix}) {
-		sendQuery($lastIndex, $item_prefix);
-		$market_time = time;
-	}
-	
-	my $next = $lastIndex + 1;
-	if (!exists $config{$prefix.$next}) {
-		$next = 0;
-	}
-	$lastIndex = $next;
-}
-
-sub sendQuery {
-	my ($lastIndex, $item_prefix) = @_;
-	warning "[BetterShopper] Sending WS Query on block $lastIndex: item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
-	my $msg = '@ws '.$config{$item_prefix};
-	sendMessage($messageSender, 'c', $msg);
-	$lastSentID = $config{$item_prefix};
-	$last_minShopAmount = $config{$item_prefix.'_minShopAmount'};
-	$last_maxPrice = $config{$item_prefix.'_maxPrice'};
-}
-
 sub on_npc_chat {
 	my ($hook, $args) = @_;
-	return unless ($config{BetterShopper_on});
-	return unless (exists $config{BetterShopper_0});
-	return unless (defined $lastSentID);
+	return unless (
+		($config{BetterShopper_on} && exists $config{BetterShopper_0} && defined $last_sell_query_item_id) ||
+		($config{BetterSeller_on} && exists $config{BetterSeller_0} && defined $last_buy_query_item_id)
+	);
 	
-	if (defined $lastSentID && $args->{message} =~ /SHOPS CONTAINING YOUR QUERY/) {
+	if ($args->{message} =~ /SHOPS CONTAINING YOUR QUERY/) {
 		#//==SHOPS CONTAINING YOUR QUERY===================================//
-		$started = 1;
-		undef @sellers_found;
-		delete $found_best_shops{$lastSentID};
-		#warning "[BetterShopper] Started QUERY for item $lastSentID\n", "BetterShopper", 1;
+		#warning "[BetterShopper] Started QUERY\n", "BetterShopper", 1;
+		$received_start = 1;
+		$received_first_item = 0;
+		$receiving_Wbuy = 0;
+		$receiving_Wsell = 0;
 		
-		
-	} elsif (defined $lastSentID && $started && $args->{message} =~ /Nobody is selling that item at this time/) {
-		#//==END OF SEARCH RESULTS=========================================//
-		$started = 0;
+	} elsif (defined $last_sell_query_item_id && $received_start && $args->{message} =~ /Nobody is selling that item at this time/) {
+		# Nobody is selling that item at this time.
+		#warning "[BetterShopper] No one is selling item $last_sell_query_item_id\n", "BetterShopper", 1;
+		$received_start = 0;
+		$received_first_item = 0;
+		$receiving_Wbuy = 0;
+		$receiving_Wsell = 0;
 		undef @sellers_found;
-		delete $found_best_shops{$lastSentID};
-		$last_recv_seller_query_time{$lastSentID} = time;
-		#warning "[BetterShopper] No one is selling item $lastSentID\n", "BetterShopper", 1;
+		delete $found_best_seller_shops{$last_sell_query_item_id} if (exists $found_best_seller_shops{$last_sell_query_item_id});;
+		$last_recv_seller_query_time{$last_sell_query_item_id} = time;
 		return;
 		
-	} elsif (defined $lastSentID && $started && $args->{message} =~ /END OF SEARCH RESULTS/) {
+	} elsif (defined $last_buy_query_item_id && $received_start && $args->{message} =~ /Nobody is buying that item at this time/) {
+		# Nobody is buying that item at this time.
+		#warning "[BetterShopper] No one is buying item $last_buy_query_item_id\n", "BetterShopper", 1;
+		$received_start = 0;
+		$received_first_item = 0;
+		$receiving_Wbuy = 0;
+		$receiving_Wsell = 0;
+		undef @buyers_found;
+		delete $found_best_buyer_shops{$last_buy_query_item_id} if (exists $found_best_buyer_shops{$last_buy_query_item_id});;
+		$last_recv_buyer_query_time{$last_buy_query_item_id} = time;
+		return;
+		
+	} elsif ($received_start && $args->{message} =~ /END OF SEARCH RESULTS/) {
 		#//==END OF SEARCH RESULTS=========================================//
-		$started = 0;
-		#warning "[BetterShopper] Ended QUERY for item $lastSentID\n", "BetterShopper", 1;
 		
-		@sellers_found = sort { $a->{Cost} <=> $b->{Cost} } @sellers_found;
-		
-		if (!scalar @sellers_found) {
-			delete $found_best_shops{$lastSentID} if (exists $found_best_shops{$lastSentID});
-			#warning "[BetterShopper] No one is selling item $lastSentID in the right amount, price and place\n", "BetterShopper", 1;
-		} else {
-			my $first = 0;
-			foreach my $found (@sellers_found) {
-				if ($first == 0) {
-					$first = 1;
-					$found_best_shops{$found->{id}} = $found;
-					warning "[BetterShopper] Found item $found->{id}, sold at $found->{Cost}, quant $found->{quant}, map $found->{Map} ($found->{x} $found->{y}), by $found->{Seller}\n", "BetterShopper", 1;
-				}
+		if ($receiving_Wsell) {
+			#warning "[BetterShopper] Ended QUERY for item $last_sell_query_item_id\n", "BetterShopper", 1;
+			if (!scalar @sellers_found || !$received_first_item) {
+				#warning "[BetterShopper] No one is selling item $last_sell_query_item_id in the right amount, price and place\n", "BetterShopper", 1;
+				delete $found_best_seller_shops{$last_sell_query_item_id} if (exists $found_best_seller_shops{$last_sell_query_item_id});
+				
+			} else {
+				@sellers_found = sort { $a->{Cost} <=> $b->{Cost} } @sellers_found;
+				my $found = $sellers_found[0];
+				$found_best_seller_shops{$found->{id}} = $found;
+				warning "[BetterShopper] Found item $found->{id}, sold at $found->{Cost}, quant $found->{quant}, map $found->{Map} ($found->{x} $found->{y}), by seller $found->{Seller}\n", "BetterShopper", 1;
 			}
+			undef @sellers_found;
+			$last_recv_seller_query_time{$last_sell_query_item_id} = time;
+			
+		} elsif ($receiving_Wbuy) {
+			#warning "[BetterShopper] Ended QUERY for item $last_buy_query_item_id\n", "BetterShopper", 1;
+			if (!scalar @buyers_found || !$received_first_item) {
+				#warning "[BetterShopper] No one is buying item $last_buy_query_item_id in the right amount, price and place\n", "BetterShopper", 1;
+				delete $found_best_buyer_shops{$last_buy_query_item_id} if (exists $found_best_buyer_shops{$last_buy_query_item_id});;
+				
+			} else {
+				@buyers_found = reverse sort { $a->{Cost} <=> $b->{Cost} } @buyers_found;
+				my $found = $buyers_found[0];
+				$found_best_buyer_shops{$found->{id}} = $found;
+				warning "[BetterShopper] Found item $found->{id}, being bought at at $found->{Cost}, quant $found->{quant}, map $found->{Map} ($found->{x} $found->{y}), by buyer $found->{Buyer}\n", "BetterShopper", 1;
+			}
+			undef @buyers_found;
+			$last_recv_buyer_query_time{$last_buy_query_item_id} = time;
 		}
-		undef @sellers_found;
-		$last_recv_seller_query_time{$lastSentID} = time;
+		$received_start = 0;
+		$received_first_item = 0;
+		$receiving_Wbuy = 0;
+		$receiving_Wsell = 0;
 		
-		
-	} elsif (defined $lastSentID && $started && $args->{message} =~ /^ID (\d+) \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+), (\d+)\] \| Seller: (.+)$/) {
-		#ID 958 | Cost: 1350z | Qty: 26 | Map: oldnewpayon [110, 96] | Seller: arnaldo
-		my %store_found;
-		$store_found{id} = $1;
-		$store_found{Cost} = $2;
-		$store_found{quant} = $3;
-		$store_found{Map} = $4;
-		$store_found{x} = $5;
-		$store_found{y} = $6;
-		$store_found{Seller} = $7;
-		return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
-		if ($store_found{id} == $lastSentID && $store_found{quant} >= $last_minShopAmount && $store_found{Cost} <= $last_maxPrice) {
-			push(@sellers_found, \%store_found);
-		}
-	} elsif (defined $lastSentID && $started && $args->{message} =~ /^\+\d (\d+)\[\d\] \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+) , (\d+)\] \| Seller: (.+)$/) {
-		#+0 2339[0] | Cost: 9999z | Qty: 1 | Map: aldebaran [150 , 122] | Seller: Alfamart
-		my %store_found;
-		$store_found{id} = $1;
-		$store_found{Cost} = $2;
-		$store_found{quant} = $3;
-		$store_found{Map} = $4;
-		$store_found{x} = $5;
-		$store_found{y} = $6;
-		$store_found{Seller} = $7;
-		return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
-		if ($store_found{id} == $lastSentID && $store_found{quant} >= $last_minShopAmount && $store_found{Cost} <= $last_maxPrice) {
-			push(@sellers_found, \%store_found);
+	} elsif ($received_start && $args->{message} =~ /Map/) {
+		#warning "[BetterShopper] MAP\n";
+		if (defined $last_sell_query_item_id && $received_start && $args->{message} =~ /Seller/) {
+			
+			my $error;
+			my %store_found;
+			if ($args->{message} =~ /^ID (\d+) \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+), (\d+)\] \| Seller: (.+)$/) {
+				#ID 958 | Cost: 1350z | Qty: 26 | Map: oldnewpayon [110, 96] | Seller: arnaldo
+				$store_found{id} = $1;
+				$store_found{Cost} = $2;
+				$store_found{quant} = $3;
+				$store_found{Map} = $4;
+				$store_found{x} = $5;
+				$store_found{y} = $6;
+				$store_found{Seller} = $7;
+			} elsif ($args->{message} =~ /^\+\d (\d+)\[\d\] \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+) , (\d+)\] \| Seller: (.+)$/) {
+				#+0 2339[0] | Cost: 9999z | Qty: 1 | Map: aldebaran [150 , 122] | Seller: Alfamart
+				$store_found{id} = $1;
+				$store_found{Cost} = $2;
+				$store_found{quant} = $3;
+				$store_found{Map} = $4;
+				$store_found{x} = $5;
+				$store_found{y} = $6;
+				$store_found{Seller} = $7;
+			} else {
+				$error = "[BetterShopper] Could not parse npc_chat message for last seller sent $last_sell_query_item_id\n";
+			}
+			
+			if ($store_found{id} != $last_sell_query_item_id) {
+				$error = "[BetterShopper] Sent seller id $last_sell_query_item_id but received $store_found{id}\n";
+			}
+			
+			if (defined $error) {
+				error $error;
+				$received_start = 0;
+				$received_first_item = 0;
+				undef @sellers_found;
+				delete $found_best_seller_shops{$store_found{id}};
+				return;
+				
+			} elsif (!$received_first_item) {
+				$received_first_item = 1;
+				undef @sellers_found;
+				delete $found_best_seller_shops{$store_found{id}};
+				$receiving_Wbuy = 0;
+				$receiving_Wsell = 1;
+			}
+			
+			return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
+			
+			if ($store_found{id} == $last_sell_query_item_id && $store_found{quant} >= $last_sell_query_minShopAmount && $store_found{Cost} <= $last_sell_query_maxPrice) {
+				push(@sellers_found, \%store_found);
+			}
+			
+		} elsif (defined $last_buy_query_item_id && $received_start && $args->{message} =~ /Buyer/) {
+			#warning "[BetterShopper] BUYER id $last_buy_query_item_id | quant $last_buy_query_minBuyShopAmount | minPrice $last_buy_query_minPrice\n";
+			
+			my $error;
+			my %store_found;
+			if ($args->{message} =~ /^Price: (\d+) \| Qty: (\d+) \| Map: (.+) \[(\d+), (\d+)\] \| Buyer: (.+)$/) {
+				#Price: 150 | Qty: 243 | Map: oldnewpayon [100, 146] | Buyer: Spread
+				$store_found{id} = $last_buy_query_item_id;
+				$store_found{Cost} = $1;
+				$store_found{quant} = $2;
+				$store_found{Map} = $3;
+				$store_found{x} = $4;
+				$store_found{y} = $5;
+				$store_found{Buyer} = $6;
+			} else {
+				$error = "[BetterSeller] Could not parse npc_chat message for last buyer sent $last_buy_query_item_id\n";
+			}
+			
+			if (defined $error) {
+				error $error;
+				$received_start = 0;
+				$received_first_item = 0;
+				undef @buyers_found;
+				delete $found_best_buyer_shops{$store_found{id}};
+				return;
+				
+			} elsif (!$received_first_item) {
+				$received_first_item = 1;
+				undef @buyers_found;
+				delete $found_best_buyer_shops{$store_found{id}};
+				$receiving_Wbuy = 1;
+				$receiving_Wsell = 0;
+			}
+			
+			return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
+			
+			if ($store_found{quant} >= $last_buy_query_minBuyShopAmount && $store_found{Cost} >= $last_buy_query_minPrice) {
+				#warning "[BetterSeller] Found buyer $store_found{Buyer} for item $store_found{id}, paying $store_found{Cost} a piece, quant $store_found{quant}, map $store_found{Map} ($store_found{x} $store_found{y})\n", "BetterShopper", 1;
+				push(@buyers_found, \%store_found);
+			}
 		}
 	}
 	
@@ -611,7 +780,7 @@ sub AI_pre_buying {
 		&& !AI::inQueue("Shopping")
 		&& !AI::inQueue("Shopping_fallBack")
 		&& main::timeOut($timeout{'Shopping'})
-		&& (scalar keys %found_best_shops)
+		&& (scalar keys %found_best_seller_shops)
 	) {
 		
 		my $i = 0;
@@ -655,8 +824,8 @@ sub AI_pre_buying {
 				my $amount_have = $char_total;
 				my $amount_need_buy = $amount_want - $amount_have;
 				#warning "[Better Test] (".GetItemName($itemID).") 3 - amount_need_buy $amount_need_buy\n";
-				if (exists $found_best_shops{$itemID} && $found_best_shops{$itemID}) {
-					my $price_per_amount = $found_best_shops{$itemID}{Cost};
+				if (exists $found_best_seller_shops{$itemID} && $found_best_seller_shops{$itemID}) {
+					my $price_per_amount = $found_best_seller_shops{$itemID}{Cost};
 					my $total_price = $price_per_amount * $amount_need_buy;
 					#warning "[Better Test] (".GetItemName($itemID).") 41 - char->{zeny} $char->{zeny} | total_price $total_price\n";
 					if ($char->{zeny} >= $total_price) {
@@ -697,11 +866,12 @@ sub AI_pre_buying {
 
 		if (exists AI::args->{'error'}) {
 			error AI::args->{'error'}.".\n";
-			delete $last_recv_seller_query_time{$prefix} if (exists $last_recv_seller_query_time{$prefix});
 		}
 
 		# Shopping finished
 		AI::dequeue while AI::inQueue("Shopping");
+		delete $last_recv_seller_query_time{$prefix} if (exists $last_recv_seller_query_time{$prefix});
+		unshift(@sellers_query_queue, $prefix);
 
 	} elsif (AI::action eq "Shopping") {
 		my $args = AI::args;
@@ -711,25 +881,25 @@ sub AI_pre_buying {
 		my $prefixN = "BetterShopper_".$args->{Better_index};
 		my $prefix = $config{$prefixN};
 		
-		if (!exists $found_best_shops{$prefix}) {
+		if (!exists $found_best_seller_shops{$prefix}) {
 			$args->{'error'} = 'Store does not exist anymore';
 			$args->{'done'} = 1;
 			return;
 		}
 		
-		if ($args->{'seller'} && $found_best_shops{$prefix}{'Seller'} ne $args->{'seller'}{'name'}) {
+		if ($args->{'seller'} && $found_best_seller_shops{$prefix}{'Seller'} ne $args->{'seller'}{'name'}) {
 			$args->{'error'} = "[$prefix] Best seller changed name";
 			$args->{'done'} = 1;
 			return;
 		}
 		
-		if ($args->{'seller'} && ($found_best_shops{$prefix}{'x'} != $args->{'seller'}{'pos'}{'x'} || $found_best_shops{$prefix}{'y'} != $args->{'seller'}{'pos'}{'y'})) {
+		if ($args->{'seller'} && ($found_best_seller_shops{$prefix}{'x'} != $args->{'seller'}{'pos'}{'x'} || $found_best_seller_shops{$prefix}{'y'} != $args->{'seller'}{'pos'}{'y'})) {
 			$args->{'error'} = "[$prefix] Best seller changed position";
 			$args->{'done'} = 1;
 			return;
 		}
 		
-		if ($args->{'seller'} && $found_best_shops{$prefix}{'Cost'} ne $args->{'seller'}{'Cost'}) {
+		if ($args->{'seller'} && $found_best_seller_shops{$prefix}{'Cost'} ne $args->{'seller'}{'Cost'}) {
 			$args->{'error'} = "[$prefix] Best seller changed Cost";
 			$args->{'done'} = 1;
 			return;
@@ -766,15 +936,15 @@ sub AI_pre_buying {
 		}
 
 		if (!exists $args->{lastIndex}) {
-			$args->{'seller'}{'map'} = $found_best_shops{$prefix}{Map};
-			$args->{'seller'}{'pos'}{'x'} = $found_best_shops{$prefix}{x};
-			$args->{'seller'}{'pos'}{'y'} = $found_best_shops{$prefix}{y};
-			$args->{'seller'}{'name'} = $found_best_shops{$prefix}{Seller};
-			$args->{'seller'}{'Cost'} = $found_best_shops{$prefix}{Cost};
-			$args->{'seller'}{'id'} = $found_best_shops{$prefix}{id};
+			$args->{'seller'}{'map'} = $found_best_seller_shops{$prefix}{Map};
+			$args->{'seller'}{'pos'}{'x'} = $found_best_seller_shops{$prefix}{x};
+			$args->{'seller'}{'pos'}{'y'} = $found_best_seller_shops{$prefix}{y};
+			$args->{'seller'}{'name'} = $found_best_seller_shops{$prefix}{Seller};
+			$args->{'seller'}{'Cost'} = $found_best_seller_shops{$prefix}{Cost};
+			$args->{'seller'}{'id'} = $found_best_seller_shops{$prefix}{id};
 			
 			#use Data::Dumper;
-			#warning "found: ".Dumper \%found_best_shops;
+			#warning "found: ".Dumper \%found_best_seller_shops;
 			#warning "args: ".Dumper $args;
 
 			# Failed to load any slots for Shopping (we're done or they're all invalid)
@@ -841,7 +1011,7 @@ sub AI_pre_buying {
 				my $name = get_player_name($venderID);
 				if ($args->{'seller'}{'name'} eq $name) {
 					debug "[".PLUGIN_NAME."] Openning shop '".$vender->{'title'}."' of player ".get_player_name($venderID).".\n", "shopper", 1;
-					$received = 0;
+					$received_shop_list = 0;
 					undef $itemList;
 					$buy_sucess = 0;
 					$buy_fail = 0;
@@ -855,7 +1025,7 @@ sub AI_pre_buying {
 
 			return;
 
-		} elsif ($received == 0) {
+		} elsif ($received_shop_list == 0) {
 			if (main::timeOut($args->{'sentOpenShop_time'}, 7)) {
 				$args->{'error'} = 'Store did not respond';
 				$args->{'done'} = 1;
@@ -870,8 +1040,8 @@ sub AI_pre_buying {
 			return unless (main::timeOut($args->{'recv_buyList_time'}, 2));
 		}
 		
-		undef @last_buy_log;
-		undef @last_buyList;
+		undef @last_seller_buy_log;
+		undef @last_seller_buyList;
 		
 		my @current_buy_log;
 		my @current_buyList;
@@ -973,8 +1143,8 @@ sub AI_pre_buying {
 			return;
 		}
 		
-		@last_buyList = @current_buyList;
-		@last_buy_log = @current_buy_log;
+		@last_seller_buyList = @current_buyList;
+		@last_seller_buy_log = @current_buy_log;
 		
 		$messageSender->sendBuyBulkVender($venderID, \@current_buyList, $venderCID);
 		warning "[".PLUGIN_NAME."] Sent Buy from player store!\n";
@@ -1003,7 +1173,7 @@ sub storeList {
 	return unless (exists $ai_args->{'seller'});
 	my $pname = get_player_name($args->{venderID});
 	return unless ($pname eq $ai_args->{'seller'}{'name'});
-	$received = 1;
+	$received_shop_list = 1;
 	$itemList = \@{$args->{itemList}->getItems};
 	
 	warning "[test] Received Correct item list\n";
@@ -1025,12 +1195,12 @@ sub on_buy_result {
 sub buy_fail {
 	my ($packet, $args) = @_;
 	
-	return unless (@last_buyList); # should never happen
+	return unless (@last_seller_buyList); # should never happen
 	
 	# Error messages for the items we could not buy
 	my $ID;
-	foreach my $item_index (0..$#last_buyList) {
-		my $log = $last_buy_log[$item_index];
+	foreach my $item_index (0..$#last_seller_buyList) {
+		my $log = $last_seller_buy_log[$item_index];
 		$ID = $log->{venderID};
 		error "[".PLUGIN_NAME."] Failed to buy ".$log->{name}.".\n";
 	}
@@ -1042,14 +1212,14 @@ sub buy_fail {
 
 sub possible_buy_success {
 	my ($packet, $args) = @_;
-	return unless (@last_buyList);
+	return unless (@last_seller_buyList);
 	my $item_name = $args->{item};
 	my $amount = $args->{amount};
 	
 	my $found_index;
-	foreach my $possible_item_index (0..$#last_buyList) {
-		my $possible_item = $last_buyList[$possible_item_index];
-		my $possible_item_log = $last_buy_log[$possible_item_index];
+	foreach my $possible_item_index (0..$#last_seller_buyList) {
+		my $possible_item = $last_seller_buyList[$possible_item_index];
+		my $possible_item_log = $last_seller_buy_log[$possible_item_index];
 		if ($possible_item_log->{name} eq $item_name && $possible_item->{amount} eq $amount) {
 			# We were able to buy the item
 			message "[".PLUGIN_NAME."] Successfully bought ".$possible_item_log->{name}.".\n";
@@ -1060,8 +1230,8 @@ sub possible_buy_success {
 	}
 	return unless (defined $found_index);
 	$buy_sucess = 1;
-	splice(@last_buyList, $found_index, 1);
-	splice(@last_buy_log, $found_index, 1);
+	splice(@last_seller_buyList, $found_index, 1);
+	splice(@last_seller_buy_log, $found_index, 1);
 }
 
 sub writter_bought {
