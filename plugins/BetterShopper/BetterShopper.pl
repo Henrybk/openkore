@@ -62,7 +62,6 @@ my $market_hooks = Plugins::addHooks(
 
 my $shopping_hooks = Plugins::addHooks(
 	['packet_vender_store2',	\&storeList],
-	['packet_mapChange',		\&mapchange],
 	['packet/vender_buy_fail',	\&buy_fail],
 	['item_gathered',			\&possible_buy_success],
 );
@@ -71,7 +70,14 @@ my $buying_hooks = Plugins::addHooks(
 	['buy_result',				\&on_buy_result],
 );
 
+my $buying_store_hooks = Plugins::addHooks(
+	['packet_buying_store2',		\&buying_store_item_list],
+	['packet/buying_store_fail',	\&buying_store_fail],
+	['packet_pre/buying_store_item_delete',	\&buying_store_item_delete],
+);
+
 my $extra_hooks = Plugins::addHooks(
+	['packet_mapChange',							\&mapchange],
 	['AI_storage_auto_weight_start',				\&manage_storage_buy_sell_hooks],
 	['AI_storage_auto_get_auto_start',				\&manage_storage_buy_sell_hooks],
 	['AI_sell_auto_start',							\&manage_storage_buy_sell_hooks],
@@ -81,9 +87,14 @@ my $extra_hooks = Plugins::addHooks(
 	['AI_buy_auto_queued',							\&storage_buy_sell_clear_route],
 );
 
+my $commands_hooks = Commands::register(
+	['ds', '',			\&cmdDS],
+);
+
 use constant {
 	QUERY_TIMEOUT => 2,
 	MARKET_RECHECK_TIMEOUT => 10,
+	MARKET_RECHECK_BUY => 5,
 	PLUGIN_NAME => 'BetterShopper',
 	RECHECK_TIMEOUT => 10,
 	MAX_ITEM_AMOUNT => 30000,
@@ -93,6 +104,8 @@ use constant {
 
 my @last_seller_buy_log;
 my @last_seller_buyList;
+my @last_buyer_buy_log;
+my @last_buyer_buyList;
 
 sub Unload {
 	Plugins::delHook($basic_hooks);
@@ -100,12 +113,16 @@ sub Unload {
 	Plugins::delHook($shopping_hooks);
 	Plugins::delHook($buying_hooks);
 	Plugins::delHook($extra_hooks);
+	Plugins::delHook($buying_store_hooks);
+	Commands::unregister($commands_hooks);
 	message "[".PLUGIN_NAME."] Plugin unloading or reloading.\n", 'success';
 }
 
 sub mapchange {
 	undef @last_seller_buy_log;
 	undef @last_seller_buyList;
+	undef @last_buyer_buy_log;
+	undef @last_buyer_buyList;
 }
 
 my $query_time = 0;
@@ -144,6 +161,16 @@ my $received_first_item = 0;
 my $receiving_Wbuy = 0;
 my $receiving_Wsell = 0;
 
+my $started_checking = 0;
+my $ended_cheking = 0;
+my $last_checked_id_bestSeller = 0;
+my $current_buyer_item_id;
+
+my $sell_sucess = 0;
+my $sell_fail = 0;
+my $received_buyshop_list = 0;
+my $buystore_itemList;
+
 sub GetItemName {
 	my $itemID = shift;
 
@@ -172,25 +199,362 @@ sub AI_pre {
 	AI_pre_buying();
 	AI_pre_fallback();
 	AI_pre_buyer();
+	AI_pre_determine_selling();
+	AI_pre_selling();
+}
+
+sub cmdDS {
+	AI::clear();
+	AI::queue("determine_selling");
+}
+
+sub AI_pre_determine_selling {
+	if (AI::action eq "determine_selling" && timeOut($timeout{'ai_determine_selling'}) && $char->inventory->isReady()) {
+		
+		warning "[BetterSeller] determine_selling start\n";
+		
+		my $prefix = 'BetterSeller_';
+		if (!defined $current_buyer_item_id) {
+			$started_checking = 0;
+			$ended_cheking = 0;
+			my $current_index = $last_checked_id_bestSeller;
+			while (exists $config{$prefix.$current_index}) {
+				if (defined $config{$prefix.$current_index}) {
+					$current_buyer_item_id = $config{$prefix.$current_index};
+					warning "[BetterSeller] Next Query item: $current_buyer_item_id\n";
+					last;
+				}
+			} continue {
+				$current_index++;
+			}
+			if (!defined $current_buyer_item_id) {
+				warning "[BetterSeller] Ended determine_selling logic\n";
+				AI::clear("determine_selling");
+				$last_checked_id_bestSeller = 0;
+				return;
+			}
+			$last_checked_id_bestSeller = $current_index;
+		}
+		my $item_prefix = $prefix.$last_checked_id_bestSeller;
+		
+		my $item = $char->inventory->getByNameID($current_buyer_item_id);
+		if(!$item) {
+			warning "[BetterSeller] Do not have any of item $current_buyer_item_id, deny query\n";
+			undef $current_buyer_item_id;
+			$last_checked_id_bestSeller++; #WTF?
+			return;
+		}
+		$timeout{'ai_determine_selling'}{'time'} = time;
+		$timeout{'ai_determine_selling'}{'timeout'} = 1;
+		
+		if (!$started_checking) {
+			$started_checking = 1;
+			push(@buyers_query_queue, $item_prefix);
+			warning "[Seller] Started Querying item $current_buyer_item_id.\n";
+			
+		} elsif ($started_checking && !$ended_cheking && @buyers_query_queue) {
+			warning "[Seller] Still Querying, item $current_buyer_item_id.\n";
+			
+		} elsif ($started_checking && !$ended_cheking && !@buyers_query_queue && exists $last_recv_buyer_query_time{$current_buyer_item_id} && !main::timeOut($last_recv_buyer_query_time{$current_buyer_item_id}, 60)) {
+			$ended_cheking = 1;
+			warning "[Seller] Ended Querying item $current_buyer_item_id.\n";
+		}
+		
+		return unless ($ended_cheking);
+		
+		warning "[BetterSeller] after ended_cheking\n";
+		
+		if (!exists $found_best_buyer_shops{$current_buyer_item_id}) {
+			warning "[BetterSeller] We have item $current_buyer_item_id but no one is buying it at a good price\n";
+			undef $current_buyer_item_id;
+			$last_checked_id_bestSeller++; #WTF?
+			return;
+		}
+		
+		warning "[BetterSeller] -- Setting seller for item ".$current_buyer_item_id."\n";
+		my $tprice = $found_best_buyer_shops{$current_buyer_item_id}{Cost};
+		
+		AI::clear("move", "route", "checkMonsters", "determine_selling");
+		AI::queue("BetterSeller", { BetterSeller_index => $last_checked_id_bestSeller, item => $current_buyer_item_id, price => $tprice });
+		$sell_sucess = 0;
+		$sell_fail = 0;
+		undef $current_buyer_item_id;
+		$last_checked_id_bestSeller++; #WTF?
+	}
+}
+
+sub AI_pre_selling {
+	if (AI::action eq "BetterSeller" && AI::args->{'done'}) {
+		
+		warning "[BetterSeller] AI Done\n";
+		
+		my $args = AI::args;
+		my $prefixN = "BetterSeller_".$args->{BetterSeller_index};
+		my $prefix = $config{$prefixN};
+
+		if (exists AI::args->{'error'}) {
+			error AI::args->{'error'}.".\n";
+		}
+
+		# BetterSeller finished
+		AI::dequeue while AI::inQueue("BetterSeller");
+		AI::queue("determine_selling");
+
+	} elsif (AI::action eq "BetterSeller") {
+		
+		my $args = AI::args;
+		
+		$args->{index} = $args->{BetterSeller_index};
+		#$args->{price}
+		my $prefixN = "BetterSeller_".$args->{BetterSeller_index};
+		my $prefix = $config{$prefixN};
+		
+		if (!exists $found_best_buyer_shops{$prefix}) {
+			$args->{'error'} = 'Store does not exist anymore';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if ($args->{'buyer'} && $found_best_buyer_shops{$prefix}{'Buyer'} ne $args->{'buyer'}{'name'}) {
+			$args->{'error'} = "[$prefix] Best buyer changed name";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if ($args->{'buyer'} && ($found_best_buyer_shops{$prefix}{'x'} != $args->{'buyer'}{'pos'}{'x'} || $found_best_buyer_shops{$prefix}{'y'} != $args->{'buyer'}{'pos'}{'y'})) {
+			$args->{'error'} = "[$prefix] Best buyer changed position";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if ($args->{'buyer'} && $found_best_buyer_shops{$prefix}{'Cost'} ne $args->{'buyer'}{'Cost'}) {
+			$args->{'error'} = "[$prefix] Best buyer changed Cost";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if ($sell_sucess == 1) {
+			Log::warning "Sucesssssss CARAIO!!!\n";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if ($sell_fail == 1) {
+			$args->{'error'} = "[$prefix] Sell failed";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if (!exists $args->{sentBuyPacket_time} && $char->{zeny} < $args->{price}) {
+			$args->{'error'} = 'We do not have enough zeny anymore';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		if (exists $args->{sentBuyPacket_time}) {
+			if (
+				timeOut($args->{sentBuyPacket_time}, 5) &&
+				!$sell_sucess &&
+				!$sell_fail
+			) {
+				$args->{'error'} = 'Did not received the sell result from server after sell packet was sent';
+				$args->{'done'} = 1;
+			}
+			return;
+		}
+
+		if (!exists $args->{lastIndex}) {
+			$args->{'buyer'}{'map'} = $found_best_buyer_shops{$prefix}{Map};
+			$args->{'buyer'}{'pos'}{'x'} = $found_best_buyer_shops{$prefix}{x};
+			$args->{'buyer'}{'pos'}{'y'} = $found_best_buyer_shops{$prefix}{y};
+			$args->{'buyer'}{'name'} = $found_best_buyer_shops{$prefix}{Buyer};
+			$args->{'buyer'}{'Cost'} = $found_best_buyer_shops{$prefix}{Cost};
+			$args->{'buyer'}{'id'} = $found_best_buyer_shops{$prefix}{id};
+			
+			#use Data::Dumper;
+			#warning "found: ".Dumper \%found_best_buyer_shops;
+			#warning "args: ".Dumper $args;
+
+			# Failed to load any slots for BetterSeller (we're done or they're all invalid)
+			if (!defined $args->{index}) {
+				$args->{'done'} = 1;
+				return;
+			}
+
+			undef $ai_v{'temp'}{'do_route'};
+			if (!$args->{distance}) {
+				# Calculate variable or fixed (old) distance
+				if ($config{"BetterSeller_".$args->{index}."_minDistance"} && $config{"BetterSeller_".$args->{index}."_maxDistance"}) {
+					$args->{distance} = $config{"BetterSeller_$args->{index}"."_minDistance"} + round(rand($config{"BetterSeller_$args->{index}"."_maxDistance"} - $config{"BetterSeller_$args->{index}"."_minDistance"}));
+				}
+			}
+
+			if ($field->baseName ne $args->{'buyer'}{'map'}) {
+				$ai_v{'temp'}{'do_route'} = 1;
+			} else {
+				my $found = 0;
+				foreach my $buyer_index (0..$#buyerListsID) {
+					my $buyerID = $buyerListsID[$buyer_index];
+					next unless (defined $buyerID);
+					my $buyer = $venderLists{$buyerID};
+					my $name = get_player_name($buyerID);
+					if ($args->{'buyer'}{'name'} eq $name) {
+						debug "[BetterSeller] Adding shop '".$buyer->{'title'}."' of player '$name' to AI queue check list from $config{BetterSeller_name}.\n", "shopper", 1;
+						$found = 1;
+						last;
+					}
+				}
+				unless ($found) {
+					$ai_v{'temp'}{'do_route'} = 1;
+				}
+			}
+
+			if ($ai_v{'temp'}{'do_route'}) {
+
+				my $msgneeditem;
+				if ($args->{'buyer'}{'id'}) {
+					$msgneeditem = "Auto-buy: $args->{'buyer'}{'id'}\n";
+				}
+				message TF($msgneeditem."Calculating BetterSeller route to: %s (%s): %s, %s\n", $maps_lut{$args->{'buyer'}{map}.'.rsw'}, $args->{'buyer'}{map}, $args->{'buyer'}{pos}{x}, $args->{'buyer'}{pos}{y}), "route";
+				ai_route(
+					$args->{'buyer'}{map}, $args->{'buyer'}{pos}{x}, $args->{'buyer'}{pos}{y},
+					attackOnRoute => 1,
+					distFromGoal => $args->{distance}
+				);
+				return;
+			}
+		}
+
+		if (!exists $args->{lastIndex}) {
+			$args->{lastIndex} = $args->{index};
+			return;
+
+		} elsif (!exists $args->{'sentOpenShop'}) {
+
+			foreach my $buyer_index (0..$#buyerListsID) {
+				my $buyerID = $buyerListsID[$buyer_index];
+				next unless (defined $buyerID);
+				my $buyer = $venderLists{$buyerID};
+				my $name = get_player_name($buyerID);
+				if ($args->{'buyer'}{'name'} eq $name) {
+					debug "[BetterSeller] Openning buyshop '".$buyer->{'title'}."' of player ".get_player_name($buyerID).".\n", "shopper", 1;
+					$received_buyshop_list = 0;
+					undef $buystore_itemList;
+					$sell_sucess = 0;
+					$sell_fail = 0;
+					$messageSender->sendEnteringBuyer($buyerID);
+					last;
+				}
+			}
+
+			$args->{'sentOpenShop'} = 1;
+			$args->{'sentOpenShop_time'} = time;
+
+			return;
+
+		} elsif ($received_buyshop_list == 0) {
+			if (main::timeOut($args->{'sentOpenShop_time'}, 7)) {
+				$args->{'error'} = 'BuyStore did not respond';
+				$args->{'done'} = 1;
+			}
+			return;
+
+		} elsif (!exists $args->{'recv_buyList_time'}) {
+			warning "[BetterSeller] Confirmed the receiving of buystore list in AI\n";
+			$args->{'recv_buyList_time'} = time;
+			return;
+
+		} else {
+			return unless (main::timeOut($args->{'recv_buyList_time'}, 2));
+		}
+		
+		warning "[BetterSeller] Starting item sell logic\n";
+		
+		undef @last_buyer_buy_log;
+		undef @last_buyer_buyList;
+		
+		my @current_sell_log;
+		my @current_sellList;
+		
+		foreach my $item (@{$buystore_itemList}) {
+			my $price = $item->{price};
+			my $name = $item->{name};
+			my $nameID = $item->{nameID};
+			my $index = $item->{ID};
+			my $store_amount = $item->{amount};
+			
+			next unless ($nameID == $args->{'buyer'}{'id'});
+			next unless ($price >= $args->{'buyer'}{'Cost'});
+			
+			my $item_prefix = $prefixN;
+			
+			my $minPrice = $config{$item_prefix."_minPrice"};
+			my $maxAmount = $config{$item_prefix."_maxAmount"};
+			
+			my $inv_amount = $char->inventory->sumByNameID($nameID);
+			
+			my $max_wanted = $inv_amount;
+			
+			my $max_possible_buy_by_store_amount = $store_amount >= $max_wanted ? $max_wanted : $store_amount;
+			
+			my $will_buy = $max_possible_buy_by_store_amount;
+			next if ($will_buy == 0);
+			
+			message "[".PLUGIN_NAME."] Found item $name with good buying price! Price is $price a piece, min price to sell is ".$minPrice."! The store is buying $store_amount of it. Selling $will_buy of it!\n";
+			
+			my $char_item = $char->inventory->getByNameID($nameID);
+			my %buy = (
+				ID => $char_item->{ID},
+				itemID => $char_item->{nameID},
+				amount => $will_buy
+			);
+			
+			push(@current_sellList, \%buy);
+			
+			my $buy_string = "[".getFormattedDate(int(time))."] ". $name ." - ". $will_buy ." - ". $price ." - ". get_player_name($buyerID) ."\n";
+			
+			my %buy_log = (
+				string   => $buy_string,
+				name     => $name,
+				buyerID => $args->{buyerID},
+			);
+			
+			push(@current_sell_log, \%buy_log);
+		}
+		
+		if (!scalar @current_sellList) {
+			$args->{'error'} = 'Did not find anything to sell in store';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		@last_buyer_buyList = @current_sellList;
+		@last_buyer_buy_log = @current_sell_log;
+		
+		#$messageSender->sendBuyBulkVender($venderID, \@current_sellList, $venderCID);
+		$messageSender->sendBuyBulkBuyer($buyerID, \@current_sellList, $buyingStoreID);
+		warning "[".PLUGIN_NAME."] Sent Sell to player buystore!\n";
+			
+		delete $args->{'sentOpenShop'};
+		delete $args->{'sentOpenShop_time'};
+		delete $args->{'recv_buyList_time'};
+		
+		$args->{sentBuyPacket_time} = time;
+	}
 }
 
 sub AI_pre_buyer {
 	return unless (main::timeOut($query_time, QUERY_TIMEOUT));
-	return unless (main::timeOut($market_time_buyer, MARKET_RECHECK_TIMEOUT));
-	return unless ($config{BetterSeller_on});
-	return unless (exists $config{BetterSeller_0});
+	return unless (main::timeOut($market_time_buyer, MARKET_RECHECK_BUY));
 	
-	if (!@buyers_query_queue) {
-		create_buyers_query_queue();
-		return;
-	} else {
+	if (@buyers_query_queue) {
 		sendNext_buyers_queue();
 	}
 }
 
 sub sendNext_buyers_queue {
-	my $item_query = shift @buyers_query_queue;
-	sendBuyerQuery($item_query);
+	my $item_prefix = shift @buyers_query_queue;
+	sendBuyerQuery($item_prefix);
 	$market_time_buyer = time;
 }
 
@@ -210,12 +574,13 @@ sub create_buyers_query_queue {
 
 sub sendBuyerQuery {
 	my ($item_prefix) = @_;
-	warning "[BetterSeller] Sending Whobuy Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
+	warning "[BetterSeller] Sending Whobuy Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n";
 	my $msg = '@wb '.$config{$item_prefix};
 	sendMessage($messageSender, 'c', $msg);
 	$last_buy_query_item_id = $config{$item_prefix};
 	$last_buy_query_minBuyShopAmount = $config{$item_prefix.'_minBuyShopAmount'};
 	$last_buy_query_minPrice = $config{$item_prefix.'_minPrice'};
+	warning "[BetterSeller] Sent Whobuy Query, last_buy_query_item_id $last_buy_query_item_id, last_buy_query_minBuyShopAmount $last_buy_query_minBuyShopAmount, last_buy_query_minPrice $last_buy_query_minPrice\n";
 	$query_time = time;
 }
 
@@ -233,14 +598,14 @@ sub AI_pre_market {
 }
 
 sub sendNext_sellers_queue {
-	my $item_query = shift @sellers_query_queue;
-	sendQuery($item_query);
+	my $item_prefix = shift @sellers_query_queue;
+	sendQuery($item_prefix);
 	$market_time_seller = time;
 }
 
 sub sendQuery {
 	my ($item_prefix) = @_;
-	warning "[BetterShopper] Sending Whosell Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n", "BetterShopper", 1;
+	warning "[BetterShopper] Sending Whosell Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n";
 	my $msg = '@ws '.$config{$item_prefix};
 	sendMessage($messageSender, 'c', $msg);
 	$last_sell_query_item_id = $config{$item_prefix};
@@ -1162,6 +1527,76 @@ sub get_player_name {
 	my $player = Actor::get($ID);
 	my $name = $player->name;
 	return $name;
+}
+
+# we're currently inside a buying store if we receive this packet
+sub buying_store_item_list {
+	my ($packet, $args) = @_;
+	
+	return unless (AI::action eq "BetterSeller");
+	my $ai_args = AI::args;
+	return unless (exists $ai_args->{'buyer'});
+	my $pname = get_player_name($args->{buyerID});
+	return unless ($pname eq $ai_args->{'buyer'}{'name'});
+	$received_buyshop_list = 1;
+	$buystore_itemList = \@{$args->{itemList}};
+	
+	warning "[Seller] Received Correct buystore item list\n";
+}
+
+sub buying_store_fail {
+	my ($packet, $args) = @_;
+	
+	return unless (@last_buyer_buyList); # should never happen
+	
+	# Error messages for the items we could not buy
+	my $ID;
+	foreach my $item_index (0..$#last_buyer_buyList) {
+		my $log = $last_buyer_buy_log[$item_index];
+		$ID = $log->{buyerID};
+		error "[Seller] Failed to buy ".$log->{name}.".\n";
+	}
+	
+	## Re-add the shop to the top of the list if we could still want something from it
+	#return unless ($args->{fail} == 4);
+	$sell_fail = 1;
+}
+
+sub buying_store_item_delete {
+	my ($packet, $args) = @_;
+	return unless (@last_buyer_buyList);
+	
+	my $item = $char->inventory->getByID($args->{ID});
+	my $amount = $args->{amount};
+	
+	my $item_name = $item->{name};
+	
+	my $found_index;
+	foreach my $possible_item_index (0..$#last_buyer_buyList) {
+		my $possible_item = $last_buyer_buyList[$possible_item_index];
+		my $possible_item_log = $last_buyer_buy_log[$possible_item_index];
+		if ($possible_item_log->{name} eq $item_name && $possible_item->{amount} eq $amount) {
+			# We were able to sell the item
+			message "[Seller] Successfully sold ".$possible_item_log->{name}." x $amount.\n";
+			writter_sold($possible_item_log->{string});
+			$found_index = $possible_item_index;
+			last;
+		}
+	}
+	return unless (defined $found_index);
+	$sell_sucess = 1;
+	splice(@last_buyer_buyList, $found_index, 1);
+	splice(@last_buyer_buy_log, $found_index, 1);
+}
+
+sub writter_sold {
+	my ($args, $self) = @_;
+	my $tmp = "$Settings::logs_folder/Shopper_buyshops.txt";
+	
+	open my $out, '>>:utf8', $tmp or die "Erro ao Abrir Arquivo";
+	print $out "[".getFormattedDate(int(time))."] $args  \n";
+	warning "$args \n";
+	close $out;
 }
 
 # we're currently inside a store if we receive this packet

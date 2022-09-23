@@ -735,7 +735,7 @@ macro SetVarSet4 {
 	if ($mandibulaHorrenda < $amount) {
 		[
 		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		force_market_search("$nextFreeSlot")
+		force_market_search("$id")
 		]
 		pause 3
 		[

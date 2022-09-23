@@ -852,8 +852,8 @@ macro set_item_usable {
 #####
 
 sub force_market_search {
-	my $Slot = shift;
-	my %plugin_args = ( slot => $Slot );
+	my $id = shift;
+	my %plugin_args = ( id => $id );
 	Plugins::callHook( force_check_market => \%plugin_args );
 }
 
@@ -861,8 +861,6 @@ sub check_MarketWatcher {
 	my $id = shift;
 	my %plugin_args = ( id => $id );
 	Plugins::callHook( check_market_found => \%plugin_args );
-	if ($plugin_args{return}) {
-		return 1;
-	}
+	return 1 if ($plugin_args{return});
 	return 0;
 }
