@@ -88,7 +88,7 @@ macro set_skills_stats {
 }
 
 sub set_skills_stats {
-	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 10 int, 30 agi, 25 dex, 40 agi, 30 dex, 15 int, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 20 int, 15 vit, 30 int, 70 agi, 29 str, 50 dex, 40 int, 80 agi, 80 dex, 40 str, 95 agi';
+	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 9 int, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi';
 	my $skills;
 	if ($char->{jobID} == 0) {
 		$skills = 'NV_BASIC 9';

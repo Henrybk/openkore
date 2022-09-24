@@ -17,6 +17,69 @@ macro set_lockmap_lasa_dun01 {
 		do iconf 1058 1 1 0
 	}
 
+	do iconf 578 0 1 0
+	do iconf 1019 0 1 0 # Trunk
+	do iconf 7053 0 1 0 # Cyfar
+	do iconf 7126 0 1 0 # Large Jellopy
+	do iconf 909 0 1 0 # Jellopy
+	do iconf 912 0 1 0 # Zargon
+	do iconf 582 0 1 0 # Orange
+	do iconf 568 0 1 0 # Lemon
+	do iconf 514 0 1 0 # Grape
+	do iconf 518 0 1 0 # Honey
+	do iconf 999 0 1 0 # Steel
+	do iconf 998 0 1 0 # Iron
+	do iconf 1000 0 1 0 # Star Crumb
+	do iconf 1001 0 1 0 # Star Dust
+	do iconf 1002 0 1 0 # Iron Ore
+	do iconf 1003 0 1 0 # Coal
+	do iconf 984 0 1 0 # Oridecon
+	do iconf 985 0 1 0 # Elunium
+	do iconf 1061 0 1 0 # Witch Starsand
+	do iconf 644 0 1 0 # Gift Box
+	do iconf 603 0 1 0 # Old Blue Box
+	do iconf 617 0 1 0 # Old Purple Box
+	do iconf 662 0 1 0 # Authoritative Badge
+	do iconf 993 0 1 0 # Green Live
+	do iconf 994 0 1 0 # Flame Heart
+	do iconf 995 0 1 0 # Mystic Frozen
+	do iconf 996 0 1 0 # Rough Wind
+	do iconf 997 0 1 0 # Great Nature
+	do iconf 715 0 1 0 # Yellow Gemstone
+	do iconf 716 0 1 0 # Red Gemstone
+	do iconf 717 0 1 0 # Blue Gemstone
+	do iconf 507 0 1 0 # Red Herb
+	do iconf 508 0 1 0 # Yellow Herb
+	do iconf 509 0 1 0 # White Herb
+	do iconf 510 0 1 0 # Blue Herb
+	do iconf 511 0 1 0 # Green Herb
+
+	do iconf 7312 0 0 1 #Jubilee
+	do iconf 1602 0 0 1 #Bastão [4]
+	do iconf 1105 0 0 1 #Falchion [4]
+	do iconf 516 0 0 1 #batata
+	do iconf 580 0 0 1 #pao
+	do iconf 700 0 0 1 #Cold_Scroll
+	
+	do conf -f future_saveMap_map aldebaran
+	do conf -f future_saveMap_x 143
+	do conf -f future_saveMap_y 119
+	
+	do conf -f future_saveMap_kafra_map aldebaran
+	do conf -f future_saveMap_kafra_x 143
+	do conf -f future_saveMap_kafra_y 119
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_lasa_dun02 {
+	[
+	do conf lockMap lasa_dun02
+	
+	call set_config_class
+	
+	do iconf 713 0 1 0
+	do iconf 578 0 1 0
 	do iconf 1019 0 1 0 # Trunk
 	do iconf 7053 0 1 0 # Cyfar
 	do iconf 7126 0 1 0 # Large Jellopy
