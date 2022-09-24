@@ -9,8 +9,14 @@
 # What it does: Opens vending shops and buys desired items.
 #
 # Config keys (put in config.txt):
-#	BetterShopper_on 1/0  # Activates the plugin
-#	BetterShopper_name
+#	BetterShopper_on 1
+#	BetterShopper_minDistance 1
+#	BetterShopper_maxDistance 10
+#
+#
+#	BetterSeller_on 1
+#	BetterSeller_minDistance 1
+#	BetterSeller_maxDistance 10
 #
 #
 # Config blocks: (used to buy items)
@@ -22,15 +28,22 @@
 #
 # Example:
 ###############################################
-#  # Awakening Potion
-#	BetterShopper 656 {
-#		maxPrice 1500
-#		minInventoryAmount 0
-#		minShopAmount 3
-#		minDistance 1
-#		maxDistance 10
-#		maxAmount 3
-#  }
+#
+#		# Awakening Potion
+#		BetterShopper 656 {
+#			price 1500
+#			maxPrice 1400
+#			minInventoryAmount 0
+#			minShopAmount 2
+#			maxAmount 2
+#			fallbackNpc aldeba_in 94 56
+#		}
+#		
+#		# Strawberry
+#		BetterSeller 578 {
+#			minPrice 900
+#			minBuyShopAmount 3
+#		}
 ###############################################
 package BetterShopper;
 
@@ -62,7 +75,7 @@ my $market_hooks = Plugins::addHooks(
 
 my $shopping_hooks = Plugins::addHooks(
 	['packet_vender_store2',	\&storeList],
-	['packet/vender_buy_fail',	\&buy_fail],
+	['packet/vender_buy_from_player_fail',	\&buy_from_player_fail],
 	['item_gathered',			\&possible_buy_success],
 );
 
@@ -83,8 +96,12 @@ my $extra_hooks = Plugins::addHooks(
 	['AI_sell_auto_start',							\&manage_storage_buy_sell_hooks],
 	['AI_buy_auto_start',							\&manage_storage_buy_sell_hooks],
 	['AI_storage_auto_queued',						\&storage_buy_sell_clear_route],
-	['AI_sell_auto_queued',							\&storage_buy_sell_clear_route],
+	['AI_sell_auto_queued',							\&sell_queue],
 	['AI_buy_auto_queued',							\&storage_buy_sell_clear_route],
+);
+
+my $storage_hooks = Plugins::addHooks(
+	['AI_storage_done_after_getAuto',							\&AI_storage_done_after_getAuto],
 );
 
 my $commands_hooks = Commands::register(
@@ -114,6 +131,7 @@ sub Unload {
 	Plugins::delHook($buying_hooks);
 	Plugins::delHook($extra_hooks);
 	Plugins::delHook($buying_store_hooks);
+	Plugins::delHook($storage_hooks);
 	Commands::unregister($commands_hooks);
 	message "[".PLUGIN_NAME."] Plugin unloading or reloading.\n", 'success';
 }
@@ -139,8 +157,8 @@ my %found_best_seller_shops;
 my %last_recv_seller_query_time;
 my $received_shop_list = 0;
 my $itemList;
-my $buy_sucess = 0;
-my $buy_fail = 0;
+my $buy_from_player_sucess = 0;
+my $buy_from_player_fail = 0;
 
 my %shopper_npc_fallback_items;
 my $buy_fallback_sucess = 0;
@@ -166,8 +184,8 @@ my $ended_cheking = 0;
 my $last_checked_id_bestSeller = 0;
 my $current_buyer_item_id;
 
-my $sell_sucess = 0;
-my $sell_fail = 0;
+my $sell_to_player_sucess = 0;
+my $sell_to_player_fail = 0;
 my $received_buyshop_list = 0;
 my $buystore_itemList;
 
@@ -203,15 +221,139 @@ sub AI_pre {
 	AI_pre_selling();
 }
 
+sub sell_queue {
+	AI::clear("move", "route", "checkMonsters", "attack");
+	AI::clear("sellAuto");
+	AI::queue("determine_selling");
+}
+
 sub cmdDS {
 	AI::clear();
 	AI::queue("determine_selling");
 }
 
+my $get_item;
+
+sub AI_storage_done_after_getAuto {
+	my ($hook, $retargs) = @_;
+	
+	#warning "[BetterSeller - Storage] AI_storage_done_after_getAuto\n";
+	
+	$retargs->{return} = 1;
+	my $args = AI::args;
+	
+	if (!defined $get_item) {
+		#warning "[BetterSeller - Storage] determine getting\n";
+		
+		my $prefix = 'BetterSeller_';
+		my $item;
+		if (!defined $current_buyer_item_id) {
+			$started_checking = 0;
+			$ended_cheking = 0;
+			my $current_index = $last_checked_id_bestSeller;
+			while (exists $config{$prefix.$current_index}) {
+				if (defined $config{$prefix.$current_index}) {
+					$item = $char->storage->getByNameID($config{$prefix.$current_index});
+					if (defined $item) {
+						$current_buyer_item_id = $config{$prefix.$current_index};
+						warning "[BetterSeller - Storage] Next Query item: $current_buyer_item_id\n";
+						last;
+					}
+				}
+				
+				
+			} continue {
+				$current_index++;
+			}
+			
+			if (!defined $current_buyer_item_id) {
+				warning "[BetterSeller - Storage] Ended\n";
+				$retargs->{return} = 0;
+				$last_checked_id_bestSeller = 0;
+				return;
+			}
+			
+			$last_checked_id_bestSeller = $current_index;
+		}
+		my $item_prefix = $prefix.$last_checked_id_bestSeller;
+		
+		
+		$timeout{'ai_determine_selling'}{'time'} = time;
+		$timeout{'ai_determine_selling'}{'timeout'} = 1;
+		
+		if (!$started_checking) {
+			$started_checking = 1;
+			push(@buyers_query_queue, $item_prefix);
+			warning "[BetterSeller - Storage] Started Querying item $current_buyer_item_id.\n";
+			
+		} elsif ($started_checking && !$ended_cheking && @buyers_query_queue) {
+			#warning "[BetterSeller - Storage] Still Querying, item $current_buyer_item_id.\n";
+			
+		} elsif ($started_checking && !$ended_cheking && !@buyers_query_queue && (!exists $last_recv_buyer_query_time{$current_buyer_item_id} || main::timeOut($last_recv_buyer_query_time{$current_buyer_item_id}, 60))) {
+			#warning "[BetterSeller - Storage] Queryed item $current_buyer_item_id, waiting for answer.\n";
+			
+		} elsif ($started_checking && !$ended_cheking && !@buyers_query_queue && exists $last_recv_buyer_query_time{$current_buyer_item_id} && !main::timeOut($last_recv_buyer_query_time{$current_buyer_item_id}, 60)) {
+			$ended_cheking = 1;
+			warning "[BetterSeller - Storage] Ended Querying item $current_buyer_item_id.\n";
+		}
+		
+		return unless ($ended_cheking);
+		
+		warning "[BetterSeller - Storage] after ended_cheking\n";
+		
+		if (!exists $found_best_buyer_shops{$current_buyer_item_id}) {
+			warning "[BetterSeller - Storage] We have item $current_buyer_item_id but no one is buying it at a good price\n";
+			undef $current_buyer_item_id;
+			$last_checked_id_bestSeller++; #WTF?
+			return;
+		}
+		
+		warning "[BetterSeller - Storage] -- Setting getting for item ".$current_buyer_item_id."\n";
+		$get_item = $current_buyer_item_id;
+		$args->{retry} = 0;
+	}
+
+	my %item;
+	my $invItem = $char->inventory->getByNameID($current_buyer_item_id);
+	my $invAmount = $char->inventory->sumByNameID($current_buyer_item_id);
+	my $storeItem = $char->storage->getByNameID($current_buyer_item_id);
+	my $storeAmount = $char->storage->sumByNameID($current_buyer_item_id);
+	
+	$item{name} = $current_buyer_item_id;
+	$item{inventory}{index} = $invItem ? $invItem->{binID} : undef;
+	$item{inventory}{amount} = $invItem ? $invAmount : 0;
+	$item{storage}{index} = $storeItem ? $storeItem->{binID} : undef;
+	$item{storage}{amount} = $storeItem ? $storeAmount : 0;
+	$item{max_amount} = $found_best_buyer_shops{$current_buyer_item_id}{quant};
+	$item{amount_needed} = $item{max_amount} - $item{inventory}{amount};
+
+	# Calculate the amount to get
+	if ($item{amount_needed} > 0) {
+		$item{amount_get} = ($item{storage}{amount} >= $item{amount_needed})? $item{amount_needed} : $item{storage}{amount};
+	}
+
+	# Try at most 3 times to get the item
+	if (($item{amount_get} > 0) && ($args->{retry} < 3)) {
+
+		$messageSender->sendStorageGet($storeItem->{ID}, $item{amount_get});
+		$timeout{ai_storageAuto}{time} = time;
+		$args->{retry}++;
+		return;
+
+		# we don't inc the index when amount_get is more then 0, this will enable a way of retrying
+		# on next loop if it fails this time
+	}
+
+	# We got the item, or we tried 3 times to get it, but failed.
+	undef $current_buyer_item_id;
+	$last_checked_id_bestSeller++; #WTF?
+	undef $get_item;
+}
+
 sub AI_pre_determine_selling {
 	if (AI::action eq "determine_selling" && timeOut($timeout{'ai_determine_selling'}) && $char->inventory->isReady()) {
 		
-		warning "[BetterSeller] determine_selling start\n";
+		#warning "[BetterSeller] determine_selling start\n";
 		
 		my $prefix = 'BetterSeller_';
 		if (!defined $current_buyer_item_id) {
@@ -220,9 +362,12 @@ sub AI_pre_determine_selling {
 			my $current_index = $last_checked_id_bestSeller;
 			while (exists $config{$prefix.$current_index}) {
 				if (defined $config{$prefix.$current_index}) {
-					$current_buyer_item_id = $config{$prefix.$current_index};
-					warning "[BetterSeller] Next Query item: $current_buyer_item_id\n";
-					last;
+					my $item = $char->inventory->getByNameID($config{$prefix.$current_index});
+					if (defined $item) {
+						$current_buyer_item_id = $config{$prefix.$current_index};
+						warning "[BetterSeller] Next Query item: $current_buyer_item_id\n";
+						last;
+					}
 				}
 			} continue {
 				$current_index++;
@@ -230,34 +375,31 @@ sub AI_pre_determine_selling {
 			if (!defined $current_buyer_item_id) {
 				warning "[BetterSeller] Ended determine_selling logic\n";
 				AI::clear("determine_selling");
+				warning "[BetterSeller] Returning to sellauto\n";
+				AI::queue("sellAuto");
 				$last_checked_id_bestSeller = 0;
 				return;
 			}
 			$last_checked_id_bestSeller = $current_index;
 		}
 		my $item_prefix = $prefix.$last_checked_id_bestSeller;
-		
-		my $item = $char->inventory->getByNameID($current_buyer_item_id);
-		if(!$item) {
-			warning "[BetterSeller] Do not have any of item $current_buyer_item_id, deny query\n";
-			undef $current_buyer_item_id;
-			$last_checked_id_bestSeller++; #WTF?
-			return;
-		}
 		$timeout{'ai_determine_selling'}{'time'} = time;
 		$timeout{'ai_determine_selling'}{'timeout'} = 1;
 		
 		if (!$started_checking) {
 			$started_checking = 1;
 			push(@buyers_query_queue, $item_prefix);
-			warning "[Seller] Started Querying item $current_buyer_item_id.\n";
+			warning "[BetterSeller] Started Querying item $current_buyer_item_id.\n";
 			
 		} elsif ($started_checking && !$ended_cheking && @buyers_query_queue) {
-			warning "[Seller] Still Querying, item $current_buyer_item_id.\n";
+			#warning "[BetterSeller] Still Querying, item $current_buyer_item_id.\n";
+			
+		} elsif ($started_checking && !$ended_cheking && !@buyers_query_queue && (!exists $last_recv_buyer_query_time{$current_buyer_item_id} || main::timeOut($last_recv_buyer_query_time{$current_buyer_item_id}, 60))) {
+			#warning "[BetterSeller] Queryed item $current_buyer_item_id, waiting for answer.\n";
 			
 		} elsif ($started_checking && !$ended_cheking && !@buyers_query_queue && exists $last_recv_buyer_query_time{$current_buyer_item_id} && !main::timeOut($last_recv_buyer_query_time{$current_buyer_item_id}, 60)) {
 			$ended_cheking = 1;
-			warning "[Seller] Ended Querying item $current_buyer_item_id.\n";
+			warning "[BetterSeller] Ended Querying item $current_buyer_item_id.\n";
 		}
 		
 		return unless ($ended_cheking);
@@ -276,8 +418,8 @@ sub AI_pre_determine_selling {
 		
 		AI::clear("move", "route", "checkMonsters", "determine_selling");
 		AI::queue("BetterSeller", { BetterSeller_index => $last_checked_id_bestSeller, item => $current_buyer_item_id, price => $tprice });
-		$sell_sucess = 0;
-		$sell_fail = 0;
+		$sell_to_player_sucess = 0;
+		$sell_to_player_fail = 0;
 		undef $current_buyer_item_id;
 		$last_checked_id_bestSeller++; #WTF?
 	}
@@ -333,13 +475,13 @@ sub AI_pre_selling {
 			return;
 		}
 		
-		if ($sell_sucess == 1) {
+		if ($sell_to_player_sucess == 1) {
 			Log::warning "Sucesssssss CARAIO!!!\n";
 			$args->{'done'} = 1;
 			return;
 		}
 		
-		if ($sell_fail == 1) {
+		if ($sell_to_player_fail == 1) {
 			$args->{'error'} = "[$prefix] Sell failed";
 			$args->{'done'} = 1;
 			return;
@@ -354,8 +496,8 @@ sub AI_pre_selling {
 		if (exists $args->{sentBuyPacket_time}) {
 			if (
 				timeOut($args->{sentBuyPacket_time}, 5) &&
-				!$sell_sucess &&
-				!$sell_fail
+				!$sell_to_player_sucess &&
+				!$sell_to_player_fail
 			) {
 				$args->{'error'} = 'Did not received the sell result from server after sell packet was sent';
 				$args->{'done'} = 1;
@@ -384,8 +526,8 @@ sub AI_pre_selling {
 			undef $ai_v{'temp'}{'do_route'};
 			if (!$args->{distance}) {
 				# Calculate variable or fixed (old) distance
-				if ($config{"BetterSeller_".$args->{index}."_minDistance"} && $config{"BetterSeller_".$args->{index}."_maxDistance"}) {
-					$args->{distance} = $config{"BetterSeller_$args->{index}"."_minDistance"} + round(rand($config{"BetterSeller_$args->{index}"."_maxDistance"} - $config{"BetterSeller_$args->{index}"."_minDistance"}));
+				if ($config{"BetterSeller_minDistance"} && $config{"BetterSeller_maxDistance"}) {
+					$args->{distance} = $config{"BetterSeller_minDistance"} + round(rand($config{"BetterSeller_maxDistance"} - $config{"BetterSeller_minDistance"}));
 				}
 			}
 
@@ -440,8 +582,8 @@ sub AI_pre_selling {
 					debug "[BetterSeller] Openning buyshop '".$buyer->{'title'}."' of player ".get_player_name($buyerID).".\n", "shopper", 1;
 					$received_buyshop_list = 0;
 					undef $buystore_itemList;
-					$sell_sucess = 0;
-					$sell_fail = 0;
+					$sell_to_player_sucess = 0;
+					$sell_to_player_fail = 0;
 					$messageSender->sendEnteringBuyer($buyerID);
 					last;
 				}
@@ -497,7 +639,12 @@ sub AI_pre_selling {
 			
 			my $max_possible_buy_by_store_amount = $store_amount >= $max_wanted ? $max_wanted : $store_amount;
 			
-			my $will_buy = $max_possible_buy_by_store_amount;
+			
+			my $max_possible_buy_by_price_limit = floor($buyerPriceLimit/$price);
+			
+			$max_possible_buy_by_price_limit = $max_possible_buy_by_store_amount >= $max_possible_buy_by_price_limit ? $max_possible_buy_by_price_limit : $max_possible_buy_by_store_amount;
+			
+			my $will_buy = $max_possible_buy_by_price_limit;
 			next if ($will_buy == 0);
 			
 			message "[".PLUGIN_NAME."] Found item $name with good buying price! Price is $price a piece, min price to sell is ".$minPrice."! The store is buying $store_amount of it. Selling $will_buy of it!\n";
@@ -605,7 +752,7 @@ sub sendNext_sellers_queue {
 
 sub sendQuery {
 	my ($item_prefix) = @_;
-	warning "[BetterShopper] Sending Whosell Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n";
+	warning "[BetterShopper] Sending Whosell Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).") Prefix $item_prefix\n";
 	my $msg = '@ws '.$config{$item_prefix};
 	sendMessage($messageSender, 'c', $msg);
 	$last_sell_query_item_id = $config{$item_prefix};
@@ -966,8 +1113,8 @@ sub AI_pre_fallback {
 			undef $ai_v{'temp'}{'do_route'};
 			if (!$args->{distance}) {
 				# Calculate variable or fixed (old) distance
-				if ($config{"BetterShopper_".$args->{index}."_minDistance"} && $config{"BetterShopper_".$args->{index}."_maxDistance"}) {
-					$args->{distance} = $config{"BetterShopper_$args->{index}"."_minDistance"} + round(rand($config{"BetterShopper_$args->{index}"."_maxDistance"} - $config{"BetterShopper_$args->{index}"."_minDistance"}));
+				if ($config{"BetterShopper_minDistance"} && $config{"BetterShopper_maxDistance"}) {
+					$args->{distance} = $config{"BetterShopper_minDistance"} + round(rand($config{"BetterShopper_maxDistance"} - $config{"BetterShopper_minDistance"}));
 				}
 			}
 
@@ -1218,8 +1365,8 @@ sub AI_pre_buying {
 		return unless (defined $bai);
 		AI::clear("move", "route", "checkMonsters");
 		AI::queue("Shopping", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
-		$buy_sucess = 0;
-		$buy_fail = 0;
+		$buy_from_player_sucess = 0;
+		$buy_from_player_fail = 0;
 		$timeout{'Shopping'}{'time'} = time;
 		$timeout{'Shopping'}{'timeout'} = 1;
 	}
@@ -1270,13 +1417,13 @@ sub AI_pre_buying {
 			return;
 		}
 		
-		if ($buy_sucess == 1) {
+		if ($buy_from_player_sucess == 1) {
 			Log::warning "Sucesssssss CARAIO!!!\n";
 			$args->{'done'} = 1;
 			return;
 		}
 		
-		if ($buy_fail == 1) {
+		if ($buy_from_player_fail == 1) {
 			$args->{'error'} = "[$prefix] Buy failed";
 			$args->{'done'} = 1;
 			return;
@@ -1291,8 +1438,8 @@ sub AI_pre_buying {
 		if (exists $args->{sentBuyPacket_time}) {
 			if (
 				timeOut($args->{sentBuyPacket_time}, 5) &&
-				!$buy_sucess &&
-				!$buy_fail
+				!$buy_from_player_sucess &&
+				!$buy_from_player_fail
 			) {
 				$args->{'error'} = 'Did not received the buy result from server after buy packet was sent';
 				$args->{'done'} = 1;
@@ -1321,8 +1468,8 @@ sub AI_pre_buying {
 			undef $ai_v{'temp'}{'do_route'};
 			if (!$args->{distance}) {
 				# Calculate variable or fixed (old) distance
-				if ($config{"BetterShopper_".$args->{index}."_minDistance"} && $config{"BetterShopper_".$args->{index}."_maxDistance"}) {
-					$args->{distance} = $config{"BetterShopper_$args->{index}"."_minDistance"} + round(rand($config{"BetterShopper_$args->{index}"."_maxDistance"} - $config{"BetterShopper_$args->{index}"."_minDistance"}));
+				if ($config{"BetterShopper_minDistance"} && $config{"BetterShopper_maxDistance"}) {
+					$args->{distance} = $config{"BetterShopper_minDistance"} + round(rand($config{"BetterShopper_maxDistance"} - $config{"BetterShopper_minDistance"}));
 				}
 			}
 
@@ -1336,7 +1483,7 @@ sub AI_pre_buying {
 					my $vender = $venderLists{$venderID};
 					my $name = get_player_name($venderID);
 					if ($args->{'seller'}{'name'} eq $name) {
-						debug "[".PLUGIN_NAME."] Adding shop '".$vender->{'title'}."' of player '$name' to AI queue check list from $config{BetterShopper_name}.\n", "shopper", 1;
+						debug "[".PLUGIN_NAME."] Adding shop '".$vender->{'title'}."' of player '$name' to AI queue check list.\n";
 						$found = 1;
 						last;
 					}
@@ -1378,8 +1525,8 @@ sub AI_pre_buying {
 					debug "[".PLUGIN_NAME."] Openning shop '".$vender->{'title'}."' of player ".get_player_name($venderID).".\n", "shopper", 1;
 					$received_shop_list = 0;
 					undef $itemList;
-					$buy_sucess = 0;
-					$buy_fail = 0;
+					$buy_from_player_sucess = 0;
+					$buy_from_player_fail = 0;
 					$messageSender->sendEnteringVender($venderID);
 					last;
 				}
@@ -1539,7 +1686,7 @@ sub buying_store_item_list {
 	my $pname = get_player_name($args->{buyerID});
 	return unless ($pname eq $ai_args->{'buyer'}{'name'});
 	$received_buyshop_list = 1;
-	$buystore_itemList = \@{$args->{itemList}};
+	$buystore_itemList = \@{$args->{itemList}->getItems};
 	
 	warning "[Seller] Received Correct buystore item list\n";
 }
@@ -1559,7 +1706,7 @@ sub buying_store_fail {
 	
 	## Re-add the shop to the top of the list if we could still want something from it
 	#return unless ($args->{fail} == 4);
-	$sell_fail = 1;
+	$sell_to_player_fail = 1;
 }
 
 sub buying_store_item_delete {
@@ -1584,7 +1731,7 @@ sub buying_store_item_delete {
 		}
 	}
 	return unless (defined $found_index);
-	$sell_sucess = 1;
+	$sell_to_player_sucess = 1;
 	splice(@last_buyer_buyList, $found_index, 1);
 	splice(@last_buyer_buy_log, $found_index, 1);
 }
@@ -1627,7 +1774,7 @@ sub on_buy_result {
 	}
 }
 
-sub buy_fail {
+sub buy_from_player_fail {
 	my ($packet, $args) = @_;
 	
 	return unless (@last_seller_buyList); # should never happen
@@ -1642,7 +1789,7 @@ sub buy_fail {
 	
 	# Re-add the shop to the top of the list if we could still want something from it
 	return unless ($args->{fail} == 4);
-	$buy_fail = 1;
+	$buy_from_player_fail = 1;
 }
 
 sub possible_buy_success {
@@ -1664,7 +1811,7 @@ sub possible_buy_success {
 		}
 	}
 	return unless (defined $found_index);
-	$buy_sucess = 1;
+	$buy_from_player_sucess = 1;
 	splice(@last_seller_buyList, $found_index, 1);
 	splice(@last_seller_buy_log, $found_index, 1);
 }

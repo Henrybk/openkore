@@ -1,0 +1,42 @@
+iconf 1019 0 1 0 # Trunk
+iconf 7053 0 1 0 # Cyfar
+iconf 7126 0 1 0 # Large Jellopy
+iconf 909 0 1 0 # Jellopy
+iconf 912 0 1 0 # Zargon
+iconf 582 0 1 0 # Orange
+iconf 568 0 1 0 # Lemon
+iconf 514 0 1 0 # Grape
+iconf 518 0 1 0 # Honey
+iconf 999 0 1 0 # Steel
+iconf 998 0 1 0 # Iron
+iconf 1000 0 1 0 # Star Crumb
+iconf 1001 0 1 0 # Star Dust
+iconf 1002 0 1 0 # Iron Ore
+iconf 1003 0 1 0 # Coal
+iconf 984 0 1 0 # Oridecon
+iconf 985 0 1 0 # Elunium
+iconf 1061 0 1 0 # Witch Starsand
+iconf 644 0 1 0 # Gift Box
+iconf 603 0 1 0 # Old Blue Box
+iconf 617 0 1 0 # Old Purple Box
+iconf 662 0 1 0 # Authoritative Badge
+iconf 993 0 1 0 # Green Live
+iconf 994 0 1 0 # Flame Heart
+iconf 995 0 1 0 # Mystic Frozen
+iconf 996 0 1 0 # Rough Wind
+iconf 997 0 1 0 # Great Nature
+iconf 715 0 1 0 # Yellow Gemstone
+iconf 716 0 1 0 # Red Gemstone
+iconf 717 0 1 0 # Blue Gemstone
+iconf 507 0 1 0 # Red Herb
+iconf 508 0 1 0 # Yellow Herb
+iconf 509 0 1 0 # White Herb
+iconf 510 0 1 0 # Blue Herb
+iconf 511 0 1 0 # Green Herb
+
+iconf 7312 0 0 1 #Jubilee
+iconf 1602 0 0 1 #Bastão [4]
+iconf 1105 0 0 1 #Falchion [4]
+iconf 516 0 0 1 #batata
+iconf 580 0 0 1 #pao
+iconf 700 0 0 1 #Cold_Scroll

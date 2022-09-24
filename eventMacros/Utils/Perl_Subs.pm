@@ -714,8 +714,6 @@ sub set_common_equip_BetterbuyAuto {
 	check_key('BetterShopper_'.$Slot.'_minInventoryAmount', 0);
 	check_key('BetterShopper_'.$Slot.'_minShopAmount', 1);
 	check_key('BetterShopper_'.$Slot.'_maxAmount', 1);
-	check_key('BetterShopper_'.$Slot.'_minDistance', 1);
-	check_key('BetterShopper_'.$Slot.'_maxDistance', 10);
 	check_key('BetterShopper_'.$Slot.'_fallbackNpc', undef);
 	
 	return 1;
@@ -753,8 +751,6 @@ sub clear_BetterbuyAuto_item {
 	check_key('BetterShopper_'.$Slot.'_minInventoryAmount', undef);
 	check_key('BetterShopper_'.$Slot.'_minShopAmount', undef);
 	check_key('BetterShopper_'.$Slot.'_maxAmount', undef);
-	check_key('BetterShopper_'.$Slot.'_minDistance', undef);
-	check_key('BetterShopper_'.$Slot.'_maxDistance', undef);
 	check_key('BetterShopper_'.$Slot.'_fallbackNpc', undef);
 	
 	return 1;
@@ -783,8 +779,6 @@ sub set_BetterbuyAuto_item_quest {
 	check_key('BetterShopper_'.$Slot.'_minInventoryAmount', ($amount-1));
 	check_key('BetterShopper_'.$Slot.'_minShopAmount', 1);
 	check_key('BetterShopper_'.$Slot.'_maxAmount', $amount);
-	check_key('BetterShopper_'.$Slot.'_minDistance', 1);
-	check_key('BetterShopper_'.$Slot.'_maxDistance', 10);
 	check_key('BetterShopper_'.$Slot.'_fallbackNpc', undef);
 	
 	return 1;
@@ -822,8 +816,6 @@ sub set_BetterbuyAuto_item_usable {
 	check_key('BetterShopper_'.$Slot.'_minInventoryAmount', $min_amount);
 	check_key('BetterShopper_'.$Slot.'_minShopAmount', $max_amount);
 	check_key('BetterShopper_'.$Slot.'_maxAmount', $max_amount);
-	check_key('BetterShopper_'.$Slot.'_minDistance', 1);
-	check_key('BetterShopper_'.$Slot.'_maxDistance', 10);
 	check_key('BetterShopper_'.$Slot.'_fallbackNpc', $fallback);
 	
 	return 1;

@@ -1,0 +1,232 @@
+
+# Strawberry
+BetterSeller 578 {
+	minPrice 900
+	minBuyShopAmount 5
+}
+
+# Empty Bottle
+BetterSeller 713 {
+	minPrice 100
+	minBuyShopAmount 10
+}
+
+# Trunk
+BetterSeller 1019 {
+	minPrice 400
+	minBuyShopAmount 10
+}
+
+# Cyfar
+BetterSeller 7053 {
+	minPrice 400
+	minBuyShopAmount 10
+}
+
+# Large Jellopy
+BetterSeller 7126 {
+	minPrice 400
+	minBuyShopAmount 10
+}
+
+# Jellopy
+BetterSeller 909 {
+	minPrice 15
+	minBuyShopAmount 10
+}
+
+# Zargon
+BetterSeller 912 {
+	minPrice 250
+	minBuyShopAmount 10
+}
+
+# Orange
+BetterSeller 582 {
+	minPrice 250
+	minBuyShopAmount 5
+}
+
+# Lemon
+BetterSeller 568 {
+	minPrice 250
+	minBuyShopAmount 5
+}
+
+# Grape
+BetterSeller 514 {
+	minPrice 350
+	minBuyShopAmount 5
+}
+
+# Honey
+BetterSeller 518 {
+	minPrice 550
+	minBuyShopAmount 5
+}
+
+# Steel
+BetterSeller 999 {
+	minPrice 7000
+	minBuyShopAmount 1
+}
+
+# Iron
+BetterSeller 998 {
+	minPrice 300
+	minBuyShopAmount 5
+}
+
+# Star Crumb
+BetterSeller 1000 {
+	minPrice 3000
+	minBuyShopAmount 1
+}
+
+# Star Dust
+BetterSeller 1001 {
+	minPrice 600
+	minBuyShopAmount 10
+}
+
+# Iron Ore
+BetterSeller 1002 {
+	minPrice 60
+	minBuyShopAmount 10
+}
+
+# Coal
+BetterSeller 1003 {
+	minPrice 2000
+	minBuyShopAmount 5
+}
+
+# Oridecon
+BetterSeller 984 {
+	minPrice 20000
+	minBuyShopAmount 1
+}
+
+# Elunium
+BetterSeller 985 {
+	minPrice 25000
+	minBuyShopAmount 1
+}
+
+# Witch Starsand
+BetterSeller 1061 {
+	minPrice 600
+	minBuyShopAmount 5
+}
+
+# Gift Box
+BetterSeller 644 {
+	minPrice 15000
+	minBuyShopAmount 1
+}
+
+# Old Blue Box
+BetterSeller 603 {
+	minPrice 25000
+	minBuyShopAmount 1
+}
+
+# Old Purple Box
+BetterSeller 617 {
+	minPrice 100000
+	minBuyShopAmount 1
+}
+
+# Authoritative Badge
+BetterSeller 662 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+
+# Red Blood
+BetterSeller 990 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+# Crystal Blue
+BetterSeller 991 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+# Wind of Verdure
+BetterSeller 992 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+
+# Green Live
+BetterSeller 993 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+
+# Flame Heart
+BetterSeller 994 {
+	minPrice 2000
+	minBuyShopAmount 1
+}
+
+# Mystic Frozen
+BetterSeller 995 {
+	minPrice 25000
+	minBuyShopAmount 1
+}
+
+# Rough Wind
+BetterSeller 996 {
+	minPrice 70000
+	minBuyShopAmount 1
+}
+
+# Great Nature
+BetterSeller 997 {
+	minPrice 2000
+	minBuyShopAmount 1
+}
+
+# Yellow Gemstone
+BetterSeller 715 {
+	minPrice 1200
+	minBuyShopAmount 5
+}
+
+# Red Gemstone
+BetterSeller 716 {
+	minPrice 1200
+	minBuyShopAmount 5
+}
+
+# Blue Gemstone
+BetterSeller 717 {
+	minPrice 500
+	minBuyShopAmount 5
+}
+
+# Red Herb
+BetterSeller 507 {
+	minPrice 300
+	minBuyShopAmount 10
+}
+
+# Yellow Herb
+BetterSeller 508 {
+	minPrice 140
+	minBuyShopAmount 10
+}
+
+# White Herb
+BetterSeller 509 {
+	minPrice 550
+	minBuyShopAmount 10
+}
+
+# Green Herb
+BetterSeller 511 {
+	minPrice 500
+	minBuyShopAmount 10
+}
