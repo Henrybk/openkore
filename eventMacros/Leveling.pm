@@ -63,6 +63,9 @@ macro set_lockmap_lasa_dun01 {
 	[
 	do conf lockMap lasa_dun01
 	
+	do mconf 1031 1 0 0 #Poporing
+	do mconf 1018 1 0 0 #Creamy
+	
 	call set_config_class
 	call set_global_iconf
 	
@@ -73,6 +76,9 @@ macro set_lockmap_lasa_dun01 {
 macro set_lockmap_lasa_dun02 {
 	[
 	do conf lockMap lasa_dun02
+	
+	do mconf 1031 1 0 0 #Poporing
+	do mconf 1018 1 0 0 #Creamy
 	
 	call set_config_class
 	call set_global_iconf
@@ -205,6 +211,20 @@ macro set_lockmap_pay_fild05 {
 	
 	call set_config_class
 	call set_global_iconf
+	
+	call set_savemap_oldnewpayon
+	]
+}
+
+macro set_lockmap_pay_fild08 {
+	[
+	do conf lockMap pay_fild08
+	
+	call set_config_class
+	call set_global_iconf
+	
+	do mconf 1031 0 0 0 #Poporing
+	do mconf 1018 0 0 0 #Creamy
 	
 	call set_savemap_oldnewpayon
 	]
