@@ -2791,3 +2791,7 @@ pay_dun00 21 186 pay_arche 36 131
 pay_arche 36 131 pay_dun00 21 183
 in_rogue 375 34 in_rogue 380 125
 cmd_fild07 193 117 in_rogue 379 46
+payon_in01 111 177 payon_in01 126 177
+payon_in01 126 177 payon_in01 108 177
+oldnewpayon 141 91 payon_in01 98 170
+payon_in01 98 170 oldnewpayon 141 95

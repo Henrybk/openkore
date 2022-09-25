@@ -289,3 +289,7 @@ lasa_dun01 152 63 Marin
 lasa_dun01 27 70 Jelring
 lasa_dun01 151 72 Jelring
 lasa_dun01 18 67 Doughring
+payon_in01 137 173 Inn Keeper#oldpay
+payon_in01 101 174 Archer Joe#oldpay
+payon_in01 95 181 Drunkard#oldpay
+payon_in01 104 182 Kelly#oldpay
