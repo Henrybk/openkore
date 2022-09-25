@@ -7,60 +7,8 @@ automacro leveling_timer {
 	call baseMacroUp
 }
 
-macro set_lockmap_lasa_dun01 {
+macro set_savemap_aldebaran {
 	[
-	do conf lockMap lasa_dun01
-	
-	call set_config_class
-	if ($configClass = knight) {
-		do iconf 713 50 1 0
-		do iconf 1058 1 1 0
-	}
-
-	do iconf 578 0 1 0
-	do iconf 1019 0 1 0 # Trunk
-	do iconf 7053 0 1 0 # Cyfar
-	do iconf 7126 0 1 0 # Large Jellopy
-	do iconf 909 0 1 0 # Jellopy
-	do iconf 912 0 1 0 # Zargon
-	do iconf 582 0 1 0 # Orange
-	do iconf 568 0 1 0 # Lemon
-	do iconf 514 0 1 0 # Grape
-	do iconf 518 0 1 0 # Honey
-	do iconf 999 0 1 0 # Steel
-	do iconf 998 0 1 0 # Iron
-	do iconf 1000 0 1 0 # Star Crumb
-	do iconf 1001 0 1 0 # Star Dust
-	do iconf 1002 0 1 0 # Iron Ore
-	do iconf 1003 0 1 0 # Coal
-	do iconf 984 0 1 0 # Oridecon
-	do iconf 985 0 1 0 # Elunium
-	do iconf 1061 0 1 0 # Witch Starsand
-	do iconf 644 0 1 0 # Gift Box
-	do iconf 603 0 1 0 # Old Blue Box
-	do iconf 617 0 1 0 # Old Purple Box
-	do iconf 662 0 1 0 # Authoritative Badge
-	do iconf 993 0 1 0 # Green Live
-	do iconf 994 0 1 0 # Flame Heart
-	do iconf 995 0 1 0 # Mystic Frozen
-	do iconf 996 0 1 0 # Rough Wind
-	do iconf 997 0 1 0 # Great Nature
-	do iconf 715 0 1 0 # Yellow Gemstone
-	do iconf 716 0 1 0 # Red Gemstone
-	do iconf 717 0 1 0 # Blue Gemstone
-	do iconf 507 0 1 0 # Red Herb
-	do iconf 508 0 1 0 # Yellow Herb
-	do iconf 509 0 1 0 # White Herb
-	do iconf 510 0 1 0 # Blue Herb
-	do iconf 511 0 1 0 # Green Herb
-
-	do iconf 7312 0 0 1 #Jubilee
-	do iconf 1602 0 0 1 #Bastão [4]
-	do iconf 1105 0 0 1 #Falchion [4]
-	do iconf 516 0 0 1 #batata
-	do iconf 580 0 0 1 #pao
-	do iconf 700 0 0 1 #Cold_Scroll
-	
 	do conf -f future_saveMap_map aldebaran
 	do conf -f future_saveMap_x 143
 	do conf -f future_saveMap_y 119
@@ -72,12 +20,239 @@ macro set_lockmap_lasa_dun01 {
 	]
 }
 
+macro set_savemap_oldnewpayon {
+	[
+	do conf -f future_saveMap_map oldnewpayon
+	do conf -f future_saveMap_x 98
+	do conf -f future_saveMap_y 118
+	
+	do conf -f future_saveMap_kafra_map oldnewpayon
+	do conf -f future_saveMap_kafra_x 98
+	do conf -f future_saveMap_kafra_y 118
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_savemap_cmd_fild07 {
+	[
+	do conf -f future_saveMap_map cmd_fild07
+	do conf -f future_saveMap_x 136
+	do conf -f future_saveMap_y 134
+	
+	do conf -f future_saveMap_kafra_map cmd_fild07
+	do conf -f future_saveMap_kafra_x 136
+	do conf -f future_saveMap_kafra_y 134
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_savemap_prt_fild05 {
+	[
+	do conf -f future_saveMap_map prt_fild05
+	do conf -f future_saveMap_x 290
+	do conf -f future_saveMap_y 224
+	
+	do conf -f future_saveMap_kafra_map prt_fild05
+	do conf -f future_saveMap_kafra_x 290
+	do conf -f future_saveMap_kafra_y 224
+	do conf -f future_saveMap_save_sequence r~/Save/i
+	]
+}
+
+macro set_lockmap_lasa_dun01 {
+	[
+	do conf lockMap lasa_dun01
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_aldebaran
+	]
+}
+
 macro set_lockmap_lasa_dun02 {
 	[
 	do conf lockMap lasa_dun02
 	
 	call set_config_class
+	call set_global_iconf
 	
+	set_savemap_aldebaran
+	]
+}
+
+macro set_lockmap_mjolnir_09 {
+	[
+	do conf lockMap mjolnir_09
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_prt_fild05
+	]
+}
+
+macro set_lockmap_moc_fild04 {
+	[
+	do conf lockMap moc_fild04
+	
+	call set_config_class
+	call set_global_iconf
+	
+	do mconf 1138 0 0 0 #Magnolia
+	
+	call set_savemap_prt_fild05
+	]
+}
+
+macro set_lockmap_cmd_fild07 {
+	[
+	do conf lockMap cmd_fild07
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_cmd_fild07
+	]
+}
+
+macro set_lockmap_moc_fild18 {
+	[
+	do conf lockMap moc_fild18
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_cmd_fild07
+	]
+}
+
+macro set_lockmap_prt_fild07 {
+	[
+	do conf lockMap prt_fild07
+	
+	call set_config_class
+	call set_global_iconf
+	
+	do mconf 1031 0 0 0 #Poporing
+	
+	call set_savemap_prt_fild05
+	]
+}
+
+macro set_lockmap_prt_fild04 {
+	[
+	do conf lockMap prt_fild04
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_prt_fild05
+	]
+}
+
+macro set_lockmap_prt_fild05 {
+	[
+	do conf lockMap prt_fild05
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_prt_fild05
+	]
+}
+
+macro set_lockmap_prt_sewb2 {
+	[
+	do conf lockMap prt_sewb2
+	
+	call set_config_class
+	call set_global_iconf
+	
+	do mconf 1031 1 0 0 #Poporing
+	
+	call set_savemap_prt_fild05
+	]
+}
+
+macro set_lockmap_pay_dun00 {
+	[
+	do conf lockMap pay_dun00
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_oldnewpayon
+	]
+}
+
+macro set_lockmap_pay_fild01 {
+	[
+	do conf lockMap pay_fild01
+	
+	call set_config_class
+	call set_global_iconf
+	
+	do mconf 1031 1 0 0 #Poporing
+	
+	call set_savemap_oldnewpayon
+	]
+}
+
+macro set_lockmap_pay_fild05 {
+	[
+	do conf lockMap pay_fild05
+	
+	call set_config_class
+	call set_global_iconf
+	
+	call set_savemap_oldnewpayon
+	]
+}
+
+macro set_lockmap_yuno_fild01 {
+	[
+	do conf lockMap yuno_fild01
+	
+	call set_config_class
+	call set_global_iconf
+	
+	do mconf 1369 0 0 0 #Grand Peco
+	
+	call set_savemap_oldnewpayon
+	]
+}
+
+macro after_lock_change {
+	call SetVar
+	call basic_config_leveling_settings
+	if ($configsaveMap != &config(future_saveMap_map)) {
+		call change_savemap
+	} else {
+		call clear_saveMap_keys
+	}
+}
+
+macro change_savemap {
+	[
+	do conf -f saveMap_stage_before &config(eventMacro_1_99_stage)
+	do conf -f eventMacro_1_99_stage saving_in_kafra
+	do conf -f before_event_include &config(current_event_include)
+	do conf -f current_event_include Save_Kafra.pm
+	]
+	include off &config(before_event_include)
+	include on Save_Kafra.pm
+	do reload eventMacros
+}
+
+
+
+
+
+
+macro set_global_iconf {
+	[
+	do iconf 1058 0 1 0
 	do iconf 713 0 1 0
 	do iconf 578 0 1 0
 	do iconf 1019 0 1 0 # Trunk
@@ -123,239 +298,17 @@ macro set_lockmap_lasa_dun02 {
 	do iconf 580 0 0 1 #pao
 	do iconf 700 0 0 1 #Cold_Scroll
 	
-	do conf -f future_saveMap_map aldebaran
-	do conf -f future_saveMap_x 143
-	do conf -f future_saveMap_y 119
-	
-	do conf -f future_saveMap_kafra_map aldebaran
-	do conf -f future_saveMap_kafra_x 143
-	do conf -f future_saveMap_kafra_y 119
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_mjolnir_09 {
-	[
-	do conf lockMap mjolnir_09
-	
-	do conf -f future_saveMap_map prt_fild05
-	do conf -f future_saveMap_x 290
-	do conf -f future_saveMap_y 224
-	
-	do conf -f future_saveMap_kafra_map prt_fild05
-	do conf -f future_saveMap_kafra_x 290
-	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_moc_fild04 {
-	[
-	do conf lockMap moc_fild04
-	
-	do mconf 1138 0 0 0 #Magnolia
-	
-	do conf -f future_saveMap_map prt_fild05
-	do conf -f future_saveMap_x 290
-	do conf -f future_saveMap_y 224
-	
-	do conf -f future_saveMap_kafra_map prt_fild05
-	do conf -f future_saveMap_kafra_x 290
-	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_cmd_fild07 {
-	[
-	do conf lockMap cmd_fild07
-	
-	do conf -f future_saveMap_map cmd_fild07
-	do conf -f future_saveMap_x 136
-	do conf -f future_saveMap_y 134
-	
-	do conf -f future_saveMap_kafra_map cmd_fild07
-	do conf -f future_saveMap_kafra_x 136
-	do conf -f future_saveMap_kafra_y 134
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_moc_fild18 {
-	[
-	do conf lockMap moc_fild18
-	
-	do conf -f future_saveMap_map cmd_fild07
-	do conf -f future_saveMap_x 136
-	do conf -f future_saveMap_y 134
-	
-	do conf -f future_saveMap_kafra_map cmd_fild07
-	do conf -f future_saveMap_kafra_x 136
-	do conf -f future_saveMap_kafra_y 134
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_prt_fild07 {
-	[
-	do conf lockMap prt_fild07
-	
-	do mconf 1031 0 0 0 #Poporing
-	
-	do conf -f future_saveMap_map prt_fild05
-	do conf -f future_saveMap_x 290
-	do conf -f future_saveMap_y 224
-	
-	do conf -f future_saveMap_kafra_map prt_fild05
-	do conf -f future_saveMap_kafra_x 290
-	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_prt_fild04 {
-	[
-	do conf lockMap prt_fild04
-	
-	do conf -f future_saveMap_map prt_fild05
-	do conf -f future_saveMap_x 290
-	do conf -f future_saveMap_y 224
-	
-	do conf -f future_saveMap_kafra_map prt_fild05
-	do conf -f future_saveMap_kafra_x 290
-	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_prt_fild05 {
-	[
-	do conf lockMap prt_fild05
-	
-	do conf -f future_saveMap_map prt_fild05
-	do conf -f future_saveMap_x 290
-	do conf -f future_saveMap_y 224
-	
-	do conf -f future_saveMap_kafra_map prt_fild05
-	do conf -f future_saveMap_kafra_x 290
-	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_prt_sewb2 {
-	[
-	do conf lockMap prt_sewb2
-	
-	do mconf 1031 1 0 0 #Poporing
-	
-	do conf -f future_saveMap_map prt_fild05
-	do conf -f future_saveMap_x 290
-	do conf -f future_saveMap_y 224
-	
-	do conf -f future_saveMap_kafra_map prt_fild05
-	do conf -f future_saveMap_kafra_x 290
-	do conf -f future_saveMap_kafra_y 224
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_pay_dun00 {
-	[
-	do conf lockMap pay_dun00
-	
-	do conf -f future_saveMap_map oldnewpayon
-	do conf -f future_saveMap_x 98
-	do conf -f future_saveMap_y 118
-	
-	do conf -f future_saveMap_kafra_map oldnewpayon
-	do conf -f future_saveMap_kafra_x 98
-	do conf -f future_saveMap_kafra_y 118
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
-
-macro set_lockmap_pay_fild01 {
-	[
-	do conf lockMap pay_fild01
-	
-	call set_config_class
 	if ($configClass = knight) {
 		do iconf 713 50 1 0
 		do iconf 1058 1 1 0
 	}
-	do mconf 1031 1 0 0 #Poporing
-	
-	do conf -f future_saveMap_map oldnewpayon
-	do conf -f future_saveMap_x 98
-	do conf -f future_saveMap_y 118
-	
-	do conf -f future_saveMap_kafra_map oldnewpayon
-	do conf -f future_saveMap_kafra_x 98
-	do conf -f future_saveMap_kafra_y 118
-	do conf -f future_saveMap_save_sequence r~/Save/i
 	]
 }
 
-macro set_lockmap_pay_fild05 {
-	[
-	do conf lockMap pay_fild05
-	
-	do conf -f future_saveMap_map oldnewpayon
-	do conf -f future_saveMap_x 98
-	do conf -f future_saveMap_y 118
-	
-	do conf -f future_saveMap_kafra_map oldnewpayon
-	do conf -f future_saveMap_kafra_x 98
-	do conf -f future_saveMap_kafra_y 118
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
 
-macro set_lockmap_yuno_fild01 {
-	[
-	do conf lockMap yuno_fild01
-	
-	call set_config_class
-	if ($configClass = knight) {
-		do iconf 713 50 1 0
-		do iconf 1058 1 1 0
-	}
-	
-	do mconf 1369 0 0 0 #Grand Peco
-	
-	do conf -f future_saveMap_map aldebaran
-	do conf -f future_saveMap_x 143
-	do conf -f future_saveMap_y 119
-	
-	do conf -f future_saveMap_kafra_map aldebaran
-	do conf -f future_saveMap_kafra_x 143
-	do conf -f future_saveMap_kafra_y 119
-	do conf -f future_saveMap_save_sequence r~/Save/i
-	]
-}
 
-macro after_lock_change {
-	call SetVar
-	call basic_config_leveling_settings
-	if ($configsaveMap != &config(future_saveMap_map)) {
-		call change_savemap
-	} else {
-		call clear_saveMap_keys
-	}
-}
 
-macro change_savemap {
-	[
-	do conf -f saveMap_stage_before &config(eventMacro_1_99_stage)
-	do conf -f eventMacro_1_99_stage saving_in_kafra
-	do conf -f before_event_include &config(current_event_include)
-	do conf -f current_event_include Save_Kafra.pm
-	]
-	include off &config(before_event_include)
-	include on Save_Kafra.pm
-	do reload eventMacros
-}
+
 
 automacro need_to_configure_Sewb {
 	exclusive 1
