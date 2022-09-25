@@ -14,7 +14,7 @@ Plugins::register('NewAStarAvoid', 'Enables smart pathing using the dynamic aspe
 use constant {
 	PLUGIN_NAME => 'NewAStarAvoid',
 	ENABLE_MOVE => 1,
-	ENABLE_REMOVE => ,
+	ENABLE_REMOVE => 1,
 };
 
 my $hooks = Plugins::addHooks(
@@ -79,6 +79,8 @@ my %area_spell_type_obstacles = (
 
 my %obstaclesList;
 
+my %removed_obstacle_still_in_list;
+
 my $mustRePath = 0;
 
 my $weight_limit = 127;
@@ -125,11 +127,14 @@ sub remove_obstacle {
 	
 	return unless (ENABLE_REMOVE);
 	
-	warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
+	$removed_obstacle_still_in_list{$actor->{ID}}{time} = time;
+	$removed_obstacle_still_in_list{$actor->{ID}}{timeout} = 3;
 	
-	delete $obstaclesList{$actor->{ID}};
+	warning "[".PLUGIN_NAME."] Putting obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}." in to the removed_obstacle_still_in_list.\n";
 	
-	$mustRePath = 1;
+	#delete $obstaclesList{$actor->{ID}};
+	
+	#$mustRePath = 1;
 }
 
 ###################################################
@@ -137,16 +142,55 @@ sub remove_obstacle {
 ###################################################
 
 sub on_AI_pre_manual {
-	return unless (AI::is("route"));
+	on_AI_pre_manual_removed_obstacle_still_in_list();
+	on_AI_pre_manual_repath();
+}
+
+sub on_AI_pre_manual_removed_obstacle_still_in_list {
+	my @obstacles = keys(%removed_obstacle_still_in_list);
+	return unless (@obstacles > 0);
+	
+	foreach my $obstacle_ID (@obstacles) {
+		next unless (main::timeOut($removed_obstacle_still_in_list{$obstacle_ID}));
+		
+		my $obstacle = $obstaclesList{$obstacle_ID};
+		my $obstacle_last_pos = $obstacle->{pos_to};
+		
+		my $target = Actor::get($obstacle_ID);
+		
+		my $realMyPos = calcPosition($char);
+		my $dist = blockDistance($realMyPos, $obstacle_last_pos);
+		
+		my $sight = $config{clientSight};
+		
+		if ($dist <= $sight && !$target) {
+			delete $obstaclesList{$obstacle_ID};
+			warning "[".PLUGIN_NAME."] Removing obstacle from ".$obstacle_last_pos->{x}." ".$obstacle_last_pos->{y}.".\n";
+			$mustRePath = 1;
+		}
+	}
+}
+
+sub on_AI_pre_manual_repath {
 	return unless ($mustRePath);
 	
-	my $task;
+	my $arg_i;
+	if (AI::is("route")) {
+		$arg_i = 0;
+	} elsif (AI::action eq "move" && AI::action (1) eq "route") {
+		$arg_i = 1;
+	} else {
+		return;
+	}
 	
-	if (UNIVERSAL::isa($char->args, 'Task::Route')) {
-		$task = $char->args;
+	my $task;
+	my $args = AI::args($arg_i);
+	
+	if (UNIVERSAL::isa($args, 'Task::Route')) {
+		$task = $args;
 		
-	} elsif ($char->args->getSubtask && UNIVERSAL::isa($char->args->getSubtask, 'Task::Route')) {
-		$task = $char->args->getSubtask;
+	} elsif ($args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
+		$task = $args->getSubtask;
 		
 	} else {
 		return;

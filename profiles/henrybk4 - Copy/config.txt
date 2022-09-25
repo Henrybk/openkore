@@ -632,55 +632,6 @@ BetterShopper_on 1
 BetterShopper_minDistance 1
 BetterShopper_maxDistance 10
 
-# Red Potion
-BetterShopper {
-	price
-	maxPrice
-	minInventoryAmount
-	minShopAmount
-	maxAmount
-	fallbackNpc
-}
-
-# Orange Potion
-BetterShopper 502 {
-	price 200
-	maxPrice 190
-	minInventoryAmount 5
-	minShopAmount 30
-	maxAmount 30
-	fallbackNpc aldeba_in 94 56
-}
-
-# Fly Wing
-BetterShopper 601 {
-	price 60
-	maxPrice 55
-	minInventoryAmount 0
-	minShopAmount 10
-	maxAmount 10
-	fallbackNpc aldeba_in 94 56
-}
-
-# Butterfly wing
-BetterShopper 602 {
-	price 300
-	maxPrice 285
-	minInventoryAmount 0
-	minShopAmount 2
-	maxAmount 2
-	fallbackNpc aldeba_in 94 56
-}
-
-# Awakening Potion
-BetterShopper 656 {
-	price 1500
-	maxPrice 1400
-	minInventoryAmount 0
-	minShopAmount 2
-	maxAmount 2
-	fallbackNpc aldeba_in 94 56
-}
 
 BetterSeller_on 1
 BetterSeller_minDistance 1
