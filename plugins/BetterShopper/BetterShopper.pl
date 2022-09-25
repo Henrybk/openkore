@@ -239,10 +239,10 @@ sub AI_storage_done_after_getAuto {
 	
 	#warning "[BetterSeller - Storage] AI_storage_done_after_getAuto\n";
 	
-	$retargs->{return} = 1;
 	my $args = AI::args;
-	
 	return if ($args->{'forcedBySell'} == 1);
+	
+	$retargs->{return} = 1;
 	
 	if (!defined $get_item) {
 		#warning "[BetterSeller - Storage] determine getting\n";
