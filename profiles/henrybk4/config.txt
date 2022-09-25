@@ -626,7 +626,7 @@ equipAuto {
 	inInventory
 	manualAI 0
 }
-drunk 50
+
 
 BetterShopper_on 1
 BetterShopper_minDistance 1
