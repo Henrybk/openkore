@@ -293,3 +293,6 @@ payon_in01 137 173 Inn Keeper#oldpay
 payon_in01 101 174 Archer Joe#oldpay
 payon_in01 95 181 Drunkard#oldpay
 payon_in01 104 182 Kelly#oldpay
+morocc 140 161 Nathanos Halfheart
+prt_in 85 99 Knight#kabuto
+oldnewpayon 167 140 Woman#np
