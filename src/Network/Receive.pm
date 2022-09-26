@@ -2330,7 +2330,7 @@ sub actor_died_or_disappeared {
 
 		$monster->{gone_time} = time;
 		$monsters_old{$ID} = $monster->deepCopy();
-		Plugins::callHook('monster_disappeared', {monster => $monster});
+		Plugins::callHook('monster_disappeared', {monster => $monster, type => $args->{type}});
 		$monstersList->remove($monster);
 
 	} elsif (defined $playersList->getByID($ID)) {
