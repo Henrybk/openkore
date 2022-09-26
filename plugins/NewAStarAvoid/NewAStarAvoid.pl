@@ -39,9 +39,14 @@ my $obstacle_hooks = Plugins::addHooks(
 	['packet_pre/area_spell_disappears', \&on_areaSpell_disappeared, undef],
 );
 
+my $mobhooks = Plugins::addHooks(
+	['checkMonsterAutoAttack', \&on_checkMonsterAutoAttack, undef],
+);
+
 sub onUnload {
     Plugins::delHooks($hooks);
 	Plugins::delHooks($obstacle_hooks);
+    Plugins::delHooks($mobhooks);
 }
 
 my %mob_nameID_obstacles = (
@@ -52,7 +57,7 @@ my %mob_nameID_obstacles = (
 );
 
 my %player_name_obstacles = (
-	'mage' => {
+	'mage4534' => {
 		weight => 1000,
 		dist => 10
 	}
@@ -73,9 +78,136 @@ my $mustRePath = 0;
 
 my $weight_limit = 127;
 
+my $avoidGeographerID = 1368;
+
+my $teleport_soon = 0;
+my $teleport_soon_timeout;
+
 sub on_packet_mapChange {
 	undef %obstaclesList;
 	$mustRePath = 0;
+}
+
+sub on_checkMonsterAutoAttack {
+	my (undef, $args) = @_;
+	
+	my $realMonsterPos = calcPosition($args->{monster});
+	my $geo = is_there_a_geo_near_pos($realMonsterPos);
+	if (defined $geo) {
+		debug "[avoidGeographer 2] Not picking target ".$args->{monster}." because there is a Geographer outside the screen nearby.\n";
+		$args->{return} = 0;
+		return;
+	}
+}
+
+sub is_there_a_geo_near_pos {
+	my ($pos) = @_;
+	foreach my $obstacle_ID (keys %obstaclesList) {
+		my $obstacle = $obstaclesList{$obstacle_ID};
+		next unless ($obstacle->{type} eq 'monster');
+		next unless ($obstacle->{nameID} == $avoidGeographerID);
+		
+		my $obstacle_last_pos = $obstacle->{pos_to};
+		
+		my $dist = blockDistance($pos, $obstacle_last_pos);
+		my $min_geo_dist = 13;
+		next unless ($dist <= $min_geo_dist);
+		
+		return 1;
+	}
+	return undef;
+}
+
+sub on_AI_pre_manual_drop_near_geo {
+	my @obstacles = keys(%obstaclesList);
+	return unless (@obstacles > 0);
+	if (
+		   (AI::action eq "attack" && AI::args->{ID})
+		|| (AI::action eq "route" && AI::action (1) eq "attack" && AI::args->{attackID})
+		|| (AI::action eq "move" && AI::action (2) eq "attack" && AI::args->{attackID})
+	) {
+		my $args = AI::args;
+		my $ID;
+		my $ataqArgs;
+		if (AI::action eq "attack") {
+			$ID = $args->{ID};
+			$ataqArgs = AI::args(0);
+		} else {
+			if (AI::action(1) eq "attack") {
+				$ataqArgs = AI::args(1);
+				
+			} elsif (AI::action(2) eq "attack") {
+				$ataqArgs = AI::args(2);
+			}
+			$ID = $args->{attackID};
+		}
+		
+		my $target = Actor::get($ID);
+		return unless ($target);
+		my $target_is_aggressive = is_aggressive($target, undef, 0, 0);
+		
+		my $realMonsterPos = calcPosition($target);
+		
+		my $geo = is_there_a_geo_near_pos($realMonsterPos);
+		
+		if (defined $geo) {
+			#$char->sendAttackStop;
+			if ($target_is_aggressive) {
+				warning "[avoidGeographer 3] Dropping agressive target ".$target." during attack because a geographer appeared near it.\n";
+				$teleport_soon = 1;
+				$teleport_soon_timeout->{time} = time;
+				$teleport_soon_timeout->{timeout} = 0.8;
+				
+			} else {
+				warning "[avoidGeographer 4] Dropping target ".$target." before attack because a geographer appeared near it.\n";
+				AI::dequeue while (AI::inQueue("attack"));
+			}
+		}
+	}
+}
+
+sub on_AI_pre_manual_teleport_soon {
+	return unless ($teleport_soon == 1);
+	return unless (main::timeOut($teleport_soon_timeout));
+	$teleport_soon = 0;
+	useTeleport(1);
+}
+
+sub on_AI_pre_manual_drop_route_near_geo {
+	my @obstacles = keys(%obstaclesList);
+	return unless (@obstacles > 0);
+	
+	my $arg_i;
+	if (AI::is("route")) {
+		$arg_i = 0;
+		return if (AI::action (1) eq "attack");
+	} elsif (AI::action eq "move" && AI::action (1) eq "route") {
+		$arg_i = 1;
+		return if (AI::action (2) eq "attack");
+	} else {
+		return;
+	}
+	
+	my $task;
+	my $args = AI::args($arg_i);
+	
+	if (UNIVERSAL::isa($args, 'Task::Route')) {
+		$task = $args;
+		
+	} elsif ($args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
+		$task = $args->getSubtask;
+		
+	} else {
+		return;
+	}
+	
+	return unless ($task->{isRandomWalk} || $task->{isToLockMap});
+	
+	my $geo = is_there_a_geo_near_pos($task->{dest}{pos});
+	if (defined $geo) {
+		warning "[avoidGeographer 5] Dropping current route dest because a geographer appeared near it.\n";
+		AI::clear("move", "route");
+	}
 }
 
 ###################################################
@@ -122,17 +254,11 @@ sub move_obstacle {
 }
 
 sub remove_obstacle {
-	my ($actor, $type) = @_;
+	my ($actor, $type, $reason) = @_;
 	
 	return unless (ENABLE_REMOVE);
 	
-	
-	my $realMyPos = calcPosition($char);
-	my $dist = blockDistance($realMyPos, $obstaclesList{$actor->{ID}}{pos_to});
-	
-	my $sight = $config{clientSight};
-	
-	if ($dist >= $sight && ($type eq 'monster' || $type eq 'player')) {
+	if (($type eq 'monster' || $type eq 'player') && $reason eq 'outofsight') {
 		
 		$removed_obstacle_still_in_list{$actor->{ID}}{time} = time;
 		$removed_obstacle_still_in_list{$actor->{ID}}{timeout} = 3;
@@ -151,6 +277,9 @@ sub remove_obstacle {
 ###################################################
 
 sub on_AI_pre_manual {
+	on_AI_pre_manual_drop_near_geo();
+	on_AI_pre_manual_teleport_soon();
+	on_AI_pre_manual_drop_route_near_geo();
 	on_AI_pre_manual_removed_obstacle_still_in_list();
 	on_AI_pre_manual_repath();
 }
@@ -201,37 +330,66 @@ sub on_AI_pre_manual_repath {
 	return unless ($mustRePath);
 	
 	my $arg_i;
+	my $arg_i2;
+	
 	if (AI::is("route")) {
 		$arg_i = 0;
-	} elsif (AI::action eq "move" && AI::action (1) eq "route") {
+		if (AI::action (1) eq "attack") {
+			if (AI::action (2) eq "route") {
+				$arg_i2 = 2;
+			} elsif (AI::action (3) eq "route") {
+				$arg_i2 = 3;
+			}
+		}
+	} elsif (AI::is("move") && AI::action (1) eq "route") {
 		$arg_i = 1;
-	} else {
-		return;
-	}
-	
-	my $task;
-	my $args = AI::args($arg_i);
-	
-	if (UNIVERSAL::isa($args, 'Task::Route')) {
-		$task = $args;
-		
-	} elsif ($args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
-		$task = $args->getSubtask;
-		
+		if (AI::action (2) eq "attack") {
+			if (AI::action (3) eq "route") {
+				$arg_i2 = 3;
+			} elsif (AI::action (4) eq "route") {
+				$arg_i2 = 4;
+			}
+		}
 	} else {
 		return;
 	}
 	
 	$mustRePath = 0;
 	
-	if (scalar @{$task->{solution}} == 0) {
-		Log::warning "[test] Route already reseted.\n";
-		return;
+	my $args = AI::args($arg_i);
+	my $task = get_task($args);
+	if (defined $task) {
+		if (scalar @{$task->{solution}} == 0) {
+			Log::warning "[test1] Route already reseted.\n";
+		} else {
+			Log::warning "[test2] Reseting route.\n";
+			$task->resetRoute;
+		}
 	}
 	
-	Log::warning "[test] Reseting route.\n";
+	return unless (defined $arg_i2);
 	
-	$task->resetRoute;
+	$args = AI::args($arg_i2);
+	$task = get_task($args);
+	if (defined $task) {
+		if (scalar @{$task->{solution}} == 0) {
+			Log::warning "[test3] Route second already reseted.\n";
+		} else {
+			Log::warning "[test4] Reseting second route.\n";
+			$task->resetRoute;
+		}
+	}
+}
+
+sub get_task {
+	my ($args) = @_;
+	if (UNIVERSAL::isa($args, 'Task::Route')) {
+		return $args;
+	} elsif ($args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
+		return $args->getSubtask;
+	} else {
+		return undef;
+	}
 }
 
 sub on_PathFindingReset {
@@ -243,7 +401,7 @@ sub on_PathFindingReset {
 	
 	return unless (@obstacles > 0);
 	
-	Log::warning "[test] on_PathFindingReset: Using grided info for ".@obstacles." obstacles.\n";
+	#Log::warning "[test] on_PathFindingReset: Using grided info for ".@obstacles." obstacles.\n";
 	
 	$args->{args}{weight_map} = \(get_final_grid());
 	$args->{args}{width} = $args->{args}{field}{width} unless ($args->{args}{width});
@@ -423,7 +581,14 @@ sub on_monster_disappeared {
 	
 	return unless (exists $obstaclesList{$actor->{ID}});
 	
-	remove_obstacle($actor, 'monster');
+	my $reason;
+	if ($args->{type} == 0) {
+		$reason = 'outofsight';
+	} else {
+		$reason = 'gone';
+	}
+	
+	remove_obstacle($actor, 'monster', $reason);
 }
 
 ###################################################
