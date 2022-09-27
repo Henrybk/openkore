@@ -21,7 +21,7 @@ PathFinding_create()
 void
 PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
 		PathFinding session
-		SV *weight_map
+		SV * weight_map
 		SV * avoidWalls
 		SV * width
 		SV * height
@@ -34,9 +34,6 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		SV * max_x
 		SV * min_y
 		SV * max_y
-	
-	PREINIT:
-		char *weight_map_data = NULL;
 	
 	CODE:
 		
@@ -99,11 +96,6 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			XSRETURN_NO;
 		}
 		
-		if (!SvROK(weight_map) || !SvOK(weight_map)) {
-			printf("[pathfinding reset error] bad weight_map argument\n");
-			XSRETURN_NO;
-		}
-		
 		if (SvROK(min_x) || SvTYPE(min_x) >= SVt_PVAV || !SvOK(min_x)) {
 			printf("[pathfinding reset error] bad min_x argument\n");
 			XSRETURN_NO;
@@ -124,9 +116,32 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			XSRETURN_NO;
 		}
 		
-		/* Get the weight_map data */
-		weight_map_data = (char *) SvPV_nolen (SvRV (weight_map));
-		session->map_base_weight = weight_map_data;
+		/* weight_map should be a reference to an array */
+		if (!SvROK(weight_map)) {
+			printf("[pathfinding update_solution error] weight_map is not a reference\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvTYPE(SvRV(weight_map)) != SVt_PVAV) {
+			printf("[pathfinding update_solution error] weight_map is not an array reference\n");
+			XSRETURN_NO;
+		}
+		
+		if (!SvOK(weight_map)) {
+			printf("[pathfinding update_solution error] weight_map is not defined\n");
+			XSRETURN_NO;
+		}
+		
+		AV *deref_weight_map;
+		I32 array_last_index;
+		
+		deref_weight_map = (AV *) SvRV (weight_map);
+		array_last_index = av_top_index (deref_weight_map);
+		
+		if (array_last_index == -1) {
+			printf("[pathfinding update_solution error] weight_map has no members\n");
+			XSRETURN_NO;
+		}
 		
 		session->width = (int) SvUV (width);
 		session->height = (int) SvUV (height);
@@ -157,11 +172,6 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 			printf("[pathfinding reset error] Start coordinate %d %d is out of the map (size: %d x %d).\n", session->startX, session->startY, session->width, session->height);
 			XSRETURN_NO;
 		}
-		
-		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == -1) {
-			printf("[pathfinding reset error] Start coordinate %d %d is not a walkable cell.\n", session->startX, session->startY);
-			XSRETURN_NO;
-		}
 	
 		if (session->startX > session->max_x || session->startY > session->max_y || session->startX < session->min_x || session->startY < session->min_y) {
 			printf("[pathfinding reset error] Start coordinate %d %d is out of the minimum and maximum coordinates (size: %d .. %d x %d .. %d).\n", session->startX, session->startY, session->min_x, session->max_x, session->min_y, session->max_y);
@@ -171,11 +181,6 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		// End check
 		if (session->endX >= session->width   || session->endY >= session->height   || session->endX < 0   || session->endY < 0) {
 			printf("[pathfinding reset error] End coordinate %d %d is out of the map (size: %d x %d).\n", session->endX, session->endY, session->width, session->height);
-			XSRETURN_NO;
-		}
-		
-		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == -1) {
-			printf("[pathfinding reset error] End coordinate %d %d is not a walkable cell.\n", session->endX, session->endY);
 			XSRETURN_NO;
 		}
 	
@@ -188,6 +193,36 @@ PathFinding__reset(session, weight_map, avoidWalls, width, height, startx, start
 		session->time_max = (unsigned int) SvUV (time_max);
 		
 		CalcPath_init(session);
+		
+		SV **fetched;
+		I32 index;
+		
+		for (index = 0; index <= array_last_index; index++) {
+			//printf("[pathfinding test 2] inside member %d\n", index);
+			fetched = av_fetch (deref_weight_map, index, 0);
+			//printf("[pathfinding test 2] after fetch\n");
+			
+			if (!SvOK(*fetched)) {
+				printf("[pathfinding update_solution error] member of array is not defined\n");
+				XSRETURN_NO;
+			}
+			
+			//printf("[test aa 1] bef rv\n");
+			signed short weight = SvIV(*fetched);
+			//printf("[test aa 2] weight is %d\n", weight);
+			
+			session->map_base_weight[index] = weight;
+		}
+		
+		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == -1) {
+			printf("[pathfinding reset error] Start coordinate %d %d is not a walkable cell.\n", session->startX, session->startY);
+			XSRETURN_NO;
+		}
+		
+		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == -1) {
+			printf("[pathfinding reset error] End coordinate %d %d is not a walkable cell.\n", session->endX, session->endY);
+			XSRETURN_NO;
+		}
 
 int
 PathFinding_run(session, solution_array)

@@ -348,45 +348,91 @@ OUTPUT:
 	RETVAL
 
 
-SV *
-makeWeightMap(distMap, width, height)
-	SV *distMap
+int
+makeWeightMap(distMap1, width, height, weights_array)
+	SV *distMap1
 	int width
 	int height
+	SV *weights_array
 INIT:
 	STRLEN len;
 	int i, x, y;
 	int dist;
-	char *c_weightMap, *data;
+	char *distMap;
 CODE:
-	if (!SvOK (distMap))
-		XSRETURN_UNDEF;
 
-	c_weightMap = (char *) SvPV (distMap, len);
-	if ((int) len != width * height)
-		XSRETURN_UNDEF;
-
-	/* Simplify the raw map data. Each byte in the raw map data
-	   represents a block on the field, but only some bytes are
-	   interesting to pathfinding. */
-	New (0, data, len, char);
-	Copy (c_weightMap, data, len, char);
+	printf("[makeWeightMap] start\n");
 	
-	int distance_to_weight[6] = { -1, 60, 50, 20, 10, 0 };
+	/* Check for any missing arguments */
+	if (!distMap1 || !width || !height || !weights_array) {
+		printf("[makeWeightMap error] missing argument\n");
+		XSRETURN_NO;
+	}
+		
+	/* weights_array should be a reference to an array */
+	if (!SvROK(weights_array)) {
+		printf("[makeWeightMap error] weights_array is not a reference\n");
+		XSRETURN_NO;
+	}
+		
+	if (SvTYPE(SvRV(weights_array)) != SVt_PVAV) {
+		printf("[makeWeightMap error] weights_array is not an array reference\n");
+		XSRETURN_NO;
+	}
+		
+	if (!SvOK(weights_array)) {
+		printf("[makeWeightMap error] weights_array is not defined\n");
+		XSRETURN_NO;
+	}
+
+	if (!SvOK (distMap1)) {
+		printf("[makeWeightMap error] distMap is not defined\n");
+		XSRETURN_UNDEF;
+	}
+
+	distMap = (char *) SvPV (distMap1, len);
+	if ((int) len != width * height) {
+		printf("[makeWeightMap error] distMap of wrong len\n");
+		XSRETURN_UNDEF;
+	}
+	
+	signed short distance_to_weight[6] = { -1, 60, 50, 20, 10, 0 };
 	int max_distance = 5;
+	
+	AV *array;
+	int size;
+	
+	SV *svweight;
+
+	size = len;
+ 	array = (AV *) SvRV (weights_array);
+	av_clear (array);
+	av_extend (array, size);
+	
+	printf("[makeWeightMap test 1] array size %d, h w %d %d\n", size, height, width);
 
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			i = y * width + x; // i: cell to examine
-			dist = data[i]; // dist: dist of i from wall
+			dist = distMap[i]; // dist: dist of i from wall
 			
 			if (dist > max_distance) {
 				dist = max_distance;
 			}
-			data[i] = distance_to_weight[dist];
+			
+			signed short weight = distance_to_weight[dist];
+			
+			//printf("[makeWeightMap test 1] x y %d %d | i %d | dist %d | weight %d\n", x, y, i, dist, weight);
+			
+			svweight = newSViv(distance_to_weight[dist]);
+			
+			// printf("[makeWeightMap test 2] post svweight\n");
+			
+			av_store(array, i, svweight);
 		}
 	}
+	printf("[makeWeightMap] end\n");
 
-	RETVAL = newSVpv ((const char *) data, len);
+	RETVAL = 1;
 OUTPUT:
 	RETVAL

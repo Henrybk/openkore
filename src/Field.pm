@@ -297,7 +297,7 @@ sub getBlockWeight {
 	my ($self, $x, $y) = @_;
 	return 0 if ($self->isOffMap($x, $y));
 	my $offset = $self->getOffset($x, $y);
-	return ord(substr($self->{weightMap}, $offset, 1));
+	return $self->{weightMap}[$offset];
 }
 
 sub getBlockDist {
@@ -547,14 +547,19 @@ sub loadFile {
 				}
 			}
 			
+			my @weights;
 			# (Re)create the weight map.
 			my $f;
-			$self->{weightMap} = Utils::makeWeightMap($self->{dstMap}, $width, $height);
+			my $ret = Utils::makeWeightMap($self->{dstMap}, $width, $height, \@weights);
+			$self->{weightMap} = \@weights;
+			
+			my $weight_string = pack("s*", @weights);
+			
 			if (open($f, ">", $weightFile)) {
 				binmode $f;
-				print $f pack("a2 v1", 'V#', 1);
+				print $f pack("a2 v1", 'V#', 2);
 				print $f pack("v v", $width, $height);
-				print $f $self->{weightMap};
+				print $f $weight_string;
 				close $f;
 			}
 			
@@ -628,13 +633,16 @@ sub loadWeightMap {
 
 	# Get map width and height.
 	my ($dw, $dh) = unpack("v v", substr($weightData, 0, 4, ''));
+	
+	my $len = $dw * $dh;
+	my @weights = unpack "s$len", $weightData;
 
 	# Version 0 files had a bug when height != width
 	# Version 1 (the current version) is the first version.
 	# If the distance map version is smaller than 4, regenerate the distance map.
 
-	if ($dversion >= 1 && $width == $dw && $height == $dh) {
-		$self->{weightMap} = $weightData;
+	if ($dversion == 2 && $width == $dw && $height == $dh) {
+		$self->{weightMap} = \@weights;
 		return 1;
 	} else {
 		return 0;

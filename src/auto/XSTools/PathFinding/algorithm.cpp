@@ -52,6 +52,9 @@ CalcPath_init (CalcPath_session *session)
 	// Here we use calloc instead of malloc (calloc sets all memory allocated to 0's) so all uninitialized cells have whichlist set to NONE
 	session->currentMap = (Node*) calloc(session->height * session->width, sizeof(Node));
 	
+	session->map_base_weight = (signed short*) calloc(session->height * session->width, sizeof(signed short));
+	
+	
 	unsigned long goalAdress = (session->endY * session->width) + session->endX;
 	Node* goal = &session->currentMap[goalAdress];
 	goal->x = session->endX;
@@ -407,6 +410,7 @@ void
 free_currentMap (CalcPath_session *session)
 {
 	free(session->currentMap);
+	free(session->map_base_weight);
 }
 
 // Frees the memory allocated by openList
@@ -422,6 +426,7 @@ CalcPath_destroy (CalcPath_session *session)
 {
 	if (session->initialized) {
 		free(session->currentMap);
+		free(session->map_base_weight);
 	}
 	if (session->run) {
 		free(session->openList);

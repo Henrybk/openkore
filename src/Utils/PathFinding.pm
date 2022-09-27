@@ -102,17 +102,20 @@ sub reset {
 	$hookArgs{return} = 1;
 	Plugins::callHook("PathFindingReset", \%hookArgs);
 	if ($hookArgs{return}) {
-		$args{weight_map} = \($args{field}->{weightMap}) unless (defined $args{weight_map});
-		$args{width} = $args{field}{width} unless (defined $args{width});
-		$args{height} = $args{field}{height} unless (defined $args{height});
-		$args{timeout} = 1500 unless (defined $args{timeout});
-		$args{avoidWalls} = 1 unless (defined $args{avoidWalls});
-		$args{min_x} = 0 unless (defined $args{min_x});
-		$args{max_x} = ($args{width}-1) unless (defined $args{max_x});
-		$args{min_y} = 0 unless (defined $args{min_y});
-		$args{max_y} = ($args{height}-1) unless (defined $args{max_y});
+		$args{width} =		$args{field}{width} unless (defined $args{width});
+		$args{height} =		$args{field}{height} unless (defined $args{height});
+		
+		$args{timeout} =	1500 unless (defined $args{timeout});
+		
+		$args{avoidWalls} =	1 unless (defined $args{avoidWalls});
+		$args{weight_map} = $args{field}->{weightMap} unless (defined $args{weight_map});
+		
+		$args{min_x} =		0 unless (defined $args{min_x});
+		$args{max_x} =		($args{width}-1) unless (defined $args{max_x});
+		$args{min_y} =		0 unless (defined $args{min_y});
+		$args{max_y} =		($args{height}-1) unless (defined $args{max_y});
 	}
-
+	
 	return $class->_reset(
 		$args{weight_map}, 
 		$args{avoidWalls}, 
