@@ -1,0 +1,29 @@
+
+# Basic
+	!include ..\..\eventMacros\Classes.pm
+	!include ..\..\eventMacros\Utils\Perl_Subs.pm
+	
+	!include ..\..\eventMacros\Leveling.pm
+	#!include ..\..\eventMacros\Utils\Save_Kafra.pm
+
+
+# Classes
+	# Novice
+		#!include ..\..\eventMacros\Classes\Novice\Novice_Grounds.pm
+		#!include ..\..\eventMacros\Classes\Novice\Move_to_tester.pm
+		
+	# Swordman
+		#!include ..\..\eventMacros\Classes\Swordman\Turn_Swordman.pm
+		#!include ..\..\eventMacros\Classes\Knight\Turn_Knight.pm
+		#!include ..\..\eventMacros\Classes\Knight\Knight_Settings.pm
+		
+	# Thief
+		#!include ..\..\eventMacros\Classes\Thief\Turn_Thief.pm
+		#!include ..\..\eventMacros\Classes\Rogue\Turn_Rogue.pm
+		!include ..\..\eventMacros\Classes\Rogue\Rogue_Settings.pm
+
+# Quests 
+	#!include ..\..\eventMacros\Quests\Join_Sewb.pm
+	#!include ..\..\eventMacros\Quests\Join_Oranpere.pm
+	#!include ..\..\eventMacros\Quests\SM_MOVINGRECOVERY_Quest.pm
+	#!include ..\..\eventMacros\Quests\Join_Haleigh.pm
