@@ -489,12 +489,6 @@ sub AI_pre_selling {
 			return;
 		}
 		
-		if (!exists $args->{sentBuyPacket_time} && $char->{zeny} < $args->{price}) {
-			$args->{'error'} = 'We do not have enough zeny anymore';
-			$args->{'done'} = 1;
-			return;
-		}
-		
 		if (exists $args->{sentBuyPacket_time}) {
 			if (
 				timeOut($args->{sentBuyPacket_time}, 5) &&
