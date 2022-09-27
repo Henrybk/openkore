@@ -296,3 +296,7 @@ payon_in01 104 182 Kelly#oldpay
 morocc 140 161 Nathanos Halfheart
 prt_in 85 99 Knight#kabuto
 oldnewpayon 167 140 Woman#np
+oldnewpayon 97 169 Sacred Altar Flag
+oldnewpayon 116 163 The Mad Alchemist#np
+oldnewpayon 118 167 Alchemical Supply#pay
+oldnewpayon 125 163 Hair Dyer#pay
