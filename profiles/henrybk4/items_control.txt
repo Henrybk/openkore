@@ -70,9 +70,7 @@ Arrow 3000 1 0
 
 Bandana 0 0 1 # 2211
 Biretta 0 0 1 # 2217
-Boots 0 0 1 # 2405
 Buckler 0 0 1 # 2103
-Cap 0 0 1 # 2227
 Chain Mail 0 0 1 # 2314
 Circlet 0 0 1 # 2233
 Coat 0 0 1 # 2309
@@ -100,8 +98,6 @@ Mantle 0 0 1 # 2307
 "Mantle [1]" 0 0 1 # 2308
 Mirror Shield 0 0 1 # 2107
 Mr. Smile 0 0 1 # 2278
-Muffler 0 0 1 # 2503
-Pantie 0 0 1 # 2371
 Ribbon 0 0 1 # 2208
 "Ribbon [1]" 0 0 1 # 2209
 Rosary 0 0 1 # 2840
@@ -118,7 +114,6 @@ Skull Ring 0 0 1 # 2715
 Thief Clothes 0 0 1 # 2335
 Tights 0 0 1 # 2330
 Turban 0 0 1 # 2223
-Wooden Mail 0 0 1 # 2328
 "Wooden Mail [1]" 0 0 1 # 2329
 
 
@@ -166,9 +161,7 @@ Cutter 0 0 1 # 1206
 Dagger 0 0 1 # 1215
 "Dagger [2]" 0 0 1 # 1213
 "Dagger [3]" 0 0 1 # 1214
-"Damascus [1]" 0 0 1 # 1222
 Dirk 0 0 1 # 1212
-"Dirk [2]" 0 0 1 # 1210
 "Dirk [3]" 0 0 1 # 1211
 Falchion 0 0 1 # 1106
 "Finger [1]" 0 0 1 # 1811
@@ -222,7 +215,6 @@ Mace 0 0 1 # 1506
 "Mace [3]" 0 0 1 # 1504
 #"Mace [4]" 0 0 1
 Main Gauche 0 0 1 # 1209
-"Main Gauche [3]" 0 0 1 # 1207
 "Mandolin [2]" 0 0 1 # 1903
 "Mandolin [3]" 0 0 1 # 1904
 "Morning Star [1]" 0 0 1 # 1513
@@ -262,7 +254,6 @@ Spear 0 0 1 # 1406
 Staff 0 0 1 # 1609
 "Staff [2]" 0 0 1 # 1607
 Stiletto 0 0 1 # 1218
-"Stiletto [2]" 0 0 1 # 1216
 "Stiletto [3]" 0 0 1 # 1217
 "Studded Knuckles [2]" 0 0 1 # 1805
 "Studded Knuckles [3]" 0 0 1 # 1806
@@ -355,11 +346,9 @@ Animal Poop 0 0 1
 964 0 0 1 # Crab Shell
 747 0 0 1 # Crystal Mirror
 1045 0 0 1 # Cultish Masque
-7053 0 0 1 # Cyfar
 901 0 0 1 # Daenggie
 7157 0 0 1 # Dark Mask
 1047 0 0 1 # Dead Medusa
-957 0 0 1 # Decayed Nail
 7069 0 0 1 # Destroyed Armor
 1051 0 0 1 # Detonator
 1021 0 0 1 # Dokebi Horn
@@ -397,7 +386,6 @@ Animal Poop 0 0 1
 950 0 0 1 # Heart of Mermaid
 947 0 0 1 # Horn
 1048 0 0 1 # Horrendous Hair
-958 0 0 1 # Horrendous Mouth
 944 0 0 1 # Horseshoe
 7066 0 0 1 # Ice Cubic
 929 0 0 1 # Immortal Heart
@@ -405,9 +393,7 @@ Animal Poop 0 0 1
 7028 0 0 1 # Invite for Duel
 1062 0 0 1 # Jack o' Pumpkin
 7147 0 0 1 # Jasmine
-909 0 0 1 # Jellopy
 1041 0 0 1 # Lantern
-7126 0 0 1 # Large Jellopy
 7096 0 0 1 # Lava
 7098 0 0 1 # Live Coal
 1098 0 0 1 # Manacles
@@ -492,7 +478,6 @@ Sharp scale 0 0 1
 1094 0 0 1 # Short Daenggie
 7051 0 0 1 # Silk Mat
 1052 0 0 1 # Single Cell
-932 0 0 1 # Skel-Bone
 7420 0 0 1 # Skull
 7111 0 0 1 # Slick Paper
 946 0 0 1 # Snail's Shell
@@ -1730,35 +1715,87 @@ Spearman Scroll 10 0 0 0
 25150 0 0 0 0 0 # Hugging_Alice_Pilow
 26100 0 0 0 0 0 # Paradise_Foxtail_Staff_II
 26101 0 0 0 0 0 # Paradise_Foxtail_Staff_III
+1104 1 0 0 #Falchion [3]
+1116 1 0 0 #Katana [3]
+2312 0 0 1 #Padded Armor
+1058 1 1 0 #Moth Wings
 12323 0 0 0 #[NotForSale] Novice Fly Wing
 12324 0 0 0 #Novice Butterfly Wing
 569 0 0 0 #Novice Potion
 7059 50 0 0 #Free Ticket for Kafra Storage
 7060 50 0 0 #Free Ticket for Kafra Transportation
 13041 0 0 0 #Novice Main Gauche [3]
-1104 1 0 0 #Falchion [3]
+2393 0 0 0 #Novice Adventurer's Suit [1]
+1207 1 0 0 #Main Gauche [3]
 1243 0 0 1 #Novice Main-Gauche
 2112 0 0 1 #Novice Guard
 5055 0 0 1 #Novice False Eggshell
-2393 0 0 1 #Novice Adventurer's Suit [1]
 2414 0 0 1 #Novice Slippers
 2510 0 0 1 #Somber Novice Hood
 2352 0 0 1 #Tattered Novice Ninja Suit
 1201 0 0 1 #Knife [3]
 13040 0 0 1 #Novice Cutter [3]
 2301 0 0 1 #Cotton Shirt
-1116 1 0 0 #Katana [3]
-2312 0 0 1 #Padded Armor
-601 5 1 0 #Fly Wing
-602 1 1 0 #Butterfly Wing
-501 50 1 0 #Red Potion
-502 50 1 0 #Orange Potion
-645 5 1 0 #Concentration Potion
-656 5 1 0 #Awakening Potion
-2305 1 0 0 #Adventurer's Suit
-2501 1 0 0 #Hood
-713 50 1 0 #Empty Bottle
-1058 1 1 0 #Moth Wings
-2220 1 0 0 #Hat
+2220 0 0 1 #Hat
+2226 1 0 1 #Cap
 2401 0 0 1 #Sandals
-2403 1 0 0 #Shoes
+2403 0 0 1 #Shoes
+2405 1 0 1 #Boots
+713 0 1 0 #Empty Bottle
+2305 0 0 1 #Adventurer's Suit
+2328 0 0 1 #Wooden Mail
+2339 1 0 1 #Pantie
+2501 0 0 1 #Hood
+2503 0 0 1 #Muffler
+2522 1 0 1 #Undershirt
+1210 0 0 1 #Dirk [2]
+1216 0 0 1 #Stiletto [2]
+1222 1 0 1 #Damascus [1]
+578 0 1 0 #Strawberry
+1019 0 1 0 #Trunk
+7053 0 1 0 #Cyfar
+7126 0 1 0 #Large Jellopy
+909 0 1 0 #Jellopy
+912 0 1 0 #Zargon
+582 0 1 0 #Orange
+568 0 1 0 #Lemon
+514 0 1 0 #Grape
+518 0 1 0 #Honey
+999 0 1 0 #Steel
+998 0 1 0 #Iron
+1000 0 1 0 #Star Crumb
+1001 0 1 0 #Star Dust
+1002 0 1 0 #Iron Ore
+1003 0 1 0 #Coal
+984 0 1 0 #Oridecon
+985 0 1 0 #Elunium
+1061 0 1 0 #Witch Starsand
+644 0 1 0 #Gift Box
+603 0 1 0 #Old Blue Box
+617 0 1 0 #Old Purple Box
+662 0 1 0 #Authoritative Badge
+993 0 1 0 #Green Live
+994 0 1 0 #Flame Heart
+995 0 1 0 #Mystic Frozen
+996 0 1 0 #Rough Wind
+997 0 1 0 #Great Nature
+715 0 1 0 #Yellow Gemstone
+716 0 1 0 #Red Gemstone
+717 0 1 0 #Blue Gemstone
+507 0 1 0 #Red Herb
+508 0 1 0 #Yellow Herb
+509 0 1 0 #White Herb
+510 0 1 0 #Blue Herb
+511 0 1 0 #Green Herb
+7312 0 0 1 #Jubilee
+1602 0 0 1 #Rod [4]
+1105 0 0 1 #Falchion [4]
+516 0 0 1 #Potato
+580 0 0 1 #Bread
+700 0 0 1 #Level 1 Frost Diver Scroll
+501 30 1 0 #Red Potion
+502 30 1 0 #Orange Potion
+645 2 1 0 #Concentration Potion
+656 2 1 0 #Awakening Potion
+601 10 1 0 #Fly Wing
+602 2 1 0 #Butterfly Wing
