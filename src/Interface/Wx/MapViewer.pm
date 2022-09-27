@@ -728,7 +728,7 @@ sub _onPaint {
 			$dc->SetPen(wxRED_PEN);
 			foreach my $pos (@{$self->{route}}) {
 				($x, $y) = $self->_posXYToView ($pos->{x}, $pos->{y});
-				$dc->DrawEllipse($x - 1, $y - 1, 1, 1);
+				$dc->DrawEllipse($x - $actor_r, $y - $actor_r, $actor_d, $actor_d);
 			}
 		} elsif ($config{wx_map_route} == 1) {
 			$dc->SetPen(wxWHITE_PEN);
