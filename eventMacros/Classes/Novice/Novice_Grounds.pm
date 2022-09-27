@@ -49,6 +49,8 @@ macro Conf_Stuff2 {
 	do conf -f teleportAuto_atkMiss 0
 	do conf -f itemsMaxWeight_sellOrStore 68
 	
+	do conf -f saveMap_warpToBuyOrSell 0
+	
 	do conf -f autoTalkCont 1
 	
 	do conf -f clientSight 30

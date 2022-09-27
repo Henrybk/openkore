@@ -46,11 +46,9 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 21) {
-		if ($configlockMap != prt_fild07) {
-			# kafra prt_fild05 290 224
-			# sell prt_fild05 290 221
-			call set_lockmap_prt_fild07
+	} elsif ($.lvl <= 16) {
+		if ($configlockMap != pay_fild08) {
+			call set_lockmap_pay_fild08
 			$changed = 1
 		}
 	

@@ -340,7 +340,7 @@ automacro EquipThiefStuffEnd {
 		do conf -f route_step 15
 		
 		do conf -f teleportAuto_minAggressives 4
-		do conf -f saveMap_warpToBuyOrSell 1
+		do conf -f saveMap_warpToBuyOrSell 0
 		
 		include off Turn_Thief.pm
 		
