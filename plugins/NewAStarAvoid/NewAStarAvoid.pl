@@ -402,11 +402,11 @@ sub on_PathFindingReset {
 	
 	#Log::warning "[test] on_PathFindingReset: Using grided info for ".@obstacles." obstacles.\n";
 	
-	$args->{use_secondWeightMap} = 1;
+	$args->{customWeights} = 1;
 	$args->{secondWeightMap} = get_final_grid();
 	
 	$args->{avoidWalls} = 1 unless (defined $args->{avoidWalls});
-	$args->{weight_map} = $args->{weight_map} unless ($args->{width});
+	$args->{weight_map} = \($args->{field}->{weightMap}) unless (defined $args->{weight_map});
 	
 	$args->{randomFactor} = 0 unless (defined $args->{randomFactor});
 	
@@ -427,7 +427,8 @@ sub getOffset {
 }
 
 sub get_final_grid {
-	my @grid = @{$field->{weightMap}};
+	my $len = $field->{height} * $field->{width};
+	my @grid = (0) x $len;
 	
 	my $changes = sum_all_changes();
 	
