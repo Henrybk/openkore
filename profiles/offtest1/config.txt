@@ -50,7 +50,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword dachotwi
+adminPassword hawrakau
 callSign
 commandPrefix ;
 callSignGM 0
@@ -196,7 +196,7 @@ cartMaxWeight 7900
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap prt_fild05
+lockMap prontera
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -207,7 +207,7 @@ route_escape_randomWalk 1
 route_escape_shout
 route_avoidWalls 1
 route_randomWalk 1
-route_randomWalk_inTown 0
+route_randomWalk_inTown 1
 route_randomWalk_maxRouteTime 75
 route_maxWarpFee
 route_maxNpcTries 5
@@ -227,7 +227,7 @@ runFromTarget_dist 5
 runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
-saveMap prt_fild05
+saveMap prontera
 saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
@@ -526,15 +526,15 @@ autoSwitch {
 
 ######## Autostorage/autosell ########
 
-sellAuto 1
-sellAuto_npc prt_fild05 290 221
+sellAuto 0
+sellAuto_npc
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
-storageAuto 1
-storageAuto_npc prt_fild05 290 224
+storageAuto 0
+storageAuto_npc
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
