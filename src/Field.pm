@@ -436,6 +436,7 @@ sub canMove {
 		start => $from,
 		dest => $to,
 		avoidWalls => 0,
+		randomFactor => 0,
 		min_x => $min_pathfinding_x,
 		max_x => $max_pathfinding_x,
 		min_y => $min_pathfinding_y,

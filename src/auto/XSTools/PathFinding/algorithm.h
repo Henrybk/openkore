@@ -23,6 +23,12 @@ typedef struct {
 
 typedef struct {
 	bool avoidWalls;
+	const char *map_base_weight;
+	
+	bool customWeights;
+	signed short *second_weight_map;
+	
+	unsigned int randomFactor;
 	
 	unsigned long time_max;
 	
@@ -45,7 +51,6 @@ typedef struct {
 	
 	long openListSize;
 	
-	const char *map_base_weight;
 	Node *currentMap;
 	
 	unsigned long *openList;

@@ -51,6 +51,9 @@ CalcPath_init (CalcPath_session *session)
 	// Allocate enough memory in currentMap to hold all nodes in the map
 	// Here we use calloc instead of malloc (calloc sets all memory allocated to 0's) so all uninitialized cells have whichlist set to NONE
 	session->currentMap = (Node*) calloc(session->height * session->width, sizeof(Node));
+	if (session->customWeights) {
+		session->second_weight_map = (signed short*) calloc(session->height * session->width, sizeof(signed short));
+	}
 	
 	unsigned long goalAdress = (session->endY * session->width) + session->endX;
 	Node* goal = &session->currentMap[goalAdress];
@@ -110,6 +113,7 @@ CalcPath_pathStep (CalcPath_session *session)
 	int neighbor_y;
 	unsigned long neighbor_adress;
 	unsigned long distanceFromCurrent;
+	unsigned int c_randomFactor;
 	
 	unsigned int g_score = 0;
 	
@@ -182,6 +186,15 @@ CalcPath_pathStep (CalcPath_session *session)
 			// If avoidWalls is true we add weight to cells near walls to disencourage the algorithm to move to them.
 			if (session->avoidWalls) {
 				distanceFromCurrent += session->map_base_weight[neighbor_adress];
+			}
+			
+			if (session->customWeights) {
+				distanceFromCurrent += session->second_weight_map[neighbor_adress];
+			}
+			
+			if (session->randomFactor) {
+				c_randomFactor = rand() % session->randomFactor;
+				distanceFromCurrent += c_randomFactor;
 			}
 			
 			// g_score is the summed weight of all nodes from start node to neighborNode, which is the g_score of currentNode + the weight to move from currentNode to neighborNode.
@@ -407,6 +420,9 @@ void
 free_currentMap (CalcPath_session *session)
 {
 	free(session->currentMap);
+	if (session->customWeights) {
+		free(session->second_weight_map);
+	}
 }
 
 // Frees the memory allocated by openList
@@ -422,6 +438,9 @@ CalcPath_destroy (CalcPath_session *session)
 {
 	if (session->initialized) {
 		free(session->currentMap);
+		if (session->customWeights) {
+			free(session->second_weight_map);
+		}
 	}
 	if (session->run) {
 		free(session->openList);

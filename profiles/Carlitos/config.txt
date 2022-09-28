@@ -223,6 +223,8 @@ route_removeMissingPortals 0
 route_tryToGuessMissingPortalByDistance 1
 route_reAddMissingPortals 1
 
+route_randomFactor 8
+
 runFromTarget 0
 runFromTarget_inAdvance 0
 runFromTarget_dist 5

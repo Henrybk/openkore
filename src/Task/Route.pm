@@ -106,7 +106,7 @@ sub new {
 		ArgumentException->throw(error => "Invalid Coordinates argument.");
 	}
 
-	my $allowed = new Set(qw(maxDistance maxTime distFromGoal pyDistFromGoal avoidWalls notifyUponArrival attackID attackOnRoute noSitAuto LOSSubRoute meetingSubRoute isRandomWalk isFollow isIdleWalk isSlaveRescue isMoveNearSlave isEscape isItemTake isItemGather isDeath isToLockMap runFromTarget));
+	my $allowed = new Set(qw(maxDistance maxTime distFromGoal pyDistFromGoal avoidWalls randomFactor notifyUponArrival attackID attackOnRoute noSitAuto LOSSubRoute meetingSubRoute isRandomWalk isFollow isIdleWalk isSlaveRescue isMoveNearSlave isEscape isItemTake isItemGather isDeath isToLockMap runFromTarget));
 	foreach my $key (keys %args) {
 		if ($allowed->has($key) && defined($args{$key})) {
 			$self->{$key} = $args{$key};
@@ -130,6 +130,15 @@ sub new {
 	} else {
 		$self->{avoidWalls} = 0;
 	}
+	
+	if ($config{$self->{actor}{configPrefix}.'route_randomFactor'}) {
+		if (!defined $self->{randomFactor}) {
+			$self->{randomFactor} = $config{$self->{actor}{configPrefix}.'route_randomFactor'};
+		}
+	} else {
+		$self->{randomFactor} = 0;
+	}
+	
 	$self->{solution} = [];
 	$self->{stage} = NOT_INITIALIZED;
 
@@ -204,7 +213,7 @@ sub iterate {
 			debug "Route $self->{actor}: Current position and destination are the same.\n", "route";
 			$self->setDone();
 		
-		} elsif ($self->getRoute($self->{solution}, $self->{dest}{map}, $pos, $self->{dest}{pos}, $self->{avoidWalls}, 1)) {
+		} elsif ($self->getRoute($self->{solution}, $self->{dest}{map}, $pos, $self->{dest}{pos}, $self->{avoidWalls}, $self->{randomFactor}, 1)) {
 			$self->{stage} = ROUTE_SOLUTION_READY;
 			
 			@{$self->{last_pos}}{qw(x y)} = @{$pos}{qw(x y)};
@@ -567,7 +576,7 @@ sub resetRoute {
 # This function is a convenience wrapper function for the stuff
 # in Utils/PathFinding.pm
 sub getRoute {
-	my ($class, $solution, $field, $start, $dest, $avoidWalls, $self_call) = @_;
+	my ($class, $solution, $field, $start, $dest, $avoidWalls, $randomFactor, $self_call) = @_;
 	assertClass($field, 'Field') if DEBUG;
 	if (!defined $dest->{x} || $dest->{y} eq '') {
 		@{$solution} = () if ($solution);
@@ -594,6 +603,7 @@ sub getRoute {
 	$plugin_args{dest} = $closest_dest;
 	$plugin_args{field} = $field;
 	$plugin_args{avoidWalls} = $avoidWalls;
+	$plugin_args{randomFactor} = $randomFactor;
 	$plugin_args{return} = 0;
 	
 	Plugins::callHook( getRoute => \%plugin_args );
@@ -610,7 +620,9 @@ sub getRoute {
 		start => $closest_start,
 		dest  => $closest_dest,
 		field => $field,
-		avoidWalls => $avoidWalls
+		avoidWalls => $avoidWalls,
+		randomFactor => $randomFactor,
+		getRoute => 1
 	);
 	return undef if (!$pathfinding);
 

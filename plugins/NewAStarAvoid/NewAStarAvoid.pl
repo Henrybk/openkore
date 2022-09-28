@@ -51,8 +51,8 @@ sub onUnload {
 
 my %mob_nameID_obstacles = (
 	1368 => { # planta carnivora
-		weight => 1000,
-		dist => 10
+		weight => 2000,
+		dist => 12
 	}
 );
 
@@ -76,7 +76,7 @@ my %removed_obstacle_still_in_list;
 
 my $mustRePath = 0;
 
-my $weight_limit = 127;
+my $weight_limit = 32000;
 
 my $avoidGeographerID = 1368;
 
@@ -188,18 +188,10 @@ sub on_AI_pre_manual_drop_route_near_geo {
 		return;
 	}
 	
-	my $task;
-	my $args = AI::args($arg_i);
 	
-	if (UNIVERSAL::isa($args, 'Task::Route')) {
-		$task = $args;
-		
-	} elsif ($args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
-		$task = $args->getSubtask;
-		
-	} else {
-		return;
-	}
+	my $args = AI::args($arg_i);
+	my $task = get_task($args);
+	return unless (defined $task);
 	
 	return unless ($task->{isRandomWalk} || $task->{isToLockMap});
 	
@@ -263,6 +255,7 @@ sub remove_obstacle {
 		$removed_obstacle_still_in_list{$actor->{ID}}{time} = time;
 		$removed_obstacle_still_in_list{$actor->{ID}}{timeout} = 3;
 		$removed_obstacle_still_in_list{$actor->{ID}}{type} = $type;
+		$removed_obstacle_still_in_list{$actor->{ID}}{name} = $actor->name;
 		warning "[".PLUGIN_NAME."] Putting obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}." in to the removed_obstacle_still_in_list.\n";
 	
 	} else {
@@ -295,8 +288,10 @@ sub on_AI_pre_manual_removed_obstacle_still_in_list {
 		my $obstacle_last_pos = $obstacle->{pos_to};
 		
 		my $realMyPos = calcPosition($char);
+		
 		my $dist = blockDistance($realMyPos, $obstacle_last_pos);
 		my $sight = ($config{clientSight}-2); # 2 cell leeway?
+		
 		next OBSTACLE unless ($dist < $sight);
 		
 		my $target;
@@ -318,9 +313,9 @@ sub on_AI_pre_manual_removed_obstacle_still_in_list {
 		if ($target) {
 			warning "[REMOVING TEST] wwwwttttffffff 1.\n";
 		} else {
+			warning "[removed_obstacle_still_in_list] Removing obstacle ".$removed_obstacle_still_in_list{$obstacle_ID}{name}." (".$removed_obstacle_still_in_list{$obstacle_ID}{type}.") from ".$obstacle_last_pos->{x}." ".$obstacle_last_pos->{y}." we at ($realMyPos->{x} $realMyPos->{y}) dist:$dist, sight:$sight.\n";
 			delete $obstaclesList{$obstacle_ID};
 			delete $removed_obstacle_still_in_list{$obstacle_ID};
-			warning "[REMOVING TEST] Removing obstacle from ".$obstacle_last_pos->{x}." ".$obstacle_last_pos->{y}.".\n";
 			$mustRePath = 1;
 		}
 	}
@@ -369,14 +364,14 @@ sub on_AI_pre_manual_repath {
 	
 	return unless (defined $arg_i2);
 	
-	$args = AI::args($arg_i2);
-	$task = get_task($args);
-	if (defined $task) {
-		if (scalar @{$task->{solution}} == 0) {
+	my $args2 = AI::args($arg_i2);
+	my $task2 = get_task($args2);
+	if (defined $task2) {
+		if (scalar @{$task2->{solution}} == 0) {
 			Log::warning "[test3] Route second already reseted.\n";
 		} else {
 			Log::warning "[test4] Reseting second route.\n";
-			$task->resetRoute;
+			$task2->resetRoute;
 		}
 	}
 }
@@ -385,7 +380,7 @@ sub get_task {
 	my ($args) = @_;
 	if (UNIVERSAL::isa($args, 'Task::Route')) {
 		return $args;
-	} elsif ($args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
+	} elsif (UNIVERSAL::isa($args, 'Task::MapRoute') && $args->getSubtask && UNIVERSAL::isa($args->getSubtask, 'Task::Route')) {
 		return $args->getSubtask;
 	} else {
 		return undef;
@@ -393,7 +388,9 @@ sub get_task {
 }
 
 sub on_PathFindingReset {
-	my (undef, $args) = @_;
+	my (undef, $hookargs) = @_;
+	
+	return unless (exists $hookargs->{args}{getRoute} && $hookargs->{args}{getRoute} == 1);
 	
 	my @obstacles = keys(%obstaclesList);
 	
@@ -401,38 +398,50 @@ sub on_PathFindingReset {
 	
 	return unless (@obstacles > 0);
 	
+	my $args = $hookargs->{args};
+	
 	#Log::warning "[test] on_PathFindingReset: Using grided info for ".@obstacles." obstacles.\n";
 	
-	$args->{args}{weight_map} = \(get_final_grid());
-	$args->{args}{width} = $args->{args}{field}{width} unless ($args->{args}{width});
-	$args->{args}{height} = $args->{args}{field}{height} unless ($args->{args}{height});
-	$args->{args}{timeout} = 1500 unless ($args->{args}{timeout});
-	$args->{args}{avoidWalls} = 1 unless (defined $args->{args}{avoidWalls});
-	$args->{args}{min_x} = 0 unless (defined $args->{args}{min_x});
-	$args->{args}{max_x} = ($args->{args}{width}-1) unless (defined $args->{args}{max_x});
-	$args->{args}{min_y} = 0 unless (defined $args->{args}{min_y});
-	$args->{args}{max_y} = ($args->{args}{height}-1) unless (defined $args->{args}{max_y});
+	$args->{use_secondWeightMap} = 1;
+	$args->{secondWeightMap} = get_final_grid();
 	
-	$args->{return} = 0;
+	$args->{avoidWalls} = 1 unless (defined $args->{avoidWalls});
+	$args->{weight_map} = $args->{weight_map} unless ($args->{width});
+	
+	$args->{randomFactor} = 0 unless (defined $args->{randomFactor});
+	
+	$args->{timeout} = 1500 unless ($args->{timeout});
+	$args->{width} = $args->{field}{width} unless ($args->{width});
+	$args->{height} = $args->{field}{height} unless ($args->{height});
+	$args->{min_x} = 0 unless (defined $args->{min_x});
+	$args->{max_x} = ($args->{width}-1) unless (defined $args->{max_x});
+	$args->{min_y} = 0 unless (defined $args->{min_y});
+	$args->{max_y} = ($args->{height}-1) unless (defined $args->{max_y});
+	
+	$hookargs->{return} = 0;
+}
+
+sub getOffset {
+	my ($x, $width, $y) = @_;
+	return (($y * $width) + $x);
 }
 
 sub get_final_grid {
-	my $grid = $field->{weightMap};
+	my @grid = @{$field->{weightMap}};
 	
 	my $changes = sum_all_changes();
 	
 	foreach my $change (@{$changes}) {
-		my $position = $change->{y} * $field->{width} + $change->{x};
-		my $current_weight = unpack('C', substr($grid, $position, 1));
-		my $weight_changed = $current_weight + $change->{weight};
+		my $position = getOffset($change->{x}, $field->{width}, $change->{y});
+		my $weight_changed = $change->{weight};
 		if ($weight_changed >= $weight_limit) {
 			$weight_changed = $weight_limit;
 		}
 		#warning "[".PLUGIN_NAME."] after  $change->{x} $change->{y} | $current_weight -> $weight_changed.\n";
-		substr($grid, $position, 1, pack('C', $weight_changed));
+		$grid[$position] = $weight_changed;
 	}
 	
-	return $grid;
+	return \@grid;
 }
 
 sub get_weight_for_block {
@@ -587,7 +596,7 @@ sub on_monster_disappeared {
 	} else {
 		$reason = 'gone';
 	}
-	
+	message ("[on_monster_disappeared] $actor type $args->{type} | reason $reason\n", "route");
 	remove_obstacle($actor, 'monster', $reason);
 }
 

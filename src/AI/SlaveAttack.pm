@@ -332,7 +332,7 @@ sub main {
 		if ($cell) {
 			debug TF("[runFromTarget] %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'slave_attack';
 			$slave->args->{avoiding} = 1;
-			$slave->route(undef, @{$cell}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, runFromTarget => 1);
+			$slave->route(undef, @{$cell}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, runFromTarget => 1);
 		} else {
 			debug TF("%s no acceptable place to kite from (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'slave_attack';
 		}
@@ -346,7 +346,7 @@ sub main {
 			if ($cell) {
 				debug TF("[runFromTarget] %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'slave_attack';
 				$args->{avoiding} = 1;
-				$slave->route(undef, @{$cell}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, runFromTarget => 1);
+				$slave->route(undef, @{$cell}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, runFromTarget => 1);
 			} else {
 				debug TF("%s no acceptable place to kite from (%d %d), mob at (%d %d).\n", $slave, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'slave_attack';
 			}
@@ -407,6 +407,7 @@ sub main {
 				maxRouteTime => $config{$slave->{configPrefix}.'attackMaxRouteTime'},
 				attackID => $ID,
 				avoidWalls => 0,
+				randomFactor => 0,
 				meetingSubRoute => 1,
 				noMapRoute => 1
 			);
@@ -445,7 +446,7 @@ sub main {
 		my $msg = TF("%s has no LOS from (%d, %d) to target %s (%d, %d) (distance: %d)", $slave, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist);
 		if ($best_spot) {
 			message TF("%s; moving to (%d, %d)\n", $msg, $best_spot->{x}, $best_spot->{y}), 'slave_attack';
-			$slave->route(undef, @{$best_spot}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, LOSSubRoute => 1);
+			$slave->route(undef, @{$best_spot}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, LOSSubRoute => 1);
 		} else {
 			$target->{attack_failedLOS} = time;
 			warning TF("%s; no acceptable place to stand\n", $msg);
@@ -465,7 +466,7 @@ sub main {
 		my $msg = TF("%s has no LOS in melee from (%d, %d) to target %s (%d, %d) (distance: %d)", $slave, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist);
 		if ($best_spot) {
 			message TF("%s; moving to (%d, %d)\n", $msg, $best_spot->{x}, $best_spot->{y}), 'slave_attack';
-			$slave->route(undef, @{$best_spot}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, LOSSubRoute => 1);
+			$slave->route(undef, @{$best_spot}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, LOSSubRoute => 1);
 		} else {
 			$target->{attack_failedLOS} = time;
 			warning TF("%s; no acceptable place to stand\n", $msg);
