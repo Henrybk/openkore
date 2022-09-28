@@ -76,7 +76,7 @@ my %removed_obstacle_still_in_list;
 
 my $mustRePath = 0;
 
-my $weight_limit = 32000;
+my $weight_limit = 65000;
 
 my $avoidGeographerID = 1368;
 
@@ -193,7 +193,7 @@ sub on_AI_pre_manual_drop_route_near_geo {
 	my $task = get_task($args);
 	return unless (defined $task);
 	
-	return unless ($task->{isRandomWalk} || $task->{isToLockMap});
+	return unless ($task->{isRandomWalk} || ($task->{isToLockMap} && $field->baseName eq $config{'lockMap'}));
 	
 	my $geo = is_there_a_geo_near_pos($task->{dest}{pos});
 	if (defined $geo) {

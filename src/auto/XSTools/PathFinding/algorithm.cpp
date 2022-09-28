@@ -52,7 +52,7 @@ CalcPath_init (CalcPath_session *session)
 	// Here we use calloc instead of malloc (calloc sets all memory allocated to 0's) so all uninitialized cells have whichlist set to NONE
 	session->currentMap = (Node*) calloc(session->height * session->width, sizeof(Node));
 	if (session->customWeights) {
-		session->second_weight_map = (signed short*) calloc(session->height * session->width, sizeof(signed short));
+		session->second_weight_map = (unsigned int*) calloc(session->height * session->width, sizeof(unsigned int));
 	}
 	
 	unsigned long goalAdress = (session->endY * session->width) + session->endX;

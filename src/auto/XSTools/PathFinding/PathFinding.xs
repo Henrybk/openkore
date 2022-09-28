@@ -259,7 +259,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 				}
 				
 				//printf("[test aa 1] bef rv\n");
-				signed short weight = SvIV(*fetched);
+				unsigned int weight = SvIV(*fetched);
 				//printf("[test aa 2] weight is %d\n", weight);
 				
 				session->second_weight_map[index] = weight;

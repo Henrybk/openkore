@@ -26,7 +26,7 @@ typedef struct {
 	const char *map_base_weight;
 	
 	bool customWeights;
-	signed short *second_weight_map;
+	unsigned int *second_weight_map;
 	
 	unsigned int randomFactor;
 	
