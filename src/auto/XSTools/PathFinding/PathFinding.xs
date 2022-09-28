@@ -201,16 +201,6 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 			XSRETURN_NO;
 		}
 		
-		if (session->map_base_weight[((session->startY * session->width) + session->startX)] == -1) {
-			printf("[pathfinding reset error] Start coordinate %d %d is not a walkable cell.\n", session->startX, session->startY);
-			XSRETURN_NO;
-		}
-		
-		if (session->map_base_weight[((session->endY * session->width) + session->endX)] == -1) {
-			printf("[pathfinding reset error] End coordinate %d %d is not a walkable cell.\n", session->endX, session->endY);
-			XSRETURN_NO;
-		}
-		
 		session->avoidWalls = (unsigned short) SvUV (avoidWalls);
 		session->customWeights = (unsigned short) SvUV (customWeights);
 		session->time_max = (unsigned int) SvUV (time_max);
@@ -220,17 +210,17 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		if (session->customWeights) {
 			/* secondWeightMap should be a reference to an array */
 			if (!SvROK(secondWeightMap)) {
-				printf("[pathfinding update_solution error] secondWeightMap is not a reference\n");
+				printf("[pathfinding reset error] secondWeightMap is not a reference\n");
 				XSRETURN_NO;
 			}
 			
 			if (SvTYPE(SvRV(secondWeightMap)) != SVt_PVAV) {
-				printf("[pathfinding update_solution error] secondWeightMap is not an array reference\n");
+				printf("[pathfinding reset error] secondWeightMap is not an array reference\n");
 				XSRETURN_NO;
 			}
 			
 			if (!SvOK(secondWeightMap)) {
-				printf("[pathfinding update_solution error] secondWeightMap is not defined\n");
+				printf("[pathfinding reset error] secondWeightMap is not defined\n");
 				XSRETURN_NO;
 			}
 			
@@ -241,7 +231,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 			array_last_index = av_top_index (deref_secondWeightMap);
 			
 			if (array_last_index == -1) {
-				printf("[pathfinding update_solution error] secondWeightMap has no members\n");
+				printf("[pathfinding reset error] secondWeightMap has no members\n");
 				XSRETURN_NO;
 			}
 			
@@ -249,24 +239,20 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 			I32 index;
 			
 			for (index = 0; index <= array_last_index; index++) {
-				//printf("[pathfinding test 2] inside member %d\n", index);
 				fetched = av_fetch (deref_secondWeightMap, index, 0);
-				//printf("[pathfinding test 2] after fetch\n");
 				
 				if (!SvOK(*fetched)) {
-					printf("[pathfinding update_solution error] member of array secondWeightMap is not defined\n");
+					printf("[pathfinding reset error] member of array secondWeightMap is not defined\n");
 					XSRETURN_NO;
 				}
 				
-				//printf("[test aa 1] bef rv\n");
 				unsigned int weight = SvIV(*fetched);
-				//printf("[test aa 2] weight is %d\n", weight);
 				
 				session->second_weight_map[index] = weight;
 			}
 		} else {
 			if (SvOK(secondWeightMap)) {
-				printf("[pathfinding update_solution error] secondWeightMap is defined while customWeights is 0\n");
+				printf("[pathfinding reset error] secondWeightMap is defined while customWeights is 0\n");
 				XSRETURN_NO;
 			}
 		}
