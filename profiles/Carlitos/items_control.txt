@@ -100,7 +100,6 @@ Mantle 0 0 1 # 2307
 "Mantle [1]" 0 0 1 # 2308
 Mirror Shield 0 0 1 # 2107
 Mr. Smile 0 0 1 # 2278
-Muffler 0 0 1 # 2503
 Pantie 0 0 1 # 2371
 Ribbon 0 0 1 # 2208
 "Ribbon [1]" 0 0 1 # 2209
@@ -168,7 +167,6 @@ Dagger 0 0 1 # 1215
 "Dagger [3]" 0 0 1 # 1214
 "Damascus [1]" 0 0 1 # 1222
 Dirk 0 0 1 # 1212
-"Dirk [2]" 0 0 1 # 1210
 "Dirk [3]" 0 0 1 # 1211
 Falchion 0 0 1 # 1106
 "Finger [1]" 0 0 1 # 1811
@@ -261,7 +259,6 @@ Spear 0 0 1 # 1406
 Staff 0 0 1 # 1609
 "Staff [2]" 0 0 1 # 1607
 Stiletto 0 0 1 # 1218
-"Stiletto [2]" 0 0 1 # 1216
 "Stiletto [3]" 0 0 1 # 1217
 "Studded Knuckles [2]" 0 0 1 # 1805
 "Studded Knuckles [3]" 0 0 1 # 1806
@@ -1729,11 +1726,7 @@ Spearman Scroll 10 0 0 0
 1104 1 0 0 #Falchion [3]
 1116 1 0 0 #Katana [3]
 2312 0 0 1 #Padded Armor
-2305 1 0 0 #Adventurer's Suit
-2501 1 0 0 #Hood
 2220 1 0 0 #Hat
-2401 0 0 1 #Sandals
-2403 1 0 0 #Shoes
 12323 0 0 0 #[NotForSale] Novice Fly Wing
 12324 0 0 0 #Novice Butterfly Wing
 569 0 0 0 #Novice Potion
@@ -1801,3 +1794,10 @@ Spearman Scroll 10 0 0 0
 516 0 0 1 #Potato
 580 0 0 1 #Bread
 700 0 0 1 #Level 1 Frost Diver Scroll
+2305 1 0 1 #Adventurer's Suit
+1210 0 0 1 #Dirk [2]
+1216 1 0 1 #Stiletto [2]
+2401 0 0 1 #Sandals
+2403 1 0 1 #Shoes
+2501 0 0 1 #Hood
+2503 1 0 1 #Muffler

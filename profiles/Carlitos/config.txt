@@ -51,7 +51,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword steyespu
+adminPassword goulazab
 callSign
 commandPrefix ;
 callSignGM 0
@@ -219,7 +219,7 @@ route_teleport_maxTries 8
 route_teleport_notInMaps
 route_step 15
 route_removeMissingPortals_NPC 1
-route_removeMissingPortals 0
+route_removeMissingPortals 1
 route_tryToGuessMissingPortalByDistance 1
 route_reAddMissingPortals 1
 
@@ -232,7 +232,7 @@ runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
 saveMap oldnewpayon
-saveMap_warpToBuyOrSell 1
+saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
 memo2
@@ -579,12 +579,12 @@ equipAuto {
 	midHead
 	lowHead
 	leftHand
-	rightHand Main Gauche [3]
+	rightHand Stiletto [2]
 	leftAccessory
 	rightAccessory
-	robe
-	armor
-	shoes
+	robe Muffler
+	armor Adventurer's Suit
+	shoes Shoes
 	arrow
 	monsters
 	notMonsters
@@ -643,7 +643,7 @@ BetterSeller_maxDistance 10
 
 # Strawberry
 BetterSeller 578 {
-	minPrice 900
+	minPrice 750
 	minBuyShopAmount 5
 }
 
@@ -943,3 +943,23 @@ saveMap_kafra_map oldnewpayon
 saveMap_kafra_x 98
 saveMap_kafra_y 118
 saveMap_save_sequence r~/Save/i
+buyAuto_0
+buyAuto_0_npc
+buyAuto_0_zeny
+buyAuto_0_minAmount
+buyAuto_0_maxAmount
+buyAuto_0_minDistance
+buyAuto_0_maxDistance
+buyAuto_0_maxBase
+buyAuto_0_minBase
+buyAuto_0_disabled
+buyAuto_1
+buyAuto_1_npc
+buyAuto_1_zeny
+buyAuto_1_minAmount
+buyAuto_1_maxAmount
+buyAuto_1_minDistance
+buyAuto_1_maxDistance
+buyAuto_1_maxBase
+buyAuto_1_minBase
+buyAuto_1_disabled

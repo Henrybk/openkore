@@ -297,6 +297,8 @@ sub AI_storage_done_after_getAuto {
 		} elsif ($started_checking && !$ended_cheking && !@buyers_query_queue && exists $last_recv_buyer_query_time{$current_buyer_item_id} && !main::timeOut($last_recv_buyer_query_time{$current_buyer_item_id}, 60)) {
 			$ended_cheking = 1;
 			warning "[BetterSeller - Storage] Ended Querying item $current_buyer_item_id.\n";
+			$query_time = 0;
+			$market_time_buyer = 0;
 		}
 		
 		return unless ($ended_cheking);
@@ -732,6 +734,7 @@ sub AI_pre_market {
 	return unless (main::timeOut($market_time_seller, MARKET_RECHECK_TIMEOUT));
 	return unless ($config{BetterShopper_on});
 	return unless (exists $config{BetterShopper_0});
+	return if (AI::inQueue("storageAuto", "determine_selling", "BetterSeller"));
 	
 	if (!@sellers_query_queue) {
 		create_sellers_query_queue();
@@ -920,7 +923,7 @@ sub on_npc_chat {
 				$receiving_Wsell = 1;
 			}
 			
-			return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
+			return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran' && $store_found{Map} ne 'pay_fild01');
 			
 			if ($store_found{id} == $last_sell_query_item_id && $store_found{quant} >= $last_sell_query_minShopAmount && $store_found{Cost} <= $last_sell_query_maxPrice) {
 				push(@sellers_found, \%store_found);
@@ -960,7 +963,7 @@ sub on_npc_chat {
 				$receiving_Wsell = 0;
 			}
 			
-			return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran');
+			return if ($store_found{Map} ne 'oldnewpayon' && $store_found{Map} ne 'aldebaran' && $store_found{Map} ne 'pay_fild01');
 			
 			if ($store_found{quant} >= $last_buy_query_minBuyShopAmount && $store_found{Cost} >= $last_buy_query_minPrice) {
 				#warning "[BetterSeller] Found buyer $store_found{Buyer} for item $store_found{id}, paying $store_found{Cost} a piece, quant $store_found{quant}, map $store_found{Map} ($store_found{x} $store_found{y})\n", "BetterShopper", 1;

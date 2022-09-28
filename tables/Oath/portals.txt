@@ -2723,20 +2723,11 @@ aldebaran 140 244 yuno_fild01 208 19
 oldnewpayon 89 22 pay_fild01 333 356
 pay_fild01 333 361 oldnewpayon 89 26
 
-payon_in01 144 45 oldnewpayon 38 171
 
-oldnewpayon 33 174 payon_in01 142 45
-oldnewpayon 25 176 payon_in01 80 63
-oldnewpayon 18 174 payon_in01 101 25
-
-payon_in01 83 63 oldnewpayon 30 176
 payon_in01 130 36 payon_in01 70 75
 payon_in01 70 75 payon_in01 130 39
 payon_in01 86 37 payon_in01 70 52
 payon_in01 70 52 payon_in01 86 34
-payon_in01 101 25 oldnewpayon 22 171
-oldnewpayon 33 175 payon_in01 142 45
-oldnewpayon 25 177 payon_in01 83 63
 
 pay_arche 81 17 oldnewpayon 175 189
 oldnewpayon 175 189 pay_arche 81 22
@@ -2757,8 +2748,6 @@ c_tower1 200 157 aldebaran 139 135
 
 aldeba_in 94 38 aldebaran 197 68
 
-payon_in01 145 45 oldnewpayon 38 174
-oldnewpayon 38 174 payon_in01 142 45
 
 yuno_fild02 294 24 yuno_fild01 286 368
 yuno_fild01 286 368 yuno_fild02 294 26
@@ -2797,3 +2786,9 @@ oldnewpayon 141 91 payon_in01 98 170
 payon_in01 98 170 oldnewpayon 141 95
 payon_in01 134 168 oldnewpayon 133 81
 oldnewpayon 133 81 payon_in01 134 171
+payon_in01 83 63 oldnewpayon 18 174
+oldnewpayon 18 174 payon_in01 80 63
+payon_in01 101 25 oldnewpayon 18 172
+oldnewpayon 25 177 payon_in01 83 63
+oldnewpayon 33 175 payon_in01 145 45
+payon_in01 145 45 oldnewpayon 34 171

@@ -55,6 +55,9 @@ CalcPath_init (CalcPath_session *session)
 		session->second_weight_map = (signed short*) calloc(session->height * session->width, sizeof(signed short));
 	}
 	
+	session->map_base_weight = (signed short*) calloc(session->height * session->width, sizeof(signed short));
+	
+	
 	unsigned long goalAdress = (session->endY * session->width) + session->endX;
 	Node* goal = &session->currentMap[goalAdress];
 	goal->x = session->endX;
