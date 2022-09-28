@@ -109,7 +109,7 @@ sub reset {
 		$args{timeout} = 1500 unless (defined $args{timeout});
 		
 		$args{avoidWalls} = 1 unless (defined $args{avoidWalls});
-		$args{weight_map} = $args{field}->{weightMap} unless (defined $args{weight_map});
+		$args{weight_map} = \($args{field}->{weightMap}) unless (defined $args{weight_map});
 		
 		$args{customWeights} = 0 unless (defined $args{customWeights});
 		$args{secondWeightMap} = undef unless (defined $args{secondWeightMap});
