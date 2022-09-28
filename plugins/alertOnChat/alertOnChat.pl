@@ -78,7 +78,7 @@ sub on_Pub {
 	my $player = $Args->{'MsgUser'};
 	my $recievedMessage = $Args->{'Msg'};
 	
-	my $actor = Actor::get($args->{pubID});
+	my $actor = Actor::get($Args->{pubID});
 	return unless ($actor->isa('Actor::Player'));
 	
 	my $realMyPos = calcPosition($char);
