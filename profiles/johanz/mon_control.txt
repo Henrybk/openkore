@@ -220,16 +220,19 @@ Yellow Plant 0 0 0
 1648 -1 1 0 #Whitesmith Harword
 1917 -1 1 0 #Wounded Morroc
 1658 -1 1 0 #Ygnizem
+1242 1 0 0 #Marin
+1145 1 0 0 #Martin
+1369 0 0 0 #Grand Peco
 1002 1 0 0 #Poring
 1113 1 0 0 #Drops
 1063 1 0 0 #Lunatic
 1010 1 0 0 #Willow
-1014 1 0 0 #Esporo
 1007 1 0 0 #Fabre
 1049 1 0 0 #Picky
 1011 1 0 0 #Chonchon
-1242 1 0 0 #Marin
+1182 0 0 0 #Orange Mushroom
+1184 1 0 0 #Fabre
+1183 1 0 0 #Chonchon
+1014 1 0 0 #Esporo
+1018 0 0 0 #Creamy
 1031 1 0 0 #Poporing
-1145 1 0 0 #Martin
-1018 1 0 0 #Creamy
-1369 0 0 0 #Grand Peco

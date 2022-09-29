@@ -3,13 +3,13 @@
 	!include ..\..\eventMacros\Classes.pm
 	!include ..\..\eventMacros\Utils\Perl_Subs.pm
 	
-	#!include ..\..\eventMacros\Leveling.pm
+	!include ..\..\eventMacros\Leveling.pm
 	#!include ..\..\eventMacros\Utils\Save_Kafra.pm
 
 
 # Classes
 	# Novice
-		!include ..\..\eventMacros\Classes\Novice\Novice_Grounds.pm
+		#!include ..\..\eventMacros\Classes\Novice\Novice_Grounds.pm
 		#!include ..\..\eventMacros\Classes\Novice\Move_to_tester.pm
 		
 	# Swordman
@@ -20,7 +20,7 @@
 	# Thief
 		#!include ..\..\eventMacros\Classes\Thief\Turn_Thief.pm
 		#!include ..\..\eventMacros\Classes\Rogue\Turn_Rogue.pm
-		#!include ..\..\eventMacros\Classes\Rogue\Rogue_Settings.pm
+		!include ..\..\eventMacros\Classes\Rogue\Rogue_Settings.pm
 
 # Quests 
 	#!include ..\..\eventMacros\Quests\Join_Sewb.pm

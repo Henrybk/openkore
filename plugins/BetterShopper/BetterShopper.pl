@@ -1021,9 +1021,9 @@ sub AI_pre_buying {
 		&& !AI::inQueue("determine_selling")
 		&& !AI::inQueue("BetterSeller")
 		&& main::timeOut($timeout{'Shopping'})
-		&& (scalar keys %found_best_seller_shops)
 	) {
-		
+		$timeout{'Shopping'}{'time'} = time;
+		$timeout{'Shopping'}{'timeout'} = 1;
 		my $i = 0;
 		my $bai;
 		my $tprice;
@@ -1041,10 +1041,10 @@ sub AI_pre_buying {
 			
 			my $char_total = $amount + $cart_amount;
 			
-			next unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "");
+			next unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"});
 			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
 			
-			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "");
+			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"});
 			my $maxAmount = $config{$item_prefix."_maxAmount"};
 			
 			#warning "[Better Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
@@ -1110,8 +1110,6 @@ sub AI_pre_buying {
 		AI::queue("Shopping", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
 		$buy_from_player_sucess = 0;
 		$buy_from_player_fail = 0;
-		$timeout{'Shopping'}{'time'} = time;
-		$timeout{'Shopping'}{'timeout'} = 1;
 	}
 
 	if (AI::action eq "Shopping" && AI::args->{'done'}) {
@@ -1432,6 +1430,8 @@ sub AI_pre_fallback {
 		&& !AI::inQueue("BetterSeller")
 		&& timeOut($timeout{'ai_Shopping_fallBack'})
 	) {
+		$timeout{'ai_Shopping_fallBack'}{'time'} = time;
+		$timeout{'ai_Shopping_fallBack'}{'timeout'} = 1;
 		my @delete_ids;
 		my $bai;
 		my $tprice;
@@ -1493,8 +1493,6 @@ sub AI_pre_fallback {
 		AI::queue("Shopping_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
 		$buy_fallback_sucess = 0;
 		$buy_fallback_fail = 0;
-		$timeout{'ai_Shopping_fallBack'}{'time'} = time;
-		$timeout{'ai_Shopping_fallBack'}{'timeout'} = 1;
 	}
 
 	if (AI::action eq "Shopping_fallBack" && AI::args->{'done'}) {
@@ -1737,6 +1735,8 @@ sub AI_pre_Talk_fallback {
 		&& !AI::inQueue("BetterSeller")
 		&& timeOut($timeout{'ai_Shopping_Talk_fallBack'})
 	) {
+		$timeout{'ai_Shopping_Talk_fallBack'}{'time'} = time;
+		$timeout{'ai_Shopping_Talk_fallBack'}{'timeout'} = 1;
 		my @delete_ids;
 		my $bai;
 		my $tprice;
@@ -1800,8 +1800,6 @@ sub AI_pre_Talk_fallback {
 		AI::queue("Shopping_Talk_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice, amount => $tamount_need_buy });
 		$buy_Talk_fallback_sucess = 0;
 		$buy_Talk_fallback_fail = 0;
-		$timeout{'ai_Shopping_Talk_fallBack'}{'time'} = time;
-		$timeout{'ai_Shopping_Talk_fallBack'}{'timeout'} = 1;
 	}
 
 	if (AI::action eq "Shopping_Talk_fallBack" && AI::args->{'done'}) {
@@ -1985,10 +1983,12 @@ sub AI_pre_autoRefine {
 		my $weapon_level = $config{autoRefine_weaponLevel};
 		my $wanted_refine = $config{autoRefine_wantedRefine};
 		my $current_refine = $char->{equipment}{'rightHand'}{upgrade};
+		#warning "[autoRefine Test] weapon_level $weapon_level | wanted_refine $wanted_refine | current_refine $current_refine\n";
 		
-		return unless ($current_refine >= $wanted_refine);
+		return if ($current_refine >= $wanted_refine);
 		
 		my $need_refine_count = $wanted_refine - $current_refine;
+		#warning "[autoRefine Test] need_refine_count $need_refine_count\n";
 		
 		my $price_per_refine;
 		if ($weapon_level == 1) {
@@ -2001,6 +2001,7 @@ sub AI_pre_autoRefine {
 			$price_per_refine = 20000;
 		}
 		my $total_cost = $price_per_refine * $need_refine_count;
+		#warning "[autoRefine Test] total_cost $total_cost\n";
 		
 		return unless ($char->{zeny} >= $total_cost);
 		
@@ -2015,6 +2016,7 @@ sub AI_pre_autoRefine {
 			$id = 984;
 		}
 		my $refine_item_amount = $char->inventory->sumByNameID($id);
+		#warning "[autoRefine Test] refine_item_amount $refine_item_amount\n";
 		
 		return unless ($refine_item_amount >= $need_refine_count);
 		

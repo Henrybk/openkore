@@ -44,7 +44,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 16) {
+	} elsif ($.lvl <= 14) {
 		if ($configlockMap != pay_fild08) {
 			call set_lockmap_pay_fild08
 			$changed = 1

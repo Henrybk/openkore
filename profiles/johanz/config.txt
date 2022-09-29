@@ -11,7 +11,7 @@ loginPinCode
 char 0
 ##### Plugins Start
 
-eventMacro_1_99_stage start
+eventMacro_1_99_stage leveling
 eventMacro_goal_class rogue
 eventMacro_test 0
 
@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword hieturus
+adminPassword prizegaj
 callSign
 commandPrefix ;
 callSignGM 0
@@ -200,7 +200,7 @@ cartMaxWeight 7900
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap
+lockMap pay_fild01
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -219,7 +219,7 @@ route_teleport 0
 route_teleport_minDistance 75
 route_teleport_maxTries 8
 route_teleport_notInMaps
-route_step 10
+route_step 15
 route_removeMissingPortals_NPC 1
 route_removeMissingPortals 0
 route_tryToGuessMissingPortalByDistance 1
@@ -231,7 +231,7 @@ runFromTarget_dist 5
 runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
-saveMap
+saveMap oldnewpayon
 saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
@@ -247,23 +247,23 @@ buyerShopAuto_open 0
 buyerShop_random 0
 
 sitAuto_hp_lower 40
-sitAuto_hp_upper 100
+sitAuto_hp_upper 80
 sitAuto_sp_lower 0
 sitAuto_sp_upper 0
 sitAuto_follow 0
 sitAuto_over_50 0
-sitAuto_idle 1
+sitAuto_idle 0
 sitAuto_look
 sitAuto_look_from_wall
 sitTensionRelax 0
 
-statsAddAuto 0
-statsAddAuto_list
-statsAddAuto_dontUseBonus 0
+statsAddAuto 1
+statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 9 int, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi
+statsAddAuto_dontUseBonus 1
 statsAdd_over_99 1
 
-skillsAddAuto 0
-skillsAddAuto_list
+skillsAddAuto 1
+skillsAddAuto_list TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
 
 tankMode 0
 tankModeTarget
@@ -273,7 +273,7 @@ teleportAuto_sp 0
 teleportAuto_idle 0
 teleportAuto_portal 0
 teleportAuto_search 0
-teleportAuto_minAggressives 0
+teleportAuto_minAggressives 4
 teleportAuto_minAggressivesInLock 0
 teleportAuto_onlyWhenSafe 0
 teleportAuto_maxDmg 500
@@ -530,21 +530,21 @@ autoSwitch {
 
 ######## Autostorage/autosell ########
 
-sellAuto 0
-sellAuto_npc
+sellAuto 1
+sellAuto_npc oldnewpayon 69 117
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
-storageAuto 0
-storageAuto_npc
+storageAuto 1
+storageAuto_npc oldnewpayon 98 118
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
-storageAuto_npc_type 1
+storageAuto_npc_type 3
 storageAuto_type 0
-storageAuto_npc_steps
+storageAuto_npc_steps r~/storage/i
 storageAuto_password
 storageAuto_keepOpen 0
 storageAuto_useChatCommand
@@ -552,7 +552,7 @@ storageAuto_useItem 0
 storageAuto_useItem_item
 storageAuto_notAfterDeath
 relogAfterStorage 0
-minStorageZeny 50
+minStorageZeny 100
 
 npcTimeResponse
 npcWrongStepsMethod 3
@@ -575,16 +575,16 @@ logToFile_Warnings
 history_max 50
 
 equipAuto {
-	topHead
+	topHead Bandana
 	midHead
 	lowHead
 	leftHand
-	rightHand
+	rightHand Main Gauche [3]
 	leftAccessory
 	rightAccessory
-	robe
-	armor
-	shoes
+	robe Hood
+	armor Adventurer's Suit
+	shoes Sandals
 	arrow
 	monsters
 	notMonsters
@@ -643,8 +643,8 @@ BetterSeller_maxDistance 10
 
 # Strawberry
 BetterSeller 578 {
-	minPrice 900
-	minBuyShopAmount 5
+	minPrice 700
+	minBuyShopAmount 3
 }
 
 # Empty Bottle
@@ -866,3 +866,92 @@ BetterSeller 511 {
 	minPrice 500
 	minBuyShopAmount 10
 }
+useSelf_item_0 Novice Potion
+useSelf_item_0_disabled 0
+useSelf_item_0_hp < 70%
+useSelf_item_0_timeout 1
+current_event_include Leveling.pm
+Joined_Oranpere true
+Join_Oranpere_before
+before_event_include
+Joined_Sewb true
+Join_Sewb_before
+future_saveMap_map
+future_saveMap_x
+future_saveMap_y
+future_saveMap_kafra_map
+future_saveMap_kafra_x
+future_saveMap_kafra_y
+future_saveMap_save_sequence
+saveMap_stage_before
+saveMap_map oldnewpayon
+saveMap_x 98
+saveMap_y 118
+saveMap_kafra_map oldnewpayon
+saveMap_kafra_x 98
+saveMap_kafra_y 118
+saveMap_save_sequence r~/Save/i
+BetterShopper_0 517
+BetterShopper_0_price 50
+BetterShopper_0_maxPrice 45
+BetterShopper_0_minInventoryAmount 5
+BetterShopper_0_minShopAmount 30
+BetterShopper_0_maxAmount 30
+BetterShopper_0_fallbackNpcShop oldnewpayon 44 119
+useSelf_item_1 Meat
+useSelf_item_1_disabled 0
+useSelf_item_1_hp < 60%
+BetterShopper_1 601
+BetterShopper_1_price 60
+BetterShopper_1_maxPrice 55
+BetterShopper_1_minInventoryAmount 0
+BetterShopper_1_minShopAmount 10
+BetterShopper_1_maxAmount 10
+BetterShopper_1_fallbackNpcShop oldnewpayon 69 117
+BetterShopper_2 602
+BetterShopper_2_price 300
+BetterShopper_2_maxPrice 285
+BetterShopper_2_minInventoryAmount 0
+BetterShopper_2_minShopAmount 2
+BetterShopper_2_maxAmount 2
+BetterShopper_2_fallbackNpcShop oldnewpayon 69 117
+autoRefine_on 0
+autoRefine_weaponLevel
+autoRefine_wantedRefine
+autoRefine_npc
+BetterShopper_3
+BetterShopper_3_price
+BetterShopper_3_maxPrice
+BetterShopper_3_minInventoryAmount
+BetterShopper_3_minShopAmount
+BetterShopper_3_maxAmount
+BetterShopper_3_fallbackNpcTalk
+BetterShopper_3_fallbackNpcTSequence
+BetterShopper_4
+BetterShopper_4_price
+BetterShopper_4_maxPrice
+BetterShopper_4_minInventoryAmount
+BetterShopper_4_minShopAmount
+BetterShopper_4_maxAmount
+BetterShopper_4_fallbackNpcShop
+BetterShopper_5 2403
+BetterShopper_5_price 3500
+BetterShopper_5_maxPrice 3500
+BetterShopper_5_minInventoryAmount 0
+BetterShopper_5_minShopAmount 1
+BetterShopper_5_maxAmount 1
+BetterShopper_5_fallbackNpcShop payon_in01 134 51
+BetterShopper_6
+BetterShopper_6_price
+BetterShopper_6_maxPrice
+BetterShopper_6_minInventoryAmount
+BetterShopper_6_minShopAmount
+BetterShopper_6_maxAmount
+BetterShopper_6_fallbackNpcShop
+BetterShopper_7
+BetterShopper_7_price
+BetterShopper_7_maxPrice
+BetterShopper_7_minInventoryAmount
+BetterShopper_7_minShopAmount
+BetterShopper_7_maxAmount
+BetterShopper_7_fallbackNpcShop
