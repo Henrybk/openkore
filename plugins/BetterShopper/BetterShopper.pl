@@ -330,10 +330,37 @@ sub AI_storage_done_after_getAuto {
 	$item{storage}{amount} = $storeItem ? $storeAmount : 0;
 	$item{max_amount} = $found_best_buyer_shops{$current_buyer_item_id}{quant};
 	$item{amount_needed} = $item{max_amount} - $item{inventory}{amount};
-
-	# Calculate the amount to get
+	$item{amount_get} = 0;
+	
 	if ($item{amount_needed} > 0) {
 		$item{amount_get} = ($item{storage}{amount} >= $item{amount_needed})? $item{amount_needed} : $item{storage}{amount};
+	}
+	
+	my $current_weight = $char->{weight};
+	my $weight_cap = ($char->{weight_max}*(80/100));
+	my $current_inv_size = $char->inventory->size();
+
+	# Calculate the amount to get
+	
+	if (($item{amount_get} > 0) && $current_inv_size == MAX_INVENTORY_SIZE) {
+		$item{amount_get} = 0;
+	}
+	
+	if (($item{amount_get} > 0) && $invAmount == MAX_ITEM_AMOUNT) {
+		$item{amount_get} = 0;
+		
+	} elsif (($item{amount_get} > 0) && (($item{amount_get} + $invAmount) > MAX_ITEM_AMOUNT)) {
+		$item{amount_get} = (MAX_ITEM_AMOUNT - $invAmount);
+	}
+	
+	if (($item{amount_get} > 0) && $storeAmount > 0) {
+		my $item_weight = $storeItem->weight;
+		if (defined $item_weight) {
+			$item_weight = $item_weight/10;
+			if (((($item{amount_get} * $item_weight) + $current_weight) > $weight_cap)) {
+				$item{amount_get} = (floor($weight_cap - $current_weight/$item_weight));
+			}
+		}
 	}
 
 	# Try at most 3 times to get the item
@@ -1006,8 +1033,8 @@ sub AI_pre_buying {
 			my $amount;
 			my $cart_amount;
 			
-			$amount = $char->inventory->sumByNameID($itemID);
-			$cart_amount = $char->cart->sumByNameID($itemID);
+			$amount = $char->inventory->sumByNameID($itemID, 1);
+			$cart_amount = $char->cart->sumByNameID($itemID, 1);
 			
 			my $char_total = $amount + $cart_amount;
 			
@@ -1082,7 +1109,7 @@ sub AI_pre_buying {
 		# Shopping finished
 		AI::dequeue while AI::inQueue("Shopping");
 		delete $last_recv_seller_query_time{$prefix} if (exists $last_recv_seller_query_time{$prefix});
-		unshift(@sellers_query_queue, $prefix);
+		unshift(@sellers_query_queue, $prefixN);
 
 	} elsif (AI::action eq "Shopping") {
 		my $args = AI::args;
@@ -1280,10 +1307,10 @@ sub AI_pre_buying {
 			my $maxPrice = $config{$item_prefix."_maxPrice"};
 			my $maxAmount = $config{$item_prefix."_maxAmount"};
 			
-			my $inv_amount = $char->inventory->sumByNameID($nameID);
+			my $inv_amount = $char->inventory->sumByNameID($nameID, 1);
 			next if ($inv_amount == MAX_ITEM_AMOUNT);
 			
-			my $cart_amount = $char->cart->sumByNameID($nameID);
+			my $cart_amount = $char->cart->sumByNameID($nameID, 1);
 			my $char_total = $inv_amount + $cart_amount;
 			next unless ($char_total < $maxAmount);
 			
@@ -1400,8 +1427,8 @@ sub AI_pre_fallback {
 			my $amount;
 			my $cart_amount;
 			
-			$amount = $char->inventory->sumByNameID($fallback_id);
-			$cart_amount = $char->cart->sumByNameID($fallback_id);
+			$amount = $char->inventory->sumByNameID($fallback_id, 1);
+			$cart_amount = $char->cart->sumByNameID($fallback_id, 1);
 			
 			my $char_total = $amount + $cart_amount;
 			
@@ -1627,7 +1654,7 @@ sub AI_pre_fallback {
 			my $maxbuy = ($config{"BetterShopper_".$args->{lastIndex}."_price"}) ? int($char->{zeny}/$config{"BetterShopper_$args->{index}"."_price"}) : 30000; # we assume we can buy 30000, when price of the item is set to 0 or undef
 			my $needbuy = $config{"BetterShopper_".$args->{lastIndex}."_maxAmount"};
 
-			my $inv_amount = $char->inventory->sumByNameID($args->{'nameID'}, $config{"BetterShopper_".$args->{lastIndex}."_onlyIdentified"});
+			my $inv_amount = $char->inventory->sumByNameID($args->{'nameID'}, 1);
 
 			$needbuy -= $inv_amount;
 

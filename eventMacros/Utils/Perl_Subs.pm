@@ -63,12 +63,11 @@ sub set_common_equip_buyAuto {
 	my $Slot = shift;
 	my $name = shift;
 	my $price = shift;
-	my $place = shift;
-	my $x = shift;
-	my $y = shift;
+	my $npc = shift;
+	$npc =~ s/-/ /g;
 	
 	check_key('buyAuto_'.$Slot, $name);
-	check_key('buyAuto_'.$Slot.'_npc', $place.' '.$x.' '.$y);
+	check_key('buyAuto_'.$Slot.'_npc', $npc);
 	check_key('buyAuto_'.$Slot.'_zeny', '> '.$price);
 	check_key('buyAuto_'.$Slot.'_minAmount', 0);
 	check_key('buyAuto_'.$Slot.'_maxAmount', 1);
@@ -363,36 +362,37 @@ macro set_item {
 	} else {
 		$item{CanEquip} = 0
 	}
-	if ($item{price} == player) {
+	
+	if ($item{buytype} == player) {
+		$item{price} = 0
 		$totalcost = &eval($item{maxPrice} + $extraBuyCost)
-		if ($currentZeny >= $totalcost) {
-			$item{CanBuy} = 1
-		} else {
-			$item{CanBuy} = 0
-		}
-	} else {
+		
+	} elsif ($item{buytype} == fallback) {
+		$item{maxPrice} = $item{price}
+		$totalcost = &eval($item{price} + $extraBuyCost)
+		
+	} elsif ($item{buytype} == npc) {
 		$item{maxPrice} = 0
 		$totalcost = &eval($item{price} + $extraBuyCost)
-		if ($currentZeny >= $totalcost) {
-			$item{CanBuy} = 1
-		} else {
-			$item{CanBuy} = 0
-		}
 	}
+	
+	if ($currentZeny >= $totalcost) {
+		$item{CanBuy} = 1
+	} else {
+		$item{CanBuy} = 0
+	}
+	
 	$itemHash{$item{name}name} = $item{name}
 	$itemHash{$item{name}id} = $item{id}
 	$itemHash{$item{name}slot} = $item{slot}
+	$itemHash{$item{name}buytype} = $item{buytype}
 	$itemHash{$item{name}price} = $item{price}
 	$itemHash{$item{name}maxPrice} = $item{maxPrice}
 	$itemHash{$item{name}minLevel} = $item{minLevel}
 	if ($testvar == 1) {
-		$itemHash{$item{name}npcMap} = prt_fild05
-		$itemHash{$item{name}npcX} = 290
-		$itemHash{$item{name}npcY} = 217
+		$itemHash{$item{name}npc} = prt_fild05-290-217
 	} else {
-		$itemHash{$item{name}npcMap} = $item{npcMap}
-		$itemHash{$item{name}npcX} = $item{npcX}
-		$itemHash{$item{name}npcY} = $item{npcY}
+		$itemHash{$item{name}npc} = $item{npc}
 	}
 	$itemHash{$item{name}Has} = $item{Has}
 	$itemHash{$item{name}Equipped} = $item{Equipped}
@@ -446,12 +446,11 @@ macro setTempHash1 {
 	$temphash{Item1name} = get_hash_key("$Item1","name")
 	$temphash{Item1id} = get_hash_key("$Item1","id")
 	$temphash{Item1slot} = get_hash_key("$Item1","slot")
+	$temphash{Item1buytype} = get_hash_key("$Item1","buytype")
 	$temphash{Item1price} = get_hash_key("$Item1","price")
 	$temphash{Item1maxPrice} = get_hash_key("$Item1","maxPrice")
 	$temphash{Item1minLevel} = get_hash_key("$Item1","minLevel")
-	$temphash{Item1npcMap} = get_hash_key("$Item1","npcMap")
-	$temphash{Item1npcX} = get_hash_key("$Item1","npcX")
-	$temphash{Item1npcY} = get_hash_key("$Item1","npcY")
+	$temphash{Item1npc} = get_hash_key("$Item1","npc")
 	$temphash{Item1Has} = get_hash_key("$Item1","Has")
 	$temphash{Item1Equipped} = get_hash_key("$Item1","Equipped")
 	$temphash{Item1CanEquip} = get_hash_key("$Item1","CanEquip")
@@ -464,12 +463,11 @@ macro setTempHash2 {
 	$temphash{Item2name} = get_hash_key("$Item2","name")
 	$temphash{Item2id} = get_hash_key("$Item2","id")
 	$temphash{Item2slot} = get_hash_key("$Item2","slot")
+	$temphash{Item2buytype} = get_hash_key("$Item2","buytype")
 	$temphash{Item2price} = get_hash_key("$Item2","price")
 	$temphash{Item2maxPrice} = get_hash_key("$Item2","maxPrice")
 	$temphash{Item2minLevel} = get_hash_key("$Item2","minLevel")
-	$temphash{Item2npcMap} = get_hash_key("$Item2","npcMap")
-	$temphash{Item2npcX} = get_hash_key("$Item2","npcX")
-	$temphash{Item2npcY} = get_hash_key("$Item2","npcY")
+	$temphash{Item2npc} = get_hash_key("$Item2","npc")
 	$temphash{Item2Has} = get_hash_key("$Item2","Has")
 	$temphash{Item2Equipped} = get_hash_key("$Item2","Equipped")
 	$temphash{Item2CanEquip} = get_hash_key("$Item2","CanEquip")
@@ -482,16 +480,29 @@ macro setTempHash3 {
 	$temphash{Item3name} = get_hash_key("$Item3","name")
 	$temphash{Item3id} = get_hash_key("$Item3","id")
 	$temphash{Item3slot} = get_hash_key("$Item3","slot")
+	$temphash{Item3buytype} = get_hash_key("$Item3","buytype")
 	$temphash{Item3price} = get_hash_key("$Item3","price")
 	$temphash{Item3maxPrice} = get_hash_key("$Item3","maxPrice")
 	$temphash{Item3minLevel} = get_hash_key("$Item3","minLevel")
-	$temphash{Item3npcMap} = get_hash_key("$Item3","npcMap")
-	$temphash{Item3npcX} = get_hash_key("$Item3","npcX")
-	$temphash{Item3npcY} = get_hash_key("$Item3","npcY")
+	$temphash{Item3npc} = get_hash_key("$Item3","npc")
 	$temphash{Item3Has} = get_hash_key("$Item3","Has")
 	$temphash{Item3Equipped} = get_hash_key("$Item3","Equipped")
 	$temphash{Item3CanEquip} = get_hash_key("$Item3","CanEquip")
 	$temphash{Item3CanBuy} = get_hash_key("$Item3","CanBuy")
+	]
+}
+
+macro set_tempitems_1 {
+	[
+	call set_$Item1
+	call setTempHash1
+	]
+}
+
+macro organize_and_run_buyauto_1 {
+	[
+	call set_tempitems_1
+	call buyauto_logic_run_1
 	]
 }
 
@@ -529,6 +540,108 @@ macro organize_and_run_buyauto_3 {
 	]
 }
 
+macro buyauto_logic_run_1 {
+	[
+	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+		log $Item1 is equippede DAMNN
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 0) {
+		log $Item1 is not equipped, cannot equip it
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 0 && $itemHash{$temphash{Item1Has}} == 0) {
+		log $Item1 is not equipped, cannot buy it
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} >= 1) {
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		call set_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1slot}}
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 1) {
+		if ($itemHash{$temphash{Item1buytype}} == player) {
+			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1maxPrice}}
+		
+		} elsif ($itemHash{$temphash{Item1buytype}} == fallback) {
+			call set_BetterbuyAuto_item_equip_fallback $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1maxPrice}} $itemHash{$temphash{Item1npc}}
+			
+		} else {
+			call set_buyAuto $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1npc}}
+		}
+		
+	}
+	]
+}
+
+macro buyauto_logic_run_2 {
+	[
+	if ($itemHash{$temphash{Item2Equipped}} == 1) {
+		log $Item2 is equippede DAMNN
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 1 && $itemHash{$temphash{Item2CanEquip}} == 0) {
+		log $Item1 is equipped and cannot equip $Item2 DAMNN
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 1 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2CanBuy}} == 0 && $itemHash{$temphash{Item2Has}} == 0) {
+		log $Item1 is equipped, can equip $Item2 but cannot buy it DAMNN
+		
+	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 0 && $itemHash{$temphash{Item1Has}} == 0) {
+		log $Item1 is not equipped, cannot buy it
+		
+	} elsif ($itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} >= 1) {
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		if ($itemHash{$temphash{Item2buytype}} == player || $itemHash{$temphash{Item2buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item2id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item2id}}
+		}
+		call set_equip $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2slot}}
+		
+	} elsif ($itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} == 0 && $itemHash{$temphash{Item2CanBuy}} == 1) {
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		if ($itemHash{$temphash{Item2buytype}} == player) {
+			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2maxPrice}}
+		
+		} elsif ($itemHash{$temphash{Item2buytype}} == fallback) {
+			call set_BetterbuyAuto_item_equip_fallback $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2maxPrice}} $itemHash{$temphash{Item2npc}}
+			
+		} else {
+			call set_buyAuto $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2npc}}
+		}
+		
+	} elsif (($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} >= 1) {
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		call set_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1slot}}
+		
+	} elsif (($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 1) {
+		if ($itemHash{$temphash{Item1buytype}} == player) {
+			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1maxPrice}}
+		
+		} elsif ($itemHash{$temphash{Item1buytype}} == fallback) {
+			call set_BetterbuyAuto_item_equip_fallback $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1maxPrice}} $itemHash{$temphash{Item1npc}}
+			
+		} else {
+			call set_buyAuto $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1npc}}
+		}
+		
+	}
+	]
+}
+
+################
+
 macro buyauto_logic_run_3 {
 	[
 	if ($itemHash{$temphash{Item3Equipped}} == 1) {
@@ -550,113 +663,17 @@ macro buyauto_logic_run_3 {
 		log $Item1 is not equipped, cannot buy it
 		
 	} elsif ($itemHash{$temphash{Item3Equipped}} == 0 && $itemHash{$temphash{Item3CanEquip}} == 1 && $itemHash{$temphash{Item3Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
-		call buyAuto_clear $itemHash{$temphash{Item3id}}
-		call set_equip $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3slot}}
-		
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 0 && $itemHash{$temphash{Item3CanEquip}} == 1 && $itemHash{$temphash{Item3Has}} == 0 && $itemHash{$temphash{Item3CanBuy}} == 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
-		call set_buyAuto $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3price}} $itemHash{$temphash{Item3npcMap}} $itemHash{$temphash{Item3npcX}} $itemHash{$temphash{Item3npcY}}
-		
-	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3Has}} == 0) && $itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
-		call set_equip $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2slot}}
-		
-	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3CanBuy}} == 0) && $itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} == 0 && $itemHash{$temphash{Item2CanBuy}} == 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call set_buyAuto $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2npcMap}} $itemHash{$temphash{Item2npcX}} $itemHash{$temphash{Item2npcY}}
-		
-	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3CanBuy}} == 0) && ($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call set_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1slot}}
-		
-	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3CanBuy}} == 0) && ($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 1) {
-		call set_buyAuto $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1npcMap}} $itemHash{$temphash{Item1npcX}} $itemHash{$temphash{Item1npcY}}
-	}
-	]
-}
-
-macro buyauto_logic_run_2 {
-	[
-	if ($itemHash{$temphash{Item2Equipped}} == 1) {
-		log $Item2 is equippede DAMNN
-		
-	} elsif ($itemHash{$temphash{Item1Equipped}} == 1 && $itemHash{$temphash{Item2CanEquip}} == 0) {
-		log $Item1 is equipped and cannot equip $Item2 DAMNN
-		
-	} elsif ($itemHash{$temphash{Item1Equipped}} == 1 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2CanBuy}} == 0 && $itemHash{$temphash{Item2Has}} == 0) {
-		log $Item1 is equipped, can equip $Item2 but cannot buy it DAMNN
-		
-	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 0 && $itemHash{$temphash{Item1Has}} == 0) {
-		log $Item1 is not equipped, cannot buy it
-		
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
-		call set_equip $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2slot}}
-		
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} == 0 && $itemHash{$temphash{Item2CanBuy}} == 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call set_buyAuto $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2npcMap}} $itemHash{$temphash{Item2npcX}} $itemHash{$temphash{Item2npcY}}
-		
-	} elsif (($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call set_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1slot}}
-		
-	} elsif (($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 1) {
-		call set_buyAuto $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1npcMap}} $itemHash{$temphash{Item1npcX}} $itemHash{$temphash{Item1npcY}}
-		
-	}
-	]
-}
-
-################
-
-macro set_tempitems_2_plus1 {
-	[
-	call set_$Item1
-	call set_$Item2
-	call set_$Item3
-	call setTempHash1
-	call setTempHash2
-	call setTempHash3
-	]
-}
-
-macro organize_and_run_buyauto_2_plus1 {
-	[
-	call set_tempitems_2_plus1
-	call buyauto_logic_run_2_plus1
-	]
-}
-
-macro buyauto_logic_run_2_plus1 {
-	[
-	if ($itemHash{$temphash{Item3Equipped}} == 1) {
-		log $Item3 is equippede DAMNN
-		
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1 && $itemHash{$temphash{Item3CanEquip}} == 0) {
-		log $Item2 is equipped and cannot equip $Item3 DAMNN
-		
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1 && $itemHash{$temphash{Item3CanEquip}} == 1 && $itemHash{$temphash{Item3CanBuy}} == 0 && $itemHash{$temphash{Item3Has}} == 0) {
-		log $Item2 is equipped, can equip $Item3 but cannot buy it DAMNN
-		
-	} elsif ($itemHash{$temphash{Item1Equipped}} == 1 && $itemHash{$temphash{Item3CanEquip}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 0) {
-		log $Item1 is equipped and cannot equip $Item2 or $Item3 DAMNN
-		
-	} elsif ($itemHash{$temphash{Item1Equipped}} == 1 && ($itemHash{$temphash{Item3CanEquip}} == 1 || $itemHash{$temphash{Item2CanEquip}} == 1) && $itemHash{$temphash{Item3CanBuy}} == 0 && $itemHash{$temphash{Item2CanBuy}} == 0 && $itemHash{$temphash{Item3Has}} == 0 && $itemHash{$temphash{Item2Has}} == 0) {
-		log $Item1 is equipped, can equip $Item2 or $Item3 stuff but not buy either DAMNN
-		
-	} elsif ($itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 0 && $itemHash{$temphash{Item1Has}} == 0) {
-		log $Item1 is not equipped, cannot buy it
-		
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 0 && $itemHash{$temphash{Item3CanEquip}} == 1 && $itemHash{$temphash{Item3Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
-		if ($itemHash{$temphash{Item3maxPrice}} > 0) {
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		if ($itemHash{$temphash{Item2buytype}} == player || $itemHash{$temphash{Item2buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item2id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item2id}}
+		}
+		if ($itemHash{$temphash{Item3buytype}} == player || $itemHash{$temphash{Item3buytype}} == fallback) {
 			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item3id}}
 		} else {
 			call buyAuto_clear $itemHash{$temphash{Item3id}}
@@ -664,29 +681,72 @@ macro buyauto_logic_run_2_plus1 {
 		call set_equip $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3slot}}
 		
 	} elsif ($itemHash{$temphash{Item3Equipped}} == 0 && $itemHash{$temphash{Item3CanEquip}} == 1 && $itemHash{$temphash{Item3Has}} == 0 && $itemHash{$temphash{Item3CanBuy}} == 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
-		if ($itemHash{$temphash{Item3maxPrice}} > 0) {
-			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3maxPrice}}
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
 		} else {
-			call set_buyAuto $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3price}} $itemHash{$temphash{Item3npcMap}} $itemHash{$temphash{Item3npcX}} $itemHash{$temphash{Item3npcY}}
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		if ($itemHash{$temphash{Item2buytype}} == player || $itemHash{$temphash{Item2buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item2id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item2id}}
+		}
+		if ($itemHash{$temphash{Item3buytype}} == player) {
+			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3maxPrice}}
+		
+		} elsif ($itemHash{$temphash{Item3buytype}} == fallback) {
+			call set_BetterbuyAuto_item_equip_fallback $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3price}} $itemHash{$temphash{Item3maxPrice}} $itemHash{$temphash{Item3npc}}
+		
+		} else {
+			call set_buyAuto $itemHash{$temphash{Item3id}} $itemHash{$temphash{Item3price}} $itemHash{$temphash{Item3npc}}
 		}
 		
 	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3Has}} == 0) && $itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call buyAuto_clear $itemHash{$temphash{Item2id}}
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		if ($itemHash{$temphash{Item2buytype}} == player || $itemHash{$temphash{Item2buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item2id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item2id}}
+		}
 		call set_equip $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2slot}}
 		
 	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3CanBuy}} == 0) && $itemHash{$temphash{Item2Equipped}} == 0 && $itemHash{$temphash{Item2CanEquip}} == 1 && $itemHash{$temphash{Item2Has}} == 0 && $itemHash{$temphash{Item2CanBuy}} == 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
-		call set_buyAuto $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2npcMap}} $itemHash{$temphash{Item2npcX}} $itemHash{$temphash{Item2npcY}}
+	if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
+		if ($itemHash{$temphash{Item2buytype}} == player) {
+			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2maxPrice}}
 		
+		} elsif ($itemHash{$temphash{Item2buytype}} == fallback) {
+			call set_BetterbuyAuto_item_equip_fallback $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2maxPrice}} $itemHash{$temphash{Item2npc}}
+			
+		} else {
+			call set_buyAuto $itemHash{$temphash{Item2id}} $itemHash{$temphash{Item2price}} $itemHash{$temphash{Item2npc}}
+		}
 	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3CanBuy}} == 0) && ($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} >= 1) {
-		call buyAuto_clear $itemHash{$temphash{Item1id}}
+		if ($itemHash{$temphash{Item1buytype}} == player || $itemHash{$temphash{Item1buytype}} == fallback) {
+			call BetterbuyAuto_clear_equip $itemHash{$temphash{Item1id}}
+		} else {
+			call buyAuto_clear $itemHash{$temphash{Item1id}}
+		}
 		call set_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1slot}}
 		
 	} elsif (($itemHash{$temphash{Item3CanEquip}} == 0 || $itemHash{$temphash{Item3CanBuy}} == 0) && ($itemHash{$temphash{Item2CanEquip}} == 0 || $itemHash{$temphash{Item2CanBuy}} == 0) && $itemHash{$temphash{Item1Equipped}} == 0 && $itemHash{$temphash{Item1CanEquip}} == 1 && $itemHash{$temphash{Item1Has}} == 0 && $itemHash{$temphash{Item1CanBuy}} == 1) {
-		call set_buyAuto $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1npcMap}} $itemHash{$temphash{Item1npcX}} $itemHash{$temphash{Item1npcY}}
+		if ($itemHash{$temphash{Item1buytype}} == player) {
+			call set_BetterbuyAuto_item_equip $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1maxPrice}}
+		
+		} elsif ($itemHash{$temphash{Item1buytype}} == fallback) {
+			call set_BetterbuyAuto_item_equip_fallback $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1maxPrice}} $itemHash{$temphash{Item1npc}}
+			
+		} else {
+			call set_buyAuto $itemHash{$temphash{Item1id}} $itemHash{$temphash{Item1price}} $itemHash{$temphash{Item1npc}}
+		}
 	}
 	]
 }
@@ -715,6 +775,37 @@ sub set_common_equip_BetterbuyAuto {
 	check_key('BetterShopper_'.$Slot.'_minShopAmount', 1);
 	check_key('BetterShopper_'.$Slot.'_maxAmount', 1);
 	check_key('BetterShopper_'.$Slot.'_fallbackNpc', undef);
+	
+	return 1;
+}
+
+macro set_BetterbuyAuto_item_equip_fallback {
+	[
+	$name = GetNamebyNameID("$.param[0]")
+	log Setting BetterShopper item_equip $name
+	$nextFreeSlot = get_free_slot_index_for_key("BetterShopper","$.param[0]")
+	set_common_equip_BetterbuyAuto_fallback("$nextFreeSlot","$.param[0]","$.param[1]","$.param[2]","$.param[3]")
+	$totalcost = &eval($.param[1] + $extraBuyCost)
+	$currentZeny = &eval($currentZeny - $totalcost)
+	do iconf $.param[0] 1 0 0
+	]
+}
+
+sub set_common_equip_BetterbuyAuto_fallback {
+	my $Slot = shift;
+	my $id = shift;
+	my $price = shift;
+	my $max_price = shift;
+	my $fallback = shift;
+	$fallback =~ s/-/ /g;
+	
+	check_key('BetterShopper_'.$Slot, $id);
+	check_key('BetterShopper_'.$Slot.'_price', $price);
+	check_key('BetterShopper_'.$Slot.'_maxPrice', $max_price);
+	check_key('BetterShopper_'.$Slot.'_minInventoryAmount', 0);
+	check_key('BetterShopper_'.$Slot.'_minShopAmount', 1);
+	check_key('BetterShopper_'.$Slot.'_maxAmount', 1);
+	check_key('BetterShopper_'.$Slot.'_fallbackNpc', $fallback);
 	
 	return 1;
 }
@@ -821,16 +912,6 @@ sub set_BetterbuyAuto_item_usable {
 	return 1;
 }
 
-macro set_buy_item_usable {
-	[
-	if ($item{CanUse} == 1) {
-		call set_BetterbuyAuto_item_usable $item{id} $item{price} $item{maxPrice} $item{minInventoryAmount} $item{maxAmount} $tooldealer
-	} else {
-		call BetterbuyAuto_clear_item $item{id}
-	}
-	]
-}
-
 macro set_item_usable {
 	[
 	if ($.lvl >= $item{minLevel} && $.lvl <= $item{maxLevel}) {
@@ -838,6 +919,46 @@ macro set_item_usable {
 	} else {
 		$item{CanUse} = 0
 	}
+	]
+}
+
+macro deal_with_usables {
+	[
+	if ($item{CanUse} == 0) {
+		call set_item_usable_cannot
+	} else {
+		call set_buy_item_usable
+		if ($item{useSelf} == 1) {
+			call set_use_item_basic
+		}
+	}
+	]
+}
+
+macro set_item_usable_cannot {
+	[
+	call BetterbuyAuto_clear_item $item{id}
+	do iconf $item{id} 0 1 0
+	]
+}
+
+macro set_buy_item_usable {
+	[
+	if ($item{id} == 517) {
+		call set_BetterbuyAuto_item_usable $item{id} $item{price} $item{maxPrice} $item{minInventoryAmount} $item{maxAmount} $meatDealer
+	} else {
+		call set_BetterbuyAuto_item_usable $item{id} $item{price} $item{maxPrice} $item{minInventoryAmount} $item{maxAmount} $tooldealer
+	}
+	do iconf $item{id} $item{maxAmount} 1 0
+	]
+}
+
+macro set_use_item_basic {
+	[
+	$name = GetNamebyNameID("$item{id}")
+	$nextFreeSlot = get_free_slot_index_for_key("useSelf_item","$name")
+	do conf -f useSelf_item_$nextFreeSlot $name
+	do conf -f useSelf_item_$nextFreeSlot_disabled 0
 	]
 }
 

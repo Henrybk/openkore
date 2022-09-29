@@ -51,7 +51,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword goulazab
+adminPassword doceathi
 callSign
 commandPrefix ;
 callSignGM 0
@@ -198,7 +198,7 @@ cartMaxWeight 7900
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap pay_fild01
+lockMap lasa_dun01
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -231,7 +231,7 @@ runFromTarget_dist 5
 runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
-saveMap oldnewpayon
+saveMap aldebaran
 saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
@@ -531,14 +531,14 @@ autoSwitch {
 ######## Autostorage/autosell ########
 
 sellAuto 1
-sellAuto_npc oldnewpayon 69 117
+sellAuto_npc aldeba_in 94 56
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
 storageAuto 1
-storageAuto_npc oldnewpayon 98 118
+storageAuto_npc aldebaran 143 119
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
@@ -575,16 +575,16 @@ logToFile_Warnings
 history_max 50
 
 equipAuto {
-	topHead
+	topHead Bandana
 	midHead
 	lowHead
 	leftHand
 	rightHand Stiletto [2]
 	leftAccessory
 	rightAccessory
-	robe Muffler
-	armor Adventurer's Suit
-	shoes Shoes
+	robe Undershirt
+	armor Pantie
+	shoes Boots
 	arrow
 	monsters
 	notMonsters
@@ -643,7 +643,7 @@ BetterSeller_maxDistance 10
 
 # Strawberry
 BetterSeller 578 {
-	minPrice 750
+	minPrice 700
 	minBuyShopAmount 5
 }
 
@@ -872,10 +872,7 @@ BetterSeller 511 {
 	minPrice 500
 	minBuyShopAmount 10
 }
-useSelf_item_0 Novice Potion
-useSelf_item_0_disabled 0
-useSelf_item_0_hp < 70%
-useSelf_item_0_timeout 1
+
 current_event_include Leveling.pm
 Joined_Oranpere true
 Join_Oranpere_before
@@ -890,76 +887,81 @@ future_saveMap_kafra_x
 future_saveMap_kafra_y
 future_saveMap_save_sequence
 saveMap_stage_before
-BetterShopper_0 501
+saveMap_map aldebaran
+saveMap_x 143
+saveMap_y 119
+saveMap_kafra_map aldebaran
+saveMap_kafra_x 143
+saveMap_kafra_y 119
+saveMap_save_sequence r~/Save/i
+
+
+BetterShopper_0 517
 BetterShopper_0_price 50
 BetterShopper_0_maxPrice 45
 BetterShopper_0_minInventoryAmount 5
 BetterShopper_0_minShopAmount 30
 BetterShopper_0_maxAmount 30
-BetterShopper_0_fallbackNpc oldnewpayon 69 117
-useSelf_item_1 Red Potion
+BetterShopper_0_fallbackNpc aldebaran 175 72
+useSelf_item_0 Meat
+useSelf_item_0_disabled 0
+useSelf_item_0_hp < 60%
+BetterShopper_1 502
+BetterShopper_1_price 200
+BetterShopper_1_maxPrice 190
+BetterShopper_1_minInventoryAmount 5
+BetterShopper_1_minShopAmount 30
+BetterShopper_1_maxAmount 30
+BetterShopper_1_fallbackNpc aldeba_in 94 56
+useSelf_item_1 Orange Potion
 useSelf_item_1_disabled 0
-useSelf_item_1_hp < 70%
-useSelf_item_2 Orange Potion
+useSelf_item_1_hp < 50%
+BetterShopper_2
+BetterShopper_2_price
+BetterShopper_2_maxPrice
+BetterShopper_2_minInventoryAmount
+BetterShopper_2_minShopAmount
+BetterShopper_2_maxAmount
+BetterShopper_2_fallbackNpc
+useSelf_item_2 Concentration Potion
 useSelf_item_2_disabled 0
-useSelf_item_2_hp < 60%
-BetterShopper_1 645
-BetterShopper_1_price 800
-BetterShopper_1_maxPrice 760
-BetterShopper_1_minInventoryAmount 0
-BetterShopper_1_minShopAmount 2
-BetterShopper_1_maxAmount 2
-BetterShopper_1_fallbackNpc oldnewpayon 69 117
-useSelf_item_3 Concentration Potion
+useSelf_item_2_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+useSelf_item_2_inLockOnly 1
+useSelf_item_2_notWhileSitting 1
+useSelf_item_2_timeout 5
+BetterShopper_3 601
+BetterShopper_3_price 60
+BetterShopper_3_maxPrice 55
+BetterShopper_3_minInventoryAmount 0
+BetterShopper_3_minShopAmount 10
+BetterShopper_3_maxAmount 10
+BetterShopper_3_fallbackNpc aldeba_in 94 56
+BetterShopper_4 602
+BetterShopper_4_price 300
+BetterShopper_4_maxPrice 285
+BetterShopper_4_minInventoryAmount 0
+BetterShopper_4_minShopAmount 2
+BetterShopper_4_maxAmount 2
+BetterShopper_4_fallbackNpc aldeba_in 94 56
+attackSkillSlot_0 TF_STEAL
+attackSkillSlot_0_lvl 10
+attackSkillSlot_0_sp > 10
+attackSkillSlot_0_maxUses 1
+attackSkillSlot_0_timeout 1
+attackSkillSlot_0_maxAttempts 2
+attackSkillSlot_0_disabled 0
+Joined_Haleigh true
+Join_Haleigh_before
+BetterShopper_5 656
+BetterShopper_5_maxPrice 1400
+BetterShopper_5_minInventoryAmount 0
+BetterShopper_5_minShopAmount 2
+BetterShopper_5_maxAmount 2
+BetterShopper_5_price 1500
+BetterShopper_5_fallbackNpc aldeba_in 94 56
+useSelf_item_3 Awakening Potion
 useSelf_item_3_disabled 0
 useSelf_item_3_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
 useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
-useSelf_item_4 Awakening Potion
-useSelf_item_4_disabled 0
-useSelf_item_4_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
-useSelf_item_4_inLockOnly 1
-useSelf_item_4_notWhileSitting 1
-useSelf_item_4_timeout 5
-BetterShopper_2 601
-BetterShopper_2_price 60
-BetterShopper_2_maxPrice 55
-BetterShopper_2_minInventoryAmount 0
-BetterShopper_2_minShopAmount 10
-BetterShopper_2_maxAmount 10
-BetterShopper_2_fallbackNpc oldnewpayon 69 117
-BetterShopper_3 602
-BetterShopper_3_price 300
-BetterShopper_3_maxPrice 285
-BetterShopper_3_minInventoryAmount 0
-BetterShopper_3_minShopAmount 2
-BetterShopper_3_maxAmount 2
-BetterShopper_3_fallbackNpc oldnewpayon 69 117
-saveMap_map oldnewpayon
-saveMap_x 98
-saveMap_y 118
-saveMap_kafra_map oldnewpayon
-saveMap_kafra_x 98
-saveMap_kafra_y 118
-saveMap_save_sequence r~/Save/i
-buyAuto_0
-buyAuto_0_npc
-buyAuto_0_zeny
-buyAuto_0_minAmount
-buyAuto_0_maxAmount
-buyAuto_0_minDistance
-buyAuto_0_maxDistance
-buyAuto_0_maxBase
-buyAuto_0_minBase
-buyAuto_0_disabled
-buyAuto_1
-buyAuto_1_npc
-buyAuto_1_zeny
-buyAuto_1_minAmount
-buyAuto_1_maxAmount
-buyAuto_1_minDistance
-buyAuto_1_maxDistance
-buyAuto_1_maxBase
-buyAuto_1_minBase
-buyAuto_1_disabled

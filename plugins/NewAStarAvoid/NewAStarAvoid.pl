@@ -222,6 +222,7 @@ sub add_obstacle {
 	$obstaclesList{$actor->{ID}}{pos_to} = $actor->{pos_to};
 	$obstaclesList{$actor->{ID}}{weight} = $weight_changes;
 	$obstaclesList{$actor->{ID}}{type} = $type;
+	$obstaclesList{$actor->{ID}}{name} = $actor->name;
 	if ($type eq 'monster') {
 		$obstaclesList{$actor->{ID}}{nameID} = $actor->{nameID};
 	}
@@ -240,7 +241,6 @@ sub move_obstacle {
 	
 	$obstaclesList{$actor->{ID}}{pos_to} = $actor->{pos_to};
 	$obstaclesList{$actor->{ID}}{weight} = $weight_changes;
-	$obstaclesList{$actor->{ID}}{type} = $type;
 	
 	$mustRePath = 1;
 }
@@ -251,11 +251,7 @@ sub remove_obstacle {
 	return unless (ENABLE_REMOVE);
 	
 	if (($type eq 'monster' || $type eq 'player') && $reason eq 'outofsight') {
-		
-		$removed_obstacle_still_in_list{$actor->{ID}}{time} = time;
-		$removed_obstacle_still_in_list{$actor->{ID}}{timeout} = 3;
-		$removed_obstacle_still_in_list{$actor->{ID}}{type} = $type;
-		$removed_obstacle_still_in_list{$actor->{ID}}{name} = $actor->name;
+		$removed_obstacle_still_in_list{$actor->{ID}} = 1;
 		warning "[".PLUGIN_NAME."] Putting obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}." in to the removed_obstacle_still_in_list.\n";
 	
 	} else {
@@ -285,11 +281,10 @@ sub on_AI_pre_manual_removed_obstacle_still_in_list {
 	
 	OBSTACLE: foreach my $obstacle_ID (@obstacles) {
 		my $obstacle = $obstaclesList{$obstacle_ID};
-		my $obstacle_last_pos = $obstacle->{pos_to};
 		
 		my $realMyPos = calcPosition($char);
 		
-		my $dist = blockDistance($realMyPos, $obstacle_last_pos);
+		my $dist = blockDistance($realMyPos, $obstacle->{pos_to});
 		my $sight = ($config{clientSight}-2); # 2 cell leeway?
 		
 		next OBSTACLE unless ($dist < $sight);
@@ -297,12 +292,12 @@ sub on_AI_pre_manual_removed_obstacle_still_in_list {
 		my $target;
 		#LIST: foreach my $list ($playersList, $monstersList, $npcsList, $petsList, $portalsList, $slavesList, $elementalsList) {
 		
-		if ($removed_obstacle_still_in_list{$obstacle_ID}{type} eq 'monster') {
+		if ($obstacle->{type} eq 'monster') {
 			my $actor = $monstersList->getByID($obstacle_ID);
 			if ($actor) {
 				$target = $actor;
 			}
-		} elsif ($removed_obstacle_still_in_list{$obstacle_ID}{type} eq 'player') {
+		} elsif ($obstacle->{type} eq 'player') {
 			my $actor = $playersList->getByID($obstacle_ID);
 			if ($actor) {
 				$target = $actor;
@@ -313,7 +308,7 @@ sub on_AI_pre_manual_removed_obstacle_still_in_list {
 		if ($target) {
 			warning "[REMOVING TEST] wwwwttttffffff 1.\n";
 		} else {
-			warning "[removed_obstacle_still_in_list] Removing obstacle ".$removed_obstacle_still_in_list{$obstacle_ID}{name}." (".$removed_obstacle_still_in_list{$obstacle_ID}{type}.") from ".$obstacle_last_pos->{x}." ".$obstacle_last_pos->{y}." we at ($realMyPos->{x} $realMyPos->{y}) dist:$dist, sight:$sight.\n";
+			warning "[removed_obstacle_still_in_list] Removing obstacle ".$obstacle->{name}." (".$obstacle->{type}.") from ".$obstacle->{pos_to}{x}." ".$obstacle->{pos_to}{y}." we at ($realMyPos->{x} $realMyPos->{y}) dist:$dist, sight:$sight.\n";
 			delete $obstaclesList{$obstacle_ID};
 			delete $removed_obstacle_still_in_list{$obstacle_ID};
 			$mustRePath = 1;

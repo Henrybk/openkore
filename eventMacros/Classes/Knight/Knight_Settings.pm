@@ -161,11 +161,10 @@ macro set_Katana {
 	$item{name} = Katana
 	$item{id} = 1116
 	$item{slot} = rightHand
+	$item{buytype} = fallback
 	$item{price} = 2000
 	$item{minLevel} = 4
-	$item{npcMap} = prt_in
-	$item{npcX} = 172
-	$item{npcY} = 130
+	$item{npc} = prt_in-172-130
 	call set_item
 	]
 }
@@ -175,11 +174,10 @@ macro set_Slayer {
 	$item{name} = Slayer
 	$item{id} = 1151
 	$item{slot} = rightHand
+	$item{buytype} = fallback
 	$item{price} = 15000
 	$item{minLevel} = 18
-	$item{npcMap} = izlude_in
-	$item{npcX} = 60
-	$item{npcY} = 127
+	$item{npc} = izlude_in-60-127
 	call set_item
 	]
 }
@@ -189,11 +187,10 @@ macro set_TwoHandedSword {
 	$item{name} = TwoHandedSword
 	$item{id} = 1157
 	$item{slot} = rightHand
+	$item{buytype} = fallback
 	$item{price} = 60000
 	$item{minLevel} = 33
-	$item{npcMap} = izlude_in
-	$item{npcX} = 60
-	$item{npcY} = 127
+	$item{npc} = izlude_in-60-127
 	call set_item
 	]
 }
@@ -213,11 +210,10 @@ macro set_AdventureSuit {
 	$item{name} = AdventureSuit
 	$item{id} = 2305
 	$item{slot} = armor
+	$item{buytype} = fallback
 	$item{price} = 1000
 	$item{minLevel} = 4
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -227,11 +223,10 @@ macro set_PaddedArmor {
 	$item{name} = PaddedArmor
 	$item{id} = 2312
 	$item{slot} = armor
+	$item{buytype} = fallback
 	$item{price} = 480000
 	$item{minLevel} = 25
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 70 
+	$item{npc} = payon_in01-76-70 
 	call set_item
 	]
 }
@@ -241,11 +236,10 @@ macro set_PlateArmor {
 	$item{name} = PlateArmor
 	$item{id} = 2316
 	$item{slot} = armor
+	$item{buytype} = fallback
 	$item{price} = 800000
 	$item{minLevel} = 40
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 70 
+	$item{npc} = payon_in01-76-70 
 	call set_item
 	]
 }
@@ -265,11 +259,10 @@ macro set_Sandals {
 	$item{name} = Sandals
 	$item{id} = 2401
 	$item{slot} = shoes
+	$item{buytype} = fallback
 	$item{price} = 400
 	$item{minLevel} = 4
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -279,11 +272,10 @@ macro set_Shoes {
 	$item{name} = Shoes
 	$item{id} = 2403
 	$item{slot} = shoes
+	$item{buytype} = fallback
 	$item{price} = 3500
 	$item{minLevel} = 14
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -293,11 +285,10 @@ macro set_Boots {
 	$item{name} = Boots
 	$item{id} = 2405
 	$item{slot} = shoes
+	$item{buytype} = fallback
 	$item{price} = 18000
 	$item{minLevel} = 33
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -317,11 +308,10 @@ macro set_Hood {
 	$item{name} = Hood
 	$item{id} = 2501
 	$item{slot} = robe
+	$item{buytype} = fallback
 	$item{price} = 1000
 	$item{minLevel} = 4
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -331,11 +321,10 @@ macro set_Muffler {
 	$item{name} = Muffler
 	$item{id} = 2503
 	$item{slot} = robe
+	$item{buytype} = fallback
 	$item{price} = 5000
 	$item{minLevel} = 14
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -345,11 +334,10 @@ macro set_Manteau {
 	$item{name} = Manteau
 	$item{id} = 2505
 	$item{slot} = robe
+	$item{buytype} = fallback
 	$item{price} = 32000
 	$item{minLevel} = 33
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
 	call set_item
 	]
 }
@@ -369,11 +357,10 @@ macro set_Hat {
 	$item{name} = Hat
 	$item{id} = 2220
 	$item{slot} = topHead
+	$item{buytype} = fallback
 	$item{price} = 1000
 	$item{minLevel} = 4
-	$item{npcMap} = prt_in
-	$item{npcX} = 172
-	$item{npcY} = 132
+	$item{npc} = prt_in-172-132
 	call set_item
 	]
 }
@@ -383,11 +370,10 @@ macro set_Cap {
 	$item{name} = Cap
 	$item{id} = 2226
 	$item{slot} = topHead
+	$item{buytype} = fallback
 	$item{price} = 12000
 	$item{minLevel} = 14
-	$item{npcMap} = prt_in
-	$item{npcX} = 172
-	$item{npcY} = 132
+	$item{npc} = prt_in-172-132
 	call set_item
 	]
 }
@@ -397,11 +383,10 @@ macro set_Helm {
 	$item{name} = Helm
 	$item{id} = 2228
 	$item{slot} = topHead
+	$item{buytype} = fallback
 	$item{price} = 440000
 	$item{minLevel} = 40
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 70 
+	$item{npc} = payon_in01-76-70 
 	call set_item
 	]
 }
