@@ -20,7 +20,7 @@ eventMacro_CheckOnAI auto
 eventMacro_file eventMacros.txt
 
 #drunk 8
-betterWalkPlan 1
+BetterWalkPlan 1
 
 ##### Plugins End
 
@@ -51,7 +51,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword doceathi
+adminPassword leejusho
 callSign
 commandPrefix ;
 callSignGM 0
