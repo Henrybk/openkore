@@ -258,7 +258,7 @@ sitAuto_look_from_wall
 sitTensionRelax 0
 
 statsAddAuto 1
-statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 9 int, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi
+statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi
 statsAddAuto_dontUseBonus 1
 statsAdd_over_99 1
 
@@ -927,13 +927,13 @@ BetterShopper_3_minShopAmount
 BetterShopper_3_maxAmount
 BetterShopper_3_fallbackNpcTalk
 BetterShopper_3_fallbackNpcTSequence
-BetterShopper_4
-BetterShopper_4_price
-BetterShopper_4_maxPrice
-BetterShopper_4_minInventoryAmount
-BetterShopper_4_minShopAmount
-BetterShopper_4_maxAmount
-BetterShopper_4_fallbackNpcShop
+BetterShopper_4 2328
+BetterShopper_4_price 5500
+BetterShopper_4_maxPrice 5500
+BetterShopper_4_minInventoryAmount 0
+BetterShopper_4_minShopAmount 1
+BetterShopper_4_maxAmount 1
+BetterShopper_4_fallbackNpcShop payon_in01 134 51
 BetterShopper_5 2403
 BetterShopper_5_price 3500
 BetterShopper_5_maxPrice 3500
@@ -941,17 +941,26 @@ BetterShopper_5_minInventoryAmount 0
 BetterShopper_5_minShopAmount 1
 BetterShopper_5_maxAmount 1
 BetterShopper_5_fallbackNpcShop payon_in01 134 51
-BetterShopper_6
-BetterShopper_6_price
-BetterShopper_6_maxPrice
-BetterShopper_6_minInventoryAmount
-BetterShopper_6_minShopAmount
-BetterShopper_6_maxAmount
-BetterShopper_6_fallbackNpcShop
-BetterShopper_7
-BetterShopper_7_price
-BetterShopper_7_maxPrice
-BetterShopper_7_minInventoryAmount
-BetterShopper_7_minShopAmount
-BetterShopper_7_maxAmount
-BetterShopper_7_fallbackNpcShop
+BetterShopper_6 645
+BetterShopper_6_price 800
+BetterShopper_6_maxPrice 760
+BetterShopper_6_minInventoryAmount 0
+BetterShopper_6_minShopAmount 2
+BetterShopper_6_maxAmount 2
+BetterShopper_6_fallbackNpcShop oldnewpayon 69 117
+BetterShopper_7 502
+BetterShopper_7_price 200
+BetterShopper_7_maxPrice 190
+BetterShopper_7_minInventoryAmount 5
+BetterShopper_7_minShopAmount 30
+BetterShopper_7_maxAmount 30
+BetterShopper_7_fallbackNpcShop oldnewpayon 69 117
+useSelf_item_2 Orange Potion
+useSelf_item_2_disabled 0
+useSelf_item_2_hp < 50%
+useSelf_item_3 Concentration Potion
+useSelf_item_3_disabled 0
+useSelf_item_3_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+useSelf_item_3_inLockOnly 1
+useSelf_item_3_notWhileSitting 1
+useSelf_item_3_timeout 5

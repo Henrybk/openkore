@@ -117,7 +117,6 @@ Skull Ring 0 0 1 # 2715
 Thief Clothes 0 0 1 # 2335
 Tights 0 0 1 # 2330
 Turban 0 0 1 # 2223
-Wooden Mail 0 0 1 # 2328
 "Wooden Mail [1]" 0 0 1 # 2329
 
 
@@ -1788,13 +1787,14 @@ Spearman Scroll 10 0 0 0
 580 0 0 1 #Bread
 700 0 0 1 #Level 1 Frost Diver Scroll
 2403 1 0 0 #Shoes
-2305 1 0 1 #Adventurer's Suit
 2501 1 0 1 #Hood
 2211 1 0 1 #Bandana
 2401 1 0 1 #Sandals
+2305 0 0 1 #Adventurer's Suit
+2328 1 0 0 #Wooden Mail
 517 30 1 0 #Meat
-502 0 1 0 #Orange Potion
-645 0 1 0 #Concentration Potion
+502 30 1 0 #Orange Potion
+645 2 1 0 #Concentration Potion
 656 0 1 0 #Awakening Potion
 601 10 1 0 #Fly Wing
 602 2 1 0 #Butterfly Wing
