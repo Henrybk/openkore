@@ -19,8 +19,10 @@ eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
 eventMacro_file eventMacros.txt
 
-drunk 8
-betterWalkPlan 1
+#drunk 8
+BetterWalkPlan 1
+
+route_randomFactor 8
 
 ##### Plugins End
 
@@ -158,6 +160,7 @@ cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
 clientSight 30
+clientSight_removeBeyond 2
 
 dcPause 1
 dcOnDeath 0
