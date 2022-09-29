@@ -75,6 +75,7 @@ macro baseMacroUp {
 		log Current lockmap $configlockMap is still good
 		call set_buyauto_equipment
 		call set_buyauto_usables
+		call set_buyauto_refine
 	}
 	]
 }
@@ -98,23 +99,6 @@ sub set_skills_stats {
 	
 	check_key('statsAddAuto_list', $stats);
 	check_key('skillsAddAuto_list', $skills);
-}
-
-macro set_has_weapon_level {
-	[
-	$hasWeaponLevel = 0
-	$Item1 = Dirk
-	$Item2 = Stiletto
-	$Item3 = Damascus
-	call set_tempitems_3
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
-		$hasWeaponLevel = 1
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
-		$hasWeaponLevel = 2
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
-		$hasWeaponLevel = 3
-	}
-	]
 }
 
 macro set_steal {
@@ -148,6 +132,18 @@ macro set_STEALCOIN {
 	]
 }
 
+macro set_buyauto_equipment {
+	[
+	call set_buyauto_rightHand
+	if ($hasWeaponLevel >= 1) {
+		call set_buyauto_armor
+		call set_buyauto_shoes
+		call set_buyauto_robe
+		call set_buyauto_topHead
+	}
+	]
+}
+
 macro set_buyauto_usables {
 	[
 	call set_tooldealers2
@@ -164,39 +160,114 @@ macro set_buyauto_usables {
 	]
 }
 
-macro set_buyauto_equipment {
+macro set_buyauto_refine {
 	[
-	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 1) {
-		call set_buyauto_armor
-		call set_buyauto_shoes
-		call set_buyauto_robe
-		call set_buyauto_topHead
-	}
+	call set_refine_weapon
 	]
 }
 
 #############################
 ###### rightHand
-macro set_buyauto_rightHand {
+macro set_refine_weapon {
 	[
-	$Item1 = Dirk
+	$hasWeaponLevel = 0
+	$Item1 = MainGauche
 	$Item2 = Stiletto
-	#$Item3 = Damascus
-	#call organize_and_run_buyauto_3
-	call organize_and_run_buyauto_2
+	#call set_tempitems_2
+	$Item3 = Gladius
+	call set_tempitems_3
+	
+	$foundWeapon = 0
+	$refineLevel = 0
+	
+	$wantedRefine = 0
+	$needRefineCount = 0
+	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+		if ($itemHash{$temphash{Item1autoRefine}}) {
+			$foundWeapon = 1
+			$refineLevel = $itemHash{$temphash{Item1refineLevel}}
+		}
+	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
+		if ($itemHash{$temphash{Item2autoRefine}}) {
+			$foundWeapon = 1
+			$refineLevel = $itemHash{$temphash{Item2refineLevel}}
+		}
+	#}
+	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
+		if ($itemHash{$temphash{Item3autoRefine}}) {
+			$foundWeapon = 1
+			$refineLevel = $itemHash{$temphash{Item3refineLevel}}
+		}
+	}
+	
+	if ($foundWeapon == 1) {
+		$currentRefine = get_weapon_refine()
+		$maxSafeRefine = get_maxSafeRefine("$refineLevel")
+		if ($currentRefine < $maxSafeRefine) {
+			$wantedRefine = 1
+			$needRefineCount = &eval($maxSafeRefine - $currentRefine)
+		}
+		log Current weapon has refine +$currentRefine/+$maxSafeRefine
+		if ($wantedRefine) {
+			log Still needs more $needRefineCount refines of level $refineLevel KEKW
+			do conf -f autoRefine_on 1
+			do conf -f autoRefine_weaponLevel $refineLevel
+			do conf -f autoRefine_wantedRefine $maxSafeRefine
+			do conf -f autoRefine_npc payon_in01 91 31
+			call set_BetterBuy_refine
+		} else {
+			log No need to refine further POOOOGG
+			do conf -f autoRefine_on 0
+			do conf -f autoRefine_weaponLevel none
+			do conf -f autoRefine_wantedRefine none
+			do conf -f autoRefine_npc none
+			call clear_BetterBuy_refine
+		}
+	}
 	]
 }
 
-macro set_Dirk {
+macro set_has_weapon_level {
 	[
-	$item{name} = Dirk
-	$item{id} = 1210
+	$hasWeaponLevel = 0
+	$Item1 = MainGauche
+	$Item2 = Stiletto
+	#call set_tempitems_2
+	$Item3 = Gladius
+	call set_tempitems_3
+	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+		$hasWeaponLevel = 1
+	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
+		$hasWeaponLevel = 2
+	#}
+	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
+		$hasWeaponLevel = 3
+	}
+	]
+}
+
+macro set_buyauto_rightHand {
+	[
+	$Item1 = MainGauche
+	$Item2 = Stiletto
+	$Item3 = Gladius
+	call organize_and_run_buyauto_3
+	#call organize_and_run_buyauto_2
+	]
+}
+
+macro set_MainGauche {
+	[
+	$item{name} = MainGauche
+	$item{id} = 1207
 	$item{slot} = rightHand
 	$item{buytype} = fallback
-	$item{price} = 8500
-	$item{minLevel} = 12
+	$item{minSearchPrice} = 1900
+	$item{price} = 2400
+	$item{minLevel} = 1
 	$item{npc} = payon_in01-76-58
+	$item{autoRefine} = 1
+	$item{refineLevel} = 1
 	call set_item
 	]
 }
@@ -207,22 +278,27 @@ macro set_Stiletto {
 	$item{id} = 1216
 	$item{slot} = rightHand
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 15000
 	$item{price} = 19500
 	$item{minLevel} = 12
 	$item{npc} = payon_in01-76-58
+	$item{autoRefine} = 1
+	$item{refineLevel} = 2
 	call set_item
 	]
 }
 
-macro set_Damascus {
+macro set_Gladius {
 	[
-	$item{name} = Damascus
-	$item{id} = 1222
+	$item{name} = Gladius
+	$item{id} = 1220
 	$item{slot} = rightHand
-	$item{buytype} = fallback
-	$item{price} = 49000
+	$item{buytype} = player
+	$item{minSearchPrice} = 750000
+	$item{price} = 500000
 	$item{minLevel} = 24
-	$item{npc} = payon_in01-76-58
+	$item{autoRefine} = 1
+	$item{refineLevel} = 4
 	call set_item
 	]
 }
@@ -244,6 +320,7 @@ macro set_AdventureSuit {
 	$item{id} = 2305
 	$item{slot} = armor
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 600
 	$item{price} = 1000
 	$item{minLevel} = 4
 	$item{npc} = payon_in01-134-51
@@ -257,6 +334,7 @@ macro set_WoodenMail {
 	$item{id} = 2328
 	$item{slot} = armor
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 4000
 	$item{price} = 5500
 	$item{minLevel} = 20
 	$item{npc} = payon_in01-134-51
@@ -270,7 +348,8 @@ macro set_Pantie {
 	$item{id} = 2339
 	$item{slot} = armor
 	$item{buytype} = player
-	$item{maxPrice} = 10000
+	$item{minSearchPrice} = 5000
+	$item{price} = 10000
 	$item{minLevel} = 22
 	call set_item
 	]
@@ -293,6 +372,7 @@ macro set_Sandals {
 	$item{id} = 2401
 	$item{slot} = shoes
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 300
 	$item{price} = 400
 	$item{minLevel} = 4
 	$item{npc} = payon_in01-134-51
@@ -306,6 +386,7 @@ macro set_Shoes {
 	$item{id} = 2403
 	$item{slot} = shoes
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 2500
 	$item{price} = 3500
 	$item{minLevel} = 14
 	$item{npc} = payon_in01-134-51
@@ -319,6 +400,7 @@ macro set_Boots {
 	$item{id} = 2405
 	$item{slot} = shoes
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 12000
 	$item{price} = 18000
 	$item{minLevel} = 33
 	$item{npc} = payon_in01-134-51
@@ -343,6 +425,7 @@ macro set_Hood {
 	$item{id} = 2501
 	$item{slot} = robe
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 800
 	$item{price} = 1000
 	$item{minLevel} = 4
 	$item{npc} = payon_in01-134-51
@@ -356,6 +439,7 @@ macro set_Muffler {
 	$item{id} = 2503
 	$item{slot} = robe
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 3500
 	$item{price} = 5000
 	$item{minLevel} = 14
 	$item{npc} = payon_in01-134-51
@@ -369,7 +453,8 @@ macro set_Undershirt {
 	$item{id} = 2522
 	$item{slot} = robe
 	$item{buytype} = player
-	$item{maxPrice} = 65000
+	$item{minSearchPrice} = 40000
+	$item{price} = 65000
 	$item{minLevel} = 22
 	call set_item
 	]
@@ -390,6 +475,7 @@ macro set_Bandana {
 	$item{id} = 2211
 	$item{slot} = topHead
 	$item{buytype} = fallback
+	$item{minSearchPrice} = 300
 	$item{price} = 400
 	$item{minLevel} = 1
 	$item{npc} = payon_in01-134-51

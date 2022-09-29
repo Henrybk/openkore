@@ -51,7 +51,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword leejusho
+adminPassword sebrewin
 callSign
 commandPrefix ;
 callSignGM 0
@@ -263,7 +263,7 @@ statsAddAuto_dontUseBonus 1
 statsAdd_over_99 1
 
 skillsAddAuto 1
-skillsAddAuto_list TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
+skillsAddAuto_list RG_SNATCHER 5, RG_STEALCOIN 10, RG_SNATCHER 10, SM_SWORD 10, RG_BACKSTAP 4, RG_TUNNELDRIVE 5, RG_RAID 5, RG_INTIMIDATE 5, RG_PLAGIARISM 10
 
 tankMode 0
 tankModeTarget
@@ -743,12 +743,6 @@ BetterSeller 1003 {
 	minBuyShopAmount 5
 }
 
-# Oridecon
-BetterSeller 984 {
-	minPrice 20000
-	minBuyShopAmount 1
-}
-
 # Elunium
 BetterSeller 985 {
 	minPrice 25000
@@ -902,7 +896,7 @@ BetterShopper_0_maxPrice 45
 BetterShopper_0_minInventoryAmount 5
 BetterShopper_0_minShopAmount 30
 BetterShopper_0_maxAmount 30
-BetterShopper_0_fallbackNpc aldebaran 175 72
+BetterShopper_0_fallbackNpcShop aldebaran 175 72
 useSelf_item_0 Meat
 useSelf_item_0_disabled 0
 useSelf_item_0_hp < 60%
@@ -912,7 +906,7 @@ BetterShopper_1_maxPrice 190
 BetterShopper_1_minInventoryAmount 5
 BetterShopper_1_minShopAmount 30
 BetterShopper_1_maxAmount 30
-BetterShopper_1_fallbackNpc aldeba_in 94 56
+BetterShopper_1_fallbackNpcShop aldeba_in 94 56
 useSelf_item_1 Orange Potion
 useSelf_item_1_disabled 0
 useSelf_item_1_hp < 50%
@@ -922,7 +916,7 @@ BetterShopper_2_maxPrice
 BetterShopper_2_minInventoryAmount
 BetterShopper_2_minShopAmount
 BetterShopper_2_maxAmount
-BetterShopper_2_fallbackNpc
+BetterShopper_2_fallbackNpcShop
 useSelf_item_2 Concentration Potion
 useSelf_item_2_disabled 0
 useSelf_item_2_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
@@ -935,20 +929,20 @@ BetterShopper_3_maxPrice 55
 BetterShopper_3_minInventoryAmount 0
 BetterShopper_3_minShopAmount 10
 BetterShopper_3_maxAmount 10
-BetterShopper_3_fallbackNpc aldeba_in 94 56
+BetterShopper_3_fallbackNpcShop aldeba_in 94 56
 BetterShopper_4 602
 BetterShopper_4_price 300
 BetterShopper_4_maxPrice 285
 BetterShopper_4_minInventoryAmount 0
 BetterShopper_4_minShopAmount 2
 BetterShopper_4_maxAmount 2
-BetterShopper_4_fallbackNpc aldeba_in 94 56
-attackSkillSlot_0 TF_STEAL
+BetterShopper_4_fallbackNpcShop aldeba_in 94 56
+attackSkillSlot_0 RG_STEALCOIN
 attackSkillSlot_0_lvl 10
-attackSkillSlot_0_sp > 10
-attackSkillSlot_0_maxUses 1
+attackSkillSlot_0_sp > 15
+attackSkillSlot_0_maxUses
 attackSkillSlot_0_timeout 1
-attackSkillSlot_0_maxAttempts 2
+attackSkillSlot_0_maxAttempts 4
 attackSkillSlot_0_disabled 0
 Joined_Haleigh true
 Join_Haleigh_before
@@ -958,10 +952,17 @@ BetterShopper_5_minInventoryAmount 0
 BetterShopper_5_minShopAmount 2
 BetterShopper_5_maxAmount 2
 BetterShopper_5_price 1500
-BetterShopper_5_fallbackNpc aldeba_in 94 56
+BetterShopper_5_fallbackNpcShop aldeba_in 94 56
 useSelf_item_3 Awakening Potion
 useSelf_item_3_disabled 0
 useSelf_item_3_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
 useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
+autoRefine_on 0
+autoRefine_weaponLevel
+autoRefine_wantedRefine
+BetterShopper_2_fallbackNpcTalk
+BetterShopper_2_fallbackNpcTSequence
+doing_rogue_job_change start
+attackSkillSlot_0_target_notCoinStolen 1

@@ -229,7 +229,7 @@ runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
 saveMap
-saveMap_warpToBuyOrSell 1
+saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
 memo2
@@ -322,7 +322,7 @@ wx_map_monsterSticking 1
 wx_map_npcSticking 1
 wx_map_playersSticking 1
 wx_map_portalSticking 5
-wx_map_route 1
+wx_map_route 2
 wx_npcTalk
 wx_captcha
 showAllDamage 0
@@ -738,12 +738,6 @@ BetterSeller 1002 {
 BetterSeller 1003 {
 	minPrice 2000
 	minBuyShopAmount 5
-}
-
-# Oridecon
-BetterSeller 984 {
-	minPrice 20000
-	minBuyShopAmount 1
 }
 
 # Elunium

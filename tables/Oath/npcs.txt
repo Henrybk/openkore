@@ -300,3 +300,6 @@ oldnewpayon 97 169 Sacred Altar Flag
 oldnewpayon 116 163 The Mad Alchemist#np
 oldnewpayon 118 167 Alchemical Supply#pay
 oldnewpayon 125 163 Hair Dyer#pay
+cmd_fild07 136 134 Kafra Employee
+in_rogue 376 23 Mr. Smith#rg
+in_rogue 363 122 Rogue Guildsman#rg

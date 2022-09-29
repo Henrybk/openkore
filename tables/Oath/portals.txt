@@ -2792,3 +2792,4 @@ payon_in01 101 25 oldnewpayon 18 172
 oldnewpayon 25 177 payon_in01 83 63
 oldnewpayon 33 175 payon_in01 145 45
 payon_in01 145 45 oldnewpayon 34 171
+in_rogue 375 125 in_rogue 379 33
