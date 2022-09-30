@@ -145,7 +145,7 @@ sub reset {
 
 ##
 # $PathFinding->run(solution_array)
-# solution_array: Reference to an array in which the solution is stored. It will contain hashes of x and y coordinates from the start to the end of the path.
+# solution_array: Reference to an array in which the solution is stored. It will contain hashes of x and y coordinates from the start to the end of the path, including the starting pos
 # Returns:
 #    -3 when pathfinding is not yet complete.
 #    -2 when Pathfinding->reset was not called.

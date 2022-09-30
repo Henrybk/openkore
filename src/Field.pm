@@ -443,7 +443,9 @@ sub canMove {
 		min_y => $min_pathfinding_y,
 		max_y => $max_pathfinding_y
 	)->run($solution);
-	if ($dist_path > 14) {
+	
+	
+	if ($dist_path <= 0 || $dist_path > 13) {
 		return 0;
 	}
 	

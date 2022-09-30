@@ -226,7 +226,8 @@ sub iterate {
 			
 			debug "Route $self->{actor} Solution Ready! Found path on ".$self->{dest}{map}->baseName." from ".$pos->{x}." ".$pos->{y}." to ".$self->{dest}{pos}{x}." ".$self->{dest}{pos}{y}.". Size: ".@{$self->{solution}}." steps.\n", "route";
 			
-			unshift(@{$self->{solution}}, { x => $pos->{x}, y => $pos->{y}});
+			# Changed in pathfinding.xs
+			#unshift(@{$self->{solution}}, { x => $pos->{x}, y => $pos->{y}});
 
 			if (time - $begin < 0.01) {
 				# Optimization: immediately go to the next stage if we spent neglible time in this step.

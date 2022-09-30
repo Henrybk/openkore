@@ -302,16 +302,15 @@ PathFinding_run(session, solution_array)
 			AV *array;
 			int size;
 
-			size = session->solution_size;
+			size = (session->solution_size + 1);
  			array = (AV *) SvRV (solution_array);
-			if (av_len (array) > size)
-				av_clear (array);
-			
-			av_extend (array, session->solution_size);
+			av_clear (array);
+			av_extend (array, size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
+			int cont = 1;
 
-			while (currentNode.x != session->startX || currentNode.y != session->startY)
+			while (cont == 1)
 			{
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
@@ -323,7 +322,11 @@ PathFinding_run(session, solution_array)
 
 				av_store(array, 0, newRV((SV *)rh));
 				
-				currentNode = session->currentMap[currentNode.predecessor];
+				if (currentNode.x == session->startX && currentNode.y == session->startY) {
+					cont = 0;
+				} else {
+					currentNode = session->currentMap[currentNode.predecessor];
+				}
 			}
 			
 			RETVAL = size;
