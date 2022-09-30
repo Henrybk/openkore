@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword prizegaj
+adminPassword spauheha
 callSign
 commandPrefix ;
 callSignGM 0
@@ -584,7 +584,7 @@ equipAuto {
 	rightAccessory
 	robe Hood
 	armor Adventurer's Suit
-	shoes Sandals
+	shoes Shoes
 	arrow
 	monsters
 	notMonsters
@@ -919,28 +919,28 @@ autoRefine_on 0
 autoRefine_weaponLevel
 autoRefine_wantedRefine
 autoRefine_npc
-BetterShopper_3
-BetterShopper_3_price
-BetterShopper_3_maxPrice
-BetterShopper_3_minInventoryAmount
-BetterShopper_3_minShopAmount
-BetterShopper_3_maxAmount
+BetterShopper_3 1216
+BetterShopper_3_price 19500
+BetterShopper_3_maxPrice 19500
+BetterShopper_3_minInventoryAmount 0
+BetterShopper_3_minShopAmount 1
+BetterShopper_3_maxAmount 1
 BetterShopper_3_fallbackNpcTalk
 BetterShopper_3_fallbackNpcTSequence
-BetterShopper_4 2328
-BetterShopper_4_price 5500
-BetterShopper_4_maxPrice 5500
-BetterShopper_4_minInventoryAmount 0
-BetterShopper_4_minShopAmount 1
-BetterShopper_4_maxAmount 1
-BetterShopper_4_fallbackNpcShop payon_in01 134 51
-BetterShopper_5 2403
-BetterShopper_5_price 3500
-BetterShopper_5_maxPrice 3500
-BetterShopper_5_minInventoryAmount 0
-BetterShopper_5_minShopAmount 1
-BetterShopper_5_maxAmount 1
-BetterShopper_5_fallbackNpcShop payon_in01 134 51
+BetterShopper_4
+BetterShopper_4_price
+BetterShopper_4_maxPrice
+BetterShopper_4_minInventoryAmount
+BetterShopper_4_minShopAmount
+BetterShopper_4_maxAmount
+BetterShopper_4_fallbackNpcShop
+BetterShopper_5
+BetterShopper_5_price
+BetterShopper_5_maxPrice
+BetterShopper_5_minInventoryAmount
+BetterShopper_5_minShopAmount
+BetterShopper_5_maxAmount
+BetterShopper_5_fallbackNpcShop
 BetterShopper_6 645
 BetterShopper_6_price 800
 BetterShopper_6_maxPrice 760
@@ -964,3 +964,4 @@ useSelf_item_3_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
 useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
+BetterShopper_3_fallbackNpcShop payon_in01 76 58

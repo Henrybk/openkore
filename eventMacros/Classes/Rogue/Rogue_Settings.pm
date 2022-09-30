@@ -308,9 +308,8 @@ macro set_Gladius {
 macro set_buyauto_armor {
 	[
 	$Item1 = AdventureSuit
-	$Item2 = WoodenMail
-	$Item3 = Pantie
-	call organize_and_run_buyauto_3
+	$Item2 = Pantie
+	call organize_and_run_buyauto_2
 	]
 }
 
@@ -323,20 +322,6 @@ macro set_AdventureSuit {
 	$item{minSearchPrice} = 600
 	$item{price} = 1000
 	$item{minLevel} = 4
-	$item{npc} = payon_in01-134-51
-	call set_item
-	]
-}
-
-macro set_WoodenMail {
-	[
-	$item{name} = WoodenMail
-	$item{id} = 2328
-	$item{slot} = armor
-	$item{buytype} = fallback
-	$item{minSearchPrice} = 4000
-	$item{price} = 5500
-	$item{minLevel} = 20
 	$item{npc} = payon_in01-134-51
 	call set_item
 	]

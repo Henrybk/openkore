@@ -1735,30 +1735,7 @@ Spearman Scroll 10 0 0 0
 569 0 0 0 #Novice Potion
 7059 50 0 0 #Free Ticket for Kafra Storage
 7060 50 0 0 #Free Ticket for Kafra Transportation
-13041 0 0 0 #Novice Main Gauche [3]
-1104 1 0 0 #Falchion [3]
-1243 0 0 1 #Novice Main-Gauche
-2112 0 0 1 #Novice Guard
-5055 0 0 1 #Novice False Eggshell
-2393 0 0 1 #Novice Adventurer's Suit [1]
-2414 0 0 1 #Novice Slippers
-2510 0 0 1 #Somber Novice Hood
-2352 0 0 1 #Tattered Novice Ninja Suit
-1201 0 0 1 #Knife [3]
-13040 0 0 1 #Novice Cutter [3]
-2301 0 0 1 #Cotton Shirt
-1116 1 0 0 #Katana [3]
-2312 0 0 1 #Padded Armor
-601 5 1 0 #Fly Wing
-602 1 1 0 #Butterfly Wing
-501 50 1 0 #Red Potion
-502 50 1 0 #Orange Potion
-645 5 1 0 #Concentration Potion
-656 5 1 0 #Awakening Potion
-2305 1 0 0 #Adventurer's Suit
-2501 1 0 0 #Hood
-713 50 1 0 #Empty Bottle
-1058 1 1 0 #Moth Wings
-2220 1 0 0 #Hat
-2401 0 0 1 #Sandals
-2403 1 0 0 #Shoes
+
+
+2221 0 0 1 #Hat [1]
+2220 0 0 1 #Hat

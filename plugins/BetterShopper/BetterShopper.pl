@@ -918,8 +918,19 @@ sub on_npc_chat {
 				$store_found{x} = $5;
 				$store_found{y} = $6;
 				$store_found{Seller} = $7;
-			} elsif ($args->{message} =~ /^\+\d (\d+)\[\d\] \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+) , (\d+)\] \| Seller: (.+)$/) {
+			} elsif ($args->{message} =~ /^\+\d (\d+)\[\d+\] \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+) , (\d+)\] \| Seller: (.+)$/) {
 				#+0 2339[0] | Cost: 9999z | Qty: 1 | Map: aldebaran [150 , 122] | Seller: Alfamart
+				$store_found{id} = $1;
+				$store_found{Cost} = $2;
+				$store_found{quant} = $3;
+				$store_found{Map} = $4;
+				$store_found{x} = $5;
+				$store_found{y} = $6;
+				$store_found{Seller} = $7;
+			} elsif ($args->{message} =~ /^\+\d (\d+)\[\d+,\d+,\d+,\d+\] \| Cost: (\d+)z \| Qty: (\d+) \| Map: (.+) \[(\d+)\s?,\s?(\d+)\] \| Seller: (.+)$/) {
+				#+0 1222[255,2564,26473,2] | Cost: 1800000z | Qty: 1 | Map: aldebaran [119, 124] | Seller: inday garutay
+				#+0 1220[0,0,0,0] | Cost: 450000z | Qty: 1 | Map: oldnewpayon [42, 142] | Seller: Nieglueck
+				#+0 1216[255,2561,27755,2] | Cost: 866900z | Qty: 1 | Map: aldebaran [150, 116] | Seller: Elbenpath
 				$store_found{id} = $1;
 				$store_found{Cost} = $2;
 				$store_found{quant} = $3;
