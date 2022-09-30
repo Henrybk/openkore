@@ -106,7 +106,7 @@ sub new {
 		ArgumentException->throw(error => "Invalid Coordinates argument.");
 	}
 
-	my $allowed = new Set(qw(maxDistance maxTime distFromGoal pyDistFromGoal avoidWalls randomFactor notifyUponArrival attackID attackOnRoute noSitAuto LOSSubRoute meetingSubRoute isRandomWalk isFollow isIdleWalk isSlaveRescue isMoveNearSlave isEscape isItemTake isItemGather isDeath isToLockMap runFromTarget));
+	my $allowed = new Set(qw(maxDistance maxTime distFromGoal pyDistFromGoal avoidWalls randomFactor useManhattan notifyUponArrival attackID attackOnRoute noSitAuto LOSSubRoute meetingSubRoute isRandomWalk isFollow isIdleWalk isSlaveRescue isMoveNearSlave isEscape isItemTake isItemGather isDeath isToLockMap runFromTarget));
 	foreach my $key (keys %args) {
 		if ($allowed->has($key) && defined($args{$key})) {
 			$self->{$key} = $args{$key};
@@ -137,6 +137,9 @@ sub new {
 		}
 	} else {
 		$self->{randomFactor} = 0;
+	}
+	if (!defined $self->{useManhattan}) {
+		$self->{useManhattan} = 0;
 	}
 	
 	$self->{solution} = [];
@@ -213,7 +216,7 @@ sub iterate {
 			debug "Route $self->{actor}: Current position and destination are the same.\n", "route";
 			$self->setDone();
 		
-		} elsif ($self->getRoute($self->{solution}, $self->{dest}{map}, $pos, $self->{dest}{pos}, $self->{avoidWalls}, $self->{randomFactor}, 1)) {
+		} elsif ($self->getRoute($self->{solution}, $self->{dest}{map}, $pos, $self->{dest}{pos}, $self->{avoidWalls}, $self->{randomFactor}, $self->{useManhattan}, 1)) {
 			$self->{stage} = ROUTE_SOLUTION_READY;
 			
 			@{$self->{last_pos}}{qw(x y)} = @{$pos}{qw(x y)};
@@ -576,7 +579,7 @@ sub resetRoute {
 # This function is a convenience wrapper function for the stuff
 # in Utils/PathFinding.pm
 sub getRoute {
-	my ($class, $solution, $field, $start, $dest, $avoidWalls, $randomFactor, $self_call) = @_;
+	my ($class, $solution, $field, $start, $dest, $avoidWalls, $randomFactor, $useManhattan, $self_call) = @_;
 	assertClass($field, 'Field') if DEBUG;
 	if (!defined $dest->{x} || $dest->{y} eq '') {
 		@{$solution} = () if ($solution);
@@ -604,6 +607,7 @@ sub getRoute {
 	$plugin_args{field} = $field;
 	$plugin_args{avoidWalls} = $avoidWalls;
 	$plugin_args{randomFactor} = $randomFactor;
+	$plugin_args{useManhattan} = $useManhattan;
 	$plugin_args{return} = 0;
 	
 	Plugins::callHook( getRoute => \%plugin_args );
@@ -622,6 +626,7 @@ sub getRoute {
 		field => $field,
 		avoidWalls => $avoidWalls,
 		randomFactor => $randomFactor,
+		useManhattan => $useManhattan,
 		getRoute => 1
 	);
 	return undef if (!$pathfinding);

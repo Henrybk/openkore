@@ -770,7 +770,7 @@ sub route {
 		y => $y,
 		maxDistance => $args{maxRouteDistance},
 		maxTime => $args{maxRouteTime},
-		map { $_ => $args{$_} } qw(distFromGoal pyDistFromGoal notifyUponArrival avoidWalls randomFactor)
+		map { $_ => $args{$_} } qw(distFromGoal pyDistFromGoal notifyUponArrival avoidWalls randomFactor useManhattan)
 	);
 
 	if ($map && !$args{noMapRoute}) {

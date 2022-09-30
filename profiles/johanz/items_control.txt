@@ -99,8 +99,6 @@ Mantle 0 0 1 # 2307
 "Mantle [1]" 0 0 1 # 2308
 Mirror Shield 0 0 1 # 2107
 Mr. Smile 0 0 1 # 2278
-Muffler 0 0 1 # 2503
-Pantie 0 0 1 # 2371
 Ribbon 0 0 1 # 2208
 "Ribbon [1]" 0 0 1 # 2209
 Rosary 0 0 1 # 2840
@@ -1783,16 +1781,18 @@ Spearman Scroll 10 0 0 0
 516 0 0 1 #Potato
 580 0 0 1 #Bread
 700 0 0 1 #Level 1 Frost Diver Scroll
-2501 1 0 1 #Hood
 2211 1 0 1 #Bandana
-1207 0 0 1 #Main Gauche [3]
-1216 1 0 0 #Stiletto [2]
 2221 0 0 1 #Hat [1]
 2220 0 0 1 #Hat
-2305 0 0 1 #Adventurer's Suit
 2401 0 0 1 #Sandals
 2403 1 0 1 #Shoes
 2328 0 0 1 #Wooden Mail
+1207 0 0 1 #Main Gauche [3]
+1216 1 0 0 #Stiletto [2]
+2501 0 0 1 #Hood
+2503 1 0 1 #Muffler
+2305 0 0 1 #Adventurer's Suit
+2339 1 0 0 #Pantie
 517 30 1 0 #Meat
 502 30 1 0 #Orange Potion
 645 2 1 0 #Concentration Potion
