@@ -66,7 +66,7 @@ CalcPath_init (CalcPath_session *session)
 	start->x = session->startX;
 	start->y = session->startY;
 	start->nodeAdress = startAdress;
-	start->h = heuristic_cost_estimate(start->x, start->y, goal->x, goal->y);
+	start->h = heuristic_cost_estimate(start->x, start->y, goal->x, goal->y, session->useManhattan);
 	start->f = start->h;
 	
 	session->initialized = 1;
@@ -207,7 +207,7 @@ CalcPath_pathStep (CalcPath_session *session)
 				neighborNode->nodeAdress = neighbor_adress;
 				neighborNode->predecessor = currentNode->nodeAdress;
 				neighborNode->g = g_score;
-				neighborNode->h = heuristic_cost_estimate(neighborNode->x, neighborNode->y, session->endX, session->endY);
+				neighborNode->h = heuristic_cost_estimate(neighborNode->x, neighborNode->y, session->endX, session->endY, session->useManhattan);
 				neighborNode->f = neighborNode->g + neighborNode->h;
 				openListAdd (session, neighborNode);
 			
@@ -227,14 +227,21 @@ CalcPath_pathStep (CalcPath_session *session)
 	return -1;
 }
 
-// The heuristic used is diagonal distance.
+// The heuristic used is diagonal distance, unless specified to use manhattan (to mimic client)
 int
-heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY)
+heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY, int useManhattan)
 {
 	int xDistance = abs(currentX - goalX);
 	int yDistance = abs(currentY - goalY);
 	
-	int hScore = (10 * (xDistance + yDistance)) - (6 * ((xDistance > yDistance) ? yDistance : xDistance));
+	// # Game client uses the inadmissible (overestimating) heuristic of Manhattan distance
+	// #define heuristic(currentX, currentY, goalX, goalY) (10 * (xDistance + yDistance)) // Manhattan distance
+	int hScore;
+	if (useManhattan == 1) {
+		hScore = (10 * (xDistance + yDistance));
+	} else {
+		hScore = (10 * (xDistance + yDistance)) - (6 * ((xDistance > yDistance) ? yDistance : xDistance));
+	}
 	
 	return hScore;
 }

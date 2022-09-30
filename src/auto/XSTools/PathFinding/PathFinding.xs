@@ -20,13 +20,14 @@ PathFinding_create()
 
 
 void
-PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightMap, randomFactor, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
+PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightMap, randomFactor, useManhattan, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
 		PathFinding session
 		SV * weight_map
 		SV * avoidWalls
 		SV * customWeights
 		SV * secondWeightMap
 		SV * randomFactor
+		SV * useManhattan
 		SV * width
 		SV * height
 		SV * startx
@@ -57,7 +58,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		}
 		
 		/* Check for any missing arguments */
-		if (!session || !weight_map || !avoidWalls  || !customWeights || !secondWeightMap || !randomFactor || !width || !height || !startx || !starty || !destx || !desty || !time_max || !min_x || !max_x || !min_y || !max_y) {
+		if (!session || !weight_map || !avoidWalls  || !customWeights || !secondWeightMap || !randomFactor || !useManhattan || !width || !height || !startx || !starty || !destx || !desty || !time_max || !min_x || !max_x || !min_y || !max_y) {
 			printf("[pathfinding reset error] missing argument\n");
 			XSRETURN_NO;
 		}
@@ -75,6 +76,11 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		
 		if (SvROK(randomFactor) || SvTYPE(randomFactor) >= SVt_PVAV || !SvOK(randomFactor)) {
 			printf("[pathfinding reset error] bad randomFactor argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(useManhattan) || SvTYPE(useManhattan) >= SVt_PVAV || !SvOK(useManhattan)) {
+			printf("[pathfinding reset error] bad useManhattan argument\n");
 			XSRETURN_NO;
 		}
 		
@@ -157,6 +163,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		
 		srand(time(0));
 		session->randomFactor = (int) SvUV (randomFactor);
+		session->useManhattan = (int) SvUV (useManhattan);
 	
 		// Min and max check
 		if (session->min_x >= session->width || session->min_y >= session->height || session->min_x < 0 || session->min_y < 0) {

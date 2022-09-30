@@ -110,6 +110,7 @@ sub reset {
 		$args{secondWeightMap} = undef unless (defined $args{secondWeightMap});
 
 		$args{randomFactor} = 0 unless (defined $args{randomFactor});
+		$args{useManhattan} = 0 unless (defined $args{useManhattan});
 		
 		$args{width} = $args{field}{width} unless (defined $args{width});
 		$args{height} = $args{field}{height} unless (defined $args{height});
@@ -126,6 +127,7 @@ sub reset {
 		$args{customWeights},
 		$args{secondWeightMap},
 		$args{randomFactor},
+		$args{useManhattan},
 		$args{width}, 
 		$args{height},
 		$args{start}{x}, 

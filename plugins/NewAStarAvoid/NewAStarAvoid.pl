@@ -404,6 +404,7 @@ sub on_PathFindingReset {
 	$args->{weight_map} = \($args->{field}->{weightMap}) unless (defined $args->{weight_map});
 	
 	$args->{randomFactor} = 0 unless (defined $args->{randomFactor});
+	$args->{useManhattan} = 0 unless (defined $args->{useManhattan});
 	
 	$args->{timeout} = 1500 unless ($args->{timeout});
 	$args->{width} = $args->{field}{width} unless ($args->{width});
