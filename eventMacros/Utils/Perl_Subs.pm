@@ -139,6 +139,95 @@ sub get_weapon_refine {
 	return $refine;
 }
 
+sub weapon_equipped {
+	my $equipauto = $config{equipAuto_0_rightHand};
+	return 0 unless ($equipauto);
+	return 0 unless (exists $char->{equipment} && $char->{equipment});
+	return 0 unless (exists $char->{equipment}{'rightHand'} && $char->{equipment}{'rightHand'});
+	my $weapon = $char->{equipment}{'rightHand'};
+	my $name = itemNameSimple($weapon->{nameID});
+	my $numSlots = $itemSlotCount_lut{$weapon->{nameID}};
+	$name .= " [$numSlots]" if $numSlots;
+	return 0 unless ($name eq $equipauto);
+	return 1;
+}
+
+macro set_has_weapon_level {
+	[
+	call set_weapons
+	call set_tempitems_$weaponAmount
+	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+		$hasWeaponLevel = 1
+	} elsif ($weaponAmount >= 2 && $itemHash{$temphash{Item2Equipped}} == 1) {
+		$hasWeaponLevel = 2
+	} elsif ($weaponAmount >= 3 && $itemHash{$temphash{Item3Equipped}} == 1) {
+		$hasWeaponLevel = 3
+	}
+	]
+}
+
+macro after_buy_weapon {
+	[
+	call set_buyauto_rightHand
+	call set_buyauto_refine
+	]
+}
+
+macro refine_weapon_logic {
+	[
+	call set_weapons
+	call set_tempitems_$weaponAmount
+	$foundWeapon = 0
+	$refineLevel = 0
+	
+	$wantedRefine = 0
+	$needRefineCount = 0
+	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+		if ($itemHash{$temphash{Item1autoRefine}}) {
+			$foundWeapon = 1
+			$refineLevel = $itemHash{$temphash{Item1refineLevel}}
+		}
+	} elsif ($weaponAmount >= 2 && $itemHash{$temphash{Item2Equipped}} == 1) {
+		if ($itemHash{$temphash{Item2autoRefine}}) {
+			$foundWeapon = 1
+			$refineLevel = $itemHash{$temphash{Item2refineLevel}}
+		}
+	} elsif ($weaponAmount >= 3 && $itemHash{$temphash{Item3Equipped}} == 1) {
+		if ($itemHash{$temphash{Item3autoRefine}}) {
+			$foundWeapon = 1
+			$refineLevel = $itemHash{$temphash{Item3refineLevel}}
+		}
+	}
+	
+	if ($foundWeapon == 1) {
+		$currentRefine = get_weapon_refine()
+		$maxSafeRefine = get_maxSafeRefine("$refineLevel")
+		if ($currentRefine < $maxSafeRefine) {
+			$wantedRefine = 1
+			$needRefineCount = &eval($maxSafeRefine - $currentRefine)
+		}
+		log Current weapon has refine +$currentRefine/+$maxSafeRefine
+		if ($wantedRefine) {
+			log Still needs more $needRefineCount refines of level $refineLevel KEKW
+			do conf -f autoRefine_on 1
+			do conf -f autoRefine_weaponLevel $refineLevel
+			do conf -f autoRefine_wantedRefine $maxSafeRefine
+			do conf -f autoRefine_npc payon_in01 91 31
+			do conf -f autoRefine_commandOnSuccess eventMacro set_buyauto_refine
+			call set_BetterBuy_refine
+		} else {
+			log No need to refine further POOOOGG
+			do conf -f autoRefine_on 0
+			do conf -f autoRefine_weaponLevel none
+			do conf -f autoRefine_wantedRefine none
+			do conf -f autoRefine_npc none
+			do conf -f autoRefine_commandOnSuccess none
+			call clear_BetterBuy_refine
+		}
+	}
+	]
+}
+
 sub get_maxSafeRefine {
 	my $refineLevel = shift;
 	if ($refineLevel == 1) {

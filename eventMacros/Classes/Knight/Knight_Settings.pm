@@ -107,21 +107,6 @@ sub set_skills_stats {
 	check_key('skillsAddAuto_list', $skills);
 }
 
-macro set_has_weapon_level {
-	$hasWeaponLevel = 0
-	$Item1 = Katana
-	$Item2 = Slayer
-	$Item3 = TwoHandedSword
-	call set_tempitems_3
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
-		$hasWeaponLevel = 1
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
-		$hasWeaponLevel = 2
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
-		$hasWeaponLevel = 3
-	}
-}
-
 macro Set_use_Two_Handed_Quicken {
 	[
 	$foundSlot = find_key_in_block("useSelf_skill","KN_TWOHANDQUICKEN")

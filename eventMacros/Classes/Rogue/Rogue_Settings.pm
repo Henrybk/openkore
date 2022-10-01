@@ -162,97 +162,29 @@ macro set_buyauto_usables {
 
 macro set_buyauto_refine {
 	[
-	call set_refine_weapon
+	$weaponsafe = weapon_equipped()
+	if ($weaponsafe) {
+		call refine_weapon_logic
+	}
 	]
 }
 
 #############################
 ###### rightHand
-macro set_refine_weapon {
-	[
-	$hasWeaponLevel = 0
-	$Item1 = MainGauche
-	$Item2 = Stiletto
-	#call set_tempitems_2
-	$Item3 = Gladius
-	call set_tempitems_3
-	
-	$foundWeapon = 0
-	$refineLevel = 0
-	
-	$wantedRefine = 0
-	$needRefineCount = 0
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
-		if ($itemHash{$temphash{Item1autoRefine}}) {
-			$foundWeapon = 1
-			$refineLevel = $itemHash{$temphash{Item1refineLevel}}
-		}
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
-		if ($itemHash{$temphash{Item2autoRefine}}) {
-			$foundWeapon = 1
-			$refineLevel = $itemHash{$temphash{Item2refineLevel}}
-		}
-	#}
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
-		if ($itemHash{$temphash{Item3autoRefine}}) {
-			$foundWeapon = 1
-			$refineLevel = $itemHash{$temphash{Item3refineLevel}}
-		}
-	}
-	
-	if ($foundWeapon == 1) {
-		$currentRefine = get_weapon_refine()
-		$maxSafeRefine = get_maxSafeRefine("$refineLevel")
-		if ($currentRefine < $maxSafeRefine) {
-			$wantedRefine = 1
-			$needRefineCount = &eval($maxSafeRefine - $currentRefine)
-		}
-		log Current weapon has refine +$currentRefine/+$maxSafeRefine
-		if ($wantedRefine) {
-			log Still needs more $needRefineCount refines of level $refineLevel KEKW
-			do conf -f autoRefine_on 1
-			do conf -f autoRefine_weaponLevel $refineLevel
-			do conf -f autoRefine_wantedRefine $maxSafeRefine
-			do conf -f autoRefine_npc payon_in01 91 31
-			call set_BetterBuy_refine
-		} else {
-			log No need to refine further POOOOGG
-			do conf -f autoRefine_on 0
-			do conf -f autoRefine_weaponLevel none
-			do conf -f autoRefine_wantedRefine none
-			do conf -f autoRefine_npc none
-			call clear_BetterBuy_refine
-		}
-	}
-	]
-}
 
-macro set_has_weapon_level {
+macro set_weapons {
 	[
-	$hasWeaponLevel = 0
 	$Item1 = MainGauche
 	$Item2 = Stiletto
-	#call set_tempitems_2
 	$Item3 = Gladius
-	call set_tempitems_3
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
-		$hasWeaponLevel = 1
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
-		$hasWeaponLevel = 2
-	#}
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
-		$hasWeaponLevel = 3
-	}
+	$weaponAmount = 3
 	]
 }
 
 macro set_buyauto_rightHand {
 	[
-	$Item1 = MainGauche
-	$Item2 = Stiletto
-	$Item3 = Gladius
-	call organize_and_run_buyauto_3
-	#call organize_and_run_buyauto_2
+	call set_weapons
+	call organize_and_run_buyauto_$weaponAmount
 	]
 }
 
@@ -334,7 +266,7 @@ macro set_Pantie {
 	$item{slot} = armor
 	$item{buytype} = player
 	$item{minSearchPrice} = 5000
-	$item{price} = 10000
+	$item{price} = 25000
 	$item{minLevel} = 22
 	call set_item
 	]
@@ -517,7 +449,11 @@ macro set_Meat {
 	$item{price} = 50
 	$item{maxPrice} = 45
 	$item{minInventoryAmount} = 5
-	$item{maxAmount} = 30
+	if ($.lvl <= 38) {
+		$item{maxAmount} = 30
+	} else {
+		$item{maxAmount} = 50
+	}
 	$item{minLevel} = 1
 	$item{maxLevel} = 55
 	$item{useSelf} = 1

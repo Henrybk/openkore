@@ -22,7 +22,7 @@ eventMacro_file eventMacros.txt
 #drunk 8
 BetterWalkPlan 1
 
-route_randomFactor 8
+route_randomFactor 5
 
 ##### Plugins End
 
@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword cleashea
+adminPassword heliezos
 callSign
 commandPrefix ;
 callSignGM 0
@@ -200,7 +200,7 @@ cartMaxWeight 7900
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap pay_fild01
+lockMap lasa_dun01
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -219,7 +219,7 @@ route_teleport 0
 route_teleport_minDistance 75
 route_teleport_maxTries 8
 route_teleport_notInMaps
-route_step 9
+route_step 15
 route_removeMissingPortals_NPC 1
 route_removeMissingPortals 0
 route_tryToGuessMissingPortalByDistance 1
@@ -231,7 +231,7 @@ runFromTarget_dist 5
 runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
-saveMap oldnewpayon
+saveMap aldebaran
 saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
@@ -531,14 +531,14 @@ autoSwitch {
 ######## Autostorage/autosell ########
 
 sellAuto 1
-sellAuto_npc oldnewpayon 69 117
+sellAuto_npc aldeba_in 94 56
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
 storageAuto 1
-storageAuto_npc oldnewpayon 98 118
+storageAuto_npc aldebaran 143 119
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
@@ -579,12 +579,12 @@ equipAuto {
 	midHead
 	lowHead
 	leftHand
-	rightHand Main Gauche [3]
+	rightHand Stiletto [2]
 	leftAccessory
 	rightAccessory
 	robe Muffler
-	armor Adventurer's Suit
-	shoes Shoes
+	armor Pantie
+	shoes Boots
 	arrow
 	monsters
 	notMonsters
@@ -884,20 +884,20 @@ future_saveMap_kafra_x
 future_saveMap_kafra_y
 future_saveMap_save_sequence
 saveMap_stage_before
-saveMap_map oldnewpayon
-saveMap_x 98
-saveMap_y 118
-saveMap_kafra_map oldnewpayon
-saveMap_kafra_x 98
-saveMap_kafra_y 118
+saveMap_map aldebaran
+saveMap_x 143
+saveMap_y 119
+saveMap_kafra_map aldebaran
+saveMap_kafra_x 143
+saveMap_kafra_y 119
 saveMap_save_sequence r~/Save/i
 BetterShopper_0 517
 BetterShopper_0_price 50
 BetterShopper_0_maxPrice 45
 BetterShopper_0_minInventoryAmount 5
-BetterShopper_0_minShopAmount 30
-BetterShopper_0_maxAmount 30
-BetterShopper_0_fallbackNpcShop oldnewpayon 44 119
+BetterShopper_0_minShopAmount 50
+BetterShopper_0_maxAmount 50
+BetterShopper_0_fallbackNpcShop aldebaran 175 72
 useSelf_item_1 Meat
 useSelf_item_1_disabled 0
 useSelf_item_1_hp < 60%
@@ -907,24 +907,24 @@ BetterShopper_1_maxPrice 55
 BetterShopper_1_minInventoryAmount 0
 BetterShopper_1_minShopAmount 10
 BetterShopper_1_maxAmount 10
-BetterShopper_1_fallbackNpcShop oldnewpayon 69 117
+BetterShopper_1_fallbackNpcShop aldeba_in 94 56
 BetterShopper_2 602
 BetterShopper_2_price 300
 BetterShopper_2_maxPrice 285
 BetterShopper_2_minInventoryAmount 0
 BetterShopper_2_minShopAmount 2
 BetterShopper_2_maxAmount 2
-BetterShopper_2_fallbackNpcShop oldnewpayon 69 117
+BetterShopper_2_fallbackNpcShop aldeba_in 94 56
 autoRefine_on 0
 autoRefine_weaponLevel
 autoRefine_wantedRefine
 autoRefine_npc
-BetterShopper_3 1216
-BetterShopper_3_price 19500
-BetterShopper_3_maxPrice 19500
-BetterShopper_3_minInventoryAmount 0
-BetterShopper_3_minShopAmount 1
-BetterShopper_3_maxAmount 1
+BetterShopper_3
+BetterShopper_3_price
+BetterShopper_3_maxPrice
+BetterShopper_3_minInventoryAmount
+BetterShopper_3_minShopAmount
+BetterShopper_3_maxAmount
 BetterShopper_3_fallbackNpcTalk
 BetterShopper_3_fallbackNpcTSequence
 BetterShopper_4
@@ -934,27 +934,27 @@ BetterShopper_4_minInventoryAmount
 BetterShopper_4_minShopAmount
 BetterShopper_4_maxAmount
 BetterShopper_4_fallbackNpcShop
-BetterShopper_5 2339
+BetterShopper_5
 BetterShopper_5_price
-BetterShopper_5_maxPrice 10000
-BetterShopper_5_minInventoryAmount 0
-BetterShopper_5_minShopAmount 1
-BetterShopper_5_maxAmount 1
+BetterShopper_5_maxPrice
+BetterShopper_5_minInventoryAmount
+BetterShopper_5_minShopAmount
+BetterShopper_5_maxAmount
 BetterShopper_5_fallbackNpcShop
-BetterShopper_6 645
-BetterShopper_6_price 800
-BetterShopper_6_maxPrice 760
+BetterShopper_6 656
+BetterShopper_6_price 1500
+BetterShopper_6_maxPrice 1400
 BetterShopper_6_minInventoryAmount 0
 BetterShopper_6_minShopAmount 2
 BetterShopper_6_maxAmount 2
-BetterShopper_6_fallbackNpcShop oldnewpayon 69 117
+BetterShopper_6_fallbackNpcShop aldeba_in 94 56
 BetterShopper_7 502
 BetterShopper_7_price 200
 BetterShopper_7_maxPrice 190
 BetterShopper_7_minInventoryAmount 5
 BetterShopper_7_minShopAmount 30
 BetterShopper_7_maxAmount 30
-BetterShopper_7_fallbackNpcShop oldnewpayon 69 117
+BetterShopper_7_fallbackNpcShop aldeba_in 94 56
 useSelf_item_2 Orange Potion
 useSelf_item_2_disabled 0
 useSelf_item_2_hp < 50%
@@ -964,11 +964,19 @@ useSelf_item_3_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
 useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
-BetterShopper_3_fallbackNpcShop payon_in01 76 58
+BetterShopper_3_fallbackNpcShop
 attackSkillSlot_0 TF_STEAL
-attackSkillSlot_0_lvl 6
+attackSkillSlot_0_lvl 10
 attackSkillSlot_0_sp > 10
 attackSkillSlot_0_maxUses 1
 attackSkillSlot_0_timeout 1
 attackSkillSlot_0_maxAttempts 2
 attackSkillSlot_0_disabled 0
+Joined_Haleigh true
+Join_Haleigh_before
+useSelf_item_4 Awakening Potion
+useSelf_item_4_disabled 0
+useSelf_item_4_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+useSelf_item_4_inLockOnly 1
+useSelf_item_4_notWhileSitting 1
+useSelf_item_4_timeout 5

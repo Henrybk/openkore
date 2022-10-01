@@ -2031,6 +2031,7 @@ sub AI_pre_autoRefine {
 		
 		return unless ($refine_item_amount >= $need_refine_count);
 		
+		my $command = $config{autoRefine_commandOnSuccess};
 		
 		AI::clear("move", "route", "checkMonsters");
 		AI::queue("autoRefine", { 
@@ -2039,7 +2040,8 @@ sub AI_pre_autoRefine {
 			weapon_refine_original => $current_refine,
 			weapon_refine_wanted => $wanted_refine,
 			refine_id => $id,
-			refine_amount_needed => $need_refine_count
+			refine_amount_needed => $need_refine_count,
+			command => $command
 		});
 		
 		$refine_sucess = 0;#check
@@ -2054,6 +2056,10 @@ sub AI_pre_autoRefine {
 
 		# autoRefine finished
 		AI::dequeue while AI::inQueue("autoRefine");
+		
+		my $prefix = 'autoRefine';
+		Log::warning "[$prefix] Riunning command on end: '$args->{command}'\n";
+		Commands::run($args->{command});
 
 	} elsif ($char->inventory->isReady() && AI::action eq "autoRefine" && timeOut($timeout{ai_autoRefine_wait}, $timeout{ai_buyAuto_wait}{timeout})) {
 		my $args = AI::args;

@@ -289,3 +289,5 @@ prt_fild08 175 374 Bard#brising
 prontera 149 184 Helper
 prontera 146 194 Swanhild#17
 prontera 143 203 Fadhgridh#15
+prt_fild05 290 219 Zeny Man
+prt_fild05 290 217 Dealer#prt
