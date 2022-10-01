@@ -99,8 +99,8 @@ sub process {
 		my $ID = $slave->args->{attackID};
 		my $attackSeq = ($slave->action eq "route") ? $slave->args (1) : $slave->args (2);
 		my $target = Actor::get($ID);
-		my $realMyPos = calcPosition($slave);
-		my $realMonsterPos = calcPosition($target);
+		my $realMyPos = calcPosFromPathfinding($field, $slave);
+		my $realMonsterPos = calcPosFromPathfinding($field, $target);
 
 		if (
 			$target->{type} ne 'Unknown' &&
@@ -258,8 +258,8 @@ sub main {
 	my $monsterDist = blockDistance($myPos, $monsterPos);
 
 	my ($realMyPos, $realMonsterPos, $realMonsterDist, $hitYou);
-	my $realMyPos = calcPosition($slave);
-	my $realMonsterPos = calcPosition($target);
+	my $realMyPos = calcPosFromPathfinding($field, $slave);
+	my $realMonsterPos = calcPosFromPathfinding($field, $target);
 	my $realMonsterDist = blockDistance($realMyPos, $realMonsterPos);
 
 	my $cleanMonster = slave_checkMonsterCleanness($slave, $ID);

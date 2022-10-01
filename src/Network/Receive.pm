@@ -2376,7 +2376,7 @@ sub actor_died_or_disappeared {
 
 			$player->{gone_time} = time;
 			$players_old{$ID} = $player->deepCopy();
-			Plugins::callHook('player_disappeared', {player => $player});
+			Plugins::callHook('player_disappeared', {player => $player, type => $args->{type}});
 
 			$playersList->remove($player);
 		}

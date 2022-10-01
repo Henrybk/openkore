@@ -34,7 +34,7 @@ use Network;
 use Field;
 use Translation qw(T TF);
 use Misc;
-use Utils qw(timeOut adjustedBlockDistance distance blockDistance calcPosition);
+use Utils qw(timeOut adjustedBlockDistance distance blockDistance calcPosFromPathfinding);
 use Utils::Exceptions;
 use Utils::Set;
 use Utils::PathFinding;
@@ -313,7 +313,7 @@ sub iterate {
 		# $actor->{pos_to} is the position the character moved TO in the last move packet received
 		@{$current_pos_to}{qw(x y)} = @{$self->{actor}{pos_to}}{qw(x y)};
 		
-		my $current_calc_pos = calcPosition($self->{actor});
+		my $current_calc_pos = calcPosFromPathfinding($field, $self->{actor});
 		
 		if ($current_calc_pos->{x} == $solution->[$#{$solution}]{x} && $current_calc_pos->{y} == $solution->[$#{$solution}]{y}) {
 			# Actor position is the destination; we've arrived at the destination

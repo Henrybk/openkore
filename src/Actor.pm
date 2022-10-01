@@ -432,7 +432,7 @@ sub verb {
 sub position {
 	my ($self) = @_;
 
-	return calcPosition($self);
+	return calcPosFromPathfinding($field, $self);
 }
 
 ##
@@ -843,7 +843,7 @@ sub processTask {
 sub sendAttackStop {
 	my ($self) = @_;
 
-	$self->sendMove(@{calcPosition($self)}{qw(x y)});
+	$self->sendMove(@{calcPosFromPathfinding($field, $self)}{qw(x y)});
 }
 
 ##
