@@ -1,6 +1,6 @@
 # Leveling
 automacro leveling_timer {
-	timeout 180
+	timeout 600
 	ConfigKey eventMacro_1_99_stage leveling
 	exclusive 1
 	priority 2

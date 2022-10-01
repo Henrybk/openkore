@@ -2,13 +2,11 @@
 macro baseMacroUp {
 	[
 	$currentZeny = $.zeny
-	$extraBuyCost = 4000
+	$extraBuyCost = 0
 	
 	call SetVar
 	call set_has_weapon_level
 	call set_skills_stats
-	
-	call set_buyauto_equipment
 	
 	$changed = 0
 	
@@ -46,7 +44,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 16) {
+	} elsif ($.lvl <= 14) {
 		if ($configlockMap != pay_fild08) {
 			call set_lockmap_pay_fild08
 			$changed = 1
@@ -75,6 +73,9 @@ macro baseMacroUp {
 		call after_lock_change
 	} else {
 		log Current lockmap $configlockMap is still good
+		call set_buyauto_equipment
+		call set_buyauto_usables
+		call set_buyauto_refine
 	}
 	]
 }
@@ -86,7 +87,7 @@ macro set_skills_stats {
 }
 
 sub set_skills_stats {
-	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 9 int, 30 agi, 25 dex, 40 agi, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi';
+	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi';
 	my $skills;
 	if ($char->{jobID} == 0) {
 		$skills = 'NV_BASIC 9';
@@ -98,23 +99,6 @@ sub set_skills_stats {
 	
 	check_key('statsAddAuto_list', $stats);
 	check_key('skillsAddAuto_list', $skills);
-}
-
-macro set_has_weapon_level {
-	[
-	$hasWeaponLevel = 0
-	$Item1 = Dirk
-	$Item2 = Stiletto
-	$Item3 = Damascus
-	call set_tempitems_3
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
-		$hasWeaponLevel = 1
-	} elsif ($itemHash{$temphash{Item2Equipped}} == 1) {
-		$hasWeaponLevel = 2
-	} elsif ($itemHash{$temphash{Item3Equipped}} == 1) {
-		$hasWeaponLevel = 3
-	}
-	]
 }
 
 macro set_steal {
@@ -160,27 +144,47 @@ macro set_buyauto_equipment {
 	]
 }
 
-#############################
-###### rightHand
-macro set_buyauto_rightHand {
+macro set_buyauto_usables {
 	[
-	$Item1 = Dirk
-	$Item2 = Stiletto
-	$Item3 = Damascus
-	call organize_and_run_buyauto_3
+	call set_tooldealers2
+	if ($hasMeatVendor == 0) {
+		call set_Redpotion
+	} else {
+		call set_Meat
+	}
+	call set_Orangepotion
+	call set_Concentrationpotion
+	call set_AwakeningPotion
+	call set_Flywing
+	call set_Butterlywing
 	]
 }
 
-macro set_Dirk {
+#############################
+###### rightHand
+
+macro set_weapons {
 	[
-	$item{name} = Dirk
-	$item{id} = 1210
+	$Item1 = MainGauche
+	$Item2 = Stiletto
+	$Item3 = Gladius
+	$itemAmount = 3
+	]
+}
+
+macro set_MainGauche {
+	[
+	$item{name} = MainGauche
+	$item{id} = 1207
 	$item{slot} = rightHand
-	$item{price} = 8500
-	$item{minLevel} = 12
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 58
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 1900
+	$item{price} = 2400
+	$item{minLevel} = 1
+	$item{npc} = payon_in01-76-58
+	$item{autoRefine} = 1
+	$item{refineLevel} = 1
+	$item{commandAfterBuy} = eventMacro-after_buy_weapon
 	call set_item
 	]
 }
@@ -190,37 +194,41 @@ macro set_Stiletto {
 	$item{name} = Stiletto
 	$item{id} = 1216
 	$item{slot} = rightHand
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 15000
 	$item{price} = 19500
 	$item{minLevel} = 12
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 58
+	$item{npc} = payon_in01-76-58
+	$item{autoRefine} = 1
+	$item{refineLevel} = 2
+	$item{commandAfterBuy} = eventMacro-after_buy_weapon
 	call set_item
 	]
 }
 
-macro set_Damascus {
+macro set_Gladius {
 	[
-	$item{name} = Damascus
-	$item{id} = 1222
+	$item{name} = Gladius
+	$item{id} = 1220
 	$item{slot} = rightHand
-	$item{price} = 49000
+	$item{buytype} = player
+	$item{minSearchPrice} = 750000
+	$item{price} = 500000
 	$item{minLevel} = 24
-	$item{npcMap} = payon_in01
-	$item{npcX} = 76
-	$item{npcY} = 58
+	$item{autoRefine} = 1
+	$item{refineLevel} = 4
+	$item{commandAfterBuy} = eventMacro-after_buy_weapon
 	call set_item
 	]
 }
 
 #############################
 ###### armor
-macro set_buyauto_armor {
+macro set_armor {
 	[
 	$Item1 = AdventureSuit
-	$Item2 = WoodenMail
-	$Item3 = Pantie
-	call organize_and_run_buyauto_2_plus1
+	$Item2 = Pantie
+	$itemAmount = 2
 	]
 }
 
@@ -229,25 +237,12 @@ macro set_AdventureSuit {
 	$item{name} = AdventureSuit
 	$item{id} = 2305
 	$item{slot} = armor
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 600
 	$item{price} = 1000
 	$item{minLevel} = 4
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
-	call set_item
-	]
-}
-
-macro set_WoodenMail {
-	[
-	$item{name} = WoodenMail
-	$item{id} = 2328
-	$item{slot} = armor
-	$item{price} = 5500
-	$item{minLevel} = 20
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_armor
 	call set_item
 	]
 }
@@ -257,21 +252,23 @@ macro set_Pantie {
 	$item{name} = Pantie
 	$item{id} = 2339
 	$item{slot} = armor
-	$item{price} = player
-	$item{maxPrice} = 10000
+	$item{buytype} = player
+	$item{minSearchPrice} = 5000
+	$item{price} = 25000
 	$item{minLevel} = 22
+	$item{commandAfterBuy} = eventMacro-set_buyauto_armor
 	call set_item
 	]
 }
 
 #############################
 ###### shoes
-macro set_buyauto_shoes {
+macro set_shoes {
 	[
 	$Item1 = Sandals
 	$Item2 = Shoes
 	$Item3 = Boots
-	call organize_and_run_buyauto_3
+	$itemAmount = 3
 	]
 }
 
@@ -280,11 +277,12 @@ macro set_Sandals {
 	$item{name} = Sandals
 	$item{id} = 2401
 	$item{slot} = shoes
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 300
 	$item{price} = 400
 	$item{minLevel} = 4
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_shoes
 	call set_item
 	]
 }
@@ -294,11 +292,12 @@ macro set_Shoes {
 	$item{name} = Shoes
 	$item{id} = 2403
 	$item{slot} = shoes
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 2500
 	$item{price} = 3500
 	$item{minLevel} = 14
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_shoes
 	call set_item
 	]
 }
@@ -308,23 +307,24 @@ macro set_Boots {
 	$item{name} = Boots
 	$item{id} = 2405
 	$item{slot} = shoes
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 12000
 	$item{price} = 18000
 	$item{minLevel} = 33
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_shoes
 	call set_item
 	]
 }
 
 #############################
 ###### robe
-macro set_buyauto_robe {
+macro set_robe {
 	[
 	$Item1 = Hood
 	$Item2 = Muffler
 	$Item3 = Undershirt
-	call organize_and_run_buyauto_2_plus1
+	$itemAmount = 3
 	]
 }
 
@@ -333,11 +333,12 @@ macro set_Hood {
 	$item{name} = Hood
 	$item{id} = 2501
 	$item{slot} = robe
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 800
 	$item{price} = 1000
 	$item{minLevel} = 4
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_robe
 	call set_item
 	]
 }
@@ -347,11 +348,12 @@ macro set_Muffler {
 	$item{name} = Muffler
 	$item{id} = 2503
 	$item{slot} = robe
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 3500
 	$item{price} = 5000
 	$item{minLevel} = 14
-	$item{npcMap} = payon_in01
-	$item{npcX} = 134
-	$item{npcY} = 51
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_robe
 	call set_item
 	]
 }
@@ -361,50 +363,173 @@ macro set_Undershirt {
 	$item{name} = Undershirt
 	$item{id} = 2522
 	$item{slot} = robe
-	$item{price} = player
-	$item{maxPrice} = 65000
+	$item{buytype} = player
+	$item{minSearchPrice} = 40000
+	$item{price} = 65000
 	$item{minLevel} = 22
+	$item{commandAfterBuy} = eventMacro-set_buyauto_robe
 	call set_item
 	]
 }
 
 #############################
 ###### topHead
-macro set_buyauto_topHead {
+macro set_topHead {
 	[
-	$Item1 = Hat
-	$Item2 = Cap
-	call organize_and_run_buyauto_2
+	$Item1 = Bandana
+	$itemAmount = 1
 	]
 }
 
-macro set_Hat {
+macro set_Bandana {
 	[
-	$item{name} = Hat
-	$item{id} = 2220
+	$item{name} = Bandana
+	$item{id} = 2211
 	$item{slot} = topHead
-	$item{price} = 1000
-	$item{minLevel} = 4
-	$item{npcMap} = prt_in
-	$item{npcX} = 172
-	$item{npcY} = 132
+	$item{buytype} = fallback
+	$item{minSearchPrice} = 300
+	$item{price} = 400
+	$item{minLevel} = 1
+	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_topHead
 	call set_item
 	]
 }
 
-macro set_Cap {
+#############################
+###### usables
+
+macro set_Redpotion {
 	[
-	$item{name} = Cap
-	$item{id} = 2226
-	$item{slot} = topHead
-	$item{price} = 12000
-	$item{minLevel} = 14
-	$item{npcMap} = prt_in
-	$item{npcX} = 172
-	$item{npcY} = 132
-	call set_item
+	$item{id} = 501
+	$item{price} = 50
+	$item{maxPrice} = 45
+	$item{minInventoryAmount} = 5
+	$item{maxAmount} = 30
+	$item{minLevel} = 1
+	$item{maxLevel} = 55
+	$item{useSelf} = 1
+	call set_item_usable
+	call deal_with_usables
+	if ($item{CanUse} == 1 && $item{useSelf} == 1) {
+		do conf -f useSelf_item_$nextFreeSlot_hp < 70%
+	}
 	]
 }
+
+macro set_Meat {
+	[
+	$item{id} = 517
+	$item{price} = 50
+	$item{maxPrice} = 45
+	$item{minInventoryAmount} = 5
+	if ($.lvl <= 38) {
+		$item{maxAmount} = 30
+	} else {
+		$item{maxAmount} = 50
+	}
+	$item{minLevel} = 1
+	$item{maxLevel} = 55
+	$item{useSelf} = 1
+	call set_item_usable
+	call deal_with_usables
+	if ($item{CanUse} == 1 && $item{useSelf} == 1) {
+		do conf -f useSelf_item_$nextFreeSlot_hp < 60%
+	}
+	]
+}
+
+macro set_Orangepotion {
+	[
+	$item{id} = 502
+	$item{price} = 200
+	$item{maxPrice} = 190
+	$item{minInventoryAmount} = 5
+	$item{maxAmount} = 30
+	$item{minLevel} = 22
+	$item{maxLevel} = 99
+	$item{useSelf} = 1
+	call set_item_usable
+	call deal_with_usables
+	if ($item{CanUse} == 1 && $item{useSelf} == 1) {
+		do conf -f useSelf_item_$nextFreeSlot_hp < 50%
+	}
+	]
+}
+
+macro set_Concentrationpotion {
+	[
+	$item{id} = 645
+	$item{price} = 800
+	$item{maxPrice} = 760
+	$item{minInventoryAmount} = 0
+	$item{maxAmount} = 2
+	$item{minLevel} = 22
+	$item{maxLevel} = 39
+	$item{useSelf} = 1
+	call set_item_usable
+	call deal_with_usables
+	if ($item{CanUse} == 1 && $item{useSelf} == 1) {
+		do conf -f useSelf_item_$nextFreeSlot_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+		do conf -f useSelf_item_$nextFreeSlot_inLockOnly 1
+		do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
+		do conf -f useSelf_item_$nextFreeSlot_timeout 5
+	}
+	]
+}
+
+macro set_AwakeningPotion {
+	[
+	$item{id} = 656
+	$item{price} = 1500
+	$item{maxPrice} = 1400
+	$item{minInventoryAmount} = 0
+	$item{maxAmount} = 2
+	$item{minLevel} = 40
+	$item{maxLevel} = 99
+	$item{useSelf} = 1
+	call set_item_usable
+	call deal_with_usables
+	if ($item{CanUse} == 1 && $item{useSelf} == 1) {
+		do conf -f useSelf_item_$nextFreeSlot_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+		do conf -f useSelf_item_$nextFreeSlot_inLockOnly 1
+		do conf -f useSelf_item_$nextFreeSlot_notWhileSitting 1
+		do conf -f useSelf_item_$nextFreeSlot_timeout 5
+	}
+	]
+}
+
+macro set_Flywing {
+	[
+	$item{id} = 601
+	$item{price} = 60
+	$item{maxPrice} = 55
+	$item{minInventoryAmount} = 0
+	$item{maxAmount} = 10
+	$item{minLevel} = 1
+	$item{maxLevel} = 99
+	$item{useSelf} = 0
+	call set_item_usable
+	call set_buy_item_usable
+	]
+}
+
+macro set_Butterlywing {
+	[
+	$item{id} = 602
+	$item{price} = 300
+	$item{maxPrice} = 285
+	$item{minInventoryAmount} = 0
+	$item{maxAmount} = 2
+	$item{minLevel} = 1
+	$item{maxLevel} = 99
+	$item{useSelf} = 0
+	call set_item_usable
+	call set_buy_item_usable
+	]
+}
+
+##################################
 
 automacro Go_Job_Change {
 	ConfigKey eventMacro_1_99_stage leveling

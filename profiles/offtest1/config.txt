@@ -19,7 +19,9 @@ eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
 eventMacro_file eventMacros.txt
 
-betterWalkPlan 1
+BetterWalkPlan 1
+
+route_randomFactor 0
 
 ##### Plugins End
 
@@ -50,7 +52,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword hawrakau
+adminPassword leapruwe
 callSign
 commandPrefix ;
 callSignGM 0
@@ -75,7 +77,7 @@ alias_heal sp 28
 allowedMaps
 allowedMaps_reaction 1
 
-attackAuto 0
+attackAuto 2
 attackAuto_party 1
 attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
@@ -84,7 +86,7 @@ attackAuto_notInTown 1
 attackAuto_notWhile_storageAuto 1
 attackAuto_notWhile_buyAuto 1
 attackAuto_notWhile_sellAuto 1
-attackAuto_considerDamagedAggressive 0
+attackAuto_considerDamagedAggressive 1
 attackBeyondMaxDistance_waitForAgressive 1
 attackDistance 1
 attackDistanceAuto 0
@@ -185,7 +187,7 @@ followLostStep 12
 followSitAuto 0
 followBot 0
 
-itemsTakeAuto 2
+itemsTakeAuto 0
 itemsTakeAuto_party 0
 itemsGatherAuto 0
 itemsGatherAuto_notInTown 0
@@ -196,7 +198,7 @@ cartMaxWeight 7900
 itemsTakeGreed 0
 itemsCheckWeight 1
 
-lockMap prontera
+lockMap prt_fild05
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -215,7 +217,7 @@ route_teleport 0
 route_teleport_minDistance 75
 route_teleport_maxTries 8
 route_teleport_notInMaps
-route_step 5
+route_step 9
 route_removeMissingPortals_NPC 1
 route_removeMissingPortals 1
 route_tryToGuessMissingPortalByDistance 1
@@ -223,11 +225,11 @@ route_reAddMissingPortals 1
 
 runFromTarget 0
 runFromTarget_inAdvance 0
-runFromTarget_dist 5
-runFromTarget_minStep 7
-runFromTarget_maxPathDistance 13
+runFromTarget_dist 7
+runFromTarget_minStep 11
+runFromTarget_maxPathDistance 15
 
-saveMap prontera
+saveMap prt_fild05
 saveMap_warpToBuyOrSell 0
 saveMap_warpChatCommand
 memo1
@@ -569,59 +571,3 @@ logToFile_Errors
 logToFile_Messages
 logToFile_Warnings
 history_max 50
-
-equipAuto {
-	topHead Cap
-	midHead
-	lowHead
-	leftHand
-	rightHand Damascus [1]
-	leftAccessory
-	rightAccessory
-	robe Undershirt
-	armor Pantie
-	shoes Boots
-	arrow
-	monsters
-	notMonsters
-	monstersCount
-	weight 0
-	whileSitting 0
-	hp
-	sp
-	homunculus
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	homunculus_resting
-	homunculus_onAction
-	homunculus_notOnAction
-	homunculus_whenIdle
-	homunculus_whenNotIdle
-	mercenary
-	mercenary_hp
-	mercenary_sp
-	mercenary_whenStatusActive
-	mercenary_whenStatusInactive
-	mercenary_onAction
-	mercenary_notOnAction
-	mercenary_whenIdle
-	mercenary_whenNotIdle
-	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
-	stopWhenHit 0
-	inLockOnly 0
-	notWhileSitting 0
-	notInTown 0
-	timeout 0
-	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
-	manualAI 0
-}

@@ -15,12 +15,12 @@
 	# Swordman
 		#!include ..\..\eventMacros\Classes\Swordman\Turn_Swordman.pm
 		#!include ..\..\eventMacros\Classes\Knight\Turn_Knight.pm
-		!include ..\..\eventMacros\Classes\Knight\Knight_Settings.pm
+		#!include ..\..\eventMacros\Classes\Knight\Knight_Settings.pm
 		
 	# Thief
 		#!include ..\..\eventMacros\Classes\Thief\Turn_Thief.pm
-		#!include ..\..\eventMacros\Classes\Rogue\Rogue_Knight.pm
-		#!include ..\..\eventMacros\Classes\Rogue\Rogue_Settings.pm
+		#!include ..\..\eventMacros\Classes\Rogue\Turn_Rogue.pm
+		!include ..\..\eventMacros\Classes\Rogue\Rogue_Settings.pm
 
 # Quests 
 	#!include ..\..\eventMacros\Quests\Join_Sewb.pm
