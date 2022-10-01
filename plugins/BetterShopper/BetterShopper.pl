@@ -238,10 +238,123 @@ my $get_item;
 sub AI_storage_done_after_getAuto {
 	my ($hook, $retargs) = @_;
 	
+	my $args = AI::args;
+	
+	my %internal_args = ( return => 0 );
+	
+	if (!exists $args->{end_passiveGetAuto}) {
+		$args->{end_passiveGetAuto} = 0;
+	}
+	if ($args->{end_passiveGetAuto} == 0) {
+		AI_storage_done_after_getAuto_passiveGetAuto(\%internal_args);
+		if ($internal_args{return} == 1) {
+			$retargs->{return} = 1;
+			return;
+		} else {
+			$args->{end_passiveGetAuto} = 1;
+		}
+	}
+	
+	unless ($args->{'forcedBySell'} == 1) {
+		if (!exists $args->{end_BetterSeller}) {
+			$args->{end_BetterSeller} = 0;
+		}
+		if ($args->{end_BetterSeller} == 0) {
+			AI_storage_done_after_getAuto_BetterSeller(\%internal_args);
+			if ($internal_args{return} == 1) {
+				$retargs->{return} = 1;
+				return;
+			} else {
+				$args->{end_BetterSeller} = 1;
+			}
+		}
+	}
+}
+
+sub AI_storage_done_after_getAuto_passiveGetAuto {
+	my ($retargs) = @_;
+	
+	#warning "[Storage] AI_storage_done_after_getAuto_passiveGetAuto\n";
+	
+	my $args = AI::args;
+	$retargs->{return} = 1;
+	
+	$args->{passiveGetAutoNextItem} = 0 unless $args->{passiveGetAutoNextItem};
+	for (my $i = $args->{passiveGetAutoNextItem}; $i < $char->storage->size; $i++) {
+		my $item = $char->storage->[$i];
+		my $control = items_control($item->{name}, $item->{nameID});
+		
+		next unless ($control->{keep} > 0);
+		
+		my $nameID = $item->{nameID};
+		
+		my $invItem = $char->inventory->getByNameID($nameID);
+		my $invAmount = $char->inventory->sumByNameID($nameID);
+		my $storeItem = $char->storage->getByNameID($nameID);
+		my $storeAmount = $char->storage->sumByNameID($nameID);
+		
+		next unless ($control->{keep} > $invAmount);
+		
+		my %item;
+		$item{name} = Misc::itemName($item);
+		$item{inventory}{index} = $invItem ? $invItem->{binID} : undef;
+		$item{inventory}{amount} = $invItem ? $invAmount : 0;
+		$item{storage}{index} = $storeItem ? $storeItem->{binID} : undef;
+		$item{storage}{amount} = $storeItem ? $storeAmount : 0;
+		$item{max_amount} = $control->{keep};
+		$item{amount_needed} = $item{max_amount} - $item{inventory}{amount};
+		$item{amount_get} = 0;
+		$args->{retry} = 0;
+	
+		if ($item{amount_needed} > 0) {
+			$item{amount_get} = ($item{storage}{amount} >= $item{amount_needed})? $item{amount_needed} : $item{storage}{amount};
+		}
+		
+		my $current_weight = $char->{weight};
+		my $weight_cap = ($char->{weight_max}*(80/100));
+		my $current_inv_size = $char->inventory->size();
+
+		# Calculate the amount to get
+		
+		if (($item{amount_get} > 0) && $current_inv_size == MAX_INVENTORY_SIZE) {
+			$item{amount_get} = 0;
+		}
+		
+		if (($item{amount_get} > 0) && $invAmount == MAX_ITEM_AMOUNT) {
+			$item{amount_get} = 0;
+			
+		} elsif (($item{amount_get} > 0) && (($item{amount_get} + $invAmount) > MAX_ITEM_AMOUNT)) {
+			$item{amount_get} = (MAX_ITEM_AMOUNT - $invAmount);
+		}
+		
+		if (($item{amount_get} > 0) && $storeAmount > 0) {
+			my $item_weight = $storeItem->weight;
+			if (defined $item_weight) {
+				$item_weight = $item_weight/10;
+				if (((($item{amount_get} * $item_weight) + $current_weight) > $weight_cap)) {
+					$item{amount_get} = (floor($weight_cap - $current_weight/$item_weight));
+				}
+			}
+		}
+		
+		if (($item{amount_get} > 0) && ($args->{retry} < 3)) {
+			warning "[Storage] [passiveGetAuto] send get $item{name} x $item{amount_get}\n";
+			$messageSender->sendStorageGet($storeItem->{ID}, $item{amount_get});
+			$timeout{ai_storageAuto}{time} = time;
+			$args->{retry}++;
+			$args->{passiveGetAutoNextItem} = $i;
+			return;
+		}
+	}
+	$retargs->{return} = 0;
+}
+
+sub AI_storage_done_after_getAuto_BetterSeller {
+	my ($retargs) = @_;
+	
 	#warning "[BetterSeller - Storage] AI_storage_done_after_getAuto\n";
 	
 	my $args = AI::args;
-	return if ($args->{'forcedBySell'} == 1);
 	
 	$retargs->{return} = 1;
 	
