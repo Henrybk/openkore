@@ -7,14 +7,16 @@ use strict;
 
 use Globals qw( $char );
 use Time::HiRes qw( &time );
+use Log qw(message error debug warning);
+use Misc qw(parseReload itemNameSimple);
 
 our $name = 'item_weight_recorder';
 
-our $filename = 'item_weights.txt';
+my $file_handle;
+my $filename = 'item_weights.txt';
+my $item_weights = {};
+loadFiles();
 
-our $item_weights ||= {};
-our $loader ||= Settings::addTableFile( 'item_weights.txt', loader => [ \&FileParsers::parseDataFile2, $item_weights ], mustExist => 0 );
-Settings::loadByHandle( $loader );
 
 # Tracking inventory changes seems unnecessary, but it works around a specific
 # failure case: when attempting to add an item to inventory/storage/cart fails
@@ -36,6 +38,26 @@ my $hooks = Plugins::addHooks(    #
 
 sub Unload {
 	Plugins::delHooks( $hooks );
+	Settings::removeFile($file_handle) if (defined $file_handle);
+	undef $file_handle;
+	undef $filename;
+	undef $item_weights;
+}
+
+sub loadFiles {
+	$file_handle = setLoad($filename);
+	Settings::loadByHandle($file_handle);
+}
+
+sub setLoad {
+	my $filename = shift;
+	my $handle = Settings::addTableFile(
+		$filename,
+		loader => [ \&FileParsers::parseDataFile2, $item_weights ],
+		internalName => $filename,
+		mustExist => 0
+	);
+	return $handle;
 }
 
 sub onGetItemWeight {
@@ -76,10 +98,10 @@ sub onStatInfo {
 	# in some false negatives, but should also prevent some false positives.
 	if ( $inventory_changes == 1 && defined $last_weight && !Utils::timeOut( $last_item->{time}, 1 ) ) {
 		my $weight = abs( $args->{val} - $last_weight ) / $last_item->{amount};
-		if ( $item_weights->{ $last_item->{item_id} } ne $weight ) {
+		if ( !exists $item_weights->{ $last_item->{item_id} } || $item_weights->{ $last_item->{item_id} } != $weight ) {
 			$item_weights->{ $last_item->{item_id} } = $weight;
-			Log::debug( sprintf( "Item [%s] has weight [%.1f].\n", $last_item->{item_id}, $weight / 10 ), $name );
-			log_update( $last_item->{item_id} );
+			Log::warning( sprintf( "Item [%s] (%d) has weight [%.1f].\n", Misc::itemNameSimple($last_item->{item_id}), $last_item->{item_id}, $weight / 10 ), $name );
+			filewrite( $filename, $last_item->{item_id}, $weight, Misc::itemNameSimple($last_item->{item_id}) );
 		}
 	}
 	$last_item         = undef;
@@ -93,11 +115,49 @@ sub onItemUsed {
     $inventory_changes++;
 }
 
-sub log_update {
-	my ( $item_id ) = @_;
-	open FP, '>>', Settings::getTableFilename( $filename );
-	print FP "$item_id $item_weights->{$item_id}\n";
-	close FP;
+## write FILE
+sub filewrite {
+	my ($file, $key, $value, $name) = @_;
+	my @value;
+	my $controlfile = Settings::getTableFilename($file);
+	debug "sub WRITE = FILE: $file\nKEY: $key\nVALUE: $value\nNAME: $name\n";
+
+	open(FILE, "<:encoding(UTF-8)", $controlfile);
+	my @lines = <FILE>;
+	close(FILE);
+	chomp @lines;
+	
+	my @new_lines;
+
+	my $used = 0;
+		@value = split(/\s+/, $value);
+		my $index = 0;
+		foreach my $line (@lines) {
+			my ($what) = $line =~ /([\s\S]+?)\s[\-\d\.]+[\s\S]*/;
+			$what =~ s/\s+$//g;
+			$what =~ s/\"$//g;
+			$what =~ s/^\"//g;
+			$what = lc($what);
+			my $tmp;
+			if ($what == $key) {
+				debug "Found old in line $index: $line\n";
+			} else {
+				push (@new_lines, $line);
+			}
+		} continue {
+			$index++;
+		}
+		
+		my $new_value = $key.' '.$value. " #". $name;
+		
+		debug "New record in line $index: $new_value\n";
+		
+		push (@new_lines, $new_value);
+	
+	open(WRITE, ">:utf8", $controlfile);
+	print WRITE join ("\n", @new_lines);
+	close(WRITE);
+	parseReload($file);
 }
 
 1;
