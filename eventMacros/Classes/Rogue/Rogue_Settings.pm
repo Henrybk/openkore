@@ -160,15 +160,6 @@ macro set_buyauto_usables {
 	]
 }
 
-macro set_buyauto_refine {
-	[
-	$weaponsafe = weapon_equipped()
-	if ($weaponsafe) {
-		call refine_weapon_logic
-	}
-	]
-}
-
 #############################
 ###### rightHand
 
@@ -177,14 +168,7 @@ macro set_weapons {
 	$Item1 = MainGauche
 	$Item2 = Stiletto
 	$Item3 = Gladius
-	$weaponAmount = 3
-	]
-}
-
-macro set_buyauto_rightHand {
-	[
-	call set_weapons
-	call organize_and_run_buyauto_$weaponAmount
+	$itemAmount = 3
 	]
 }
 
@@ -200,6 +184,7 @@ macro set_MainGauche {
 	$item{npc} = payon_in01-76-58
 	$item{autoRefine} = 1
 	$item{refineLevel} = 1
+	$item{commandAfterBuy} = eventMacro-after_buy_weapon
 	call set_item
 	]
 }
@@ -216,6 +201,7 @@ macro set_Stiletto {
 	$item{npc} = payon_in01-76-58
 	$item{autoRefine} = 1
 	$item{refineLevel} = 2
+	$item{commandAfterBuy} = eventMacro-after_buy_weapon
 	call set_item
 	]
 }
@@ -231,17 +217,18 @@ macro set_Gladius {
 	$item{minLevel} = 24
 	$item{autoRefine} = 1
 	$item{refineLevel} = 4
+	$item{commandAfterBuy} = eventMacro-after_buy_weapon
 	call set_item
 	]
 }
 
 #############################
 ###### armor
-macro set_buyauto_armor {
+macro set_armor {
 	[
 	$Item1 = AdventureSuit
 	$Item2 = Pantie
-	call organize_and_run_buyauto_2
+	$itemAmount = 2
 	]
 }
 
@@ -255,6 +242,7 @@ macro set_AdventureSuit {
 	$item{price} = 1000
 	$item{minLevel} = 4
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_armor
 	call set_item
 	]
 }
@@ -268,18 +256,19 @@ macro set_Pantie {
 	$item{minSearchPrice} = 5000
 	$item{price} = 25000
 	$item{minLevel} = 22
+	$item{commandAfterBuy} = eventMacro-set_buyauto_armor
 	call set_item
 	]
 }
 
 #############################
 ###### shoes
-macro set_buyauto_shoes {
+macro set_shoes {
 	[
 	$Item1 = Sandals
 	$Item2 = Shoes
 	$Item3 = Boots
-	call organize_and_run_buyauto_3
+	$itemAmount = 3
 	]
 }
 
@@ -293,6 +282,7 @@ macro set_Sandals {
 	$item{price} = 400
 	$item{minLevel} = 4
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_shoes
 	call set_item
 	]
 }
@@ -307,6 +297,7 @@ macro set_Shoes {
 	$item{price} = 3500
 	$item{minLevel} = 14
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_shoes
 	call set_item
 	]
 }
@@ -321,18 +312,19 @@ macro set_Boots {
 	$item{price} = 18000
 	$item{minLevel} = 33
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_shoes
 	call set_item
 	]
 }
 
 #############################
 ###### robe
-macro set_buyauto_robe {
+macro set_robe {
 	[
 	$Item1 = Hood
 	$Item2 = Muffler
 	$Item3 = Undershirt
-	call organize_and_run_buyauto_3
+	$itemAmount = 3
 	]
 }
 
@@ -346,6 +338,7 @@ macro set_Hood {
 	$item{price} = 1000
 	$item{minLevel} = 4
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_robe
 	call set_item
 	]
 }
@@ -360,6 +353,7 @@ macro set_Muffler {
 	$item{price} = 5000
 	$item{minLevel} = 14
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_robe
 	call set_item
 	]
 }
@@ -373,16 +367,17 @@ macro set_Undershirt {
 	$item{minSearchPrice} = 40000
 	$item{price} = 65000
 	$item{minLevel} = 22
+	$item{commandAfterBuy} = eventMacro-set_buyauto_robe
 	call set_item
 	]
 }
 
 #############################
 ###### topHead
-macro set_buyauto_topHead {
+macro set_topHead {
 	[
 	$Item1 = Bandana
-	call organize_and_run_buyauto_1
+	$itemAmount = 1
 	]
 }
 
@@ -396,30 +391,9 @@ macro set_Bandana {
 	$item{price} = 400
 	$item{minLevel} = 1
 	$item{npc} = payon_in01-134-51
+	$item{commandAfterBuy} = eventMacro-set_buyauto_topHead
 	call set_item
 	]
-}
-
-macro set_tooldealers2 {
-	if ($configsaveMap == prt_fild05) {
-		$tooldealer = prt_fild05-290-221
-		$hasMeatVendor = 0
-		
-	} elsif ($configsaveMap == oldnewpayon) {
-		$tooldealer = oldnewpayon-69-117
-		$hasMeatVendor = 1
-		$meatDealer = oldnewpayon-44-119
-		
-	} elsif ($configsaveMap == aldebaran) {
-		$tooldealer = aldeba_in-94-56
-		$hasMeatVendor = 1
-		$meatDealer = aldebaran-175-72
-		
-	} elsif ($configsaveMap == cmd_fild07) {
-		$tooldealer = cmd_fild07-257-126
-		$hasMeatVendor = 0
-		
-	}
 }
 
 #############################

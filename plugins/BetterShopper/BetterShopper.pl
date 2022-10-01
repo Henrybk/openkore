@@ -1118,7 +1118,9 @@ sub AI_pre_buying {
 		}
 		return unless (defined $bai);
 		AI::clear("move", "route", "checkMonsters");
-		AI::queue("Shopping", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
+		
+		my $command = $config{"BetterShopper_".$bai."_commandAfterBuy"};
+		AI::queue("Shopping", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice, command => $command });
 		$buy_from_player_sucess = 0;
 		$buy_from_player_fail = 0;
 	}
@@ -1136,6 +1138,9 @@ sub AI_pre_buying {
 		AI::dequeue while AI::inQueue("Shopping");
 		delete $last_recv_seller_query_time{$prefix} if (exists $last_recv_seller_query_time{$prefix});
 		unshift(@sellers_query_queue, $prefixN);
+		
+		Log::warning "[".PLUGIN_NAME."] Running command on end: '$args->{command}'\n";
+		Commands::run($args->{command}) if (defined $args->{command});
 
 	} elsif (AI::action eq "Shopping") {
 		my $args = AI::args;
@@ -1446,6 +1451,7 @@ sub AI_pre_fallback {
 		my @delete_ids;
 		my $bai;
 		my $tprice;
+		my $found_fallback_id;
 		foreach my $fallback_id (keys %shopper_npc_fallback_items) {
 			my $fallback_item = $shopper_npc_fallback_items{$fallback_id};
 			
@@ -1454,6 +1460,25 @@ sub AI_pre_fallback {
 			my $item_prefix = "BetterShopper_$i";
 			my $itemID = $config{$item_prefix};
 			
+			my $savedID = $fallback_item->{'item'};
+			
+			unless (exists $config{$item_prefix} && defined $config{$item_prefix} && $config{$item_prefix} == $savedID) {
+				push(@delete_ids, $fallback_id);
+				next;
+			}
+			
+			unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "") {
+				push(@delete_ids, $fallback_id);
+				next;
+			}
+			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
+			
+			unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "") {
+				push(@delete_ids, $fallback_id);
+				next;
+			}
+			my $maxAmount = $config{$item_prefix."_maxAmount"};
+			
 			my $amount;
 			my $cart_amount;
 			
@@ -1461,12 +1486,6 @@ sub AI_pre_fallback {
 			$cart_amount = $char->cart->sumByNameID($fallback_id, 1);
 			
 			my $char_total = $amount + $cart_amount;
-			
-			next unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "");
-			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
-			
-			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "");
-			my $maxAmount = $config{$item_prefix."_maxAmount"};
 			
 			#warning "[Fallback Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
 			
@@ -1484,7 +1503,9 @@ sub AI_pre_fallback {
 				if ($char->{zeny} >= $total_price) {
 					$bai = $i;
 					$tprice = $total_price;
+					$found_fallback_id = $fallback_id;
 					warning "[SUCESS] fallback ".$itemID." being created\n";
+					last;
 				} else {
 					#warning "[FAIL] fallback ".$itemID." failed money\n";
 					push(@delete_ids, $fallback_id);
@@ -1501,12 +1522,17 @@ sub AI_pre_fallback {
 		
 		return unless (defined $bai);
 		AI::clear("move", "route", "checkMonsters");
-		AI::queue("Shopping_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice });
+		
+		my $command = $config{"BetterShopper_".$bai."_commandAfterBuy"};
+		AI::queue("Shopping_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice, command => $command });
 		$buy_fallback_sucess = 0;
 		$buy_fallback_fail = 0;
+		delete $shopper_npc_fallback_items{$found_fallback_id}; #TODO: Should we delete here?
+		warning "Deleting fallback ".$found_fallback_id." on success\n";
 	}
 
 	if (AI::action eq "Shopping_fallBack" && AI::args->{'done'}) {
+		my $args = AI::args;
 
 		if (exists AI::args->{'error'}) {
 			error AI::args->{'error'}.".\n";
@@ -1514,6 +1540,9 @@ sub AI_pre_fallback {
 
 		# Shopping_fallBack finished
 		AI::dequeue while AI::inQueue("Shopping_fallBack");
+		
+		Log::warning "[".PLUGIN_NAME."] Running command on end: '$args->{command}'\n";
+		Commands::run($args->{command}) if (defined $args->{command});
 
 	} elsif (AI::action eq "Shopping_fallBack" && timeOut($timeout{ai_Shopping_fallBack_wait}, $timeout{ai_buyAuto_wait}{timeout})) {
 		my $args = AI::args;
@@ -1531,6 +1560,12 @@ sub AI_pre_fallback {
 		
 		if ($buy_fallback_fail == 1) {
 			$args->{'error'} = "[$prefix] Buy failed";
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		unless (exists $config{$prefixN} && defined $config{$prefixN} && $config{$prefixN} == $args->{item}) {
+			$args->{'error'} = 'Config key '.$prefixN.' is not defined anymore';
 			$args->{'done'} = 1;
 			return;
 		}
@@ -1752,6 +1787,7 @@ sub AI_pre_Talk_fallback {
 		my $bai;
 		my $tprice;
 		my $tamount_need_buy;
+		my $found_fallback_id;
 		foreach my $fallback_id (keys %shopper_npcTalk_fallback_items) {
 			my $fallback_item = $shopper_npcTalk_fallback_items{$fallback_id};
 			
@@ -1760,6 +1796,25 @@ sub AI_pre_Talk_fallback {
 			my $item_prefix = "BetterShopper_$i";
 			my $itemID = $config{$item_prefix};
 			
+			my $savedID = $fallback_item->{'item'};
+			
+			unless (exists $config{$item_prefix} && defined $config{$item_prefix} && $config{$item_prefix} == $savedID) {
+				push(@delete_ids, $fallback_id);
+				next;
+			}
+			
+			unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "") {
+				push(@delete_ids, $fallback_id);
+				next;
+			}
+			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
+			
+			unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "") {
+				push(@delete_ids, $fallback_id);
+				next;
+			}
+			my $maxAmount = $config{$item_prefix."_maxAmount"};
+			
 			my $amount;
 			my $cart_amount;
 			
@@ -1767,12 +1822,6 @@ sub AI_pre_Talk_fallback {
 			$cart_amount = $char->cart->sumByNameID($fallback_id, 1);
 			
 			my $char_total = $amount + $cart_amount;
-			
-			next unless ($config{$item_prefix."_minInventoryAmount"} ne "" && defined $config{$item_prefix."_minInventoryAmount"} ne "");
-			my $minInventoryAmount = $config{$item_prefix."_minInventoryAmount"};
-			
-			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"} ne "");
-			my $maxAmount = $config{$item_prefix."_maxAmount"};
 			
 			#warning "[fallbackNpcTalk Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
 			
@@ -1791,7 +1840,9 @@ sub AI_pre_Talk_fallback {
 					$bai = $i;
 					$tprice = $total_price;
 					$tamount_need_buy = $amount_need_buy;
+					$found_fallback_id = $fallback_id;
 					warning "[SUCESS] fallbackNpcTalk ".$itemID." being created\n";
+					last;
 				} else {
 					#warning "[FAIL] fallbackNpcTalk ".$itemID." failed money\n";
 					push(@delete_ids, $fallback_id);
@@ -1808,12 +1859,17 @@ sub AI_pre_Talk_fallback {
 		
 		return unless (defined $bai);
 		AI::clear("move", "route", "checkMonsters");
-		AI::queue("Shopping_Talk_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice, amount => $tamount_need_buy });
+		
+		my $command = $config{"BetterShopper_".$bai."_commandAfterBuy"};
+		AI::queue("Shopping_Talk_fallBack", { Better_index => $bai, item => $config{"BetterShopper_$bai"}, needed_zeny => $tprice, amount => $tamount_need_buy, command => $command });
 		$buy_Talk_fallback_sucess = 0;
 		$buy_Talk_fallback_fail = 0;
+		delete $shopper_npcTalk_fallback_items{$found_fallback_id}; #TODO: Should we delete here?
+		warning "Deleting fallbackNpcTalk ".$found_fallback_id." on success\n";
 	}
 
 	if (AI::action eq "Shopping_Talk_fallBack" && AI::args->{'done'}) {
+		my $args = AI::args;
 
 		if (exists AI::args->{'error'}) {
 			error AI::args->{'error'}.".\n";
@@ -1821,6 +1877,9 @@ sub AI_pre_Talk_fallback {
 
 		# Shopping_Talk_fallBack finished
 		AI::dequeue while AI::inQueue("Shopping_Talk_fallBack");
+		
+		Log::warning "[".PLUGIN_NAME."] Running command on end: '$args->{command}'\n";
+		Commands::run($args->{command}) if (defined $args->{command});
 
 	} elsif (AI::action eq "Shopping_Talk_fallBack" && timeOut($timeout{ai_Shopping_Talk_fallBack_wait}, $timeout{ai_buyAuto_wait}{timeout})) {
 		my $args = AI::args;
@@ -1844,6 +1903,12 @@ sub AI_pre_Talk_fallback {
 		
 		if ($char->{zeny} < $args->{needed_zeny}) {
 			$args->{'error'} = 'We do not have enough zeny anymore';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		unless (exists $config{$prefixN} && defined $config{$prefixN} && $config{$prefixN} == $args->{item}) {
+			$args->{'error'} = 'Config key '.$prefixN.' is not defined anymore';
 			$args->{'done'} = 1;
 			return;
 		}
@@ -2032,6 +2097,7 @@ sub AI_pre_autoRefine {
 		return unless ($refine_item_amount >= $need_refine_count);
 		
 		my $command = $config{autoRefine_commandOnSuccess};
+		my $npc = $config{autoRefine_npc};
 		
 		AI::clear("move", "route", "checkMonsters");
 		AI::queue("autoRefine", { 
@@ -2041,7 +2107,9 @@ sub AI_pre_autoRefine {
 			weapon_refine_wanted => $wanted_refine,
 			refine_id => $id,
 			refine_amount_needed => $need_refine_count,
-			command => $command
+			command => $command,
+			weaponLevel => $weapon_level,
+			npc => $npc
 		});
 		
 		$refine_sucess = 0;#check
@@ -2049,6 +2117,7 @@ sub AI_pre_autoRefine {
 	}
 
 	if (AI::action eq "autoRefine" && AI::args->{'done'}) {
+		my $args = AI::args;
 
 		if (exists AI::args->{'error'}) {
 			error AI::args->{'error'}.".\n";
@@ -2058,8 +2127,8 @@ sub AI_pre_autoRefine {
 		AI::dequeue while AI::inQueue("autoRefine");
 		
 		my $prefix = 'autoRefine';
-		Log::warning "[$prefix] Riunning command on end: '$args->{command}'\n";
-		Commands::run($args->{command});
+		Log::warning "[$prefix] Running command on end: '$args->{command}'\n";
+		Commands::run($args->{command}) if (defined $args->{command});
 
 	} elsif ($char->inventory->isReady() && AI::action eq "autoRefine" && timeOut($timeout{ai_autoRefine_wait}, $timeout{ai_buyAuto_wait}{timeout})) {
 		my $args = AI::args;
@@ -2068,6 +2137,36 @@ sub AI_pre_autoRefine {
 		my $prefix = 'autoRefine';
 		
 		my $weapon = $char->{equipment}{'rightHand'};
+		
+		unless (exists $config{autoRefine_on} && defined $config{autoRefine_on} && $config{autoRefine_on} == 1) {
+			$args->{'error'} = 'Config key autoRefine_on is not 1 anymore';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		unless ($config{autoRefine_weaponLevel} == $args->{weaponLevel}) {
+			$args->{'error'} = 'Config key autoRefine_weaponLevel changed';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		unless ($config{autoRefine_wantedRefine} == $args->{weapon_refine_wanted}) {
+			$args->{'error'} = 'Config key autoRefine_wantedRefine changed';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		unless ($config{autoRefine_commandOnSuccess} eq $args->{command}) {
+			$args->{'error'} = 'Config key autoRefine_commandOnSuccess changed';
+			$args->{'done'} = 1;
+			return;
+		}
+		
+		unless ($config{autoRefine_npc} eq $args->{npc}) {
+			$args->{'error'} = 'Config key autoRefine_npc changed';
+			$args->{'done'} = 1;
+			return;
+		}
 		
 		unless ($weapon && $weapon->{nameID} == $args->{weapon_id}) {
 			$args->{'error'} = 'Weapon changed';
