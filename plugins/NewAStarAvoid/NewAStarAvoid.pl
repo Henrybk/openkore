@@ -37,6 +37,10 @@ my $obstacle_hooks = Plugins::addHooks(
 	# Spells
 	['packet_areaSpell', \&on_add_areaSpell_list, undef],
 	['packet_pre/area_spell_disappears', \&on_areaSpell_disappeared, undef],
+	
+	# portals
+	['add_portal_list', \&on_add_portal_list, undef],
+	['portal_disappeared', \&on_portal_disappeared, undef],
 );
 
 my $mobhooks = Plugins::addHooks(
@@ -57,17 +61,16 @@ my %mob_nameID_obstacles = (
 );
 
 my %player_name_obstacles = (
-	'mage4534' => {
-		weight => 1000,
-		dist => 10
-	}
+	
 );
 
 my %area_spell_type_obstacles = (
-	'127' => {
-		weight => 1000,
-		dist => 1
-	}
+	
+);
+
+my %portals_obstacles = (
+	weight => 1000,
+	dist => 10
 );
 
 my %obstaclesList;
@@ -210,14 +213,14 @@ sub add_obstacle {
 	my ($actor, $obstacle, $type) = @_;
 	
 	if (exists $removed_obstacle_still_in_list{$actor->{ID}}) {
-		warning "[".PLUGIN_NAME."] New obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}." already exists in removed_obstacle_still_in_list, deleting from it and updating position.\n";
+		warning "[".PLUGIN_NAME."] New obstacle $actor on location ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}." already exists in removed_obstacle_still_in_list, deleting from it and updating position.\n";
 		delete $obstaclesList{$actor->{ID}};
 		delete $removed_obstacle_still_in_list{$actor->{ID}};
 	}
 	
-	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n";
+	warning "[".PLUGIN_NAME."] Adding obstacle $actor on location ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.".\n";
 	
-	my $weight_changes = create_changes_array($actor->{pos}, $obstacle);
+	my $weight_changes = create_changes_array($actor->{pos_to}, $obstacle);
 	
 	$obstaclesList{$actor->{ID}}{pos_to} = $actor->{pos_to};
 	$obstaclesList{$actor->{ID}}{weight} = $weight_changes;
@@ -252,10 +255,10 @@ sub remove_obstacle {
 	
 	if (($type eq 'monster' || $type eq 'player') && $reason eq 'outofsight') {
 		$removed_obstacle_still_in_list{$actor->{ID}} = 1;
-		warning "[".PLUGIN_NAME."] Putting obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}." in to the removed_obstacle_still_in_list.\n";
+		warning "[".PLUGIN_NAME."] Putting obstacle $actor from ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}." in to the removed_obstacle_still_in_list.\n";
 	
 	} else {
-		warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos}{x}." ".$actor->{pos}{y}.".\n"; 
+		warning "[".PLUGIN_NAME."] Removing obstacle $actor from ".$actor->{pos_to}{x}." ".$actor->{pos_to}{y}.".\n"; 
 		delete $obstaclesList{$actor->{ID}};
 		$mustRePath = 1;
 	}
@@ -623,6 +626,24 @@ sub on_areaSpell_disappeared {
 	return unless (exists $obstaclesList{$spell->{ID}});
 	
 	remove_obstacle($spell, 'spell');
+}
+
+###################################################
+######## portals avoiding
+###################################################
+
+sub on_add_portal_list {
+	my (undef, $args) = @_;
+	my $actor = $args;
+	
+	add_obstacle($actor, \%portals_obstacles, 'portal');
+}
+
+sub on_portal_disappeared {
+	my (undef, $args) = @_;
+	my $actor = $args->{portal};
+	
+	#remove_obstacle($actor, 'portal');
 }
 
 return 1;
