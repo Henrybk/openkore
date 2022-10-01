@@ -1720,7 +1720,6 @@ Spearman Scroll 10 0 0 0
 1104 1 0 0 #Falchion [3]
 1116 1 0 0 #Katana [3]
 2312 0 0 1 #Padded Armor
-501 50 1 0 #Red Potion
 12323 0 0 0 #[NotForSale] Novice Fly Wing
 12324 0 0 0 #Novice Butterfly Wing
 569 0 0 0 #Novice Potion
@@ -1740,8 +1739,6 @@ Spearman Scroll 10 0 0 0
 2221 0 0 1 #Hat [1]
 2220 0 0 1 #Hat
 2328 0 0 1 #Wooden Mail
-2501 0 0 1 #Hood
-2503 1 0 1 #Muffler
 1207 0 0 1 #Main Gauche [3]
 1216 1 0 1 #Stiletto [2]
 2401 0 0 1 #Sandals
@@ -1792,6 +1789,11 @@ Spearman Scroll 10 0 0 0
 700 0 0 1 #Level 1 Frost Diver Scroll
 2305 0 0 1 #Adventurer's Suit
 2339 1 0 1 #Pantie
+2211 1 0 1 #Bandana
+501 0 1 0 #Red Potion
+2501 0 0 1 #Hood
+2503 0 0 1 #Muffler
+2522 1 0 1 #Undershirt
 517 50 1 0 #Meat
 502 30 1 0 #Orange Potion
 645 0 1 0 #Concentration Potion
@@ -1801,4 +1803,3 @@ Spearman Scroll 10 0 0 0
 1010 0 1 0 #Phracon
 1011 0 1 0 #Emveretarcon
 984 0 1 0 #Oridecon
-2211 1 0 1 #Bandana

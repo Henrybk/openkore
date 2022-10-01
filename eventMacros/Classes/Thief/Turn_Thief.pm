@@ -337,7 +337,7 @@ automacro EquipThiefStuffEnd {
 		do conf -f route_randomWalk 1
 		do conf -f itemsGatherAuto 0
 		do conf -f itemsTakeAuto 2
-		do conf -f route_step 15
+		do conf -f route_step 9
 		
 		do conf -f teleportAuto_minAggressives 4
 		do conf -f saveMap_warpToBuyOrSell 0

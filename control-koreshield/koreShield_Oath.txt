@@ -18,7 +18,7 @@ silent 0
 #pingGMpp
 ping_GM 1
 ping_inLockOnly 0
-ping_timeout 2
+ping_timeout 3
 ping_IDperLoop 5
 
 ping_notWhileQueued macro eventMacro NPC storageAuto buyAuto sellAuto
@@ -27,7 +27,7 @@ ping_checkDelay 0.3
 ping_relogTime 60
 ping_relogTimeSeed 60
 
-detectGM_notInTown 0
+detectGM_notInTown 1
 detectGM_teleportCheck_ignorePortal 1
 detectGM_monsterMaxDist 6
 detectGM_avoidPerfectHidden 1

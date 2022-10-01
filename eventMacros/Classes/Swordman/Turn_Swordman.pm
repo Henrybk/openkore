@@ -215,7 +215,7 @@ macro Ajust_to_move_to_test {
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
 	do conf -f itemsGatherAuto 0
-	do conf -f route_step 15
+	do conf -f route_step 9
 	do conf -f portalRecord 2
 	do conf -f route_avoidWalls 1
 	]
@@ -269,7 +269,7 @@ macro ended_test {
 	do conf -f attackRouteMaxPathDistance 28
 	do conf -f route_randomWalk 0
 	do conf -f itemsGatherAuto 0
-	do conf -f route_step 15
+	do conf -f route_step 9
 	do conf -f portalRecord 2
 	do conf -f route_avoidWalls 1
 	]
@@ -378,7 +378,7 @@ automacro EquipSwordmanStuffEnd {
 		do conf -f route_randomWalk 1
 		do conf -f itemsGatherAuto 0
 		do conf -f itemsTakeAuto 2
-		do conf -f route_step 15
+		do conf -f route_step 9
 		do conf -f portalRecord 2
 		do conf -f route_avoidWalls 1
 		
