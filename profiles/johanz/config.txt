@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword heliezos
+adminPassword wuprothe
 callSign
 commandPrefix ;
 callSignGM 0
@@ -579,7 +579,7 @@ equipAuto {
 	midHead
 	lowHead
 	leftHand
-	rightHand Stiletto [2]
+	rightHand +6 Stiletto [2]
 	leftAccessory
 	rightAccessory
 	robe Muffler
@@ -980,3 +980,4 @@ useSelf_item_4_whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
 useSelf_item_4_inLockOnly 1
 useSelf_item_4_notWhileSitting 1
 useSelf_item_4_timeout 5
+BetterShopper_5_commandAfterBuy
