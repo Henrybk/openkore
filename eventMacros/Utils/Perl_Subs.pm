@@ -131,22 +131,34 @@ sub isEquippedInSlotNameID {
 	return 1;
 }
 
-macro set_tooldealers2 {
+macro set_tooldealers_and_kafra {
 	if ($configsaveMap == prt_fild05) {
+		$kafra = prt_fild05-290-224
+		$storageSequence = r~/storage/i
+		
 		$tooldealer = prt_fild05-290-221
 		$hasMeatVendor = 0
 		
 	} elsif ($configsaveMap == oldnewpayon) {
+		$kafra = oldnewpayon-98-118
+		$storageSequence = r~/storage/i
+		
 		$tooldealer = oldnewpayon-69-117
 		$hasMeatVendor = 1
 		$meatDealer = oldnewpayon-44-119
 		
 	} elsif ($configsaveMap == aldebaran) {
+		$kafra = aldebaran-143-119
+		$storageSequence = r~/storage/i
+		
 		$tooldealer = aldeba_in-94-56
 		$hasMeatVendor = 1
 		$meatDealer = aldebaran-175-72
 		
 	} elsif ($configsaveMap == cmd_fild07) {
+		$kafra = cmd_fild07-136-134
+		$storageSequence = r~/storage/i
+		
 		$tooldealer = cmd_fild07-257-126
 		$hasMeatVendor = 0
 		

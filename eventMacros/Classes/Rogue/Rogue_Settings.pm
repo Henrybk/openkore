@@ -69,6 +69,10 @@ macro baseMacroUp {
 		
 	}
 	
+	if ($hasLevelWeapon >= 2 || $.zeny > 10000) {
+		do conf -f saveMap_warpToBuyOrSell 1
+	}
+	
 	if ($changed == 1) {
 		call after_lock_change
 	} else {
@@ -88,7 +92,7 @@ macro set_skills_stats {
 }
 
 sub set_skills_stats {
-	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi';
+	my $stats = '10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 55 agi, 40 dex, 60 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi';
 	my $skills;
 	if ($char->{jobID} == 0) {
 		$skills = 'NV_BASIC 9';
@@ -161,7 +165,7 @@ macro set_buyauto_equipment {
 
 macro set_buyauto_usables {
 	[
-	call set_tooldealers2
+	call set_tooldealers_and_kafra
 	if ($hasMeatVendor == 0) {
 		call set_Redpotion
 		call BetterbuyAuto_clear_item 517
@@ -510,7 +514,7 @@ macro set_Meat {
 	$item{price} = 50
 	$item{maxPrice} = 45
 	$item{minInventoryAmount} = 5
-	if ($.lvl <= 38) {
+	if ($.lvl <= 38 || $.zeny < 10000) {
 		$item{maxAmount} = 30
 	} else {
 		$item{maxAmount} = 50
@@ -550,7 +554,11 @@ macro set_Concentrationpotion {
 	$item{price} = 800
 	$item{maxPrice} = 760
 	$item{minInventoryAmount} = 0
-	$item{maxAmount} = 2
+	if ($.zeny < 10000) {
+		$item{maxAmount} = 2
+	} else {
+		$item{maxAmount} = 4
+	}
 	$item{minLevel} = 22
 	$item{maxLevel} = 39
 	$item{useSelf} = 1
@@ -571,7 +579,11 @@ macro set_AwakeningPotion {
 	$item{price} = 1500
 	$item{maxPrice} = 1400
 	$item{minInventoryAmount} = 0
-	$item{maxAmount} = 2
+	if ($.zeny < 10000) {
+		$item{maxAmount} = 2
+	} else {
+		$item{maxAmount} = 4
+	}
 	$item{minLevel} = 40
 	$item{maxLevel} = 99
 	$item{useSelf} = 1
@@ -607,7 +619,11 @@ macro set_Butterlywing {
 	$item{price} = 300
 	$item{maxPrice} = 285
 	$item{minInventoryAmount} = 0
-	$item{maxAmount} = 2
+	if ($.zeny < 10000) {
+		$item{maxAmount} = 2
+	} else {
+		$item{maxAmount} = 5
+	}
 	$item{minLevel} = 1
 	$item{maxLevel} = 99
 	$item{useSelf} = 0

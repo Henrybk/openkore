@@ -73,20 +73,11 @@ automacro talkKafra {
 	}
 }
 
-macro set_tooldealers1 {
-	if ($saveMap == prt_fild05) {
-		$tooldealer = prt_fild05-290-221
-		
-	} elsif ($saveMap == oldnewpayon) {
-		$tooldealer = oldnewpayon-69-117
-		
-	} elsif ($saveMap == aldebaran) {
-		$tooldealer = aldeba_in-94-56
-		
-	} elsif ($saveMap == cmd_fild07) {
-		$tooldealer = cmd_fild07-257-126
-	}
+macro set_tooldealers_and_kafra2 {
+	$configsaveMap = $saveMap
+	call set_tooldealers_and_kafra
 	$cleartool = clear_hifens("$tooldealer")
+	$clearkafra = clear_hifens("$kafra")
 }
 
 automacro SavedAtKafra {
@@ -100,26 +91,15 @@ automacro SavedAtKafra {
 		[
 		do conf -f saveMap $saveMap
 		
-		call set_tooldealers1
+		call set_tooldealers_and_kafra2
 		
 		do conf -f minStorageZeny 100
 		do conf -f storageAuto 1
 		do conf -f sellAuto 1
 		do conf -f sellAuto_npc $cleartool
 		
-		if ($saveMap == prt_fild05) {
-			do conf -f storageAuto_npc prt_fild05 290 224
-			do conf -f storageAuto_npc_steps r~/storage/i
-		} elsif ($saveMap == oldnewpayon) {
-			do conf -f storageAuto_npc oldnewpayon 98 118
-			do conf -f storageAuto_npc_steps r~/storage/i
-		} elsif ($saveMap == aldebaran) {
-			do conf -f storageAuto_npc aldebaran 143 119
-			do conf -f storageAuto_npc_steps r~/storage/i
-		} elsif ($saveMap == cmd_fild07) {
-			do conf -f storageAuto_npc cmd_fild07 136 134
-			do conf -f storageAuto_npc_steps r~/storage/i
-		}
+		do conf -f storageAuto_npc $clearkafra
+		do conf -f storageAuto_npc_steps $storageSequence
 		
 		do conf -f saveMap_map &config(future_saveMap_map)
 		do conf -f saveMap_x &config(future_saveMap_x)
