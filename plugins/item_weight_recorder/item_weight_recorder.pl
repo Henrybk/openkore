@@ -36,12 +36,39 @@ my $hooks = Plugins::addHooks(    #
 	[ 'packet/item_used'            => \&onItemUsed ],
 );
 
+my $commands_hooks = Commands::register(
+	['getweight', 'get item weight',			\&cmdPrintWeight],
+);
+
 sub Unload {
-	Plugins::delHooks( $hooks );
+	Plugins::delHooks($hooks);
+	Commands::unregister($commands_hooks);
 	Settings::removeFile($file_handle) if (defined $file_handle);
 	undef $file_handle;
 	undef $filename;
 	undef $item_weights;
+}
+
+sub cmdPrintWeight {
+	if (!defined $_[1]) {
+		message "usage: getweight [item ID]\n", "list";
+		return;
+	}
+	my ( $command, $arg ) = @_;
+	
+	my $id = $arg;
+	
+	if ($id !~ /^\d+$/) {
+		message "Provided item ID is not numerical\n", "list";
+		return;
+	}
+	
+	if (!exists $item_weights->{ $arg }) {
+		warning "[$name] The weight of item id $arg is not defined\n";
+	} else {
+		my $name = Misc::itemNameSimple($arg);
+		warning "[$name] The weight of item id $arg (".$name.") is ".$item_weights->{ $arg }."\n";
+	}
 }
 
 sub loadFiles {

@@ -445,6 +445,7 @@ sub parseDataFile2 {
 		$line =~ s/\x{FEFF}//g;
 		next if ($line =~ /^#/);
 		$line =~ s/[\r\n]//g;
+		$line =~ s/\s*#.*//;
 		next if (length($line) == 0);
 
 		my ($key, $value) = split / /, $line, 2;
