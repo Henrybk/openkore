@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword stethoul
+adminPassword boweatre
 callSign
 commandPrefix ;
 callSignGM 0
@@ -575,7 +575,7 @@ logToFile_Warnings
 history_max 50
 
 equipAuto {
-	topHead Bandana
+	topHead Fruit Peel
 	midHead
 	lowHead
 	leftHand
@@ -965,13 +965,13 @@ useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
 BetterShopper_3_fallbackNpcShop
-attackSkillSlot_0 TF_STEAL
-attackSkillSlot_0_lvl 10
-attackSkillSlot_0_sp > 10
-attackSkillSlot_0_maxUses 1
-attackSkillSlot_0_timeout 1
-attackSkillSlot_0_maxAttempts 2
-attackSkillSlot_0_disabled 0
+attackSkillSlot_0
+attackSkillSlot_0_lvl
+attackSkillSlot_0_sp
+attackSkillSlot_0_maxUses
+attackSkillSlot_0_timeout
+attackSkillSlot_0_maxAttempts
+attackSkillSlot_0_disabled
 Joined_Haleigh true
 Join_Haleigh_before
 useSelf_item_4 Awakening Potion
@@ -1005,3 +1005,6 @@ BetterShopper_8_minInventoryAmount
 BetterShopper_8_minShopAmount
 BetterShopper_8_maxAmount
 turn_rogue_getToNpc_type 2022
+BetterShopper_8_price
+BetterShopper_8_fallbackNpcShop
+BetterShopper_8_commandAfterBuy

@@ -135,11 +135,14 @@ macro set_STEALCOIN {
 macro set_buyauto_equipment {
 	[
 	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 1) {
+	if ($hasWeaponLevel >= 2) {
 		call set_buyauto_armor
 		call set_buyauto_shoes
 		call set_buyauto_robe
 		call set_buyauto_topHead
+	}
+	if ($hasWeaponLevel >= 3) {
+		call set_buyauto_rightAccessory
 	}
 	]
 }
@@ -149,8 +152,12 @@ macro set_buyauto_usables {
 	call set_tooldealers2
 	if ($hasMeatVendor == 0) {
 		call set_Redpotion
+		call BetterbuyAuto_clear_item 517
+		do iconf 517 0 1 0
 	} else {
 		call set_Meat
+		call BetterbuyAuto_clear_item 501
+		do iconf 501 0 1 0
 	}
 	call set_Orangepotion
 	call set_Concentrationpotion
@@ -377,7 +384,8 @@ macro set_Undershirt {
 macro set_topHead {
 	[
 	$Item1 = Bandana
-	$itemAmount = 1
+	$Item2 = NutShell
+	$itemAmount = 2
 	]
 }
 
@@ -392,6 +400,43 @@ macro set_Bandana {
 	$item{minLevel} = 1
 	$item{npc} = payon_in01-134-51
 	$item{commandAfterBuy} = eventMacro-set_buyauto_topHead
+	call set_item
+	]
+}
+
+macro set_NutShell {
+	[
+	$item{name} = NutShell
+	$item{id} = 5037
+	$item{slot} = topHead
+	$item{buytype} = player
+	$item{minSearchPrice} = 4000
+	$item{price} = 8000
+	$item{minLevel} = 5
+	$item{commandAfterBuy} = eventMacro-set_buyauto_topHead
+	call set_item
+	]
+}
+
+#############################
+###### rightAccessory
+macro set_rightAccessory {
+	[
+	$Item1 = MatyrLeash
+	$itemAmount = 1
+	]
+}
+
+macro set_MatyrLeash {
+	[
+	$item{name} = MatyrLeash
+	$item{id} = 2618
+	$item{slot} = rightAccessory
+	$item{buytype} = player
+	$item{minSearchPrice} = 100000
+	$item{price} = 200000
+	$item{minLevel} = 35
+	$item{commandAfterBuy} = eventMacro-set_buyauto_rightAccessory
 	call set_item
 	]
 }

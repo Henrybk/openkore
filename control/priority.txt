@@ -9,5 +9,11 @@
 # than Hydras.
 #
 # Example (remove the comment character to activate them):
-#Hydra
-#Obeaune
+
+Mastering
+Vagabond Wolf
+Jelring
+Wolf
+Doughring
+Spore
+Willow

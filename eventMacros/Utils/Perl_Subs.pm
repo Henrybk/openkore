@@ -9,9 +9,7 @@ macro clear_equipauto {
 	do conf -f equipAuto_0_shoes none
 	do conf -f equipAuto_0_armor none
 	do conf -f equipAuto_0_rightHand none
-	do conf -f equipAuto_0_topHead none
-	do conf -f equipAuto_0_leftHand none
-	do conf -f equipAuto_0_robe none
+	do conf -f equipAuto_0_rightAccessory none
 	]
 }
 
@@ -245,6 +243,13 @@ macro set_buyauto_robe {
 macro set_buyauto_topHead {
 	[
 	call set_topHead
+	call organize_and_run_buyauto_$itemAmount
+	]
+}
+
+macro set_buyauto_rightAccessory {
+	[
+	call set_rightAccessory
 	call organize_and_run_buyauto_$itemAmount
 	]
 }

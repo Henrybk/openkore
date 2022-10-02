@@ -77,8 +77,9 @@ macro set_lockmap_lasa_dun02 {
 	[
 	do conf lockMap lasa_dun02
 	
-	do mconf 1031 1 0 0 #Poporing
-	do mconf 1018 1 0 0 #Creamy
+	do mconf 1368 0 0 0 #Geographer
+	do mconf 3988 0 0 0 #Protoring
+	do mconf 3989 1 0 0 #Abomring
 	
 	call set_config_class
 	call set_global_iconf
