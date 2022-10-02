@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword fricluri
+adminPassword tujoyosh
 callSign
 commandPrefix ;
 callSignGM 0
@@ -232,7 +232,7 @@ runFromTarget_minStep 7
 runFromTarget_maxPathDistance 13
 
 saveMap aldebaran
-saveMap_warpToBuyOrSell 0
+saveMap_warpToBuyOrSell 1
 saveMap_warpChatCommand
 memo1
 memo2
@@ -258,7 +258,7 @@ sitAuto_look_from_wall
 sitTensionRelax 0
 
 statsAddAuto 1
-statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 65 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi
+statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 55 agi, 40 dex, 60 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi
 statsAddAuto_dontUseBonus 1
 statsAdd_over_99 1
 
@@ -912,8 +912,8 @@ BetterShopper_2 602
 BetterShopper_2_price 300
 BetterShopper_2_maxPrice 285
 BetterShopper_2_minInventoryAmount 0
-BetterShopper_2_minShopAmount 2
-BetterShopper_2_maxAmount 2
+BetterShopper_2_minShopAmount 5
+BetterShopper_2_maxAmount 5
 BetterShopper_2_fallbackNpcShop aldeba_in 94 56
 autoRefine_on 0
 autoRefine_weaponLevel
@@ -945,8 +945,8 @@ BetterShopper_6 656
 BetterShopper_6_price 1500
 BetterShopper_6_maxPrice 1400
 BetterShopper_6_minInventoryAmount 0
-BetterShopper_6_minShopAmount 2
-BetterShopper_6_maxAmount 2
+BetterShopper_6_minShopAmount 4
+BetterShopper_6_maxAmount 4
 BetterShopper_6_fallbackNpcShop aldeba_in 94 56
 BetterShopper_7 502
 BetterShopper_7_price 200
