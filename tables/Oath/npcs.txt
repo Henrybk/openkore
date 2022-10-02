@@ -304,3 +304,6 @@ cmd_fild07 136 134 Kafra Employee
 in_rogue 376 23 Mr. Smith#rg
 in_rogue 363 122 Rogue Guildsman#rg
 oldnewpayon 145 47 Jason#np
+cmd_fild07 94 134 Sarumane#cmd
+morocc 143 58 Towner#3moc
+in_rogue 244 39 Aragham Junior#rg

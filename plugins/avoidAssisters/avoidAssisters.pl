@@ -22,6 +22,7 @@ my %assisters_max = (
 	1013 => 1, #Wolf
 	1051 => 2, #Thief Bug
 	1053 => 2, #Thief Bug Female
+	1042 => 1, #Steel Chonchon
 );
 
 sub on_checkMonsterAutoAttack {

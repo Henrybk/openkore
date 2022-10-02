@@ -455,44 +455,58 @@ automacro checkItemsSet2 {
 
 macro SetVarSet2 {
 	[
+	$saveParam = $.param[0]
+	
 	do conf -f turn_rogue_collect_set 2
 	$id = 508
 	$amount = 10
+	$maxPrice = 2500
 	$YellowHerb = GetNamebyNameID("$id")
 	$YellowHerb = &invamount($YellowHerb)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 940
 	$amount = 10
+	$maxPrice = 1000
 	$Grasshopper = GetNamebyNameID("$id")
 	$Grasshopper = &invamount($Grasshopper)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 935
 	$amount = 10
+	$maxPrice = 500
 	$Shell = GetNamebyNameID("$id")
 	$Shell = &invamount($Shell)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 948
 	$amount = 10
+	$maxPrice = 500
 	$BearFootskin = GetNamebyNameID("$id")
 	$BearFootskin = &invamount($BearFootskin)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	]
@@ -505,34 +519,7 @@ macro OrganizeItems2 {
 	call SetVarSet2 0
 	$changed = 0
 	
-	if ($YellowHerb < 10) {
-		if ($configlockMap != cmd_fild07) {
-			# kafra cmd_fild07 136 134
-			# sell cmd_fild07 257 126
-			call set_lockmap_cmd_fild07
-			$changed = 1
-		}
-	
-	} elsif ($Grasshopper < 10 || $Shell < 10) {
-		if ($testvar == 1) {
-			if ($configlockMap != moc_fild18) {
-				call set_lockmap_moc_fild18
-				$changed = 1
-			}
-		} else {
-			if ($configlockMap != moc_fild04) {
-				call set_lockmap_moc_fild04
-				$changed = 1
-			}
-		}
-	
-	} elsif ($BearFootskin < 10) {
-		if ($configlockMap != mjolnir_09) {
-			call set_lockmap_mjolnir_09
-			$changed = 1
-		}
-	
-	} elsif ($.zeny < 15000) {
+	if ($.zeny < 25000) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild05) {
 				call set_lockmap_prt_fild05
@@ -544,6 +531,46 @@ macro OrganizeItems2 {
 				$changed = 1
 			}
 		}
+	
+	} elsif ($BearFootskin < 10) {
+		if ($configlockMap != mjolnir_09) {
+			call set_lockmap_mjolnir_09
+			$changed = 1
+		}
+	
+	} elsif ($Grasshopper < 10 || $Shell < 10) {
+		if ($configlockMap != moc_fild18) {
+			call set_lockmap_moc_fild18
+			do mconf 1127 0 0 0 #Hode
+			do mconf 1055 0 0 0 #Muka
+			do mconf 1138 0 0 0 #Magnolia
+			do mconf 1030 0 0 0 #ANACONDAQ
+			if ($Grasshopper < 10) {
+				do mconf 1058 1 0 0 #Metaller
+			} else {
+				do mconf 1058 0 0 0 #Metaller
+			}
+			if ($Shell < 10) {
+				do mconf 1042 1 0 0 #STEEL_CHONCHON
+			} else {
+				do mconf 1042 0 0 0 #STEEL_CHONCHON
+			}
+			$changed = 1
+		}
+		
+	} elsif ($YellowHerb < 10) {
+		if ($configlockMap != cmd_fild07) {
+			# kafra cmd_fild07 136 134
+			# sell cmd_fild07 257 126
+			call set_lockmap_cmd_fild07
+			do mconf 1266 1 0 0 #Aster
+			do mconf 1073 0 0 0 #Crab
+			do mconf 1074 0 0 0 #Shellfish
+			do mconf 1067 0 0 0 #Cornutus
+			do mconf 1066 0 0 0 #Vadon
+			$changed = 1
+		}
+		
 	} else {
 		do conf -f lockMap none
 		do conf -f eventMacro_1_99_stage turn_rogue_deliver
@@ -570,44 +597,58 @@ automacro checkItemsSet3 {
 
 macro SetVarSet3 {
 	[
+	$saveParam = $.param[0]
+	
 	do conf -f turn_rogue_collect_set 3
 	$id = 910
 	$amount = 10
+	$maxPrice = 500
 	$Garlet = GetNamebyNameID("$id")
 	$Garlet = &invamount($Garlet)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 926
 	$amount = 10
+	$maxPrice = 300
 	$SnakeScale = GetNamebyNameID("$id")
 	$SnakeScale = &invamount($SnakeScale)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 511
 	$amount = 10
+	$maxPrice = 2500
 	$GreenHerb = GetNamebyNameID("$id")
 	$GreenHerb = &invamount($GreenHerb)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 964
 	$amount = 10
+	$maxPrice = 2500
 	$CrabShell = GetNamebyNameID("$id")
 	$CrabShell = &invamount($CrabShell)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	]
@@ -620,7 +661,21 @@ macro OrganizeItems3 {
 	call SetVarSet3 0
 	$changed = 0
 	
-	if ($Garlet < 10 || $SnakeScale < 10) {
+	
+	if ($.zeny < 25000) {
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild05) {
+				call set_lockmap_prt_fild05
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != lasa_dun01) {
+				call set_lockmap_lasa_dun01
+				$changed = 1
+			}
+		}
+		
+	} elsif ($Garlet < 10 || $SnakeScale < 10) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild04) {
 				call set_lockmap_prt_fild04
@@ -651,19 +706,6 @@ macro OrganizeItems3 {
 			$changed = 1
 		}
 	
-	} elsif ($.zeny < 15000) {
-		if ($testvar == 1) {
-			if ($configlockMap != prt_fild05) {
-				call set_lockmap_prt_fild05
-				$changed = 1
-			}
-		} else {
-			if ($configlockMap != lasa_dun01) {
-				call set_lockmap_lasa_dun01
-				$changed = 1
-			}
-		}
-	
 	} else {
 		do conf -f lockMap none
 		do conf -f eventMacro_1_99_stage turn_rogue_deliver
@@ -690,51 +732,63 @@ automacro checkItemsSet4 {
 
 macro SetVarSet4 {
 	[
+	$saveParam = $.param[0]
+	
 	do conf -f turn_rogue_collect_set 4
 	$id = 510
+	$maxPrice = 3500
 	$amount = 6
 	$ervaAzul = GetNamebyNameID("$id")
 	$ervaAzul = &invamount($ervaAzul)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 932
+	$maxPrice = 300
 	$amount = 10
 	$osso = GetNamebyNameID("$id")
 	$osso = &invamount($osso)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 957
+	$maxPrice = 300
 	$amount = 10
 	$unhaApodrecida = GetNamebyNameID("$id")
 	$unhaApodrecida = &invamount($unhaApodrecida)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	
 	$id = 958
-	$maxPrice = 1500
+	$maxPrice = 2500
 	$amount = 10
 	$mandibulaHorrenda = GetNamebyNameID("$id")
 	$mandibulaHorrenda = &invamount($mandibulaHorrenda)
-	if ($.param[0] == 0) {
+	if ($saveParam == 0) {
+		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
 	]
 	if ($mandibulaHorrenda < $amount) {
 		[
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		force_market_search("$id")
 		]
 		pause 3
@@ -754,7 +808,20 @@ macro OrganizeItems4 {
 	call SetVarSet4 0
 	$changed = 0
 	
-	if ($ervaAzul < 6) {
+	if ($.zeny < 25000) {
+		if ($testvar == 1) {
+			if ($configlockMap != prt_fild05) {
+				call set_lockmap_prt_fild05
+				$changed = 1
+			}
+		} else {
+			if ($configlockMap != lasa_dun01) {
+				call set_lockmap_lasa_dun01
+				$changed = 1
+			}
+		}
+		
+	} elsif ($ervaAzul < 6) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild05) {
 				call set_lockmap_prt_fild05
@@ -795,7 +862,7 @@ macro OrganizeItems4 {
 			do mconf 1076 0 0 0
 		}
 	
-	} elsif ($.zeny < 15000 || ($mandibulaHorrenda < 10 && $canBuyMadibula == 1)) {
+	} elsif ($mandibulaHorrenda < 10 && $canBuyMadibula == 1) {
 		if ($testvar == 1) {
 			if ($configlockMap != prt_fild05) {
 				call set_lockmap_prt_fild05
@@ -824,11 +891,8 @@ macro OrganizeItems4 {
 #### Deliver
 macro set_getauto {
 	[
-	$name = GetNamebyNameID("$id")
-	$nextFreeGetAutoSlot = get_free_slot_index_for_key("getAuto","$name")
 	log We need $amount of item $name ($id)
 	do iconf $id $amount 1 0
-	sanity_check_getauto($nextFreeGetAutoSlot, $name, $amount)
 	]
 }
 

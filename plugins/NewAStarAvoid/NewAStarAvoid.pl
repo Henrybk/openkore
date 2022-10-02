@@ -39,8 +39,8 @@ my $obstacle_hooks = Plugins::addHooks(
 	['packet_pre/area_spell_disappears', \&on_areaSpell_disappeared, undef],
 	
 	# portals
-	['add_portal_list', \&on_add_portal_list, undef],
-	['portal_disappeared', \&on_portal_disappeared, undef],
+	#['add_portal_list', \&on_add_portal_list, undef],
+	#['portal_disappeared', \&on_portal_disappeared, undef],
 );
 
 my $mobhooks = Plugins::addHooks(

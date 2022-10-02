@@ -234,5 +234,6 @@ Yellow Plant 0 0 0
 1184 1 0 0 #Fabre
 1183 1 0 0 #Chonchon
 1014 1 0 0 #Esporo
+1138 0 0 0 #Magnolia
 1031 1 0 0 #Poporing
 1018 1 0 0 #Creamy
