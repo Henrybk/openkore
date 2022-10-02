@@ -18,6 +18,12 @@
 #	BetterSeller_minDistance 1
 #	BetterSeller_maxDistance 10
 #
+#	autoRefine_on 1
+#	autoRefine_weaponLevel 1
+#	autoRefine_wantedRefine 7
+#	autoRefine_npc prontera 1 1
+#	autoRefine_commandOnSuccess c deu certo
+#
 #
 # Config blocks: (used to buy items)
 ###############################################
@@ -29,21 +35,25 @@
 # Example:
 ###############################################
 #
-#		# Awakening Potion
-#		BetterShopper 656 {
-#			price 1500
-#			maxPrice 1400
-#			minInventoryAmount 0
-#			minShopAmount 2
-#			maxAmount 2
-#			fallbackNpcShop aldeba_in 94 56
-#		}
+#	# Awakening Potion
+#	BetterShopper 656 {
+#		price 1500
+#		maxPrice 1400
+#		minInventoryAmount 0
+#		minShopAmount 2
+#		maxAmount 2
+#		fallbackNpcShop aldeba_in 94 56
+#		fallbackNpcTalk
+#		fallbackNpcTSequence
+#		commandAfterBuy
+#	}
 #		
-#		# Strawberry
-#		BetterSeller 578 {
-#			minPrice 900
-#			minBuyShopAmount 3
-#		}
+#	# Strawberry
+#	BetterSeller 578 {
+#		minPrice 900
+#		minBuyShopAmount 3
+#	}
+#
 ###############################################
 package BetterShopper;
 
@@ -232,8 +242,6 @@ sub sell_queue {
 	AI::clear("sellAuto");
 	AI::queue("determine_selling");
 }
-
-my $get_item;
 
 sub AI_storage_done_after_getAuto {
 	my ($hook, $retargs) = @_;
@@ -453,7 +461,7 @@ sub AI_storage_done_after_getAuto_BetterSeller {
 	
 	$retargs->{return} = 1;
 	
-	if (!defined $get_item) {
+	if (!defined $args->{GetAutoBetterSeller}) {
 		#warning "[BetterSeller - Storage] determine getting\n";
 		
 		my $prefix = 'BetterSeller_';
@@ -522,7 +530,7 @@ sub AI_storage_done_after_getAuto_BetterSeller {
 		}
 		
 		warning "[BetterSeller - Storage] -- Setting getting for item ".$current_buyer_item_id."\n";
-		$get_item = $current_buyer_item_id;
+		$args->{GetAutoBetterSeller} = $current_buyer_item_id;
 		$args->{retry} = 0;
 	}
 
@@ -587,7 +595,7 @@ sub AI_storage_done_after_getAuto_BetterSeller {
 	# We got the item, or we tried 3 times to get it, but failed.
 	undef $current_buyer_item_id;
 	$last_checked_id_bestSeller++; #WTF?
-	undef $get_item;
+	undef $args->{GetAutoBetterSeller};
 }
 
 sub AI_pre_determine_selling {
