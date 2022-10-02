@@ -53,7 +53,7 @@ macro Conf_Stuff2 {
 	
 	do conf -f autoTalkCont 1
 	
-	do conf -f clientSight 30
+	do conf -f clientSight 22
 	
 	do conf -f sellAuto 0
 	do conf -f storageAuto 0
