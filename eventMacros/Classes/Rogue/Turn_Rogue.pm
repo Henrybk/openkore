@@ -453,62 +453,50 @@ automacro checkItemsSet2 {
 	call OrganizeItems2
 }
 
-macro SetVarSet2 {
+macro logic_item_quest_rogue {
 	[
-	$saveParam = $.param[0]
-	
-	do conf -f turn_rogue_collect_set 2
-	$id = 508
-	$amount = 10
-	$maxPrice = 2500
-	$YellowHerb = GetNamebyNameID("$id")
-	$YellowHerb = &invamount($YellowHerb)
+	$itemName = GetNamebyNameID("$id")
+	$itemAmount = &invamount($itemName)
 	if ($saveParam == 0) {
+		log [Rogue Collet] Item $itemName ($id) $itemAmount/$amount
 		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
 		call set_getauto
 	} else {
+		log [Rogue Collet] Cleaning item $itemName ($id)
 		call BetterbuyAuto_clear_item $id
 		call clear_getauto
 	}
+	]
+}
+
+macro SetVarSet2 {
+	[
+	$saveParam = $.param[0]
+	do conf -f turn_rogue_collect_set 2
+	
+	$id = 508
+	$amount = 10
+	$maxPrice = 2500
+	call logic_item_quest_rogue
+	$YellowHerb = $itemAmount
 	
 	$id = 940
 	$amount = 10
 	$maxPrice = 1000
-	$Grasshopper = GetNamebyNameID("$id")
-	$Grasshopper = &invamount($Grasshopper)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$Grasshopper = $itemAmount
 	
 	$id = 935
 	$amount = 10
 	$maxPrice = 500
-	$Shell = GetNamebyNameID("$id")
-	$Shell = &invamount($Shell)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$Shell = $itemAmount
 	
 	$id = 948
 	$amount = 10
 	$maxPrice = 500
-	$BearFootskin = GetNamebyNameID("$id")
-	$BearFootskin = &invamount($BearFootskin)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$BearFootskin = $itemAmount
 	]
 }
 
@@ -603,54 +591,26 @@ macro SetVarSet3 {
 	$id = 910
 	$amount = 10
 	$maxPrice = 500
-	$Garlet = GetNamebyNameID("$id")
-	$Garlet = &invamount($Garlet)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$Garlet = $itemAmount
 	
 	$id = 926
 	$amount = 10
 	$maxPrice = 300
-	$SnakeScale = GetNamebyNameID("$id")
-	$SnakeScale = &invamount($SnakeScale)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$SnakeScale = $itemAmount
 	
 	$id = 511
 	$amount = 10
 	$maxPrice = 2500
-	$GreenHerb = GetNamebyNameID("$id")
-	$GreenHerb = &invamount($GreenHerb)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$GreenHerb = $itemAmount
 	
 	$id = 964
 	$amount = 10
 	$maxPrice = 2500
-	$CrabShell = GetNamebyNameID("$id")
-	$CrabShell = &invamount($CrabShell)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	call logic_item_quest_rogue
+	$CrabShell = $itemAmount
 	]
 }
 
@@ -736,56 +696,28 @@ macro SetVarSet4 {
 	
 	do conf -f turn_rogue_collect_set 4
 	$id = 510
-	$maxPrice = 3500
 	$amount = 6
-	$ervaAzul = GetNamebyNameID("$id")
-	$ervaAzul = &invamount($ervaAzul)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	$maxPrice = 3500
+	call logic_item_quest_rogue
+	$ervaAzul = $itemAmount
 	
 	$id = 932
-	$maxPrice = 300
 	$amount = 10
-	$osso = GetNamebyNameID("$id")
-	$osso = &invamount($osso)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	$maxPrice = 300
+	call logic_item_quest_rogue
+	$osso = $itemAmount
 	
 	$id = 957
-	$maxPrice = 300
 	$amount = 10
-	$unhaApodrecida = GetNamebyNameID("$id")
-	$unhaApodrecida = &invamount($unhaApodrecida)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	$maxPrice = 300
+	call logic_item_quest_rogue
+	$unhaApodrecida = $itemAmount
 	
 	$id = 958
-	$maxPrice = 2500
 	$amount = 10
-	$mandibulaHorrenda = GetNamebyNameID("$id")
-	$mandibulaHorrenda = &invamount($mandibulaHorrenda)
-	if ($saveParam == 0) {
-		call set_BetterbuyAuto_item_quest $id $maxPrice $amount
-		call set_getauto
-	} else {
-		call BetterbuyAuto_clear_item $id
-		call clear_getauto
-	}
+	$maxPrice = 2500
+	call logic_item_quest_rogue
+	$mandibulaHorrenda = $itemAmount
 	]
 	if ($mandibulaHorrenda < $amount) {
 		[
@@ -796,8 +728,6 @@ macro SetVarSet4 {
 		$canBuyMadibula = check_MarketWatcher("$id")
 		log [Mandibula] canBuyMadibula $canBuyMadibula
 		]
-	} else {
-		call BetterbuyAuto_clear_item $id
 	}
 }
 

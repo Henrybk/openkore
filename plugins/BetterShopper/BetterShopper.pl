@@ -955,6 +955,7 @@ sub create_buyers_query_queue {
 
 sub sendBuyerQuery {
 	my ($item_prefix) = @_;
+	return unless (exists $config{$item_prefix} && defined $config{$item_prefix});
 	warning "[BetterSeller] Sending Whobuy Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).")\n";
 	my $msg = '@wb '.$config{$item_prefix};
 	sendMessage($messageSender, 'c', $msg);
@@ -987,6 +988,7 @@ sub sendNext_sellers_queue {
 
 sub sendQuery {
 	my ($item_prefix) = @_;
+	return unless (exists $config{$item_prefix} && defined $config{$item_prefix});
 	warning "[BetterShopper] Sending Whosell Query on item $config{$item_prefix} (".GetItemName($config{$item_prefix}).") Prefix $item_prefix\n";
 	my $msg = '@ws '.$config{$item_prefix};
 	sendMessage($messageSender, 'c', $msg);

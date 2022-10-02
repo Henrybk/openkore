@@ -50,7 +50,7 @@ macro baseMacroUp {
 			$changed = 1
 		}
 	
-	} elsif ($.lvl <= 38 || $hasWeaponLevel == 0) {
+	} elsif ($.lvl <= 38 || $hasLevelWeapon <= 1) {
 		if ($configlockMap != pay_fild01) {
 			# kafra oldnewpayon 98 118
 			# sell oldnewpayon 69 117
@@ -58,8 +58,8 @@ macro baseMacroUp {
 			$changed = 1
 		}
 		
-	#} elsif ($.lvl <= 50 && $hasWeaponLevel >= 1) {
-	} elsif ($hasWeaponLevel >= 1) {
+	#} elsif ($.lvl <= 50 && $hasLevelWeapon >= 1) {
+	} elsif ($hasLevelWeapon >= 2) {
 		if ($configlockMap != lasa_dun01) {
 			# kafra aldebaran 143 119
 			# sell aldeba_in 94 56
@@ -74,6 +74,7 @@ macro baseMacroUp {
 	} else {
 		log Current lockmap $configlockMap is still good
 		call set_buyauto_equipment
+		call fix_equipAuto_names
 		call set_buyauto_usables
 		call set_buyauto_refine
 	}
@@ -135,14 +136,25 @@ macro set_STEALCOIN {
 macro set_buyauto_equipment {
 	[
 	call set_buyauto_rightHand
-	if ($hasWeaponLevel >= 2) {
+	if ($hasLevelWeapon >= 2) {
 		call set_buyauto_armor
 		call set_buyauto_shoes
 		call set_buyauto_robe
 		call set_buyauto_topHead
 	}
-	if ($hasWeaponLevel >= 3) {
+	if ($hasLevelWeapon >= 3) {
 		call set_buyauto_rightAccessory
+		#if ($hasLevelrightAccessory == 3) {1
+		#	#kukre 4027 2~3m
+		#}
+		
+		#if ($hasLevelShoes == 3) {
+		#	#Spectring 8216 
+		#}
+		
+		#if ($hasLeveltopHead == 3) {
+		#	
+		#}
 	}
 	]
 }
@@ -423,7 +435,9 @@ macro set_NutShell {
 macro set_rightAccessory {
 	[
 	$Item1 = MatyrLeash
-	$itemAmount = 1
+	$Item2 = Brooch0
+	$Item3 = Brooch1
+	$itemAmount = 3
 	]
 }
 
@@ -436,6 +450,34 @@ macro set_MatyrLeash {
 	$item{minSearchPrice} = 100000
 	$item{price} = 200000
 	$item{minLevel} = 35
+	$item{commandAfterBuy} = eventMacro-set_buyauto_rightAccessory
+	call set_item
+	]
+}
+
+macro set_Brooch0 {
+	[
+	$item{name} = Brooch0
+	$item{id} = 2605
+	$item{slot} = rightAccessory
+	$item{buytype} = player
+	$item{minSearchPrice} = 800000
+	$item{price} = 1000000
+	$item{minLevel} = 20
+	$item{commandAfterBuy} = eventMacro-set_buyauto_rightAccessory
+	call set_item
+	]
+}
+
+macro set_Brooch1 {
+	[
+	$item{name} = Brooch1
+	$item{id} = 2625
+	$item{slot} = rightAccessory
+	$item{buytype} = player
+	$item{minSearchPrice} = 1500000
+	$item{price} = 3000000
+	$item{minLevel} = 90
 	$item{commandAfterBuy} = eventMacro-set_buyauto_rightAccessory
 	call set_item
 	]

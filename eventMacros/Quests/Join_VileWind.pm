@@ -1,30 +1,30 @@
 
-# Join Oranpere
+# Join VileWind
 automacro moveRecOutside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
-	NotInMap prontera
+	ConfigKey eventMacro_1_99_stage Join_VileWind
+	NotInMap morocc
 	call gotoRec
 }
 
 automacro moveRecInside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
-	NpcNotNear /Oranpere/
-	InMap prontera
+	ConfigKey eventMacro_1_99_stage Join_VileWind
+	NpcNotNear /Nathanos/
+	InMap morocc
 	call gotoRec
 }
 
 macro gotoRec {
-	do move prontera 60 340
+	do move morocc 140 159
 }
 
 automacro talkRec {
 	exclusive 0
 	self_interruptible 0
-	NpcNear /Oranpere/
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
-	InMap prontera
+	NpcNear /Nathanos/
+	ConfigKey eventMacro_1_99_stage Join_VileWind
+	InMap morocc
 	call {
 		do talk $.NpcNearLastBinId
 		do talk resp /Join/
@@ -37,14 +37,14 @@ automacro talkRec {
 automacro RecOver {
 	exclusive 1
 	priority 0
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
-	StatusActiveHandle EFST_SWORDCLAN
+	ConfigKey eventMacro_1_99_stage Join_VileWind
+	StatusActiveHandle UNKNOWN_STATUS_1351
 	call {
-		do conf -f Joined_Oranpere true
-		do conf -f eventMacro_1_99_stage &config(Join_Oranpere_before)
-		do conf -f Join_Oranpere_before none
+		do conf -f Joined_VileWind true
+		do conf -f eventMacro_1_99_stage &config(Join_VileWind_before)
+		do conf -f Join_VileWind_before none
 		
-		include off Join_Oranpere.pm
+		include off Join_VileWind.pm
 		include on &config(before_event_include)
 		
 		do conf -f current_event_include &config(before_event_include)

@@ -1,15 +1,15 @@
 
-# Join Oranpere
+# Leave Oranpere
 automacro moveRecOutside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
+	ConfigKey eventMacro_1_99_stage Leave_Oranpere
 	NotInMap prontera
 	call gotoRec
 }
 
 automacro moveRecInside {
 	exclusive 1
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
+	ConfigKey eventMacro_1_99_stage Leave_Oranpere
 	NpcNotNear /Oranpere/
 	InMap prontera
 	call gotoRec
@@ -23,28 +23,26 @@ automacro talkRec {
 	exclusive 0
 	self_interruptible 0
 	NpcNear /Oranpere/
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
+	ConfigKey eventMacro_1_99_stage Leave_Oranpere
 	InMap prontera
 	call {
 		do talk $.NpcNearLastBinId
-		do talk resp /Join/
-		do talk resp /Yes/
-		do talk resp /Yes/
-		do talk text $.name
+		do talk resp /Leave/
+		do talk resp /Continue/
 	}
 }
 
 automacro RecOver {
 	exclusive 1
 	priority 0
-	ConfigKey eventMacro_1_99_stage Join_Oranpere
-	StatusActiveHandle EFST_SWORDCLAN
+	ConfigKey eventMacro_1_99_stage Leave_Oranpere
+	StatusInactiveHandle EFST_SWORDCLAN
 	call {
-		do conf -f Joined_Oranpere true
-		do conf -f eventMacro_1_99_stage &config(Join_Oranpere_before)
-		do conf -f Join_Oranpere_before none
+		do conf -f Joined_Oranpere false
+		do conf -f eventMacro_1_99_stage &config(Leave_Oranpere_before)
+		do conf -f Leave_Oranpere_before none
 		
-		include off Join_Oranpere.pm
+		include off Leave_Oranpere.pm
 		include on &config(before_event_include)
 		
 		do conf -f current_event_include &config(before_event_include)

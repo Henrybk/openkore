@@ -159,38 +159,34 @@ sub get_weapon_refine {
 	return $refine;
 }
 
-sub weapon_equipped {
-	my $equipauto = $config{equipAuto_0_rightHand};
-	return 0 unless ($equipauto);
-	return 0 unless (exists $char->{equipment} && $char->{equipment});
-	return 0 unless (exists $char->{equipment}{'rightHand'} && $char->{equipment}{'rightHand'});
-	my $weapon = $char->{equipment}{'rightHand'};
-	
-	my $compName = itemName($weapon);
-	if ($equipauto eq $compName) {
-		return 1;
-	}
-	
-	my $name = GetNamebyNameID($weapon->{nameID});
-	if ($name eq $equipauto) {
-		check_key('equipAuto_0_rightHand', $compName);
-		return 1;
-	}
-	return 0;
+macro fix_equipAuto_names {
+	[
+	fix_equipauto_names()
+	]
 }
 
-macro set_has_weapon_level {
-	[
-	call set_weapons
-	call set_tempitems_$itemAmount
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
-		$hasWeaponLevel = 1
-	} elsif ($itemAmount >= 2 && $itemHash{$temphash{Item2Equipped}} == 1) {
-		$hasWeaponLevel = 2
-	} elsif ($itemAmount >= 3 && $itemHash{$temphash{Item3Equipped}} == 1) {
-		$hasWeaponLevel = 3
+sub fix_equipauto_names {
+	
+	foreach my $slot (values %equipSlot_lut) {
+		my $slot = "equipAuto_0_$slot";
+		next unless (exists $config{$slot});
+		next unless (defined $config{$slot});
+		next unless (exists $char->{equipment} && $char->{equipment});
+		next unless (exists $char->{equipment}{$slot} && $char->{equipment}{$slot});
+		
+		my $equipauto = $config{$slot};
+		
+		my $item = $char->{equipment}{$slot};
+		my $compName = itemName($item);
+		if ($equipauto eq $compName) {
+			next;
+		}
+		my $name = GetNamebyNameID($item->{nameID});
+		if ($name eq $equipauto) {
+			check_key($slot, $compName);
+			next;
+		}
 	}
-	]
 }
 
 macro after_buy_weapon {
@@ -199,15 +195,31 @@ macro after_buy_weapon {
 	]
 	pause 3
 	[
+	call fix_equipAuto_names
+	call set_has_weapon_level
 	call set_buyauto_refine
 	]
 }
 
-macro set_buyauto_refine {
+macro set_has_weapon_level {
 	[
-	$weaponsafe = weapon_equipped()
-	if ($weaponsafe) {
-		call refine_weapon_logic
+	call set_weapons
+	call set_tempitems_$itemAmount
+	
+	call set_hasLevel
+	$hasLevelWeapon = $hasLevel
+	]
+}
+
+macro set_hasLevel {
+	[
+	$hasLevel = 0
+	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+		$hasLevel = 1
+	} elsif ($itemAmount >= 2 && $itemHash{$temphash{Item2Equipped}} == 1) {
+		$hasLevel = 2
+	} elsif ($itemAmount >= 3 && $itemHash{$temphash{Item3Equipped}} == 1) {
+		$hasLevel = 3
 	}
 	]
 }
@@ -223,6 +235,9 @@ macro set_buyauto_armor {
 	[
 	call set_armor
 	call organize_and_run_buyauto_$itemAmount
+	
+	call set_hasLevel
+	$hasLevelArmor = $hasLevel
 	]
 }
 
@@ -230,6 +245,9 @@ macro set_buyauto_shoes {
 	[
 	call set_shoes
 	call organize_and_run_buyauto_$itemAmount
+	
+	call set_hasLevel
+	$hasLevelShoes = $hasLevel
 	]
 }
 
@@ -237,6 +255,9 @@ macro set_buyauto_robe {
 	[
 	call set_robe
 	call organize_and_run_buyauto_$itemAmount
+	
+	call set_hasLevel
+	$hasLevelRobe = $hasLevel
 	]
 }
 
@@ -244,6 +265,9 @@ macro set_buyauto_topHead {
 	[
 	call set_topHead
 	call organize_and_run_buyauto_$itemAmount
+	
+	call set_hasLevel
+	$hasLeveltopHead = $hasLevel
 	]
 }
 
@@ -251,6 +275,34 @@ macro set_buyauto_rightAccessory {
 	[
 	call set_rightAccessory
 	call organize_and_run_buyauto_$itemAmount
+	
+	call set_hasLevel
+	$hasLevelrightAccessory = $hasLevel
+	]
+}
+
+sub weapon_equipped {
+	my $equipauto = $config{equipAuto_0_rightHand};
+	return 0 unless ($equipauto);
+	return 0 unless (exists $char->{equipment} && $char->{equipment});
+	return 0 unless (exists $char->{equipment}{'rightHand'} && $char->{equipment}{'rightHand'});
+	my $weapon = $char->{equipment}{'rightHand'};
+	
+	my $compName = itemName($weapon);
+	if ($equipauto eq $compName) {
+		return 1;
+	}
+	return 0;
+}
+
+macro set_buyauto_refine {
+	[
+	$weaponsafe = weapon_equipped()
+	if ($weaponsafe) {
+		call refine_weapon_logic
+	} else {
+		call clear_autoRefine
+	}
 	]
 }
 
@@ -258,22 +310,20 @@ macro refine_weapon_logic {
 	[
 	call set_weapons
 	call set_tempitems_$itemAmount
+	
 	$foundWeapon = 0
 	$refineLevel = 0
-	
-	$wantedRefine = 0
-	$needRefineCount = 0
-	if ($itemHash{$temphash{Item1Equipped}} == 1) {
+	if ($hasLevelWeapon == 1) {
 		if ($itemHash{$temphash{Item1autoRefine}}) {
 			$foundWeapon = 1
 			$refineLevel = $itemHash{$temphash{Item1refineLevel}}
 		}
-	} elsif ($itemAmount >= 2 && $itemHash{$temphash{Item2Equipped}} == 1) {
+	} elsif ($hasLevelWeapon == 2) {
 		if ($itemHash{$temphash{Item2autoRefine}}) {
 			$foundWeapon = 1
 			$refineLevel = $itemHash{$temphash{Item2refineLevel}}
 		}
-	} elsif ($itemAmount >= 3 && $itemHash{$temphash{Item3Equipped}} == 1) {
+	} elsif ($hasLevelWeapon == 3) {
 		if ($itemHash{$temphash{Item3autoRefine}}) {
 			$foundWeapon = 1
 			$refineLevel = $itemHash{$temphash{Item3refineLevel}}
@@ -281,6 +331,8 @@ macro refine_weapon_logic {
 	}
 	
 	if ($foundWeapon == 1) {
+		$wantedRefine = 0
+		$needRefineCount = 0
 		$currentRefine = get_weapon_refine()
 		$maxSafeRefine = get_maxSafeRefine("$refineLevel")
 		if ($currentRefine < $maxSafeRefine) {
@@ -298,14 +350,20 @@ macro refine_weapon_logic {
 			call set_BetterBuy_refine
 		} else {
 			log No need to refine further POOOOGG
-			do conf -f autoRefine_on 0
-			do conf -f autoRefine_weaponLevel none
-			do conf -f autoRefine_wantedRefine none
-			do conf -f autoRefine_npc none
-			do conf -f autoRefine_commandOnSuccess none
-			call clear_BetterBuy_refine
+			call clear_autoRefine
 		}
 	}
+	]
+}
+
+macro clear_autoRefine {
+	[
+	do conf -f autoRefine_on 0
+	do conf -f autoRefine_weaponLevel none
+	do conf -f autoRefine_wantedRefine none
+	do conf -f autoRefine_npc none
+	do conf -f autoRefine_commandOnSuccess none
+	call clear_BetterBuy_refine
 	]
 }
 

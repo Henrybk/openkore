@@ -25,5 +25,7 @@
 # Quests 
 	#!include ..\..\eventMacros\Quests\Join_Sewb.pm
 	#!include ..\..\eventMacros\Quests\Join_Oranpere.pm
+	#!include ..\..\eventMacros\Quests\Leave_Oranpere.pm
+	#!include ..\..\eventMacros\Quests\Join_VileWind.pm
 	#!include ..\..\eventMacros\Quests\SM_MOVINGRECOVERY_Quest.pm
 	#!include ..\..\eventMacros\Quests\Join_Haleigh.pm

@@ -53,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword boweatre
+adminPassword fricluri
 callSign
 commandPrefix ;
 callSignGM 0
@@ -870,8 +870,8 @@ useSelf_item_0 Novice Potion
 useSelf_item_0_disabled 0
 useSelf_item_0_hp < 70%
 useSelf_item_0_timeout 1
-current_event_include Leveling.pm
-Joined_Oranpere true
+current_event_include Join_VileWind.pm
+Joined_Oranpere false
 Join_Oranpere_before
 before_event_include
 Joined_Sewb true
@@ -965,13 +965,13 @@ useSelf_item_3_inLockOnly 1
 useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
 BetterShopper_3_fallbackNpcShop
-attackSkillSlot_0
-attackSkillSlot_0_lvl
-attackSkillSlot_0_sp
+attackSkillSlot_0 RG_STEALCOIN
+attackSkillSlot_0_lvl 8
+attackSkillSlot_0_sp > 15
 attackSkillSlot_0_maxUses
-attackSkillSlot_0_timeout
-attackSkillSlot_0_maxAttempts
-attackSkillSlot_0_disabled
+attackSkillSlot_0_timeout 1
+attackSkillSlot_0_maxAttempts 4
+attackSkillSlot_0_disabled 0
 Joined_Haleigh true
 Join_Haleigh_before
 useSelf_item_4 Awakening Potion
@@ -1008,3 +1008,7 @@ turn_rogue_getToNpc_type 2022
 BetterShopper_8_price
 BetterShopper_8_fallbackNpcShop
 BetterShopper_8_commandAfterBuy
+attackSkillSlot_0_target_notCoinStolen 1
+Joined_VileWind true
+Join_VileWind_before
+Leave_Oranpere_before

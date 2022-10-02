@@ -376,6 +376,7 @@ automacro need_to_Join_Sewb {
 automacro need_to_configure_Oranpere {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_goal_class knight
 	ConfigKey eventMacro_test 0
 	ConfigKeyNot Joined_Oranpere true
 	ConfigKeyNot Joined_Oranpere false
@@ -388,6 +389,7 @@ automacro need_to_configure_Oranpere {
 automacro need_to_configure_Oranpere_2 {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_goal_class knight
 	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Oranpere true
 	StatusInactiveHandle EFST_SWORDCLAN
@@ -400,6 +402,7 @@ automacro need_to_configure_Oranpere_2 {
 automacro need_to_Join_Oranpere {
 	exclusive 1
 	priority 0
+	ConfigKey eventMacro_goal_class knight
 	ConfigKey eventMacro_test 0
 	ConfigKey Joined_Oranpere false
 	ConfigKey eventMacro_1_99_stage leveling
@@ -410,6 +413,87 @@ automacro need_to_Join_Oranpere {
 		do conf -f current_event_include Join_Oranpere.pm
 		include off &config(before_event_include)
 		include on Join_Oranpere.pm
+		
+		do reload eventMacros
+	}
+}
+
+automacro need_to_Leave_Oranpere1 {
+	exclusive 1
+	priority 0
+	ConfigKey eventMacro_goal_class rogue
+	ConfigKey Joined_Oranpere true
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Leave_Oranpere_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage Leave_Oranpere
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include Leave_Oranpere.pm
+		include off &config(before_event_include)
+		include on Leave_Oranpere.pm
+		
+		do reload eventMacros
+	}
+}
+
+automacro need_to_Leave_Oranpere2 {
+	exclusive 1
+	priority 0
+	ConfigKey eventMacro_goal_class rogue
+	StatusActiveHandle EFST_SWORDCLAN
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Leave_Oranpere_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage Leave_Oranpere
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include Leave_Oranpere.pm
+		include off &config(before_event_include)
+		include on Leave_Oranpere.pm
+		
+		do reload eventMacros
+	}
+}
+
+automacro need_to_configure_VileWind {
+	exclusive 1
+	priority 0
+	ConfigKey eventMacro_goal_class rogue
+	ConfigKey eventMacro_test 0
+	ConfigKeyNot Joined_VileWind true
+	ConfigKeyNot Joined_VileWind false
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Joined_VileWind false
+	}
+}
+
+automacro need_to_configure_VileWind_2 {
+	exclusive 1
+	priority 0
+	ConfigKey eventMacro_goal_class rogue
+	ConfigKey eventMacro_test 0
+	ConfigKey Joined_VileWind true
+	StatusInactiveHandle UNKNOWN_STATUS_1351
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Joined_VileWind false
+	}
+}
+
+automacro need_to_Join_VileWind {
+	exclusive 1
+	priority 0
+	ConfigKey eventMacro_goal_class rogue
+	ConfigKey eventMacro_test 0
+	ConfigKey Joined_VileWind false
+	ConfigKey eventMacro_1_99_stage leveling
+	call {
+		do conf -f Join_VileWind_before &config(eventMacro_1_99_stage)
+		do conf -f eventMacro_1_99_stage Join_VileWind
+		do conf -f before_event_include &config(current_event_include)
+		do conf -f current_event_include Join_VileWind.pm
+		include off &config(before_event_include)
+		include on Join_VileWind.pm
 		
 		do reload eventMacros
 	}
