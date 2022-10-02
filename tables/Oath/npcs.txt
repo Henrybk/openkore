@@ -307,3 +307,4 @@ oldnewpayon 145 47 Jason#np
 cmd_fild07 94 134 Sarumane#cmd
 morocc 143 58 Towner#3moc
 in_rogue 244 39 Aragham Junior#rg
+morocc 180 155 Dimitri#moc

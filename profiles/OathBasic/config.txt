@@ -6,7 +6,7 @@
 master OathRO
 server 0
 username 
-password Pi=3141592
+password 
 loginPinCode
 char 
 ##### Plugins Start
@@ -19,10 +19,9 @@ eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
 eventMacro_file eventMacros.txt
 
-#drunk 8
 BetterWalkPlan 1
 
-route_randomFactor 8
+route_randomFactor 5
 
 ##### Plugins End
 
@@ -586,60 +585,31 @@ equipAuto {
 	armor
 	shoes
 	arrow
-	monsters
-	notMonsters
-	monstersCount
 	weight 0
 	whileSitting 0
-	hp
-	sp
-	homunculus
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	homunculus_resting
-	homunculus_onAction
-	homunculus_notOnAction
-	homunculus_whenIdle
-	homunculus_whenNotIdle
-	mercenary
-	mercenary_hp
-	mercenary_sp
-	mercenary_whenStatusActive
-	mercenary_whenStatusInactive
-	mercenary_onAction
-	mercenary_notOnAction
-	mercenary_whenIdle
-	mercenary_whenNotIdle
 	onAction
-	whenStatusActive
-	whenStatusInactive
-	whenFollowing
-	spirit
-	amuletType
-	aggressives
 	stopWhenHit 0
 	inLockOnly 0
 	notWhileSitting 0
 	notInTown 0
 	timeout 0
 	disabled 0
-	whenPartyMembersNear
-	whenPartyMembersNearDist
-	inInventory
 	manualAI 0
 }
-
 
 BetterShopper_on 1
 BetterShopper_minDistance 1
 BetterShopper_maxDistance 10
 
-
 BetterSeller_on 1
 BetterSeller_minDistance 1
 BetterSeller_maxDistance 10
 
+autoRefine_on 0
+autoRefine_weaponLevel
+autoRefine_wantedRefine
+autoRefine_npc
+autoRefine_commandOnSuccess
 
 # Strawberry
 BetterSeller 578 {
@@ -849,20 +819,221 @@ BetterSeller 507 {
 	minBuyShopAmount 10
 }
 
-# Yellow Herb
-BetterSeller 508 {
-	minPrice 140
-	minBuyShopAmount 10
-}
-
 # White Herb
 BetterSeller 509 {
 	minPrice 550
 	minBuyShopAmount 10
 }
 
-# Green Herb
-BetterSeller 511 {
-	minPrice 500
-	minBuyShopAmount 10
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout
 }
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout
+}
+
+attackSkillSlot {
+	lvl
+	sp
+	maxUses
+	timeout
+	maxAttempts
+	disabled
+	target_notCoinStolen
+}
+
+attackSkillSlot {
+	lvl
+	sp
+	maxUses
+	timeout
+	maxAttempts
+	disabled
+	target_notCoinStolen
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+current_event_include Join_VileWind.pm
+
+Joined_Oranpere false
+Join_Oranpere_before
+Leave_Oranpere_before
+
+Joined_VileWind true
+Join_VileWind_before
+
+before_event_include
+
+Joined_Sewb true
+Join_Sewb_before
+
+Joined_Haleigh true
+Join_Haleigh_before
+
+future_saveMap_map
+future_saveMap_x
+future_saveMap_y
+future_saveMap_kafra_map
+future_saveMap_kafra_x
+future_saveMap_kafra_y
+future_saveMap_save_sequence
+
+saveMap_stage_before
+saveMap_map
+saveMap_x
+saveMap_y
+saveMap_kafra_map
+saveMap_kafra_x
+saveMap_kafra_y
+saveMap_save_sequence
+
+####################
+

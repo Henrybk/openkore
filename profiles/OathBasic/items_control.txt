@@ -45,18 +45,8 @@ all 0 1 0
 # Adjust these to your needs
 
 
-505 0 1 0 # Blue Potion
-545 50 1 0 # Condensed Red Potion
-547 50 1 0 # Condensed White Potion
-546 50 1 0 # Condensed Yellow Potion
-506 0 1 0 # Green Potion
-504 25 1 0  # White Potion
-503 25 1 0 # Yellow potion
-
 ##### ARROWS #####
 # You may want to modify these if you're an archer/hunter
-
-Arrow 3000 1 0
 
 
 
@@ -1739,3 +1729,10 @@ Spearman Scroll 10 0 0 0
 
 2221 0 0 1 #Hat [1]
 2220 0 0 1 #Hat
+1602 0 0 1 #Rod [4]
+1105 0 0 1 #Falchion [4]
+7312 0 0 1 #Jubilee
+516 0 0 1 #Potato
+580 0 0 1 #Bread
+700 0 0 1 #Level 1 Frost Diver Scroll
+1208 0 0 1 #Main Gauche

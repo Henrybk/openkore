@@ -966,7 +966,7 @@ useSelf_item_3_notWhileSitting 1
 useSelf_item_3_timeout 5
 BetterShopper_3_fallbackNpcShop
 attackSkillSlot_0 RG_STEALCOIN
-attackSkillSlot_0_lvl 8
+attackSkillSlot_0_lvl 10
 attackSkillSlot_0_sp > 15
 attackSkillSlot_0_maxUses
 attackSkillSlot_0_timeout 1
@@ -983,22 +983,6 @@ useSelf_item_4_timeout 5
 BetterShopper_5_commandAfterBuy
 doing_rogue_job_change start
 turn_rogue_collect_set 2
-getAuto_0
-getAuto_0_maxAmount
-getAuto_0_passive
-getAuto_0_disabled
-getAuto_1
-getAuto_1_maxAmount
-getAuto_1_passive
-getAuto_1_disabled
-getAuto_2
-getAuto_2_maxAmount
-getAuto_2_passive
-getAuto_2_disabled
-getAuto_3
-getAuto_3_maxAmount
-getAuto_3_passive
-getAuto_3_disabled
 BetterShopper_8
 BetterShopper_8_maxPrice
 BetterShopper_8_minInventoryAmount
