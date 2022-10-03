@@ -127,7 +127,7 @@ sub onStatInfo {
 		my $weight = abs( $args->{val} - $last_weight ) / $last_item->{amount};
 		if ( !exists $item_weights->{ $last_item->{item_id} } || $item_weights->{ $last_item->{item_id} } != $weight ) {
 			$item_weights->{ $last_item->{item_id} } = $weight;
-			Log::warning( sprintf( "Item [%s] (%d) has weight [%.1f].\n", Misc::itemNameSimple($last_item->{item_id}), $last_item->{item_id}, $weight / 10 ), $name );
+			Log::warning( sprintf( "Item [%s] (%d) has weight %d (/10).\n", Misc::itemNameSimple($last_item->{item_id}), $last_item->{item_id}, $weight ), $name );
 			filewrite( $filename, $last_item->{item_id}, $weight, Misc::itemNameSimple($last_item->{item_id}) );
 		}
 	}
@@ -175,7 +175,7 @@ sub filewrite {
 			$index++;
 		}
 		
-		my $new_value = $key.' '.$value. " #". $name;
+		my $new_value = $key.' '.$value. " # ". $name;
 		
 		debug "New record in line $index: $new_value\n";
 		

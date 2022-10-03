@@ -2315,7 +2315,7 @@ sub AI_pre_autoRefine {
 		return unless ($refine_item_amount >= $need_refine_count);
 		
 		my $command = $config{autoRefine_commandOnSuccess};
-		my $npc = $config{autoRefine_npc};
+		my $npc_config = $config{autoRefine_npc};
 		
 		AI::clear("move", "route", "checkMonsters");
 		AI::queue("autoRefine", { 
@@ -2327,7 +2327,7 @@ sub AI_pre_autoRefine {
 			refine_amount_needed => $need_refine_count,
 			command => $command,
 			weaponLevel => $weapon_level,
-			npc => $npc
+			npc_config => $npc_config
 		});
 		
 		$refine_sucess = 0;#check
@@ -2380,8 +2380,8 @@ sub AI_pre_autoRefine {
 			return;
 		}
 		
-		unless ($config{autoRefine_npc} eq $args->{npc}) {
-			$args->{'error'} = 'Config key autoRefine_npc changed';
+		unless ($config{autoRefine_npc} eq $args->{npc_config}) {
+			$args->{'error'} = 'Config key autoRefine_npc changed ('.$args->{npc_config}.') -> ('.$config{autoRefine_npc}.')';
 			$args->{'done'} = 1;
 			return;
 		}
