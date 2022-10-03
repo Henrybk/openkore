@@ -616,7 +616,7 @@ autoRefine_commandOnSuccess eventMacro set_buyauto_refine
 
 # Strawberry
 BetterSeller 578 {
-	minPrice 900
+	minPrice 700
 	minBuyShopAmount 5
 }
 

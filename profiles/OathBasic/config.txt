@@ -616,7 +616,7 @@ autoRefine_commandOnSuccess
 
 # Strawberry
 BetterSeller 578 {
-	minPrice 900
+	minPrice 700
 	minBuyShopAmount 5
 }
 
@@ -829,6 +829,7 @@ BetterSeller 509 {
 }
 
 useSelf_item {
+	hp
 	disabled
 	whenStatusInactive
 	inLockOnly
@@ -837,6 +838,7 @@ useSelf_item {
 }
 
 useSelf_item {
+	hp
 	disabled
 	whenStatusInactive
 	inLockOnly
@@ -845,6 +847,7 @@ useSelf_item {
 }
 
 useSelf_item {
+	hp
 	disabled
 	whenStatusInactive
 	inLockOnly
@@ -853,6 +856,7 @@ useSelf_item {
 }
 
 useSelf_item {
+	hp
 	disabled
 	whenStatusInactive
 	inLockOnly
@@ -861,6 +865,7 @@ useSelf_item {
 }
 
 useSelf_item {
+	hp
 	disabled
 	whenStatusInactive
 	inLockOnly
@@ -869,6 +874,7 @@ useSelf_item {
 }
 
 useSelf_item {
+	hp
 	disabled
 	whenStatusInactive
 	inLockOnly

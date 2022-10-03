@@ -561,7 +561,7 @@ npcWrongStepsMethod 3
 
 ######## Debugging options; only useful for developers ########
 
-debug 0
+debug 2
 debugPacket_unparsed 0
 debugPacket_received 0
 debugPacket_ro_sent 0
@@ -616,7 +616,7 @@ autoRefine_commandOnSuccess
 
 # Strawberry
 BetterSeller 578 {
-	minPrice 900
+	minPrice 700
 	minBuyShopAmount 5
 }
 
@@ -855,18 +855,18 @@ useSelf_item {
 	timeout 0
 }
 
-useSelf_item {
+useSelf_item Concentration Potion {
 	hp
-	disabled
-	whenStatusInactive
-	inLockOnly
-	notWhileSitting
-	timeout 0
+	disabled 0
+	whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+	inLockOnly 1
+	notWhileSitting 1
+	timeout 5
 }
 
-useSelf_item {
-	hp
-	disabled
+useSelf_item Orange Potion {
+	hp < 50%
+	disabled 0
 	whenStatusInactive
 	inLockOnly
 	notWhileSitting
@@ -950,25 +950,25 @@ BetterShopper {
 	commandAfterBuy
 }
 
-BetterShopper {
-	price
-	maxPrice
-	minInventoryAmount
-	minShopAmount
-	maxAmount
-	fallbackNpcShop
+BetterShopper 645 {
+	price 800
+	maxPrice 760
+	minInventoryAmount 0
+	minShopAmount 2
+	maxAmount 2
+	fallbackNpcShop oldnewpayon 69 117
 	fallbackNpcTalk
 	fallbackNpcTSequence
 	commandAfterBuy
 }
 
-BetterShopper {
-	price
-	maxPrice
-	minInventoryAmount
-	minShopAmount
-	maxAmount
-	fallbackNpcShop
+BetterShopper 502 {
+	price 200
+	maxPrice 190
+	minInventoryAmount 5
+	minShopAmount 30
+	maxAmount 30
+	fallbackNpcShop oldnewpayon 69 117
 	fallbackNpcTalk
 	fallbackNpcTSequence
 	commandAfterBuy
