@@ -178,24 +178,32 @@ macro fix_equipAuto_names {
 }
 
 sub fix_equipauto_names {
+	#Log::warning "[fix_equipauto_names] Start\n";
 	
 	foreach my $slot (values %equipSlot_lut) {
-		my $slot = "equipAuto_0_$slot";
-		next unless (exists $config{$slot});
-		next unless (defined $config{$slot});
+		#Log::warning "[Slot] $slot\n";
+		
+		my $slot_config = "equipAuto_0_$slot";
+		next unless (exists $config{$slot_config});
+		next unless (defined $config{$slot_config});
+		#Log::warning "[Slot] $slot - $slot_config - $config{$slot_config}\n";
+		
 		next unless (exists $char->{equipment} && $char->{equipment});
 		next unless (exists $char->{equipment}{$slot} && $char->{equipment}{$slot});
 		
-		my $equipauto = $config{$slot};
-		
+		my $equipauto = $config{$slot_config};
 		my $item = $char->{equipment}{$slot};
 		my $compName = itemName($item);
+		#Log::warning "[1] Comparing $equipauto | $compName\n";
 		if ($equipauto eq $compName) {
+			#Log::warning "[1 2] Success\n";
 			next;
 		}
 		my $name = GetNamebyNameID($item->{nameID});
+		#Log::warning "[2] Comparing $equipauto | $name\n";
 		if ($name eq $equipauto) {
-			check_key($slot, $compName);
+			#Log::warning "[2 2] Success\n";
+			check_key($slot_config, $compName);
 			next;
 		}
 	}
