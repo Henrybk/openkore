@@ -27,7 +27,7 @@ route_randomFactor 5
 ##### Plugins End
 
 attackAuto 2
-attackAuto_party 1
+attackAuto_party 0
 attackAuto_onlyWhenSafe 0
 attackAuto_followTarget 1
 attackAuto_inLockOnly 2

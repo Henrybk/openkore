@@ -3,23 +3,119 @@
 
 ######## Login options and server-specific options ########
 
-master Localhost
+master OathRO
 server 0
-username player2
-password 123456
+username carlosnanos
+password EF4654654wef
 loginPinCode
-char 
+char 0
+
 ##### Plugins Start
 
-eventMacro_1_99_stage start
+eventMacro_1_99_stage leveling
 eventMacro_goal_class rogue
-eventMacro_test 1
+eventMacro_test 0
 
 eventMacro_orphans terminate
 eventMacro_CheckOnAI auto
 eventMacro_file eventMacros.txt
 
+BetterWalkPlan 1
+
+route_randomFactor 5
+
 ##### Plugins End
+
+attackAuto 2
+attackAuto_party 0
+attackAuto_onlyWhenSafe 0
+attackAuto_followTarget 1
+attackAuto_inLockOnly 2
+attackAuto_notInTown 1
+attackAuto_notWhile_storageAuto 1
+attackAuto_notWhile_buyAuto 1
+attackAuto_notWhile_sellAuto 1
+attackAuto_considerDamagedAggressive 0
+attackBeyondMaxDistance_waitForAgressive 1
+attackDistance 1
+attackDistanceAuto 0
+attackMaxDistance 1
+attackMaxRouteDistance 50
+attackMaxRouteTime 4
+attackMinPlayerDistance 2
+attackMinPortalDistance 4
+attackUseWeapon 1
+attackNoGiveup 0
+attackCanSnipe 0
+attackCheckLOS 1
+attackRouteMaxPathDistance 28
+attackLooters 0
+attackChangeTarget 1
+aggressiveAntiKS 0
+
+clientSight 22
+clientSight_removeBeyond 2
+
+lockMap pay_fild08
+lockMap_x
+lockMap_y
+lockMap_randX
+lockMap_randY
+
+saveMap oldnewpayon
+saveMap_warpToBuyOrSell 0
+saveMap_warpChatCommand
+memo1
+memo2
+memo3
+memo4
+
+itemsTakeAuto 2
+itemsTakeAuto_party 0
+itemsGatherAuto 0
+itemsGatherAuto_notInTown 0
+itemsMaxWeight 89
+itemsMaxWeight_sellOrStore 68
+itemsMaxNum_sellOrStore 99
+cartMaxWeight 7900
+itemsTakeGreed 0
+itemsCheckWeight 1
+
+route_escape_reachedNoPortal 1
+route_escape_randomWalk 1
+route_escape_shout
+route_avoidWalls 1
+route_randomWalk 1
+route_randomWalk_inTown 0
+route_randomWalk_maxRouteTime 75
+route_maxWarpFee
+route_maxNpcTries 5
+route_teleport 0
+route_teleport_minDistance 75
+route_teleport_maxTries 8
+route_teleport_notInMaps
+route_step 9
+route_removeMissingPortals_NPC 1
+route_removeMissingPortals 0
+route_tryToGuessMissingPortalByDistance 1
+route_reAddMissingPortals 1
+
+runFromTarget 0
+runFromTarget_inAdvance 0
+runFromTarget_dist 5
+runFromTarget_minStep 7
+runFromTarget_maxPathDistance 13
+
+statsAddAuto 1
+statsAddAuto_list 10 agi, 10 dex, 10 str, 15 agi, 15 dex, 25 agi, 15 str, 9 vit, 30 agi, 25 dex, 40 agi, 9 int, 30 dex, 50 agi, 19 str, 35 dex, 55 agi, 40 dex, 60 agi, 45 dex, 30 str, 70 agi, 40 str, 50 dex, 80 agi, 19 vit, 55 dex, 45 str, 60 dex, 50 str, 85 agi, 70 str, 90 agi
+statsAddAuto_dontUseBonus 1
+statsAdd_over_99 1
+
+skillsAddAuto 1
+skillsAddAuto_list TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
+
+attackUpdateMonsterPos 1
+
 
 # Poseidon Settings: https://openkore.com/wiki/Poseidon
 # They must be the same as Query Server config in Poseidon.txt
@@ -48,7 +144,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword hieturus
+adminPassword beheemas
 callSign
 commandPrefix ;
 callSignGM 0
@@ -72,35 +168,6 @@ alias_heal sp 28
 
 allowedMaps
 allowedMaps_reaction 1
-
-attackAuto 2
-attackAuto_party 1
-attackAuto_onlyWhenSafe 0
-attackAuto_followTarget 1
-attackAuto_inLockOnly 1
-attackAuto_notInTown 1
-attackAuto_notWhile_storageAuto 1
-attackAuto_notWhile_buyAuto 1
-attackAuto_notWhile_sellAuto 1
-attackAuto_considerDamagedAggressive 1
-attackBeyondMaxDistance_waitForAgressive 1
-attackDistance 1
-attackDistanceAuto 0
-attackMaxDistance 1
-attackMaxRouteDistance 50
-attackMaxRouteTime 4
-attackMinPlayerDistance 2
-attackMinPortalDistance 4
-attackUseWeapon 1
-attackNoGiveup 0
-attackCanSnipe 0
-attackCheckLOS 1
-attackRouteMaxPathDistance 28
-attackLooters 0
-attackChangeTarget 1
-aggressiveAntiKS 0
-
-attackUpdateMonsterPos 1
 
 autoMoveOnDeath 0
 autoMoveOnDeath_x
@@ -154,8 +221,6 @@ cachePlayerNames 1
 cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
-clientSight 30
-
 dcPause 1
 dcOnDeath 0
 dcOnDualLogin 0
@@ -183,56 +248,6 @@ followLostStep 12
 followSitAuto 0
 followBot 0
 
-itemsTakeAuto 2
-itemsTakeAuto_party 0
-itemsGatherAuto 2
-itemsGatherAuto_notInTown 0
-itemsMaxWeight 89
-itemsMaxWeight_sellOrStore 48
-itemsMaxNum_sellOrStore 99
-cartMaxWeight 7900
-itemsTakeAuto_new 0
-itemsTakeGreed 0
-itemsCheckWeight 1
-
-lockMap
-lockMap_x
-lockMap_y
-lockMap_randX
-lockMap_randY
-
-route_escape_reachedNoPortal 1
-route_escape_randomWalk 1
-route_escape_shout
-route_avoidWalls 1
-route_randomWalk 1
-route_randomWalk_inTown 0
-route_randomWalk_maxRouteTime 75
-route_maxWarpFee
-route_maxNpcTries 5
-route_teleport 0
-route_teleport_minDistance 75
-route_teleport_maxTries 8
-route_teleport_notInMaps
-route_step 10
-route_removeMissingPortals_NPC 1
-route_removeMissingPortals 0
-route_tryToGuessMissingPortalByDistance 1
-route_reAddMissingPortals 1
-
-runFromTarget 0
-runFromTarget_inAdvance 0
-runFromTarget_dist 5
-runFromTarget_minStep 7
-runFromTarget_maxPathDistance 13
-
-saveMap
-saveMap_warpToBuyOrSell 1
-saveMap_warpChatCommand
-memo1
-memo2
-memo3
-memo4
 
 shopAuto_open 0
 shop_random 0
@@ -242,23 +257,15 @@ buyerShopAuto_open 0
 buyerShop_random 0
 
 sitAuto_hp_lower 40
-sitAuto_hp_upper 100
+sitAuto_hp_upper 80
 sitAuto_sp_lower 0
 sitAuto_sp_upper 0
 sitAuto_follow 0
 sitAuto_over_50 0
-sitAuto_idle 1
+sitAuto_idle 0
 sitAuto_look
 sitAuto_look_from_wall
 sitTensionRelax 0
-
-statsAddAuto 0
-statsAddAuto_list
-statsAddAuto_dontUseBonus 0
-statsAdd_over_99 1
-
-skillsAddAuto 0
-skillsAddAuto_list
 
 tankMode 0
 tankModeTarget
@@ -268,7 +275,7 @@ teleportAuto_sp 0
 teleportAuto_idle 0
 teleportAuto_portal 0
 teleportAuto_search 0
-teleportAuto_minAggressives 0
+teleportAuto_minAggressives 4
 teleportAuto_minAggressivesInLock 0
 teleportAuto_onlyWhenSafe 0
 teleportAuto_maxDmg 500
@@ -320,7 +327,7 @@ wx_map_monsterSticking 1
 wx_map_npcSticking 1
 wx_map_playersSticking 1
 wx_map_portalSticking 5
-wx_map_route
+wx_map_route 2
 wx_npcTalk
 wx_captcha
 showAllDamage 0
@@ -355,6 +362,7 @@ autoTalkCont 1
 noAutoSkill 0
 portalCompile 1
 portalRecord 2
+portalRecord_recompileAfter 1
 missDamage 0
 
 tankersList
@@ -373,7 +381,7 @@ mercenary_attackAuto 2
 mercenary_attackAuto_party 1
 mercenary_attackAuto_notInTown 1
 mercenary_attackAuto_inLockOnly 1
-mercenary_attackAuto_considerDamagedAggressive 1
+mercenary_attackAuto_considerDamagedAggressive 0
 mercenary_attackBeyondMaxDistance_waitForAgressive 1
 mercenary_attackAuto_onlyWhenSafe 0
 mercenary_attackAuto_duringRandomWalk 0
@@ -384,7 +392,7 @@ mercenary_attackDistanceAuto 0
 mercenary_attackMaxRouteTime 4
 mercenary_attackCanSnipe 0
 mercenary_attackCheckLOS 1
-mercenary_attackRouteMaxPathDistance 13
+mercenary_attackRouteMaxPathDistance 20
 mercenary_attackNoGiveup 0
 mercenary_attackChangeTarget 1
 mercenary_attack_dance_melee 0
@@ -433,7 +441,7 @@ homunculus_attackAuto 2
 homunculus_attackAuto_party 1
 homunculus_attackAuto_notInTown 1
 homunculus_attackAuto_inLockOnly 1
-homunculus_attackAuto_considerDamagedAggressive 1
+homunculus_attackAuto_considerDamagedAggressive 0
 homunculus_attackBeyondMaxDistance_waitForAgressive 1
 homunculus_attackAuto_onlyWhenSafe 0
 homunculus_attackAuto_duringRandomWalk 0
@@ -444,7 +452,7 @@ homunculus_attackDistanceAuto 0
 homunculus_attackMaxRouteTime 4
 homunculus_attackCanSnipe 0
 homunculus_attackCheckLOS 1
-homunculus_attackRouteMaxPathDistance 13
+homunculus_attackRouteMaxPathDistance 20
 homunculus_attackNoGiveup 0
 homunculus_attackChangeTarget 1
 homunculus_attack_dance_melee 0
@@ -514,26 +522,31 @@ autoSwitch_default_rightHand
 autoSwitch_default_leftHand
 autoSwitch_default_arrow
 
-# NOTE: In the case of two handed weapons, or no Shield,
-#       duplicate the weapon name for 'rightHand'
-# To attack with bare hands, specify "[NONE]" (without the quotes) for rightHand
+autoSwitch {
+	rightHand
+	leftHand
+	arrow
+	distance
+	useWeapon
+}
 
 ######## Autostorage/autosell ########
 
-sellAuto 0
-sellAuto_npc
+sellAuto 1
+sellAuto_npc oldnewpayon 69 117
 sellAuto_standpoint
 sellAuto_distance 3
 sellAuto_maxDistance
 sellAuto_npc_steps s
 
-storageAuto 0
-storageAuto_npc
+storageAuto 1
+storageAuto_npc oldnewpayon 98 118
 storageAuto_standpoint
 storageAuto_distance 3
 storageAuto_maxDistance
-storageAuto_npc_type 1
-storageAuto_npc_steps
+storageAuto_npc_type 3
+storageAuto_type 0
+storageAuto_npc_steps r~/storage/i
 storageAuto_password
 storageAuto_keepOpen 0
 storageAuto_useChatCommand
@@ -541,10 +554,10 @@ storageAuto_useItem 0
 storageAuto_useItem_item
 storageAuto_notAfterDeath
 relogAfterStorage 0
-minStorageZeny 50
+minStorageZeny 100
 
 npcTimeResponse
-npcWrongStepsMethod 0
+npcWrongStepsMethod 3
 
 ######## Debugging options; only useful for developers ########
 
@@ -562,65 +575,470 @@ logToFile_Errors
 logToFile_Messages
 logToFile_Warnings
 history_max 50
-macro_orphans terminate
 
-useSelf_skill_smartHeal 1
-
-partySkillDistance 0..8
-
-equipAuto { 
-	topHead 
-	midHead 
-	lowHead 
-	leftHand 
-	rightHand 
-	leftAccessory 
-	rightAccessory 
-	robe 
-	armor 
-	shoes 
-	arrow 
-	monsters 
-	notMonsters 
-	monstersCount 
-	weight 0 
-	whileSitting 0 
-	hp 
-	sp 
-	homunculus
-	homunculus_hp
-	homunculus_sp
-	homunculus_dead
-	homunculus_resting
-	homunculus_onAction
-	homunculus_notOnAction
-	homunculus_whenIdle
-	homunculus_whenNotIdle
-	mercenary
-	mercenary_hp
-	mercenary_sp
-	mercenary_whenStatusActive
-	mercenary_whenStatusInactive
-	mercenary_onAction
-	mercenary_notOnAction
-	mercenary_whenIdle
-	mercenary_whenNotIdle
-	onAction 
-	whenStatusActive 
-	whenStatusInactive 
-	whenFollowing 
-	spirit 
-	amuletType 
-	aggressives 
-	stopWhenHit 0 
-	inLockOnly 0 
-	notWhileSitting 0 
-	notInTown 0 
-	timeout 0 
-	disabled 0 
-	whenPartyMembersNear 
-	whenPartyMembersNearDist 
-	inInventory 
-	manualAI 0 
+equipAuto {
+	topHead
+	midHead
+	lowHead
+	leftHand
+	rightHand Main Gauche [3]
+	leftAccessory
+	rightAccessory
+	robe
+	armor
+	shoes
+	arrow
+	weight 0
+	whileSitting 0
+	onAction
+	stopWhenHit 0
+	inLockOnly 0
+	notWhileSitting 0
+	notInTown 0
+	timeout 0
+	disabled 0
+	manualAI 0
 }
 
+BetterShopper_on 1
+BetterShopper_minDistance 1
+BetterShopper_maxDistance 10
+
+BetterSeller_on 1
+BetterSeller_minDistance 1
+BetterSeller_maxDistance 10
+
+autoRefine_on 1
+autoRefine_weaponLevel 1
+autoRefine_wantedRefine 7
+autoRefine_npc payon_in01 91 31
+autoRefine_commandOnSuccess eventMacro set_buyauto_refine
+
+# Strawberry
+BetterSeller 578 {
+	minPrice 900
+	minBuyShopAmount 5
+}
+
+# Empty Bottle
+BetterSeller 713 {
+	minPrice 100
+	minBuyShopAmount 10
+}
+
+# Trunk
+BetterSeller 1019 {
+	minPrice 400
+	minBuyShopAmount 10
+}
+
+# Cyfar
+BetterSeller 7053 {
+	minPrice 400
+	minBuyShopAmount 10
+}
+
+# Large Jellopy
+BetterSeller 7126 {
+	minPrice 400
+	minBuyShopAmount 10
+}
+
+# Jellopy
+BetterSeller 909 {
+	minPrice 15
+	minBuyShopAmount 10
+}
+
+# Zargon
+BetterSeller 912 {
+	minPrice 250
+	minBuyShopAmount 10
+}
+
+# Orange
+BetterSeller 582 {
+	minPrice 250
+	minBuyShopAmount 5
+}
+
+# Lemon
+BetterSeller 568 {
+	minPrice 250
+	minBuyShopAmount 5
+}
+
+# Grape
+BetterSeller 514 {
+	minPrice 350
+	minBuyShopAmount 5
+}
+
+# Honey
+BetterSeller 518 {
+	minPrice 550
+	minBuyShopAmount 5
+}
+
+# Steel
+BetterSeller 999 {
+	minPrice 7000
+	minBuyShopAmount 1
+}
+
+# Iron
+BetterSeller 998 {
+	minPrice 300
+	minBuyShopAmount 5
+}
+
+# Star Crumb
+BetterSeller 1000 {
+	minPrice 3000
+	minBuyShopAmount 1
+}
+
+# Star Dust
+BetterSeller 1001 {
+	minPrice 600
+	minBuyShopAmount 10
+}
+
+# Iron Ore
+BetterSeller 1002 {
+	minPrice 60
+	minBuyShopAmount 10
+}
+
+# Coal
+BetterSeller 1003 {
+	minPrice 2000
+	minBuyShopAmount 5
+}
+
+# Elunium
+BetterSeller 985 {
+	minPrice 25000
+	minBuyShopAmount 1
+}
+
+# Witch Starsand
+BetterSeller 1061 {
+	minPrice 600
+	minBuyShopAmount 5
+}
+
+# Gift Box
+BetterSeller 644 {
+	minPrice 15000
+	minBuyShopAmount 1
+}
+
+# Old Blue Box
+BetterSeller 603 {
+	minPrice 25000
+	minBuyShopAmount 1
+}
+
+# Old Purple Box
+BetterSeller 617 {
+	minPrice 100000
+	minBuyShopAmount 1
+}
+
+# Authoritative Badge
+BetterSeller 662 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+
+# Red Blood
+BetterSeller 990 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+# Crystal Blue
+BetterSeller 991 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+# Wind of Verdure
+BetterSeller 992 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+
+# Green Live
+BetterSeller 993 {
+	minPrice 2000
+	minBuyShopAmount 3
+}
+
+# Flame Heart
+BetterSeller 994 {
+	minPrice 2000
+	minBuyShopAmount 1
+}
+
+# Mystic Frozen
+BetterSeller 995 {
+	minPrice 25000
+	minBuyShopAmount 1
+}
+
+# Rough Wind
+BetterSeller 996 {
+	minPrice 70000
+	minBuyShopAmount 1
+}
+
+# Great Nature
+BetterSeller 997 {
+	minPrice 2000
+	minBuyShopAmount 1
+}
+
+# Yellow Gemstone
+BetterSeller 715 {
+	minPrice 1200
+	minBuyShopAmount 5
+}
+
+# Red Gemstone
+BetterSeller 716 {
+	minPrice 1200
+	minBuyShopAmount 5
+}
+
+# Blue Gemstone
+BetterSeller 717 {
+	minPrice 500
+	minBuyShopAmount 5
+}
+
+# Red Herb
+BetterSeller 507 {
+	minPrice 300
+	minBuyShopAmount 10
+}
+
+# White Herb
+BetterSeller 509 {
+	minPrice 550
+	minBuyShopAmount 10
+}
+
+useSelf_item Novice Potion {
+	disabled 0
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout 1
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout 0
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout 0
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout 0
+}
+
+useSelf_item {
+	disabled
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout 0
+}
+
+useSelf_item Meat {
+	disabled 0
+	whenStatusInactive
+	inLockOnly
+	notWhileSitting
+	timeout 0
+}
+
+attackSkillSlot {
+	lvl
+	sp
+	maxUses
+	timeout
+	maxAttempts
+	disabled
+	target_notCoinStolen
+}
+
+attackSkillSlot {
+	lvl
+	sp
+	maxUses
+	timeout
+	maxAttempts
+	disabled
+	target_notCoinStolen
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
+	fallbackNpcShop
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper 1010 {
+	price 180
+	maxPrice 200
+	minInventoryAmount 6
+	minShopAmount 1
+	maxAmount 7
+	fallbackNpcShop
+	fallbackNpcTalk payon_in01 84 26
+	fallbackNpcTSequence r0-amount-
+	commandAfterBuy
+}
+
+BetterShopper 602 {
+	price 300
+	maxPrice 285
+	minInventoryAmount 0
+	minShopAmount 2
+	maxAmount 2
+	fallbackNpcShop oldnewpayon 69 117
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper 601 {
+	price 60
+	maxPrice 55
+	minInventoryAmount 0
+	minShopAmount 10
+	maxAmount 10
+	fallbackNpcShop oldnewpayon 69 117
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+BetterShopper 517 {
+	price 50
+	maxPrice 45
+	minInventoryAmount 5
+	minShopAmount 30
+	maxAmount 30
+	fallbackNpcShop oldnewpayon 44 119
+	fallbackNpcTalk
+	fallbackNpcTSequence
+	commandAfterBuy
+}
+
+current_event_include Leveling.pm
+
+Joined_Oranpere
+Join_Oranpere_before
+Leave_Oranpere_before
+
+Joined_VileWind true
+Join_VileWind_before
+
+before_event_include
+
+Joined_Sewb true
+Join_Sewb_before
+
+Joined_Haleigh
+Join_Haleigh_before
+
+future_saveMap_map
+future_saveMap_x
+future_saveMap_y
+future_saveMap_kafra_map
+future_saveMap_kafra_x
+future_saveMap_kafra_y
+future_saveMap_save_sequence
+
+saveMap_stage_before
+saveMap_map oldnewpayon
+saveMap_x 98
+saveMap_y 118
+saveMap_kafra_map oldnewpayon
+saveMap_kafra_x 98
+saveMap_kafra_y 118
+saveMap_save_sequence r~/Save/i
+
+####################
+
+useSelf_item_0_hp < 70%
+useSelf_item_5_hp < 60%

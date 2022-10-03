@@ -45,18 +45,8 @@ all 0 1 0
 # Adjust these to your needs
 
 
-505 0 1 0 # Blue Potion
-545 50 1 0 # Condensed Red Potion
-547 50 1 0 # Condensed White Potion
-546 50 1 0 # Condensed Yellow Potion
-506 0 1 0 # Green Potion
-504 25 1 0  # White Potion
-503 25 1 0 # Yellow potion
-
 ##### ARROWS #####
 # You may want to modify these if you're an archer/hunter
-
-Arrow 3000 1 0
 
 
 
@@ -77,7 +67,6 @@ Chain Mail 0 0 1 # 2314
 Circlet 0 0 1 # 2233
 Coat 0 0 1 # 2309
 "Coat [1]" 0 0 1 # 2310
-Cotton Shirt 0 0 1 # 2301
 "Cotton Shirt [1]" 0 0 1
 #Crystal Pumps 0 0 1
 Diamond Ring 0 0 1 # 2613
@@ -93,15 +82,18 @@ Guard 0 0 1 # 2101
 Hair Band 0 0 1 # 2210
 Helm 0 0 1 # 2228
 High Heels 0 0 1 # 2409
+"Hood [1]" 0 0 1 # 2502
 Jacket 0 0 1 # 2303
+"Jacket [1]" 0 0 1 # 2304
 Manteau 0 0 1 # 2505
 Mantle 0 0 1 # 2307
+"Mantle [1]" 0 0 1 # 2308
 Mirror Shield 0 0 1 # 2107
 Mr. Smile 0 0 1 # 2278
 Muffler 0 0 1 # 2503
-Padded Armor 0 0 1 # 2313
 Pantie 0 0 1 # 2371
 Ribbon 0 0 1 # 2208
+"Ribbon [1]" 0 0 1 # 2209
 Rosary 0 0 1 # 2840
 Saint's Robe 0 0 1 # 2325
 "Sandals [1]" 0 0 1 # 2402
@@ -111,11 +103,13 @@ Shield 0 0 1 # 2105
 Silk Robe 0 0 1 # 2321
 Silver Ring 0 0 1 # 2611
 Silver Robe 0 0 1 # 2332
+"Silver Robe [1]" 0 0 1 # 2333
 Skull Ring 0 0 1 # 2715
 Thief Clothes 0 0 1 # 2335
 Tights 0 0 1 # 2330
 Turban 0 0 1 # 2223
 Wooden Mail 0 0 1 # 2328
+"Wooden Mail [1]" 0 0 1 # 2329
 
 
 ##### WORTHLESS WEAPONS #####
@@ -162,10 +156,11 @@ Cutter 0 0 1 # 1206
 Dagger 0 0 1 # 1215
 "Dagger [2]" 0 0 1 # 1213
 "Dagger [3]" 0 0 1 # 1214
+"Damascus [1]" 0 0 1 # 1222
 Dirk 0 0 1 # 1212
+"Dirk [2]" 0 0 1 # 1210
 "Dirk [3]" 0 0 1 # 1211
 Falchion 0 0 1 # 1106
-"Falchion [3]" 0 0 1 # 1104
 "Finger [1]" 0 0 1 # 1811
 "Finger [2]" 0 0 1 # 1812
 Fist 0 0 1 # 1808
@@ -203,11 +198,9 @@ Javelin 0 0 1 # 1403
 "Javelin [4]" 0 0 1 # 1402
 "Jur [2]" 0 0 1 # 1250
 Katana 0 0 1 # 1118
-"Katana [3]" 0 0 1 # 1116
 "Katana [4]" 0 0 1 # 1117
 "Katar [1]" 0 0 1 # 1252
 Knife 0 0 1 # 1203
-"Knife [3]" 0 0 1 # 1201
 "Knife [4]" 0 0 1 # 1202
 "Knuckle Dusters [2]" 0 0 1 # 1803
 "Knuckle Dusters [3]" 0 0 1 # 1804
@@ -219,7 +212,6 @@ Mace 0 0 1 # 1506
 "Mace [3]" 0 0 1 # 1504
 #"Mace [4]" 0 0 1
 Main Gauche 0 0 1 # 1209
-"Main Gauche [3]" 0 0 1 # 1207
 "Mandolin [2]" 0 0 1 # 1903
 "Mandolin [3]" 0 0 1 # 1904
 "Morning Star [1]" 0 0 1 # 1513
@@ -273,11 +265,15 @@ Trident 0 0 1 # 1462
 "Trident [2]" 0 0 1 # 1460
 Tsurugi 0 0 1 # 1121
 "Tsurugi [1]" 0 0 1 # 1119
+"Tsurugi [2]" 0 0 1 # 1120
 Two-handed Axe 0 0 1 # 1362
+"Two-handed Axe [1]" 0 0 1
 Two-handed Sword 0 0 1 # 1159
+"Two-handed Sword [1]" 0 0 1
 "Violin [3]" 0 0 1 # 1901
 #"Violin [4]" 0 0 1
 "Waghnak [3]" 0 0 1 # 1801
+"Waghnak [4]" 0 0 1 # 1802
 Wand 0 0 1 # 1606
 "Wand [2]" 0 0 1 # 1604
 "Wand [3]" 0 0 1 # 1605
@@ -348,7 +344,6 @@ Animal Poop 0 0 1
 964 0 0 1 # Crab Shell
 747 0 0 1 # Crystal Mirror
 1045 0 0 1 # Cultish Masque
-7053 0 0 1 # Cyfar
 901 0 0 1 # Daenggie
 7157 0 0 1 # Dark Mask
 1047 0 0 1 # Dead Medusa
@@ -398,9 +393,7 @@ Animal Poop 0 0 1
 7028 0 0 1 # Invite for Duel
 1062 0 0 1 # Jack o' Pumpkin
 7147 0 0 1 # Jasmine
-909 0 0 1 # Jellopy
 1041 0 0 1 # Lantern
-7126 0 0 1 # Large Jellopy
 7096 0 0 1 # Lava
 7098 0 0 1 # Live Coal
 1098 0 0 1 # Manacles
@@ -409,7 +402,6 @@ Animal Poop 0 0 1
 1033 0 0 1 # Maneater Root
 1031 0 0 1 # Mantis Scythe
 7035 0 0 1 # Matchstick
-517 0 0 1 # Meat
 934 0 0 1 # Memento
 7497 0 0 1 # Metal Fragment
 519 0 0 1 # Milk
@@ -419,7 +411,6 @@ Animal Poop 0 0 1
 528 0 0 1 # Monster's Feed
 1057 0 0 1 # Moth Dust
 7148 0 0 1 # Mother's Letter
-1058 1 1 0 # Moth Wings
 7004 0 0 1 # Mud Lump
 921 0 0 1 # Mushroom Spore
 1095 0 0 1 # Needle of Alarm
@@ -439,7 +430,6 @@ Animal Poop 0 0 1
 7101 0 0 1 # PecoPeco Feather
 541 0 0 1 # PecoPeco Food
 738 0 0 1 # Pencil Case
-1010 0 0 1 # Phracon
 7150 0 0 1 # Piece of Bamboo
 7032 0 0 1 # Piece of Egg Shell
 7108 0 0 1 # Piece of Shield
@@ -586,7 +576,6 @@ Spearman Scroll 10 0 0 0
 1193 0 0 0 0 0 # P_Slayer2
 1197 0 0 0 0 0 # P_Slayer3
 1198 0 0 0 0 0 # Hairtail
-1243 0 0 1 # Novice Main-Gauche
 1267 0 0 0 0 0 # Infiltrator_C
 1273 0 0 0 0 0 # Bloody_Roar_C
 1274 0 0 0 0 0 # Unholy_Touch_C
@@ -702,7 +691,6 @@ Spearman Scroll 10 0 0 0
 2002 0 0 0 0 0 # Krieger_Twohand_Staff1
 2018 0 0 0 0 0 # Metal_Staff
 2019 0 0 0 0 0 # TE_Woe_Two_Hand_Staff
-2112 0 0 1 # Novice Guard
 2132 0 0 0 0 0 # Shelter_Resistance
 2136 0 0 0 0 0 # Cracked_Buckler
 2137 0 0 0 0 0 # Valkyrja
@@ -711,7 +699,6 @@ Spearman Scroll 10 0 0 0
 2178 0 0 0 0 0 # TE_Woe_Buckler
 2179 0 0 0 0 0 # TE_Woe_Shield
 2180 0 0 0 0 0 # TE_Woe_Magic_Guard
-2352 0 0 1 # Tattered Novice Ninja Suit
 2369 0 0 0 0 0 # Freyja_Overcoat
 2376 0 0 0 0 0 # Assaulter_Plate
 2377 0 0 0 0 0 # Elite_Engineer_Armor
@@ -723,11 +710,9 @@ Spearman Scroll 10 0 0 0
 2384 0 0 0 0 0 # Spritual_Tunic
 2385 0 0 0 0 0 # Recuperative_Armor
 2392 0 0 0 0 0 # Old_Pant
-2393 0 0 0 # Novice Adventurer's Suit [1]
 2394 0 0 0 0 0 # Krieger_Suit1
 2395 0 0 0 0 0 # Krieger_Suit2
 2396 0 0 0 0 0 # Krieger_Suit3
-2414 0 0 1 # Novice Slippers
 2428 0 0 0 0 0 # Freyja_Boots
 2429 0 0 0 0 0 # Iron_Boots01
 2430 0 0 0 0 0 # Iron_Boots02
@@ -748,7 +733,6 @@ Spearman Scroll 10 0 0 0
 2496 0 0 0 0 0 # TE_Woe_Shoes
 2497 0 0 0 0 0 # TE_Woe_Boots
 2498 0 0 0 0 0 # TE_Woe_Magic_Sandal
-2510 0 0 1 # Somber Novice Hood
 2533 0 0 0 0 0 # Freyja_Cape
 2535 0 0 0 0 0 # Cloak_Of_Survival_C
 2538 0 0 0 0 0 # Commander_Manteau
@@ -1215,8 +1199,6 @@ Spearman Scroll 10 0 0 0
 6955 0 0 0 0 0 # Piece_Of_Soul_Pig
 6956 0 0 0 0 0 # Captured_Sheep
 6957 0 0 0 0 0 # Lamb_Fleece
-7059 50 0 0 # Free Ticket for Kafra Storage
-7060 50 0 0 # Free Ticket for Kafra Transportation
 7061 0 0 0 0 0 # Cart_Free_Ticket
 7177 0 0 0 0 0 # Part_Of_Star
 7178 0 0 0 0 0 # Star
@@ -1479,8 +1461,6 @@ Spearman Scroll 10 0 0 0
 12313 0 0 0 0 0 # Protection_Of_Angel
 12314 0 0 0 0 0 # Noive_Box
 12322 0 0 0 0 0 # Chocolate_Pie
-12323 0 0 0 # [NotForSale] Novice Fly Wing
-12324 0 0 0 # Novice Butterfly Wing
 12325 0 0 0 0 0 # N_Magnifier
 12331 0 0 0 0 0 # Ginseng
 12333 0 0 0 0 0 # Ansila
@@ -1734,26 +1714,77 @@ Spearman Scroll 10 0 0 0
 25150 0 0 0 0 0 # Hugging_Alice_Pilow
 26100 0 0 0 0 0 # Paradise_Foxtail_Staff_II
 26101 0 0 0 0 0 # Paradise_Foxtail_Staff_III
+
+
+2221 0 0 1 #Hat [1]
+2220 0 0 1 #Hat
+1208 0 0 1 #Main Gauche
+12323 0 0 0 #[NotForSale] Novice Fly Wing
+12324 0 0 0 #Novice Butterfly Wing
 569 0 0 0 #Novice Potion
-13040 0 0 1 # Novice Cutter [3]
-5055 0 0 1 # Novice False Eggshell
-1201 0 0 0 #Knife [3]
+7059 50 0 0 #Free Ticket for Kafra Storage
+7060 50 0 0 #Free Ticket for Kafra Transportation
 13041 0 0 0 #Novice Main Gauche [3]
-713 50 1 0 #Empty Bottle
+2393 0 0 0 #Novice Adventurer's Suit [1]
 1207 1 0 0 #Main Gauche [3]
-
-
-## test
-1210 1 0 0 #Dirk [2]
-2305 1 0 0 #Adventurer's Suit
-510 6 1 0 #Blue Herb
-2401 0 0 1 #Sandals
-2403 1 0 0 #Shoes
-2501 1 0 0 #Hood
-601 5 1 0 #Fly Wing
-602 1 1 0 #Butterfly Wing
-501 50 1 0 #Red Potion
-502 50 1 0 #Orange Potion
-645 5 1 0 #Concentration Potion
-656 5 1 0 #Awakening Potion
-2220 1 0 0 #Hat
+1243 0 0 1 #Novice Main-Gauche
+2112 0 0 1 #Novice Guard
+5055 0 0 1 #Novice False Eggshell
+2414 0 0 1 #Novice Slippers
+2510 0 0 1 #Somber Novice Hood
+2352 0 0 1 #Tattered Novice Ninja Suit
+1201 0 0 1 #Knife [3]
+13040 0 0 1 #Novice Cutter [3]
+2301 0 0 1 #Cotton Shirt
+1058 0 1 0 #Moth Wings
+713 0 1 0 #Empty Bottle
+578 0 1 0 #Strawberry
+1019 0 1 0 #Trunk
+7053 0 1 0 #Cyfar
+7126 0 1 0 #Large Jellopy
+909 0 1 0 #Jellopy
+912 0 1 0 #Zargon
+582 0 1 0 #Orange
+568 0 1 0 #Lemon
+514 0 1 0 #Grape
+518 0 1 0 #Honey
+999 0 1 0 #Steel
+998 0 1 0 #Iron
+1000 0 1 0 #Star Crumb
+1001 0 1 0 #Star Dust
+1002 0 1 0 #Iron Ore
+1003 0 1 0 #Coal
+984 0 1 0 #Oridecon
+985 0 1 0 #Elunium
+1061 0 1 0 #Witch Starsand
+644 0 1 0 #Gift Box
+603 0 1 0 #Old Blue Box
+617 0 1 0 #Old Purple Box
+662 0 1 0 #Authoritative Badge
+993 0 1 0 #Green Live
+994 0 1 0 #Flame Heart
+995 0 1 0 #Mystic Frozen
+996 0 1 0 #Rough Wind
+997 0 1 0 #Great Nature
+715 0 1 0 #Yellow Gemstone
+716 0 1 0 #Red Gemstone
+717 0 1 0 #Blue Gemstone
+507 0 1 0 #Red Herb
+508 0 1 0 #Yellow Herb
+509 0 1 0 #White Herb
+510 0 1 0 #Blue Herb
+511 0 1 0 #Green Herb
+7312 0 0 1 #Jubilee
+1602 0 0 1 #Rod [4]
+1105 0 0 1 #Falchion [4]
+516 0 0 1 #Potato
+580 0 0 1 #Bread
+700 0 0 1 #Level 1 Frost Diver Scroll
+517 30 1 0 #Meat
+501 0 1 0 #Red Potion
+502 0 1 0 #Orange Potion
+645 0 1 0 #Concentration Potion
+656 0 1 0 #Awakening Potion
+601 10 1 0 #Fly Wing
+602 2 1 0 #Butterfly Wing
+1010 7 1 0 #Phracon
