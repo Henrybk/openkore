@@ -1796,6 +1796,14 @@ sub actor_display {
 		warning TF("Removed actor with off map coordinates: (%d,%d)->(%d,%d), field max: (%d,%d)\n",$coordsFrom{x},$coordsFrom{y},$coordsTo{x},$coordsTo{y},$field->width(),$field->height());
 		return;
 	}
+	
+	if (defined $field && !$field->isOffMap($coordsFrom{x}, $coordsFrom{y}) && $coordsTo{x} == 0 && $coordsTo{y} == 0) {
+		debug TF("Ignoring bugged actor moved packet to (0,0)\n");
+		$coordsTo{x} = $coordsFrom{x};
+		$coordsTo{y} = $coordsFrom{y};
+		return;
+	}
+	
 =pod
 	# Zealotus bug
 	if ($args->{type} == 1200) {
@@ -2237,6 +2245,17 @@ typedef enum <unnamed-tag> {
 		} elsif ($actor->isa('Actor::Monster')) {
 			debug "Monster Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
 		        Plugins::callHook('monster_moved', $actor);
+				if (
+				exists $actor->{movetoattack_pos}
+				&& ($coordsFrom{x} != $coordsTo{x} || $coordsFrom{y} != $coordsTo{y})
+				&& ($actor->{movetoattack_pos}{x} != $coordsTo{x} || $actor->{movetoattack_pos}{y} != $coordsTo{y})
+				) {
+					warning "Reajusting to $coordsTo{x} $coordsTo{y} for $actor\n", "parseMsg_move";
+					$char->sendMove($coordsTo{x}, $coordsTo{y});
+					$actor->{movetoattack_pos}{x} = $coordsTo{x};
+					$actor->{movetoattack_pos}{y} = $coordsTo{y};
+					$actor->sendAttack;
+				}
 		} elsif ($actor->isa('Actor::Pet')) {
 			debug "Pet Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
 		        Plugins::callHook('pet_moved', $actor);
@@ -10974,19 +10993,20 @@ sub monster_ranged_attack {
 	my %coords2;
 	$coords2{x} = $args->{targetX};
 	$coords2{y} = $args->{targetY};
-
+	
 	my $monster = $monstersList->getByID($ID);
 	if ($monster) {
-		$monster->{pos} = {%coords1};
-		$monster->{pos_to} = {%coords1};
-		$monster->{time_move} = time;
-		$monster->{time_move_calc} = 0;
+		$monster->{movetoattack_pos} = {%coords1};
+		$monster->{movetoattack_time} = time;
 	}
-	$char->{pos} = {%coords2};
-	$char->{pos_to} = {%coords2};
-	$char->{time_move} = time;
-	$char->{time_move_calc} = 0;
-	debug "Received Failed to attack target - you: $coords2{x},$coords2{y} - monster: $coords1{x},$coords1{y} - range $range\n", "parseMsg_move", 2;
+	$char->{movetoattack_pos} = {%coords2};
+	$char->{movetoattack_time} = time;
+	warning "Received Failed to attack target - you: $coords2{x},$coords2{y} - monster: $coords1{x},$coords1{y} - range $range\n", "parseMsg_move";
+	$char->sendMove(@{$monster->{movetoattack_pos}}{qw(x y)});
+	if ($monster) {
+		#$monster->sendTalk;
+		$monster->sendAttack;
+	}
 }
 
 sub mvp_item {
