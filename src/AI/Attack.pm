@@ -424,7 +424,15 @@ sub main {
 		if ($cell) {
 			debug TF("[runFromTarget] %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
 			$args->{avoiding} = 1;
-			$char->route(undef, @{$cell}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, useManhattan => 1, runFromTarget => 1);
+			$char->route(
+				undef,
+				@{$cell}{qw(x y)},
+				noMapRoute => 1,
+				avoidWalls => 0,
+				randomFactor => 0,
+				useManhattan => 1,
+				runFromTarget => 1
+			);
 		} else {
 			debug TF("%s no acceptable place to kite from (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
 		}
@@ -438,7 +446,15 @@ sub main {
 			if ($cell) {
 				debug TF("[runFromTarget] %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $cell->{x}, $cell->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
 				$args->{avoiding} = 1;
-				$char->route(undef, @{$cell}{qw(x y)}, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, useManhattan => 1, runFromTarget => 1);
+				$char->route(
+					undef,
+					@{$cell}{qw(x y)},
+					noMapRoute => 1,
+					avoidWalls => 0,
+					randomFactor => 0,
+					useManhattan => 1,
+					runFromTarget => 1
+				);
 			} else {
 				debug TF("%s no acceptable place to kite from (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
 			}
@@ -538,7 +554,16 @@ sub main {
 		if ($best_spot) {
 			message TF("%s; moving to (%s, %s)\n", $msg, $best_spot->{x}, $best_spot->{y});
 			$args->{monsterLastMoveTime} = $target->{time_move};
-			$char->route(undef, @{$best_spot}{qw(x y)}, attackID => $ID, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, useManhattan => 1, LOSSubRoute => 1);
+			$char->route(
+				undef,
+				@{$best_spot}{qw(x y)},
+				attackID => $ID,
+				noMapRoute => 1,
+				avoidWalls => 0,
+				randomFactor => 0,
+				useManhattan => 1,
+				LOSSubRoute => 1
+			);
 		} else {
 			warning TF("%s; no acceptable place to stand\n", $msg);
 			$target->{attack_failedLOS} = time;
@@ -559,7 +584,15 @@ sub main {
 		if ($best_spot) {
 			message TF("%s; moving to (%s, %s)\n", $msg, $best_spot->{x}, $best_spot->{y});
 			$args->{monsterLastMoveTime} = $target->{time_move};
-			$char->route(undef, @{$best_spot}{qw(x y)}, attackID => $ID, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, useManhattan => 1, LOSSubRoute => 1);
+			$char->route(
+				undef, @{$best_spot}{qw(x y)},
+				attackID => $ID,
+				noMapRoute => 1,
+				avoidWalls => 0,
+				randomFactor => 0,
+				useManhattan => 1,
+				LOSSubRoute => 1
+			);
 		} else {
 			warning TF("%s; no acceptable place to stand\n", $msg);
 			$target->{attack_failedLOS} = time;
@@ -617,7 +650,16 @@ sub main {
 				if ($best_spot) {
 					message TF("%s; moving to (%s, %s)\n", $msg, $best_spot->{x}, $best_spot->{y});
 					$args->{monsterLastMoveTime} = $target->{time_move};
-					$char->route(undef, @{$best_spot}{qw(x y)}, attackID => $ID, noMapRoute => 1, avoidWalls => 0, randomFactor => 0, useManhattan => 1, LOSSubRoute => 1);
+					$char->route(
+						undef,
+						@{$best_spot}{qw(x y)},
+						attackID => $ID,
+						noMapRoute => 1,
+						avoidWalls => 0,
+						randomFactor => 0,
+						useManhattan => 1,
+						LOSSubRoute => 1
+					);
 				} else {
 					warning TF("%s; no acceptable place to stand\n", $msg);
 					$target->{attack_failedLOS} = time;
