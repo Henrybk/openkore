@@ -40,4 +40,11 @@ sub sendTalk {
 	$messageSender->sendAction($self->{ID}, 0);
 }
 
+sub sendAttack {
+	my ($self) = @_;
+
+	# "attack once" action
+	$messageSender->sendAction($self->{ID}, 7);
+}
+
 1;
