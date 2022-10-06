@@ -9,6 +9,9 @@ username player1
 password 123456
 loginPinCode
 char 5
+
+attackSendAttackWithMove 1
+
 ##### Plugins Start
 
 eventMacro_1_99_stage start
@@ -52,7 +55,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword wribeshi
+adminPassword kadubras
 callSign
 commandPrefix ;
 callSignGM 0
@@ -87,7 +90,7 @@ attackAuto_notWhile_storageAuto 1
 attackAuto_notWhile_buyAuto 1
 attackAuto_notWhile_sellAuto 1
 attackAuto_considerDamagedAggressive 1
-attackBeyondMaxDistance_waitForAgressive 1
+attackBeyondMaxDistance_waitForAgressive 0
 attackDistance 1
 attackDistanceAuto 0
 attackMaxDistance 1
@@ -104,7 +107,7 @@ attackLooters 0
 attackChangeTarget 1
 aggressiveAntiKS 0
 
-attackUpdateMonsterPos 1
+attackUpdateMonsterPos 0
 
 autoMoveOnDeath 0
 autoMoveOnDeath_x

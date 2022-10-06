@@ -1237,6 +1237,8 @@ sub map_loaded {
 	message(TF("Your Coordinates: %s, %s\n", $char->{pos}{x}, $char->{pos}{y}), undef, 1);
 	$char->{time_move} = 0;
 	$char->{time_move_calc} = 0;
+	$char->{solution} = [];
+	push(@{$char->{solution}}, { x => $char->{pos}{x}, y => $char->{pos}{y} });
 
 	# set initial status from data received from the char server (seems needed on eA, dunno about kRO)}
 	if($masterServer->{private}){ setStatus($char, $char->{opt1}, $char->{opt2}, $char->{option}); }
@@ -5351,7 +5353,12 @@ sub character_moves {
 	my $dist = blockDistance($char->{pos}, $char->{pos_to});
 	debug "You're moving from ($char->{pos}{x}, $char->{pos}{y}) to ($char->{pos_to}{x}, $char->{pos_to}{y}) - distance $dist\n", "parseMsg_move";
 	$char->{time_move} = time;
-	$char->{time_move_calc} = calcTime($char->{pos}, $char->{pos_to}, ($char->{walk_speed} || 0.12));
+	
+	my $speed = ($char->{walk_speed} || 0.12);
+	my $my_solution = Utils::get_client_solution($field, $char->{pos}, $char->{pos_to});
+	my $time = Utils::calcTimeFromSolution($my_solution, $speed);
+	$char->{solution} = $my_solution;
+	$char->{time_move_calc} = $time;
 
 	# Correct the direction in which we're looking
 	my (%vec, $degree);
@@ -7134,6 +7141,8 @@ sub map_change {
 	$char->{pos_to} = {%coords};
 	$char->{time_move} = 0;
 	$char->{time_move_calc} = 0;
+	$char->{solution} = [];
+	push(@{$char->{solution}}, { x => $char->{pos}{x}, y => $char->{pos}{y} });
 	message TF("Map Change: %s (%s, %s)\n", $args->{map}, $char->{pos}{x}, $char->{pos}{y}), "connection";
 	if ($net->version == 1) {
 		ai_clientSuspend(0, $timeout{'ai_clientSuspend'}{'timeout'});
@@ -7186,6 +7195,8 @@ sub map_changed {
 	$char->{pos_to} = {%coords};
 	$char->{time_move} = 0;
 	$char->{time_move_calc} = 0;
+	$char->{solution} = [];
+	push(@{$char->{solution}}, { x => $char->{pos}{x}, y => $char->{pos}{y} });
 
 	undef $conState_tries;
 	main::initMapChangeVars();
@@ -10982,19 +10993,17 @@ sub monster_ranged_attack {
 	my %coords2;
 	$coords2{x} = $args->{targetX};
 	$coords2{y} = $args->{targetY};
-
+	
 	my $monster = $monstersList->getByID($ID);
 	if ($monster) {
-		$monster->{pos} = {%coords1};
-		$monster->{pos_to} = {%coords1};
-		$monster->{time_move} = time;
-		$monster->{time_move_calc} = 0;
+		$monster->{movetoattack_pos} = {%coords1};
+		$monster->{movetoattack_time} = time;
 	}
-	$char->{pos} = {%coords2};
-	$char->{pos_to} = {%coords2};
-	$char->{time_move} = time;
-	$char->{time_move_calc} = 0;
-	debug "Received Failed to attack target - you: $coords2{x},$coords2{y} - monster: $coords1{x},$coords1{y} - range $range\n", "parseMsg_move", 2;
+	$char->{movetoattack_pos} = {%coords2};
+	$char->{movetoattack_time} = time;
+	warning "Received Failed to attack target - you: $coords2{x},$coords2{y} - monster: $coords1{x},$coords1{y} - range $range\n", "parseMsg_move";
+
+	Plugins::callHook('monster_ranged_attack', {ID => $ID});
 }
 
 sub mvp_item {
