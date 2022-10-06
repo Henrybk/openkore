@@ -56,7 +56,7 @@ aggressiveAntiKS 0
 clientSight 22
 clientSight_removeBeyond 2
 
-lockMap pay_fild08
+lockMap pay_fild01
 lockMap_x
 lockMap_y
 lockMap_randX
@@ -114,8 +114,8 @@ statsAdd_over_99 1
 skillsAddAuto 1
 skillsAddAuto_list TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
 
-attackUpdateMonsterPos 1
-
+attackSendAttackWithMove 1
+attackUpdateMonsterPos 0
 
 # Poseidon Settings: https://openkore.com/wiki/Poseidon
 # They must be the same as Query Server config in Poseidon.txt
@@ -144,7 +144,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword beheemas
+adminPassword livoukac
 callSign
 commandPrefix ;
 callSignGM 0
@@ -581,7 +581,7 @@ equipAuto {
 	midHead
 	lowHead
 	leftHand
-	rightHand Main Gauche [3]
+	rightHand +7 Main Gauche [3]
 	leftAccessory
 	rightAccessory
 	robe
@@ -608,11 +608,11 @@ BetterSeller_on 1
 BetterSeller_minDistance 1
 BetterSeller_maxDistance 10
 
-autoRefine_on 1
-autoRefine_weaponLevel 1
-autoRefine_wantedRefine 7
-autoRefine_npc payon_in01 91 31
-autoRefine_commandOnSuccess eventMacro set_buyauto_refine
+autoRefine_on 0
+autoRefine_weaponLevel
+autoRefine_wantedRefine
+autoRefine_npc
+autoRefine_commandOnSuccess
 
 # Strawberry
 BetterSeller 578 {
@@ -956,15 +956,15 @@ BetterShopper {
 	commandAfterBuy
 }
 
-BetterShopper 1010 {
-	price 180
-	maxPrice 200
-	minInventoryAmount 6
-	minShopAmount 1
-	maxAmount 7
+BetterShopper {
+	price
+	maxPrice
+	minInventoryAmount
+	minShopAmount
+	maxAmount
 	fallbackNpcShop
-	fallbackNpcTalk payon_in01 84 26
-	fallbackNpcTSequence r0-amount-
+	fallbackNpcTalk
+	fallbackNpcTSequence
 	commandAfterBuy
 }
 

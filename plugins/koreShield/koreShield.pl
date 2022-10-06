@@ -200,6 +200,7 @@ sub AIpre_pingCheck {
 	return unless ($size);
 	return unless (timeOut($ping_last_time, $core_config{ping_timeout}));
 	return unless (!$core_config{ping_inLockOnly} || $field->baseName eq $config{'lockMap'});
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	foreach my $action_item (@ping_notWhileQueued) {
 		if (existsInList($action_item, AI::action())) {
 			return;
@@ -263,6 +264,7 @@ sub foresee_route_danger {
 
 sub foresee_map_danger {
 	my ($map) = @_;
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	if ($ping_dangerousMaps{$map}) {
 		my $relog_time = $core_config{ping_relogTime} || 110;# minutes
 		my $time = $ping_dangerousMaps{$map} + ($relog_time * 60);
@@ -270,7 +272,9 @@ sub foresee_map_danger {
 			error "...dangerous \n";
 			my $seed = $core_config{ping_relogTimeSeed} || 70;# minutes
 			$seed  = $seed * 60;
-			my $relog_time = ($time - time) + int(rand $seed);		
+			my $relog_time = ($time - time) + int(rand $seed);	
+
+			warning "Reloging foresee_map_danger.\n";			
 			relog($relog_time);
 			return;
 		} else {
@@ -291,6 +295,7 @@ sub detectGM_someonesMuted {
 
 sub detectGM_msg {
 	my ($caller, $args) = @_;
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	if ($args->{pubID} && isIn_Array(unpack("V",$args->{pubID}), \@{$core_databases{GMIDS}}) eq 1) {
 		error sprintf("Player de ID blacklisted %s falou em $caller! \n", unpack("V",$args->{pubID})), "koreShield_detect";
 		&core_eventsReaction($caller);
@@ -463,6 +468,7 @@ sub detectGM_analyseSkillCaster {
 }
 
 sub detectGM_analyseSkillCaster_isInsideSW {
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	return if ($core_config{disable} || $core_config{disable_detect});
 	my $skill_cast_pos = shift;
 	foreach my $monster (@{$monstersList->getItems()}) {
@@ -477,6 +483,7 @@ sub detectGM_analyseSkillCaster_isInsideSW {
 
 
 sub detectGM_analyseSkillCaster_isInsideSanctuary {
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	return if ($core_config{disable} || $core_config{disable_detect});
 	my $skill_cast_pos = shift;
 	foreach my $monster (@{$monstersList->getItems()}) {
@@ -512,6 +519,7 @@ sub detectGM_manner {
 
 sub detectGM_perfectHide {
 	return if ($core_config{disable} || $core_config{disable_detect} || !$core_config{detectGM_avoidPerfectHidden});
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	my ($caller, $args) = @_;
 	
 	# check sc_bomb_id_list
@@ -548,6 +556,7 @@ sub detectGM_perfectHide {
 # params: undef, undef, bus message (array of vars)
 sub bus_parseMsg {
 	return if ($core_config{disable} || $core_config{disable_core});
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	my (undef, undef, $msg) = @_;
 	return if (!$core_map);
 	if ($core_mapIP && $core_mapPort && ($msg->{messageID} eq BUS_KORESHIELD_MID_PING)) {
@@ -722,6 +731,7 @@ sub core_actorInfo {
 	my ($caller, $args) = @_;
 	
 	return unless $packetParser->changeToInGameState();
+	return if ($core_config{detectGM_notInTown} && $field->isCity());
 	
 	#'a4 v8 V v6 a4 a2 v2 C2 a6 C2 v'
 	#[qw(ID walk_speed opt1 opt2 option type hair_style weapon lowhead tick shield tophead midhead hair_color clothes_color head_dir guildID emblemID manner opt3 stance sex coords unknown1 unknown2 lv)]], #walking
@@ -1049,7 +1059,9 @@ sub core_eventsReaction {
 				#relog(999999999); # infinite?
 				#offlineMode();
 				AI::clear;
-				AI::state(AI::OFF);
+				warning "Reloging core_eventsReaction.\n";
+				Commands::run("relog 3600");
+				#AI::state(AI::OFF);
 				pushover($danger, sprintf("Mapa %s", ($field?$field->baseName:"Unknown")), 0);
 			} else {
 				Commands::run("c detected $danger");
@@ -1072,12 +1084,16 @@ sub core_eventsReaction {
 		if (!$core_config{testMode}) {
 			return if $shopstarted;
 			$relog_time += int(rand $seed) if (!$ifound);
+			
+			warning "Reloging core_eventsReaction 2.\n";
 			relog($relog_time);
 		} else {
 			Commands::run("c detected $danger");
 		}
 	} elsif ($danger eq 'broadcast_unknown') {
 		if (!$core_config{testMode}) {
+			
+			warning "Reloging core_eventsReaction 3.\n";
 			relog(1800000000); # 5h
 		} else {
 			Commands::run("c detected $danger");

@@ -357,7 +357,6 @@ Animal Poop 0 0 1
 1037 0 0 1 # Dragon Tail
 1055 0 0 1 # Earthworm Peeling
 1040 0 0 1 # Elder Pixie's Moustache
-1011 0 0 1 # Emveretarcon
 540 0 0 1 # Falcon Food
 1063 0 0 1 # Fang
 949 0 0 1 # Feather
@@ -1736,14 +1735,6 @@ Spearman Scroll 10 0 0 0
 1201 0 0 1 #Knife [3]
 13040 0 0 1 #Novice Cutter [3]
 2301 0 0 1 #Cotton Shirt
-517 30 1 0 #Meat
-501 0 1 0 #Red Potion
-502 0 1 0 #Orange Potion
-645 0 1 0 #Concentration Potion
-656 0 1 0 #Awakening Potion
-601 10 1 0 #Fly Wing
-602 2 1 0 #Butterfly Wing
-1010 7 1 0 #Phracon
 1058 0 1 0 #Moth Wings
 713 0 1 0 #Empty Bottle
 578 0 1 0 #Strawberry
@@ -1762,7 +1753,6 @@ Spearman Scroll 10 0 0 0
 1001 0 1 0 #Star Dust
 1002 0 1 0 #Iron Ore
 1003 0 1 0 #Coal
-984 0 1 0 #Oridecon
 985 0 1 0 #Elunium
 1061 0 1 0 #Witch Starsand
 644 0 1 0 #Gift Box
@@ -1788,3 +1778,13 @@ Spearman Scroll 10 0 0 0
 516 0 0 1 #Potato
 580 0 0 1 #Bread
 700 0 0 1 #Level 1 Frost Diver Scroll
+517 30 1 0 #Meat
+501 0 1 0 #Red Potion
+502 0 1 0 #Orange Potion
+645 0 1 0 #Concentration Potion
+656 0 1 0 #Awakening Potion
+601 10 1 0 #Fly Wing
+602 2 1 0 #Butterfly Wing
+1010 0 1 0 #Phracon
+1011 0 1 0 #Emveretarcon
+984 0 1 0 #Oridecon
