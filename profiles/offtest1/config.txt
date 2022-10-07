@@ -55,7 +55,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword kadubras
+adminPassword cocrotre
 callSign
 commandPrefix ;
 callSignGM 0
@@ -161,7 +161,8 @@ cachePlayerNames 1
 cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
-clientSight 15
+clientSight 22
+clientSight_removeBeyond 2
 
 dcPause 1
 dcOnDeath 0
@@ -560,7 +561,7 @@ npcWrongStepsMethod 3
 
 ######## Debugging options; only useful for developers ########
 
-debug 2
+debug 0
 debugPacket_unparsed 0
 debugPacket_received 0
 debugPacket_ro_sent 0
