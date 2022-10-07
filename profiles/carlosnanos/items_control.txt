@@ -1728,6 +1728,16 @@ Spearman Scroll 10 0 0 0
 1201 0 0 1 #Knife [3]
 13040 0 0 1 #Novice Cutter [3]
 2301 0 0 1 #Cotton Shirt
+1207 0 0 1 #Main Gauche [3]
+1216 1 0 1 #Stiletto [2]
+2305 0 0 1 #Adventurer's Suit
+2339 1 0 1 #Pantie
+2501 0 0 1 #Hood
+2503 0 0 1 #Muffler
+2522 1 0 1 #Undershirt
+2401 0 0 1 #Sandals
+2403 0 0 1 #Shoes
+2405 1 0 1 #Boots
 1058 0 1 0 #Moth Wings
 713 0 1 0 #Empty Bottle
 578 0 1 0 #Strawberry
@@ -1771,19 +1781,9 @@ Spearman Scroll 10 0 0 0
 516 0 0 1 #Potato
 580 0 0 1 #Bread
 700 0 0 1 #Level 1 Frost Diver Scroll
-1207 0 0 1 #Main Gauche [3]
-1216 1 0 1 #Stiletto [2]
-2305 0 0 1 #Adventurer's Suit
-2339 1 0 1 #Pantie
-2501 0 0 1 #Hood
-2503 0 0 1 #Muffler
-2522 1 0 1 #Undershirt
-2401 0 0 1 #Sandals
-2403 0 0 1 #Shoes
-2405 1 0 1 #Boots
 2211 0 0 1 #Bandana
 5037 1 0 0 #Fruit Peel
-517 30 1 0 #Meat
+517 50 1 0 #Meat
 501 0 1 0 #Red Potion
 502 30 1 0 #Orange Potion
 645 4 1 0 #Concentration Potion

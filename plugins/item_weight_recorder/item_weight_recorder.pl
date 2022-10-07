@@ -80,7 +80,7 @@ sub setLoad {
 	my $filename = shift;
 	my $handle = Settings::addTableFile(
 		$filename,
-		loader => [ \&FileParsers::parseDataFile2, $item_weights ],
+		loader => [ \&parseItemWeights, $item_weights ],
 		internalName => $filename,
 		mustExist => 0
 	);
@@ -144,6 +144,36 @@ sub onItemUsed {
 	$inventory_changes++;
 }
 
+sub parseItemWeights {
+	my ($file, $r_hash) = @_;
+
+	%{$r_hash} = ();
+	my $reader = new Utils::TextReader($file);
+	while (!$reader->eof()) {
+		my $line = $reader->readLine();
+		$line =~ s/\s+#.*$//os;      # remove last comments
+		$line =~ s/^\s+|\s+$//gos;   # trim leading and trailing whitespace
+		$line =~ s/  +/ /g;          # trim down spaces - very cool for user's string data?
+		$line =~ s/[\r\n]//g;
+		next if ($line =~ /^#/ || $line eq '');
+		next unless ($line);
+
+		my ($key, $value) = split(/\s+/, $line, 2);
+		if ($key !~ /^\d+$/) {
+			Log::error "Parse Items Weight key '$key' is not numerical.\n";
+			next;
+		}
+		if ($value !~ /^\d+$/) {
+			Log::error "Parse Items Weight value '$value' is not numerical.\n";
+			next;
+		}
+		$r_hash->{$key} = $value;
+	}
+	close FILE;
+
+	return 1;
+}
+
 ## write FILE
 sub filewrite {
 	my ($file, $key, $value, $name) = @_;
@@ -169,7 +199,7 @@ sub filewrite {
 			$what = lc($what);
 			my $tmp;
 			if ($what == $key) {
-				debug "Found old in line $index: $line\n";
+				warning "[ItemWeightRecorder] Replacing: Found old in line $index: $line\n";
 			} else {
 				push (@new_lines, $line);
 			}
@@ -177,9 +207,9 @@ sub filewrite {
 			$index++;
 		}
 		
-		my $new_value = $key.' '.$value. " # ". $name;
+		my $new_value = $key." ".$value. " # ". $name."\n";
 		
-		debug "New record in line $index: $new_value\n";
+		warning "New record in line $index: $new_value\n";
 		
 		push (@new_lines, $new_value);
 	

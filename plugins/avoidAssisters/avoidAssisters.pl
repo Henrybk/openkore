@@ -54,7 +54,7 @@ sub on_checkMonsterAutoAttack {
 	}
 	
 	if ($count > $assisters_max{$args->{monster}->{nameID}}) {
-		warning "Dropping target ".$args->{monster}." because it has ".$count." assisters and the max allowed is ".$assisters_max{$args->{monster}->{nameID}}.".\n";
+		debug "Dropping target ".$args->{monster}." because it has ".$count." assisters and the max allowed is ".$assisters_max{$args->{monster}->{nameID}}.".\n";
 		$args->{return} = 0;
 	}
 }
