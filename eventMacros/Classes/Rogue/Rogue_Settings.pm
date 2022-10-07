@@ -289,7 +289,7 @@ macro set_Pantie {
 macro set_shoes {
 	[
 	$Item1 = Sandals
-	$Item2 = Shoes
+	$Item2 = Shoes0
 	$Item3 = Boots
 	$itemAmount = 3
 	]
@@ -310,9 +310,9 @@ macro set_Sandals {
 	]
 }
 
-macro set_Shoes {
+macro set_Shoes0 {
 	[
-	$item{name} = Shoes
+	$item{name} = Shoes0
 	$item{id} = 2403
 	$item{slot} = shoes
 	$item{buytype} = fallback

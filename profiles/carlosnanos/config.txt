@@ -53,7 +53,9 @@ attackLooters 0
 attackChangeTarget 1
 aggressiveAntiKS 0
 
-clientSight 22
+# Note: clientSight must be set to the first distance which you cannot see the actor.
+# Example: If you can see npcs from 14 cells away, but not at 15 cells away, then you must set clientSight to 15
+clientSight 23
 clientSight_removeBeyond 2
 
 lockMap pay_fild01
@@ -144,7 +146,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword swigetwu
+adminPassword leaclola
 callSign
 commandPrefix ;
 callSignGM 0
@@ -584,9 +586,9 @@ equipAuto {
 	rightHand +6 Stiletto [2]
 	leftAccessory
 	rightAccessory
-	robe Muffler
+	robe Undershirt
 	armor Pantie
-	shoes
+	shoes Boots
 	arrow
 	weight 0
 	whileSitting 0
@@ -886,13 +888,13 @@ attackSkillSlot {
 	target_notCoinStolen
 }
 
-attackSkillSlot {
-	lvl
-	sp
-	maxUses
-	timeout
-	maxAttempts
-	disabled
+attackSkillSlot TF_STEAL {
+	lvl 7
+	sp > 10
+	maxUses 1
+	timeout 1
+	maxAttempts 2
+	disabled 0
 	target_notCoinStolen
 }
 

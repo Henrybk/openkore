@@ -59,7 +59,6 @@ all 0 1 0
 # Worthless gears which are sold by default
 
 Biretta 0 0 1 # 2217
-Boots 0 0 1 # 2405
 Buckler 0 0 1 # 2103
 Cap 0 0 1 # 2227
 Chain Mail 0 0 1 # 2314
@@ -1777,7 +1776,11 @@ Spearman Scroll 10 0 0 0
 2305 0 0 1 #Adventurer's Suit
 2339 1 0 1 #Pantie
 2501 0 0 1 #Hood
-2503 1 0 1 #Muffler
+2503 0 0 1 #Muffler
+2522 1 0 1 #Undershirt
+2401 0 0 1 #Sandals
+2403 0 0 1 #Shoes
+2405 1 0 1 #Boots
 2211 0 0 1 #Bandana
 5037 1 0 0 #Fruit Peel
 517 30 1 0 #Meat

@@ -17,34 +17,41 @@ use constant {
 	ENABLE_REMOVE => 1,
 };
 
+use constant {
+	ENABLE_AVOID_MONSTERS => 1,
+	ENABLE_AVOID_PLAYERS => 0,
+	ENABLE_AVOID_AREASPELLS => 0,
+	ENABLE_AVOID_PORTALS => 0,
+};
+
 my $hooks = Plugins::addHooks(
-	['PathFindingReset', \&on_PathFindingReset, undef], # Changes args
-	['AI_pre/manual', \&on_AI_pre_manual, undef],    # Recalls routing
-	['packet_mapChange', \&on_packet_mapChange, undef],
+	['PathFindingReset', \&on_PathFindingReset], # Changes args
+	['AI_pre/manual', \&on_AI_pre_manual],    # Recalls routing
+	['packet_mapChange', \&on_packet_mapChange],
 );
 
 my $obstacle_hooks = Plugins::addHooks(
 	# Mobs
-	['add_monster_list', \&on_add_monster_list, undef],
-	['monster_disappeared', \&on_monster_disappeared, undef],
-	['monster_moved', \&on_monster_moved, undef],
+	['add_monster_list',	\&on_add_monster_list],
+	['monster_disappeared', \&on_monster_disappeared],
+	['monster_moved',		\&on_monster_moved],
 	
 	# Players
-	['add_player_list', \&on_add_player_list, undef],
-	['player_disappeared', \&on_player_disappeared, undef],
-	['player_moved', \&on_player_moved, undef],
+	['add_player_list',		\&on_add_player_list],
+	['player_disappeared',	\&on_player_disappeared],
+	['player_moved',		\&on_player_moved],
 	
 	# Spells
-	['packet_areaSpell', \&on_add_areaSpell_list, undef],
-	['packet_pre/area_spell_disappears', \&on_areaSpell_disappeared, undef],
+	['packet_areaSpell',				\&on_add_areaSpell_list],
+	['packet_pre/area_spell_disappears', \&on_areaSpell_disappeared],
 	
 	# portals
-	#['add_portal_list', \&on_add_portal_list, undef],
-	#['portal_disappeared', \&on_portal_disappeared, undef],
+	['add_portal_list',		\&on_add_portal_list],
+	['portal_disappeared',	\&on_portal_disappeared],
 );
 
 my $mobhooks = Plugins::addHooks(
-	['checkMonsterAutoAttack', \&on_checkMonsterAutoAttack, undef],
+	['checkMonsterAutoAttack',	\&on_checkMonsterAutoAttack],
 );
 
 sub onUnload {
@@ -56,7 +63,9 @@ sub onUnload {
 my %mob_nameID_obstacles = (
 	1368 => { # planta carnivora
 		weight => 2000,
-		dist => 12
+		dist => 12,
+		drop_target_near => 1,
+		drop_dest_near => 1,
 	}
 );
 
@@ -70,7 +79,7 @@ my %area_spell_type_obstacles = (
 
 my %portals_obstacles = (
 	weight => 1000,
-	dist => 10
+	dist => 10,
 );
 
 my %obstaclesList;
@@ -80,8 +89,6 @@ my %removed_obstacle_still_in_list;
 my $mustRePath = 0;
 
 my $weight_limit = 65000;
-
-my $avoidGeographerID = 1368;
 
 my $teleport_soon = 0;
 my $teleport_soon_timeout;
@@ -95,33 +102,35 @@ sub on_checkMonsterAutoAttack {
 	my (undef, $args) = @_;
 	
 	my $realMonsterPos = calcPosition($args->{monster});
-	my $geo = is_there_a_geo_near_pos($realMonsterPos);
-	if (defined $geo) {
-		debug "[avoidGeographer 2] Not picking target ".$args->{monster}." because there is a Geographer outside the screen nearby.\n";
+	my $obstacle = is_there_an_obstacle_near_pos($realMonsterPos, 1);
+	if (defined $obstacle) {
+		debug "[avoidObstacle 2] Not picking target ".$args->{monster}." because there is an Obstacle outside the screen nearby.\n";
 		$args->{return} = 0;
 		return;
 	}
 }
 
-sub is_there_a_geo_near_pos {
-	my ($pos) = @_;
+# 1 => target
+# 2 => dest
+sub is_there_an_obstacle_near_pos {
+	my ($pos, $type) = @_;
 	foreach my $obstacle_ID (keys %obstaclesList) {
 		my $obstacle = $obstaclesList{$obstacle_ID};
-		next unless ($obstacle->{type} eq 'monster');
-		next unless ($obstacle->{nameID} == $avoidGeographerID);
 		
-		my $obstacle_last_pos = $obstacle->{pos_to};
+		if (($type == 1 && $obstacle->{drop_target_near} == 1) || ($type == 2 && $obstacle->{drop_dest_near} == 1)) {
+			my $obstacle_last_pos = $obstacle->{pos_to};
 		
-		my $dist = blockDistance($pos, $obstacle_last_pos);
-		my $min_geo_dist = 13;
-		next unless ($dist <= $min_geo_dist);
-		
-		return 1;
+			my $dist = blockDistance($pos, $obstacle_last_pos);
+			my $min_dist = 13;#TODO config this
+			next unless ($dist <= $min_dist);
+			
+			return 1;
+		}
 	}
 	return undef;
 }
 
-sub on_AI_pre_manual_drop_near_geo {
+sub on_AI_pre_manual_drop_target_near_Obstacle {
 	my @obstacles = keys(%obstaclesList);
 	return unless (@obstacles > 0);
 	if (
@@ -151,18 +160,18 @@ sub on_AI_pre_manual_drop_near_geo {
 		
 		my $realMonsterPos = calcPosition($target);
 		
-		my $geo = is_there_a_geo_near_pos($realMonsterPos);
+		my $obstacle = is_there_an_obstacle_near_pos($realMonsterPos, 1);
 		
-		if (defined $geo) {
+		if (defined $obstacle) {
 			#$char->sendAttackStop;
 			if ($target_is_aggressive) {
-				warning "[avoidGeographer 3] Dropping agressive target ".$target." during attack because a geographer appeared near it.\n";
+				warning "[avoidObstacle 3] Dropping agressive target ".$target." during attack because an Obstacle appeared near it.\n";
 				$teleport_soon = 1;
 				$teleport_soon_timeout->{time} = time;
 				$teleport_soon_timeout->{timeout} = 0.8;
 				
 			} else {
-				warning "[avoidGeographer 4] Dropping target ".$target." before attack because a geographer appeared near it.\n";
+				warning "[avoidObstacle 4] Dropping target ".$target." before attack because an Obstacle appeared near it.\n";
 				AI::dequeue while (AI::inQueue("attack"));
 			}
 		}
@@ -176,7 +185,7 @@ sub on_AI_pre_manual_teleport_soon {
 	useTeleport(1);
 }
 
-sub on_AI_pre_manual_drop_route_near_geo {
+sub on_AI_pre_manual_drop_route_dest_near_Obstacle {
 	my @obstacles = keys(%obstaclesList);
 	return unless (@obstacles > 0);
 	
@@ -198,9 +207,9 @@ sub on_AI_pre_manual_drop_route_near_geo {
 	
 	return unless ($task->{isRandomWalk} || ($task->{isToLockMap} && $field->baseName eq $config{'lockMap'}));
 	
-	my $geo = is_there_a_geo_near_pos($task->{dest}{pos});
-	if (defined $geo) {
-		warning "[avoidGeographer 5] Dropping current route dest because a geographer appeared near it.\n";
+	my $obstacle = is_there_an_obstacle_near_pos($task->{dest}{pos}, 2);
+	if (defined $obstacle) {
+		warning "[avoidObstacle 5] Dropping current route dest because an Obstacle appeared near it.\n";
 		AI::clear("move", "route");
 	}
 }
@@ -230,7 +239,25 @@ sub add_obstacle {
 		$obstaclesList{$actor->{ID}}{nameID} = $actor->{nameID};
 	}
 	
+	define_extras($actor->{ID}, $obstacle);
+	
 	$mustRePath = 1;
+}
+
+sub define_extras {
+	my ($ID, $obstacle) = @_;
+	
+	if (exists $obstacle->{drop_target_near} && defined $obstacle->{drop_target_near} && $obstacle->{drop_target_near} == 1) {
+		$obstaclesList{$ID}{drop_target_near} = 1;
+	} else {
+		$obstaclesList{$ID}{drop_target_near} = 0;
+	}
+	
+	if (exists $obstacle->{drop_dest_near} && defined $obstacle->{drop_dest_near} && $obstacle->{drop_dest_near} == 1) {
+		$obstaclesList{$ID}{drop_dest_near} = 1;
+	} else {
+		$obstaclesList{$ID}{drop_dest_near} = 0;
+	}
 }
 
 sub move_obstacle {
@@ -269,9 +296,9 @@ sub remove_obstacle {
 ###################################################
 
 sub on_AI_pre_manual {
-	on_AI_pre_manual_drop_near_geo();
+	on_AI_pre_manual_drop_target_near_Obstacle();
 	on_AI_pre_manual_teleport_soon();
-	on_AI_pre_manual_drop_route_near_geo();
+	on_AI_pre_manual_drop_route_dest_near_Obstacle();
 	on_AI_pre_manual_removed_obstacle_still_in_list();
 	on_AI_pre_manual_repath();
 }
@@ -528,6 +555,7 @@ sub sum_all_changes {
 ###################################################
 
 sub on_add_player_list {
+	return unless (ENABLE_AVOID_PLAYERS);
 	my (undef, $args) = @_;
 	my $actor = $args;
 	
@@ -539,6 +567,7 @@ sub on_add_player_list {
 }
 
 sub on_player_moved {
+	return unless (ENABLE_AVOID_PLAYERS);
 	my (undef, $args) = @_;
 	my $actor = $args;
 	
@@ -550,6 +579,7 @@ sub on_player_moved {
 }
 
 sub on_player_disappeared {
+	return unless (ENABLE_AVOID_PLAYERS);
 	my (undef, $args) = @_;
 	my $actor = $args->{player};
 	
@@ -563,6 +593,7 @@ sub on_player_disappeared {
 ###################################################
 
 sub on_add_monster_list {
+	return unless (ENABLE_AVOID_MONSTERS);
 	my (undef, $args) = @_;
 	my $actor = $args;
 	
@@ -574,6 +605,7 @@ sub on_add_monster_list {
 }
 
 sub on_monster_moved {
+	return unless (ENABLE_AVOID_MONSTERS);
 	my (undef, $args) = @_;
 	my $actor = $args;
 
@@ -585,6 +617,7 @@ sub on_monster_moved {
 }
 
 sub on_monster_disappeared {
+	return unless (ENABLE_AVOID_MONSTERS);
 	my (undef, $args) = @_;
 	my $actor = $args->{monster};
 	
@@ -607,6 +640,7 @@ sub on_monster_disappeared {
 # TODO: Add fail flag check
 
 sub on_add_areaSpell_list {
+	return unless (ENABLE_AVOID_AREASPELLS);
 	my (undef, $args) = @_;
 	my $ID = $args->{ID};
 	my $spell = $spells{$ID};
@@ -619,6 +653,7 @@ sub on_add_areaSpell_list {
 }
 
 sub on_areaSpell_disappeared {
+	return unless (ENABLE_AVOID_AREASPELLS);
 	my (undef, $args) = @_;
 	my $ID = $args->{ID};
 	my $spell = $spells{$ID};
@@ -633,6 +668,7 @@ sub on_areaSpell_disappeared {
 ###################################################
 
 sub on_add_portal_list {
+	return unless (ENABLE_AVOID_PORTALS);
 	my (undef, $args) = @_;
 	my $actor = $args;
 	
@@ -640,6 +676,7 @@ sub on_add_portal_list {
 }
 
 sub on_portal_disappeared {
+	return unless (ENABLE_AVOID_PORTALS);
 	my (undef, $args) = @_;
 	my $actor = $args->{portal};
 	

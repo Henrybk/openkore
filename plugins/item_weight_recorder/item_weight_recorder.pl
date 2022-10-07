@@ -28,12 +28,12 @@ our $last_weight;
 
 Plugins::register( $name, "$name plugin", \&Unload, \&Unload );
 
-my $hooks = Plugins::addHooks(    #
-	[ 'get_item_weight'             => \&onGetItemWeight ],
-	[ 'packet/inventory_item_added' => \&onInventoryItemAdded ],
-	[ 'inventory_item_removed'      => \&onInventoryItemRemoved ],
-	[ 'packet/stat_info'            => \&onStatInfo ],
-	[ 'packet/item_used'            => \&onItemUsed ],
+my $hooks = Plugins::addHooks(
+	[ 'get_item_weight'				=> \&onGetItemWeight ],
+	[ 'packet/inventory_item_added'	=> \&onInventoryItemAdded ],
+	[ 'inventory_item_removed'		=> \&onInventoryItemRemoved ],
+	[ 'packet/stat_info'			=> \&onStatInfo ],
+	[ 'packet/item_used'			=> \&onItemUsed ],
 );
 
 my $commands_hooks = Commands::register(
@@ -126,8 +126,10 @@ sub onStatInfo {
 	if ( $inventory_changes == 1 && defined $last_weight && !Utils::timeOut( $last_item->{time}, 1 ) ) {
 		my $weight = abs( $args->{val} - $last_weight ) / $last_item->{amount};
 		if ( !exists $item_weights->{ $last_item->{item_id} } || $item_weights->{ $last_item->{item_id} } != $weight ) {
+			my $last_weight = (exists $item_weights->{ $last_item->{item_id} }) ? $item_weights->{ $last_item->{item_id} } : "not defined";
+			Log::warning( sprintf( "Item [%s] (%d) has weight*10 %d | before was %s.\n", Misc::itemNameSimple($last_item->{item_id}), $last_item->{item_id}, $weight, $last_weight ), $name );
 			$item_weights->{ $last_item->{item_id} } = $weight;
-			Log::warning( sprintf( "Item [%s] (%d) has weight %d (/10).\n", Misc::itemNameSimple($last_item->{item_id}), $last_item->{item_id}, $weight ), $name );
+			
 			filewrite( $filename, $last_item->{item_id}, $weight, Misc::itemNameSimple($last_item->{item_id}) );
 		}
 	}
@@ -139,7 +141,7 @@ sub onStatInfo {
 # The packet sequence here is: weight, item_used, inventory_removed.
 # Ignore the next inventory change to avoid a false positive.
 sub onItemUsed {
-    $inventory_changes++;
+	$inventory_changes++;
 }
 
 ## write FILE
