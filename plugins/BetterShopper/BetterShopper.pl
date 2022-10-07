@@ -1276,13 +1276,6 @@ sub AI_pre_buying {
 			next unless ($config{$item_prefix."_maxAmount"} ne "" && defined $config{$item_prefix."_maxAmount"});
 			my $maxAmount = $config{$item_prefix."_maxAmount"};
 			
-			#warning "[Better Test] (".GetItemName($itemID).") 2 - char_total $char_total | min $minInventoryAmount | max $maxAmount\n";
-			if (exists $last_recv_seller_query_time{$itemID}) {
-				#warning "[Better Test] (".GetItemName($itemID).") 21 - Exists\n";
-				if (!main::timeOut($last_recv_seller_query_time{$itemID}, 60)) {
-					#warning "[Better Test] (".GetItemName($itemID).") 22 - Recent\n";
-				}
-			}
 			if (
 				(checkSelfCondition($item_prefix)) &&
 				$char_total <= $minInventoryAmount &&
@@ -1320,7 +1313,7 @@ sub AI_pre_buying {
 				} elsif ($config{$item_prefix."_fallbackNpcTalk"}) {
 					my $price_per_amount = $config{$item_prefix."_price"};
 					my $total_price = $price_per_amount * $amount_need_buy;
-					warning "[Better Test fallbackNpcTalk] (".GetItemName($itemID).") - char->{zeny} $char->{zeny} | total_price $total_price\n";
+					#warning "[Better Test fallbackNpcTalk] (".GetItemName($itemID).") - char->{zeny} $char->{zeny} | total_price $total_price\n";
 					if ($char->{zeny} >= $total_price) {
 						if (!exists $shopper_npcTalk_fallback_items{$itemID}) {
 							$shopper_npcTalk_fallback_items{$itemID}{'index'} = $i;
@@ -1357,6 +1350,7 @@ sub AI_pre_buying {
 		delete $last_recv_seller_query_time{$prefix} if (exists $last_recv_seller_query_time{$prefix});
 		unshift(@sellers_query_queue, $prefixN);
 		
+		return unless (defined $args->{command});
 		Log::warning "[".PLUGIN_NAME."] Running command on end: '$args->{command}'\n";
 		Commands::run($args->{command}) if (defined $args->{command});
 
@@ -1759,6 +1753,7 @@ sub AI_pre_fallback {
 		# Shopping_fallBack finished
 		AI::dequeue while AI::inQueue("Shopping_fallBack");
 		
+		return unless (defined $args->{command});
 		Log::warning "[".PLUGIN_NAME."] Running command on end: '$args->{command}'\n";
 		Commands::run($args->{command}) if (defined $args->{command});
 
@@ -2096,6 +2091,7 @@ sub AI_pre_Talk_fallback {
 		# Shopping_Talk_fallBack finished
 		AI::dequeue while AI::inQueue("Shopping_Talk_fallBack");
 		
+		return unless (defined $args->{command});
 		Log::warning "[".PLUGIN_NAME."] Running command on end: '$args->{command}'\n";
 		Commands::run($args->{command}) if (defined $args->{command});
 
@@ -2344,8 +2340,8 @@ sub AI_pre_autoRefine {
 		# autoRefine finished
 		AI::dequeue while AI::inQueue("autoRefine");
 		
-		my $prefix = 'autoRefine';
-		Log::warning "[$prefix] Running command on end: '$args->{command}'\n";
+		return unless (defined $args->{command});
+		Log::warning "[autoRefine] Running command on end: '$args->{command}'\n";
 		Commands::run($args->{command}) if (defined $args->{command});
 
 	} elsif ($char->inventory->isReady() && AI::action eq "autoRefine" && timeOut($timeout{ai_autoRefine_wait}, $timeout{ai_buyAuto_wait}{timeout})) {

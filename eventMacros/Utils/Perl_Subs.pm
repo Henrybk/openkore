@@ -1231,14 +1231,14 @@ macro set_BetterBuy_refine {
 
 macro set_Phracon {
 	[
-	call set_BetterbuyAuto_item_refineNPC 1010 180 200 $needRefineCount payon_in01-84-26 r0-amount-
+	call set_BetterbuyAuto_item_refineNPC 1010 200 180 $needRefineCount payon_in01-84-26 r0-amount-
 	do iconf 1010 $needRefineCount 1 0
 	]
 }
 
 macro set_Emveretarcon {
 	[
-	call set_BetterbuyAuto_item_refineNPC 1011 800 1000 $needRefineCount payon_in01-84-26 r1-amount-
+	call set_BetterbuyAuto_item_refineNPC 1011 1000 800 $needRefineCount payon_in01-84-26 r1-amount-
 	do iconf 1011 $needRefineCount 1 0
 	]
 }

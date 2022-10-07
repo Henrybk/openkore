@@ -63,7 +63,7 @@ lockMap_randX
 lockMap_randY
 
 saveMap oldnewpayon
-saveMap_warpToBuyOrSell 0
+saveMap_warpToBuyOrSell 1
 saveMap_warpChatCommand
 memo1
 memo2
@@ -144,7 +144,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword livoukac
+adminPassword swigetwu
 callSign
 commandPrefix ;
 callSignGM 0
@@ -577,15 +577,15 @@ logToFile_Warnings
 history_max 50
 
 equipAuto {
-	topHead
+	topHead Bandana
 	midHead
 	lowHead
 	leftHand
-	rightHand +7 Main Gauche [3]
+	rightHand +6 Stiletto [2]
 	leftAccessory
 	rightAccessory
-	robe
-	armor
+	robe Muffler
+	armor Pantie
 	shoes
 	arrow
 	weight 0
@@ -852,16 +852,16 @@ useSelf_item {
 	timeout 0
 }
 
-useSelf_item {
-	disabled
-	whenStatusInactive
-	inLockOnly
-	notWhileSitting
-	timeout 0
+useSelf_item Concentration Potion {
+	disabled 0
+	whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+	inLockOnly 1
+	notWhileSitting 1
+	timeout 5
 }
 
-useSelf_item {
-	disabled
+useSelf_item Orange Potion {
+	disabled 0
 	whenStatusInactive
 	inLockOnly
 	notWhileSitting
@@ -920,16 +920,16 @@ BetterShopper {
 	commandAfterBuy
 }
 
-BetterShopper {
+BetterShopper 5037 {
 	price
-	maxPrice
-	minInventoryAmount
-	minShopAmount
-	maxAmount
+	maxPrice 8000
+	minInventoryAmount 0
+	minShopAmount 1
+	maxAmount 1
 	fallbackNpcShop
 	fallbackNpcTalk
 	fallbackNpcTSequence
-	commandAfterBuy
+	commandAfterBuy eventMacro set_buyauto_topHead
 }
 
 BetterShopper {
@@ -944,25 +944,25 @@ BetterShopper {
 	commandAfterBuy
 }
 
-BetterShopper {
-	price
-	maxPrice
-	minInventoryAmount
-	minShopAmount
-	maxAmount
-	fallbackNpcShop
+BetterShopper 645 {
+	price 800
+	maxPrice 760
+	minInventoryAmount 0
+	minShopAmount 4
+	maxAmount 4
+	fallbackNpcShop oldnewpayon 69 117
 	fallbackNpcTalk
 	fallbackNpcTSequence
 	commandAfterBuy
 }
 
-BetterShopper {
-	price
-	maxPrice
-	minInventoryAmount
-	minShopAmount
-	maxAmount
-	fallbackNpcShop
+BetterShopper 502 {
+	price 200
+	maxPrice 190
+	minInventoryAmount 5
+	minShopAmount 30
+	maxAmount 30
+	fallbackNpcShop oldnewpayon 69 117
 	fallbackNpcTalk
 	fallbackNpcTSequence
 	commandAfterBuy
@@ -972,8 +972,8 @@ BetterShopper 602 {
 	price 300
 	maxPrice 285
 	minInventoryAmount 0
-	minShopAmount 2
-	maxAmount 2
+	minShopAmount 5
+	maxAmount 5
 	fallbackNpcShop oldnewpayon 69 117
 	fallbackNpcTalk
 	fallbackNpcTSequence
@@ -1042,3 +1042,4 @@ saveMap_save_sequence r~/Save/i
 
 useSelf_item_0_hp < 70%
 useSelf_item_5_hp < 60%
+useSelf_item_4_hp < 50%

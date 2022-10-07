@@ -58,7 +58,6 @@ all 0 1 0
 ##### WORTHLESS GEARS #####
 # Worthless gears which are sold by default
 
-Bandana 0 0 1 # 2211
 Biretta 0 0 1 # 2217
 Boots 0 0 1 # 2405
 Buckler 0 0 1 # 2103
@@ -90,8 +89,6 @@ Mantle 0 0 1 # 2307
 "Mantle [1]" 0 0 1 # 2308
 Mirror Shield 0 0 1 # 2107
 Mr. Smile 0 0 1 # 2278
-Muffler 0 0 1 # 2503
-Pantie 0 0 1 # 2371
 Ribbon 0 0 1 # 2208
 "Ribbon [1]" 0 0 1 # 2209
 Rosary 0 0 1 # 2840
@@ -251,7 +248,6 @@ Spear 0 0 1 # 1406
 Staff 0 0 1 # 1609
 "Staff [2]" 0 0 1 # 1607
 Stiletto 0 0 1 # 1218
-"Stiletto [2]" 0 0 1 # 1216
 "Stiletto [3]" 0 0 1 # 1217
 "Studded Knuckles [2]" 0 0 1 # 1805
 "Studded Knuckles [3]" 0 0 1 # 1806
@@ -417,7 +413,6 @@ Animal Poop 0 0 1
 1022 0 0 1 # Nine Tails
 960 0 0 1 # Nipper
 941 0 0 1 # Nose Ring
-5037 0 0 1 # Nut Shell
 7002 0 0 1 # Ogre Tooth
 7151 0 0 1 # Oil Paper
 7031 0 0 1 # Old Frying Pan
@@ -1725,7 +1720,6 @@ Spearman Scroll 10 0 0 0
 7060 50 0 0 #Free Ticket for Kafra Transportation
 13041 0 0 0 #Novice Main Gauche [3]
 2393 0 0 0 #Novice Adventurer's Suit [1]
-1207 1 0 0 #Main Gauche [3]
 1243 0 0 1 #Novice Main-Gauche
 2112 0 0 1 #Novice Guard
 5055 0 0 1 #Novice False Eggshell
@@ -1778,13 +1772,21 @@ Spearman Scroll 10 0 0 0
 516 0 0 1 #Potato
 580 0 0 1 #Bread
 700 0 0 1 #Level 1 Frost Diver Scroll
+1207 0 0 1 #Main Gauche [3]
+1216 1 0 1 #Stiletto [2]
+2305 0 0 1 #Adventurer's Suit
+2339 1 0 1 #Pantie
+2501 0 0 1 #Hood
+2503 1 0 1 #Muffler
+2211 0 0 1 #Bandana
+5037 1 0 0 #Fruit Peel
 517 30 1 0 #Meat
 501 0 1 0 #Red Potion
-502 0 1 0 #Orange Potion
-645 0 1 0 #Concentration Potion
+502 30 1 0 #Orange Potion
+645 4 1 0 #Concentration Potion
 656 0 1 0 #Awakening Potion
 601 10 1 0 #Fly Wing
-602 2 1 0 #Butterfly Wing
+602 5 1 0 #Butterfly Wing
 1010 0 1 0 #Phracon
 1011 0 1 0 #Emveretarcon
 984 0 1 0 #Oridecon
