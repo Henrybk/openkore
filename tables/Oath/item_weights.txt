@@ -7257,9 +7257,5 @@
 28901 100
 28902 100
 28910 800
-8164 10 #Cellular Structure
-8081 150 #Tuna
-12323 0 # [NotForSale] Novice Fly Wing
-569 1 # Novice Potion
+8081 150 # Tuna
 8075 120 # Manju Bun
-7059 0 # Free Ticket for Kafra Storage

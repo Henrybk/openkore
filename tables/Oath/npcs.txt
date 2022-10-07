@@ -269,3 +269,7 @@ pay_arche 39 134 Bulletin Board#08
 pay_arche 52 145 Linus#hw2021
 oldnewpayon 125 154 Hair Stylist#pay
 oldnewpayon 124 147 Clothes Designer#pay
+oldnewpayon 87 159 Promotions#pront
+oldnewpayon 79 163 Skoegul Flag
+oldnewpayon 82 169 Repherion Flag
+oldnewpayon 86 168 Palace Guardsman#2np
