@@ -53,7 +53,7 @@ attackLooters 0
 attackChangeTarget 1
 aggressiveAntiKS 0
 
-clientSight 22
+clientSight 23
 clientSight_removeBeyond 2
 
 lockMap
