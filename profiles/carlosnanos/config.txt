@@ -846,12 +846,12 @@ useSelf_item {
 	timeout 0
 }
 
-useSelf_item {
-	disabled
-	whenStatusInactive
-	inLockOnly
-	notWhileSitting
-	timeout 0
+useSelf_item Awakening Potion {
+	disabled 0
+	whenStatusInactive EFST_ATTHASTE_POTION1,EFST_ATTHASTE_POTION2
+	inLockOnly 1
+	notWhileSitting 1
+	timeout 5
 }
 
 useSelf_item Concentration Potion {
@@ -889,7 +889,7 @@ attackSkillSlot {
 }
 
 attackSkillSlot TF_STEAL {
-	lvl 8
+	lvl 9
 	sp > 10
 	maxUses 1
 	timeout 1
@@ -946,9 +946,9 @@ BetterShopper {
 	commandAfterBuy
 }
 
-BetterShopper 645 {
-	price 800
-	maxPrice 760
+BetterShopper 656 {
+	price 1500
+	maxPrice 1400
 	minInventoryAmount 0
 	minShopAmount 4
 	maxAmount 4
