@@ -395,7 +395,7 @@ sub main {
 		&& !$args->{needReajust}
 	) {
 		if (!timeOut($char->{time_move}, $char->{time_move_calc})) {
-			warning TF("[Out of Range - Still Approaching - Waiting] %s (%d %d), target %s (%d %d), distance %d, maxDistance %d, dmgFromYou %d.\n", $char, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}, $target->{dmgFromYou}), 'ai_attack';
+			debug TF("[Out of Range - Still Approaching - Waiting] %s (%d %d), target %s (%d %d), distance %d, maxDistance %d, dmgFromYou %d.\n", $char, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}, $target->{dmgFromYou}), 'ai_attack';
 			return;
 		} else {
 			warning TF("[Out of Range - Ended Approaching] %s (%d %d), target %s (%d %d), distance %d, maxDistance %d, dmgFromYou %d.\n", $char, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}, $target->{dmgFromYou}), 'ai_attack';
@@ -467,7 +467,7 @@ sub main {
 		$args->{ai_attack_failed_give_up}{time} = time if !$args->{ai_attack_failed_give_up}{time};
 		if (timeOut($args->{ai_attack_failed_give_up})) {
 			delete $args->{ai_attack_failed_give_up}{time};
-			message T("Unable to determine a attackMethod (check attackUseWeapon and Skills blocks)\n"), "ai_attack";
+			warning T("Unable to determine a attackMethod (check attackUseWeapon and Skills blocks)\n"), "ai_attack";
 			giveUp($args, $ID);
 		}
 	
@@ -484,9 +484,10 @@ sub main {
 
 		if (timeOut($args->{ai_attack_failed_waitForAgressive_give_up})) {
 			delete $args->{ai_attack_failed_waitForAgressive_give_up}{time};
-			message T("[Out of Range - Ranged] Waited too long for target to get closer, dropping target\n"), "ai_attack";
+			warning T("[Out of Range - Ranged] Waited too long for target to get closer, dropping target\n"), "ai_attack";
 			giveUp($args, $ID);
 		} else {
+			$messageSender->sendAction($ID, ($config{'tankMode'}) ? 0 : 7);
 			warning TF("[Out of Range - Ranged - Waiting] %s (%d %d), target %s (%d %d), distance %d, maxDistance %d, dmgFromYou %d.\n", $char, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}, $target->{dmgFromYou}), 'ai_attack';
 		}
 
@@ -502,9 +503,10 @@ sub main {
 
 		if (timeOut($args->{ai_attack_failed_waitForAgressive_give_up})) {
 			delete $args->{ai_attack_failed_waitForAgressive_give_up}{time};
-			message T("[Out of Range - Melee] Waited too long for target to get closer, dropping target\n"), "ai_attack";
+			warning T("[Out of Range - Melee] Waited too long for target to get closer, dropping target\n"), "ai_attack";
 			giveUp($args, $ID);
 		} else {
+			$messageSender->sendAction($ID, ($config{'tankMode'}) ? 0 : 7);
 			warning TF("[Out of Range - Melee - Waiting] %s (%d %d), target %s (%d %d) [(%d %d) -> (%d %d)], distance %d, maxDistance %d, dmgFromYou %d.\n", $char, $realMyPos->{x}, $realMyPos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $target->{pos}{x}, $target->{pos}{y}, $target->{pos_to}{x}, $target->{pos_to}{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}, $target->{dmgFromYou}), 'ai_attack';
 		}
 
@@ -633,7 +635,7 @@ sub main {
 				#check if item needs to be equipped
 				Actor::Item::scanConfigAndEquip("attackEquip");
 			} else {
-				warning "[Attack] Sending attack target $target (which is $realMonsterDist blocks away); we're at ($realMyPos->{x} $realMyPos->{y})\n", "ai_attack";
+				debug "[Attack] Sending attack target $target (which is $realMonsterDist blocks away); we're at ($realMyPos->{x} $realMyPos->{y})\n", "ai_attack";
 				$messageSender->sendAction($ID, ($config{'tankMode'}) ? 0 : 7);
 				$timeout{ai_attack}{time} = time;
 				delete $args->{attackMethod};
