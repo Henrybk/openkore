@@ -336,10 +336,12 @@ sub closestWalkableSpot {
 	return undef;
 }
 
+# Bresenham's algorithm
+#
+# Reference: hercules src\map\path.c path_search_long
 sub checkLOS {
 	my ($self, $from, $to, $can_snipe) = @_;
 
-	# Simulate tracing a line to the location (modified Bresenham's algorithm)
 	my ($X0, $Y0, $X1, $Y1) = ($from->{x}, $from->{y}, $to->{x}, $to->{y});
 
 	my $steep;
@@ -416,40 +418,41 @@ sub checkLOS {
 	return 1;
 }
 
+# Checks wheter you can send a move command from $from to $to
+#
+# Reference: hercules src\map\unit.c unit_walk_toxy
+#
+# Todo this should be used in a lot more places like Task::Route and Follow
 sub canMove {
 	my ($self, $from, $to) = @_;
 	
 	my $dist = blockDistance($from, $to);
-	unless ($dist <= 17) {
+	
+	# This 17 is actually set at
+	# hercules conf\map\battle\client.conf max_walk_path (which is by default 17, can be higher)
+	if ($dist > 17) {
 		return 0;
 	}
 	
+	# If there are no obstacles return success
 	my $LOS = $self->checkLOS($from, $to, 0);
 	if ($LOS) {
 		return 1;
 	}
 	
-	my $solution = [];
-	my ($min_pathfinding_x, $min_pathfinding_y, $max_pathfinding_x, $max_pathfinding_y) = Utils::getSquareEdgesFromCoord($self, $from, 20);
-	my $dist_path = new PathFinding(
-		field => $self,
-		start => $from,
-		dest => $to,
-		avoidWalls => 0,
-		randomFactor => 0,
-		useManhattan => 1,
-		min_x => $min_pathfinding_x,
-		max_x => $max_pathfinding_x,
-		min_y => $min_pathfinding_y,
-		max_y => $max_pathfinding_y
-	)->run($solution);
+	# If there are obstacles and OFFICIAL_WALKPATH is defined (which is by default) then calculate a client pathfinding
+	my $solution = get_client_solution($self, $from, $to);
+	my $dist_path = scalar @{$solution};
 	
-	if ($dist_path <= 0) {
+	if ($dist_path == 0) {
 		return 0;
 	}
 	
+	# Pathfinding always returns the original cell in the solution, so remove 1 from it
+	$dist_path -= 1;
 	
-	unless ($dist_path <= 13) {
+	# If there are obstacles and the path is walkable the max solution dist acceptable is 14
+	if ($dist_path > 14) {
 		return 0;
 	}
 	

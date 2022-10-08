@@ -2001,6 +2001,7 @@ sub actor_display {
 	# too many packets in prontera and cause server lag). As a side effect, you won't be able to "see" actors
 	# beyond clientSight.
 	if ($config{clientSight}) {
+		# TODO: Is there any situation where we should use calcPosFromPathfinding or calcPosFromTime here?
 		my $realMyPos = calcPosition($char);
 		my $realActorPos = calcPosition($actor);
 		my $realActorDist = blockDistance($realMyPos, $realActorPos);
@@ -5358,8 +5359,8 @@ sub character_moves {
 	$char->{time_move} = time;
 	
 	my $speed = ($char->{walk_speed} || 0.12);
-	my $my_solution = Utils::get_client_solution($field, $char->{pos}, $char->{pos_to});
-	my $time = Utils::calcTimeFromSolution($my_solution, $speed);
+	my $my_solution = get_client_solution($field, $char->{pos}, $char->{pos_to});
+	my $time = calcTimeFromSolution($my_solution, $speed);
 	$char->{solution} = $my_solution;
 	$char->{time_move_calc} = $time;
 
