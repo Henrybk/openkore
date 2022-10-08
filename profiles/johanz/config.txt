@@ -159,8 +159,10 @@ cachePlayerNames 1
 cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
-clientSight 30
-clientSight_removeBeyond 2
+# Note: clientSight must be set to the first distance which you cannot see the actor.
+# Example: If you can see npcs from 14 cells away, but not at 15 cells away, then you must set clientSight to 15
+clientSight 23
+clientSight_removeBeyond 4
 
 dcPause 1
 dcOnDeath 0

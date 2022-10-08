@@ -56,7 +56,7 @@ aggressiveAntiKS 0
 # Note: clientSight must be set to the first distance which you cannot see the actor.
 # Example: If you can see npcs from 14 cells away, but not at 15 cells away, then you must set clientSight to 15
 clientSight 23
-clientSight_removeBeyond 2
+clientSight_removeBeyond 4
 
 lockMap lasa_dun01
 lockMap_x
@@ -889,7 +889,7 @@ attackSkillSlot {
 }
 
 attackSkillSlot TF_STEAL {
-	lvl 9
+	lvl 10
 	sp > 10
 	maxUses 1
 	timeout 1
