@@ -273,3 +273,5 @@ oldnewpayon 87 159 Promotions#pront
 oldnewpayon 79 163 Skoegul Flag
 oldnewpayon 82 169 Repherion Flag
 oldnewpayon 86 168 Palace Guardsman#2np
+oldnewpayon 108 162 Stylist Exchanger#pay
+oldnewpayon 100 163 Swanhild Flag

@@ -116,7 +116,8 @@ statsAdd_over_99 1
 skillsAddAuto 1
 skillsAddAuto_list TF_MISS 10, TF_DOUBLE 10, TF_STEAL 10, TF_HIDING 10, TF_POISON 8, TF_DETOXIFY 1
 
-attackUpdateMonsterPos 1
+attackSendAttackWithMove 1
+attackUpdateMonsterPos 0
 
 
 # Poseidon Settings: https://openkore.com/wiki/Poseidon

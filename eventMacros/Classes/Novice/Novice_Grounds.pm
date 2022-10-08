@@ -56,6 +56,9 @@ macro Conf_Stuff2 {
 	do conf -f clientSight 23
 	do conf -f clientSight_removeBeyond 4
 	
+	do conf -f attackSendAttackWithMove 1
+	do conf -f attackUpdateMonsterPos 0
+	
 	do conf -f sellAuto 0
 	do conf -f storageAuto 0
 	do conf -f storageAuto_npc none

@@ -111,6 +111,10 @@ my $extra_hooks = Plugins::addHooks(
 	['AI_buy_auto_queued',							\&storage_buy_sell_clear_route],
 );
 
+my $eventMacro_hooks = Plugins::addHooks(
+	['eventMacro_before_call_check',				\&manage_eventMacro_hooks],
+);
+
 my $storage_hooks = Plugins::addHooks(
 	['AI_storage_done_after_getAuto',							\&AI_storage_done_after_getAuto],
 );
@@ -138,6 +142,7 @@ sub Unload {
 	Plugins::delHook($buying_hooks);
 	Plugins::delHook($extra_hooks);
 	Plugins::delHook($buying_store_hooks);
+	Plugins::delHook($eventMacro_hooks);
 	Plugins::delHook($storage_hooks);
 	message "[".PLUGIN_NAME."] Plugin unloading or reloading.\n", 'success';
 }
@@ -215,15 +220,28 @@ sub GetItemName {
 	return $name;
 }
 
+sub manage_eventMacro_hooks {
+	my ($hook, $args) = @_;
+	if(AI::inQueue("Shopping", "Shopping_fallBack", "Shopping_Talk_fallBack", "autoRefine", "determine_selling", "BetterSeller", "storageAuto", "buyAuto", "sellAuto")) {
+		$args->{return} = 1;
+	}
+}
+
 sub manage_storage_buy_sell_hooks {
 	my ($hook, $args) = @_;
 	if(AI::inQueue("eventMacro", "Shopping", "Shopping_fallBack", "Shopping_Talk_fallBack", "autoRefine", "determine_selling", "BetterSeller", "teleport", "NPC", "skill_use")) {
 		$args->{return} = 1;
 	}
+	if(%talk) {
+		$args->{return} = 1;
+	}
+	if(exists $ai_v{'npc_talk'}) {
+		$args->{return} = 1;
+	}
 }
 
 sub storage_buy_sell_clear_route {
-	AI::clear("move", "route", "checkMonsters", "attack");
+	AI::clear("move", "route", "checkMonsters", "attack", "items_take", "take", "items_gather");
 }
 
 sub AI_pre {
@@ -238,7 +256,7 @@ sub AI_pre {
 }
 
 sub sell_queue {
-	AI::clear("move", "route", "checkMonsters", "attack");
+	storage_buy_sell_clear_route();
 	AI::clear("sellAuto");
 	AI::queue("determine_selling");
 }
@@ -1241,6 +1259,8 @@ sub AI_pre_buying {
 		&& !AI::inQueue("buyAuto")
 		&& !AI::inQueue("sellAuto")
 		&& !AI::inQueue("teleport", "NPC")
+		&& !%talk
+		&& !exists $ai_v{'npc_talk'}
 		&& !AI::inQueue("skill_use")
 		&& !AI::inQueue("eventMacro")
 		&& !AI::inQueue("Shopping")
@@ -1648,6 +1668,8 @@ sub AI_pre_fallback {
 		&& !AI::inQueue("buyAuto")
 		&& !AI::inQueue("sellAuto")
 		&& !AI::inQueue("teleport", "NPC")
+		&& !%talk
+		&& !exists $ai_v{'npc_talk'}
 		&& !AI::inQueue("skill_use")
 		&& !AI::inQueue("eventMacro")
 		&& !AI::inQueue("Shopping")
@@ -1984,6 +2006,8 @@ sub AI_pre_Talk_fallback {
 		&& !AI::inQueue("buyAuto")
 		&& !AI::inQueue("sellAuto")
 		&& !AI::inQueue("teleport", "NPC")
+		&& !%talk
+		&& !exists $ai_v{'npc_talk'}
 		&& !AI::inQueue("skill_use")
 		&& !AI::inQueue("eventMacro")
 		&& !AI::inQueue("Shopping")
@@ -2257,6 +2281,8 @@ sub AI_pre_autoRefine {
 		&& !AI::inQueue("buyAuto")
 		&& !AI::inQueue("sellAuto")
 		&& !AI::inQueue("teleport", "NPC")
+		&& !%talk
+		&& !exists $ai_v{'npc_talk'}
 		&& !AI::inQueue("skill_use")
 		&& !AI::inQueue("eventMacro")
 		&& !AI::inQueue("Shopping")

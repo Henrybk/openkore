@@ -1411,6 +1411,10 @@ sub manage_event_callbacks {
 	}
 
 	if (defined $event_type_automacro_call_index) {
+		
+		my %hookArgs;
+		Plugins::callHook("eventMacro_before_call_check", \%hookArgs);
+		return if ($hookArgs{return});
 
 		my $automacro = $self->{Automacro_List}->get($event_type_automacro_call_index);
 
@@ -1479,9 +1483,13 @@ sub AI_start_checker {
 		if (!$automacro->get_parameter('self_interruptible') && defined $self->{Macro_Runner} && !$self->{Macro_Runner}->self_interruptible && $self->{Macro_Runner}->get_caller_name eq $automacro->get_name()) {
 			next;
 		}
+		
+		my %hookArgs;
+		Plugins::callHook("eventMacro_before_call_check", \%hookArgs);
+		return if ($hookArgs{return});
 
 		message "[eventMacro] Conditions met for automacro '".$automacro->get_name()."', calling macro '".$automacro->get_parameter('call')."'\n", "system";
-
+	
 		$self->call_macro($automacro);
 
 		return;
