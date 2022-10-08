@@ -64,8 +64,8 @@ my %mob_nameID_obstacles = (
 	1368 => { # planta carnivora
 		weight => 2000,
 		dist => 12,
-		drop_target_near => 1,
-		drop_dest_near => 1,
+		drop_target_near => 0,
+		drop_dest_near => 0,
 	}
 );
 
@@ -453,22 +453,8 @@ sub getOffset {
 }
 
 sub get_final_grid {
-	my $len = $field->{height} * $field->{width};
-	my @grid = (0) x $len;
-	
 	my $changes = sum_all_changes();
-	
-	foreach my $change (@{$changes}) {
-		my $position = getOffset($change->{x}, $field->{width}, $change->{y});
-		my $weight_changed = $change->{weight};
-		if ($weight_changed >= $weight_limit) {
-			$weight_changed = $weight_limit;
-		}
-		#warning "[".PLUGIN_NAME."] after  $change->{x} $change->{y} | $current_weight -> $weight_changed.\n";
-		$grid[$position] = $weight_changed;
-	}
-	
-	return \@grid;
+	return $changes;
 }
 
 sub get_weight_for_block {
