@@ -106,8 +106,8 @@ sub process {
 					$char->sendAttackStop;
 					$target->{ignore} = 1;
 					AI::dequeue while (AI::inQueue("attack"));
+					return;
 				}
-				return;
 			}
 		}
 	}
