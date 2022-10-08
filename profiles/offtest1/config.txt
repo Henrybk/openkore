@@ -10,8 +10,6 @@ password 123456
 loginPinCode
 char 5
 
-attackSendAttackWithMove 1
-
 ##### Plugins Start
 
 eventMacro_1_99_stage start
@@ -55,7 +53,7 @@ XKore_ID
 
 # It is not advised to set secureAdminPassword if you're using Xkore 2
 secureAdminPassword 1
-adminPassword cocrotre
+adminPassword veecewub
 callSign
 commandPrefix ;
 callSignGM 0
@@ -90,7 +88,6 @@ attackAuto_notWhile_storageAuto 1
 attackAuto_notWhile_buyAuto 1
 attackAuto_notWhile_sellAuto 1
 attackAuto_considerDamagedAggressive 1
-attackBeyondMaxDistance_waitForAgressive 0
 attackDistance 1
 attackDistanceAuto 0
 attackMaxDistance 1
@@ -107,7 +104,11 @@ attackLooters 0
 attackChangeTarget 1
 aggressiveAntiKS 0
 
+attackBeyondMaxDistance_waitForAgressive 1
+attackBeyondMaxDistance_sendAttackWhileWaiting 1
 attackSendAttackWithMove 1
+attackWaitApproachFinish 1
+
 attackUpdateMonsterPos 0
 
 autoMoveOnDeath 0
@@ -232,9 +233,9 @@ route_reAddMissingPortals 1
 
 runFromTarget 0
 runFromTarget_inAdvance 0
-runFromTarget_dist 7
-runFromTarget_minStep 11
-runFromTarget_maxPathDistance 15
+runFromTarget_dist 6
+runFromTarget_minStep 8
+runFromTarget_maxPathDistance 25
 
 saveMap prt_fild05
 saveMap_warpToBuyOrSell 0
@@ -385,7 +386,6 @@ mercenary_attackAuto_party 1
 mercenary_attackAuto_notInTown 1
 mercenary_attackAuto_inLockOnly 1
 mercenary_attackAuto_considerDamagedAggressive 0
-mercenary_attackBeyondMaxDistance_waitForAgressive 1
 mercenary_attackAuto_onlyWhenSafe 0
 mercenary_attackAuto_duringRandomWalk 0
 mercenary_attackAuto_duringItemsTake 0
@@ -400,6 +400,10 @@ mercenary_attackNoGiveup 0
 mercenary_attackChangeTarget 1
 mercenary_attack_dance_melee 0
 mercenary_attack_dance_ranged 0
+
+mercenary_attackBeyondMaxDistance_waitForAgressive 1
+mercenary_attackBeyondMaxDistance_sendAttackWhileWaiting 1
+mercenary_attackSendAttackWithMove 1
 
 mercenary_lost_teleportToMaster_maxTries 6
 
@@ -445,7 +449,6 @@ homunculus_attackAuto_party 1
 homunculus_attackAuto_notInTown 1
 homunculus_attackAuto_inLockOnly 1
 homunculus_attackAuto_considerDamagedAggressive 0
-homunculus_attackBeyondMaxDistance_waitForAgressive 1
 homunculus_attackAuto_onlyWhenSafe 0
 homunculus_attackAuto_duringRandomWalk 0
 homunculus_attackAuto_duringItemsTake 0
@@ -459,6 +462,10 @@ homunculus_attackRouteMaxPathDistance 20
 homunculus_attackNoGiveup 0
 homunculus_attackChangeTarget 1
 homunculus_attack_dance_melee 0
+
+homunculus_attackBeyondMaxDistance_waitForAgressive 1
+homunculus_attackBeyondMaxDistance_sendAttackWhileWaiting 1
+homunculus_attackSendAttackWithMove 1
 
 homunculus_lost_teleportToMaster_maxTries 6
 
@@ -564,7 +571,7 @@ npcWrongStepsMethod 3
 
 ######## Debugging options; only useful for developers ########
 
-debug 0
+debug 1
 debugPacket_unparsed 0
 debugPacket_received 0
 debugPacket_ro_sent 0
@@ -578,3 +585,4 @@ logToFile_Errors
 logToFile_Messages
 logToFile_Warnings
 history_max 50
+macro_orphans terminate
