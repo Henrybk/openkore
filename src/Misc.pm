@@ -2522,7 +2522,7 @@ sub manualMove {
 #
 # Returns: the position where the character should go to meet a moving monster.
 sub meetingPosition {
-	my ($actor, $actorType, $target, $attackMaxDistance, $runFromTargetActive) = @_;
+	my ($actor, $actorType, $target, $attackMaxDistance, $runFromTargetActive, $recheckPos) = @_;
 
 	if ($attackMaxDistance < 1) {
 		error "attackMaxDistance must be positive ($attackMaxDistance).\n";
@@ -2585,6 +2585,8 @@ sub meetingPosition {
 		$my_solution = get_solution($field, $actor->{pos}, $actor->{pos_to});
 		$timeActorFinishMove = calcTimeFromSolution($my_solution, $mySpeed);
 	}
+
+	my $runFromTarget_minAvoid = $runFromTarget_minStep - $runFromTarget_dist;
 
 	my $realMyPos;
 	# Actor has finished moving and is at PosTo
@@ -2670,18 +2672,16 @@ sub meetingPosition {
 	}
 
 	my $min_destination_dist = 1;
-	if ($runFromTarget) {
+	if ($runFromTargetActive) {
+		$min_destination_dist = $runFromTarget_dist+$runFromTarget_minAvoid;
+	} elsif ($runFromTarget) {
 		$min_destination_dist = $runFromTarget_dist;
-		if ($runFromTargetActive) {
-			$min_destination_dist = $runFromTarget_minStep;
-		}
 	}
+
+	my $min_calc_dist = $min_destination_dist;
 
 	# we can atack from 1 range further than expected on ortogonal only cells
 	my $max_destination_dist = ($attackMaxDistance+1);
-	if ($max_destination_dist >= $config{clientSight}) {
-		$max_destination_dist = ($config{clientSight}-1)
-	}
 
 	my $max_path_dist;
 	if ($runFromTargetActive) {
@@ -2692,74 +2692,82 @@ sub meetingPosition {
 	# Add 1 here to account for pos from solution so we don't have to do it multiple times later
 	$max_path_dist += 1;
 
-	my $max_pathfinding_dist = $max_destination_dist+5;
+	if ($max_destination_dist >= $config{clientSight}) {
+		$max_destination_dist = ($config{clientSight}-1)
+	}
+
+	if ($runFromTargetActive && $max_destination_dist > $attackMaxDistance) {
+		$attackMaxDistance = $max_destination_dist;
+	}
+	
+	my $minAheadTime = $targetSpeed*$runFromTarget_minAvoid;
 
 	my $best_spot;
 	my $best_targetPosInStep;
 	my $best_dist_to_target;
 	my $best_time;
+	
+	my %prohibited;
+	for my $portal (@$portalsList) {
+		foreach my $px (($portal->{pos}{x}-$config{'attackMinPortalDistance'})..($portal->{pos}{x}+$config{'attackMinPortalDistance'})) {
+			foreach my $py (($portal->{pos}{y}-$config{'attackMinPortalDistance'})..($portal->{pos}{y}+$config{'attackMinPortalDistance'})) {
+				$prohibited{$px}{$py} = 1;
+			}
+		}
+	}
+	
+	$prohibited{$realMyPos->{x}}{$realMyPos->{y}} = 1;
 
 	my %allspots;
-	foreach my $possible_target_pos (@target_pos_to_check) {
-		if ($possible_target_pos->{myDistToTargetPosInStep} >= $max_pathfinding_dist) {
-			$max_pathfinding_dist = $possible_target_pos->{myDistToTargetPosInStep} + 1;
-		}
-
-		my ($min_pathfinding_x, $min_pathfinding_y, $max_pathfinding_x, $max_pathfinding_y) = getSquareEdgesFromCoord($field, $possible_target_pos->{targetPosInStep}, $max_pathfinding_dist);
-
-		foreach my $distance ($min_destination_dist..$max_destination_dist) {
-
-			my @blocks = calcRectArea($possible_target_pos->{targetPosInStep}{x}, $possible_target_pos->{targetPosInStep}{y}, $distance, $field);
-
-			SPOT: foreach my $spot (@blocks) {
-				$allspots{$spot->{x}}{$spot->{y}}{min_pathfinding_x} = $min_pathfinding_x;
-				$allspots{$spot->{x}}{$spot->{y}}{min_pathfinding_y} = $min_pathfinding_y;
-				$allspots{$spot->{x}}{$spot->{y}}{max_pathfinding_x} = $max_pathfinding_x;
-				$allspots{$spot->{x}}{$spot->{y}}{max_pathfinding_y} = $max_pathfinding_y;
+	if (defined $recheckPos) {
+		$allspots{$recheckPos->{x}}{$recheckPos->{y}} = 1;
+	} else {
+		foreach my $possible_target_pos (@target_pos_to_check) {
+			foreach my $distance ($min_calc_dist..$max_destination_dist) {
+				my @blocks = calcRectArea($possible_target_pos->{targetPosInStep}{x}, $possible_target_pos->{targetPosInStep}{y}, $distance, $field);
+				foreach my $bspot (@blocks) {
+					next if (exists $prohibited{$bspot->{x}}{$bspot->{y}});
+					
+					next unless ($field->isWalkable($bspot->{x}, $bspot->{y}));
+					$allspots{$bspot->{x}}{$bspot->{y}} = 1;
+				}
 			}
 		}
 	}
 
 	foreach my $x_spot (sort keys %allspots) {
-		foreach my $y_spot (sort keys %{$allspots{$x_spot}}) {
+		SPOT: foreach my $y_spot (sort keys %{$allspots{$x_spot}}) {
 			my $spot;
 			$spot->{x} = $x_spot;
 			$spot->{y} = $y_spot;
-			my $spot_info = $allspots{$x_spot}{$y_spot};
-
-			next unless ($spot->{x} != $realMyPos->{x} || $spot->{y} != $realMyPos->{y});
-
-			# Is this spot acceptable?
-
-			# 1. It must be walkable
-			next unless ($field->isWalkable($spot->{x}, $spot->{y}));
-
-			next if (positionNearPortal($spot, $config{'attackMinPortalDistance'}));
-
-			# 5. It must be reachable and have at max $max_path_dist of route distance to it from our current position.
-			my $time_actor_to_get_to_spot;
 
 			my $solution = get_solution($field, $realMyPos, $spot);
+
+			# 4. It must be reachable
 			next if (scalar @{$solution} == 0);
+
+			# 5. It must have at max $max_path_dist of route distance to it from our current position.
 			next if (scalar @{$solution} > $max_path_dist);
 
-			$time_actor_to_get_to_spot = calcTimeFromSolution($solution, $mySpeed);
-
+			my $time_actor_to_get_to_spot = calcTimeFromSolution($solution, $mySpeed);
 
 			my $total_time = ($timeSinceTargetMoved+$time_actor_to_get_to_spot);
 			my $temp_targetCurrentStep = calcStepsWalkedFromTimeAndSolution($target_solution, $targetSpeed, $total_time);
 			my $targetPosInStep = $target_solution->[$temp_targetCurrentStep];
 
+			# 6. It must not be the target current spot
 			next unless ($spot->{x} != $targetPosInStep->{x} || $spot->{y} != $targetPosInStep->{y});
 
 			my $dist_to_target = blockDistance($spot, $targetPosInStep);
 
-			next unless ($dist_to_target >= $min_destination_dist || $runFromTargetActive);
+			# 7. It must be further away from the target than $min_destination_dist
+			next unless ($dist_to_target >= $min_destination_dist);
 
-			# 3. It must be able to attack the target (canAttack)
+			# 8. It must be able to attack the target (canAttack)
 			next unless (canAttack($field, $spot, $targetPosInStep, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
 
-			# 2. It must be within $followDistanceMax of MasterPos, if we have a master.
+
+			# 9. It must be within $followDistanceMax of MasterPos, if we have a master.
 			if ($realMasterPos) {
 				my $masterPosNow;
 				if ($master_moving) {
@@ -2775,9 +2783,9 @@ sub meetingPosition {
 
 			if ($runFromTargetActive) {
 				my $time_target_to_get_to_spot = calcTimeFromPathfinding($field, $realTargetPos, $spot, $targetSpeed);
-				if ($time_actor_to_get_to_spot > $time_target_to_get_to_spot) {
-					next;
-				}
+				my $timeAhead = $time_target_to_get_to_spot - $time_actor_to_get_to_spot;
+				next unless ($timeAhead > $minAheadTime);
+				$time_actor_to_get_to_spot -= $timeAhead;
 			}
 
 			if (!defined($best_time) || $time_actor_to_get_to_spot < $best_time) {
