@@ -290,8 +290,9 @@ sub iterate {
 		if (@{$self->{solution}} == 0) {
 			debug "Route $self->{actor}: DistFromGoal|pyDistFromGoal trimmed all solution steps.\n", "route";
 			$self->setDone();
+		} else {
+			$self->iterate();
 		}
-		$self->iterate();
 
 	# Actual walking algorithm
 	} elsif ($self->{stage} == WALK_ROUTE_SOLUTION) {
