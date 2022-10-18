@@ -272,6 +272,8 @@ sub main {
 	my $realMonsterDist = blockDistance($realMyPos, $realMonsterPos);
 	my $clientDist = getClientDist($realMyPos, $realMonsterPos);
 
+	debug "[Attack start] $target dist $realMonsterDist ($clientDist)\n", "ai_attack";
+
 	# If the damage numbers have changed, update the giveup time so we don't timeout
 	if ($args->{dmgToYou_last}   != $target->{dmgToYou}
 	 || $args->{missedYou_last}  != $target->{missedYou}

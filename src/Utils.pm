@@ -63,6 +63,12 @@ use constant {
 	MOVE_DIAGONAL_COST => 14,
 };
 
+sub whowasi { 
+	my ($k) = @_;
+	my $st = ( caller($k) )[1].' '.( caller($k) )[2].' '.( caller($k) )[3];
+	return $st;
+}
+
 ################################
 ################################
 ### CATEGORY: Math
@@ -170,6 +176,12 @@ sub get_client_easy_solution {
 # Wrapper that checks if an easy solution is possible, if it is then return easy solution, if it isn't then return client solution
 sub get_solution {
 	my ($field, $pos, $pos_to) = @_;
+
+	if ($pos->{x} == $pos_to->{x} && $pos->{y} == $pos_to->{y}) {
+		my $solution;
+		push(@{$solution}, { x => $pos->{x}, y => $pos->{y} });
+		return $solution;
+	}
 
 	# If there are no obstacles between Pos and PosTo use calcPosFromTime to save time.
 	my $easy_solution = get_client_easy_solution($pos, $pos_to);

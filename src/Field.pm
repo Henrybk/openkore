@@ -473,7 +473,10 @@ sub checkPathFree {
 sub canMove {
 	my ($self, $from, $to) = @_;
 
+	return 0 unless ($self->isWalkable($to->{x}, $to->{y}));
+
 	my $dist = blockDistance($from, $to);
+	return 1 if ($dist < 2);
 
 	# This 17 is actually set at
 	# hercules conf\map\battle\client.conf max_walk_path (which is by default 17, can be higher)
