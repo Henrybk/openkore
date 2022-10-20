@@ -53,7 +53,7 @@ sub process {
 			return;
 		}
 		
-		my $target = Actor::get($ID);
+		my $target = Actor::get($ID, 1);
 		if ($target) {
 			my $party = $config{$slave->{configPrefix}.'attackAuto_party'} ? 1 : 0;
 			my $target_is_aggressive = is_aggressive_slave($slave, $target, undef, 0, $party);
@@ -64,7 +64,7 @@ sub process {
 					$slave->sendAttackStop;
 					$slave->dequeue while ($slave->inQueue("attack"));
 					$slave->setSuspend(0);
-					my $new_target = Actor::get($attackTarget);
+					my $new_target = Actor::get($attackTarget, 1);
 					warning TF("%s target is not aggressive: %s, changing target to aggressive: %s.\n", $slave, $target, $new_target), 'slave_attack';
 					$slave->attack($attackTarget);
 					AI::SlaveAttack::process($slave);
@@ -102,7 +102,7 @@ sub process {
 
 	} elsif ($slave->action eq "attack" && $slave->args->{avoiding} && $slave->args->{ID}) {
 		my $ID = $slave->args->{ID};
-		my $target = Actor::get($ID);
+		my $target = Actor::get($ID, 1);
 		$slave->args->{ai_attack_giveup}{time} = time;
 		undef $slave->args->{avoiding};
 		debug "$slave finished avoiding movement from target $target, updating ai_attack_giveup\n", 'slave_attack';
@@ -112,7 +112,7 @@ sub process {
 		# We're on route to the monster; check whether the monster has moved
 		my $ID = $slave->args->{attackID};
 		my $attackSeq = ($slave->action eq "route") ? $slave->args (1) : $slave->args (2);
-		my $target = Actor::get($ID);
+		my $target = Actor::get($ID, 1);
 		
 		if ($target->{type} ne 'Unknown') {
 			if (
@@ -155,7 +155,7 @@ sub shouldGiveUp {
 
 sub giveUp {
 	my ($slave, $args, $ID, $LOS) = @_;
-	my $target = Actor::get($ID);
+	my $target = Actor::get($ID, 1);
 	if ($monsters{$ID}) {
 		if ($LOS) {
 			$target->{attack_failedLOS} = time;
@@ -234,7 +234,7 @@ sub main {
 	my $args = $slave->args;
 	
 	my $ID = $args->{ID};
-	my $target = Actor::get($ID);
+	my $target = Actor::get($ID, 1);
 	my $myPos = $slave->{pos_to};
 	my $monsterPos = $target->{pos_to};
 	my $monsterDist = blockDistance($myPos, $monsterPos);

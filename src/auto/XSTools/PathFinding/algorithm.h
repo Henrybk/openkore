@@ -16,6 +16,8 @@ typedef struct {
 	unsigned int whichlist;
 	long openListIndex;
 	
+	unsigned long predecessorCount;
+	
 	unsigned long g;
 	unsigned long h;
 	unsigned long f;
@@ -31,6 +33,7 @@ typedef struct {
 	unsigned int randomFactor;
 	
 	int useManhattan;
+	int explore;
 	
 	unsigned long time_max;
 	
@@ -50,12 +53,15 @@ typedef struct {
 	int solution_size;
 	int initialized;
 	int run;
+	int runExplore;
 	
 	long openListSize;
+	long exploredListSize;
 	
 	Node *currentMap;
 	
 	unsigned long *openList;
+	unsigned long *exploredList;
 } CalcPath_session;
 
 CalcPath_session *CalcPath_new ();
@@ -63,6 +69,8 @@ CalcPath_session *CalcPath_new ();
 void CalcPath_init (CalcPath_session *session);
 
 int CalcPath_pathStep (CalcPath_session *session);
+
+int CalcPath_explore (CalcPath_session *session);
 
 int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int useManhattan);
 
@@ -77,6 +85,8 @@ Node* openListGetLowest (CalcPath_session *session);
 void free_currentMap (CalcPath_session *session);
 
 void free_openList (CalcPath_session *session);
+
+void free_exploredList (CalcPath_session *session);
 
 void CalcPath_destroy (CalcPath_session *session);
 

@@ -39,6 +39,7 @@ CalcPath_new ()
 	
 	session->initialized = 0;
 	session->run = 0;
+	session->runExplore = 0;
 	
 	return session;
 }
@@ -55,18 +56,23 @@ CalcPath_init (CalcPath_session *session)
 		session->second_weight_map = (unsigned int*) calloc(session->height * session->width, sizeof(unsigned int));
 	}
 	
-	unsigned long goalAdress = (session->endY * session->width) + session->endX;
-	Node* goal = &session->currentMap[goalAdress];
-	goal->x = session->endX;
-	goal->y = session->endY;
-	goal->nodeAdress = goalAdress;
-	
 	unsigned long startAdress = (session->startY * session->width) + session->startX;
 	Node* start = &session->currentMap[startAdress];
 	start->x = session->startX;
 	start->y = session->startY;
 	start->nodeAdress = startAdress;
-	start->h = heuristic_cost_estimate(start->x, start->y, goal->x, goal->y, session->useManhattan);
+	
+	if (session->explore == 0) {
+		unsigned long goalAdress = (session->endY * session->width) + session->endX;
+		Node* goal = &session->currentMap[goalAdress];
+		goal->x = session->endX;
+		goal->y = session->endY;
+		goal->nodeAdress = goalAdress;
+		start->h = heuristic_cost_estimate(start->x, start->y, goal->x, goal->y, session->useManhattan);
+	} else {
+		start->h = 0;
+	}
+	
 	start->f = start->h;
 	
 	session->initialized = 1;
@@ -218,6 +224,133 @@ CalcPath_pathStep (CalcPath_session *session)
 					neighborNode->predecessor = currentNode->nodeAdress;
 					neighborNode->g = g_score;
 					neighborNode->f = neighborNode->g + neighborNode->h;
+					// Here we could remove neighborNode from openList and add it again to get it to the right position, but reajusting it saves time.
+					reajustOpenListItem (session, neighborNode);
+				}
+			}
+		}
+	}
+	return -1;
+}
+
+int 
+CalcPath_explore (CalcPath_session *session)
+{
+	//printf("[CalcPath_explore] start\n");
+	if (!session->initialized) {
+		printf("[pathfinding run error] You must call 'reset' before 'run'.\n");
+		return -2;
+	}
+	
+	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
+	
+	if (!session->run) {
+		session->run = 1;
+		session->runExplore = 1;
+		session->openListSize = 0;
+		// Allocate enough memory in openList to hold the adress of all nodes in the map
+		session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
+		
+		session->exploredListSize = 0;
+		session->exploredList = (unsigned long*) calloc((session->height * session->width), sizeof(unsigned long));
+		
+		// To initialize the pathfinding add only the start node to openList
+		openListAdd (session, start);
+	}
+	
+	Node* currentNode;
+	Node* neighborNode;
+	
+	short i;
+	
+	// All possible directions the character can move (in order: north, south, east, west, northeast, southeast, southwest, northwest)
+	short i_x[8] = {0, 0, 1, -1, 1, 1, -1, -1};
+	short i_y[8] = {1, -1, 0, 0, 1, -1, -1, 1};
+	
+	int neighbor_x;
+	int neighbor_y;
+	unsigned long neighbor_adress;
+	unsigned long distanceFromCurrent;
+	
+	unsigned int g_score = 0;
+	
+	while (1) {
+		if (session->openListSize == 0) {
+			return 1;
+		}
+		
+		// Set currentNode to the top node in openList, and remove it from openList.
+		currentNode = openListGetLowest (session);
+		
+		session->exploredList[session->exploredListSize] = currentNode->nodeAdress;
+		session->exploredListSize++;
+		
+		//printf("[CalcPath_explore] coordinate %d %d (%d)\n", currentNode->x, currentNode->y, currentNode->predecessorCount);
+
+		if (currentNode->predecessorCount == session->explore) {
+			continue;
+		}
+		
+		// Loop between all neighbors
+		for (i = 0; i <= 7; i++)
+		{
+			neighbor_x = currentNode->x + i_x[i];
+			neighbor_y = currentNode->y + i_y[i];
+
+			if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < session->min_x || neighbor_y < session->min_y) {
+				continue;
+			}
+
+			neighbor_adress = (neighbor_y * session->width) + neighbor_x;
+
+			// Unwalkable nodes have weight -1, if a neighbor is unwalkable ignore it.
+			if (session->map_base_weight[neighbor_adress] == -1) {
+				continue;
+			}
+			
+			neighborNode = &session->currentMap[neighbor_adress];
+			
+			// If a neighbor is in closedList ignore it, it has already been expanded and has its lowest possible g_score
+			if (neighborNode->whichlist == CLOSED) {
+				continue;
+			}
+			
+			// First 4 neighbors in the list are in a ortogonal path and the last 4 are in a diagonal path from currentNode.
+			if (i >= 4) {
+				// If neighborNode has a diagonal path from currentNode then we can only move to it if both ortogonal composite nodes are walkable. (example: To move to the northeast both north and east must be walkable)
+			   if (session->map_base_weight[(currentNode->y * session->width) + neighbor_x] == -1 || session->map_base_weight[(neighbor_y * session->width) + currentNode->x] == -1) {
+					continue;
+				}
+				// We use 14 as the diagonal movement weight
+				distanceFromCurrent = 14;
+			} else {
+				// We use 10 for ortogonal movement weight
+				distanceFromCurrent = 10;
+			}
+			
+			// g_score is the summed weight of all nodes from start node to neighborNode, which is the g_score of currentNode + the weight to move from currentNode to neighborNode.
+			g_score = currentNode->g + distanceFromCurrent;
+			
+			// If neighborNode is not in openList neither in closedList it has not been reached yet, initialize it and add it to openList
+			if (neighborNode->whichlist == NONE) {
+				neighborNode->x = neighbor_x;
+				neighborNode->y = neighbor_y;
+				neighborNode->nodeAdress = neighbor_adress;
+				neighborNode->predecessor = currentNode->nodeAdress;
+				neighborNode->g = g_score;
+				neighborNode->predecessorCount = currentNode->predecessorCount + 1;
+				neighborNode->h = 0;
+				neighborNode->f = g_score;
+				openListAdd (session, neighborNode);
+			
+			// If neighborNode is in a list it has to be in openList, since we cannot access nodes in closedList. 
+			} else {
+				// Check if we have found a shorter path to neighborNode, if so update it to have currentNode as its predecessor.
+				if (g_score < neighborNode->g) {
+					neighborNode->predecessor = currentNode->nodeAdress;
+					neighborNode->g = g_score;
+					neighborNode->predecessorCount = currentNode->predecessorCount + 1;
+					neighborNode->f = g_score;
 					// Here we could remove neighborNode from openList and add it again to get it to the right position, but reajusting it saves time.
 					reajustOpenListItem (session, neighborNode);
 				}
@@ -439,6 +572,13 @@ free_openList (CalcPath_session *session)
 	free(session->openList);
 }
 
+// Frees the memory allocated by exploredList
+void
+free_exploredList (CalcPath_session *session)
+{
+	free(session->exploredList);
+}
+
 // Garantees that all memory allocations have been freed the pathfinding object is destroyed
 void
 CalcPath_destroy (CalcPath_session *session)
@@ -451,6 +591,9 @@ CalcPath_destroy (CalcPath_session *session)
 	}
 	if (session->run) {
 		free(session->openList);
+	}
+	if (session->runExplore) {
+		free(session->exploredList);
 	}
 	free(session);
 }

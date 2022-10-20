@@ -64,7 +64,7 @@ my %mob_nameID_obstacles = (
 	1368 => { # planta carnivora
 		weight => 2000,
 		dist => 12,
-		drop_target_near => 0,
+		drop_target_near => 1,
 		drop_dest_near => 0,
 	}
 );

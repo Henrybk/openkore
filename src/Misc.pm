@@ -2525,7 +2525,7 @@ sub meetingPosition {
 	my ($actor, $actorType, $target, $attackMaxDistance, $runFromTargetActive, $recheckPos) = @_;
 
 	if ($attackMaxDistance < 1) {
-		error "attackMaxDistance must be positive ($attackMaxDistance).\n";
+		error "[meetingPosition] attackMaxDistance must be positive ($attackMaxDistance).\n";
 		return;
 	}
 
@@ -2585,11 +2585,14 @@ sub meetingPosition {
 		$my_solution = get_solution($field, $actor->{pos}, $actor->{pos_to});
 		$timeActorFinishMove = calcTimeFromSolution($my_solution, $mySpeed);
 	}
-
+	
+	# Minimun distance we must be from target after the avoiding is over
 	my $runFromTarget_minAvoid = $runFromTarget_minStep - $runFromTarget_dist;
+	
+	my $actor_time_since_last_position;
 
 	my $realMyPos;
-	# Actor has finished moving and is at PosTo
+	# Actor has finished moving and is at pos_to
 	if ($timeSinceActorMoved >= $timeActorFinishMove) {
 		$realMyPos = $actor->{pos_to};
 
@@ -2597,10 +2600,15 @@ sub meetingPosition {
 	} else {
 		my $steps_walked = calcStepsWalkedFromTimeAndSolution($my_solution, $mySpeed, $timeSinceActorMoved);
 		$realMyPos = $my_solution->[$steps_walked];
+		
+		my @sliced = @{$my_solution}[0..$steps_walked];
+		my $time_to_current_step = calcTimeFromSolution(\@sliced, $mySpeed);
+		$actor_time_since_last_position = $timeSinceActorMoved - $time_to_current_step;
 	}
 
-	# Should never happen
+	# Should never happen (really, so throw and error here)
 	unless ($field->isWalkable($realMyPos->{x}, $realMyPos->{y})) {
+		error "[meetingPosition] calculated current cell ($realMyPos->{x} $realMyPos->{y}) is not walkable, ignoring.\n";
 		$realMyPos = $field->closestWalkableSpot($realMyPos, 1);
 	}
 
@@ -2611,16 +2619,23 @@ sub meetingPosition {
 
 	# Calculate the time target will need to finish moving from pos to pos_to
 	my $timeTargetFinishMove = calcTimeFromSolution($target_solution, $targetSpeed);
+	
+	my $target_time_since_last_position;
 
 	my $realTargetPos;
 	my $targetTotalSteps;
 	my $targetCurrentStep;
 
 	my @target_pos_to_check;
+	my $target_moving;
+	my @missing_target_solution_steps;
+	
+	# TODO: myDistToTargetPosInStep is not used anywhere, find a use for it or delete it
 	my $myDistToTargetPosInStep;
 
 	# Target has finished moving
 	if ($timeSinceTargetMoved >= $timeTargetFinishMove) {
+		$target_moving = 0;
 		$realTargetPos = $target->{pos_to};
 		$myDistToTargetPosInStep = blockDistance($realMyPos, $realTargetPos);
 		$target_pos_to_check[0] = {
@@ -2630,11 +2645,19 @@ sub meetingPosition {
 
 	# Target is currently moving
 	} else {
+		$target_moving = 1;
 		$targetTotalSteps = $#{$target_solution};
 		$targetCurrentStep = calcStepsWalkedFromTimeAndSolution($target_solution, $targetSpeed, $timeSinceTargetMoved);
 		$realTargetPos = $target_solution->[$targetCurrentStep];
+		
+		my @sliced = @{$target_solution}[0..$targetCurrentStep];
+		my $time_to_current_step = calcTimeFromSolution(\@sliced, $targetSpeed);
+		$target_time_since_last_position = $timeSinceTargetMoved - $time_to_current_step;
+		
+		@missing_target_solution_steps = @{$target_solution}[$targetCurrentStep..$#{$target_solution}];
 
 		my $steps_count = 0;
+		# Calculate avery single step in the path from target pos to pos_to, but exclude the ones the target has already traversed
 		foreach my $currentStep ($targetCurrentStep..$targetTotalSteps) {
 			$myDistToTargetPosInStep = blockDistance($realMyPos, $target_solution->[$currentStep]);
 			$target_pos_to_check[$steps_count] = {
@@ -2651,6 +2674,10 @@ sub meetingPosition {
 	my $timeSinceMasterMoved;
 	my $realMasterPos;
 	my $masterSpeed;
+	my $master_time_since_last_position;
+	my @missing_master_solution_steps;
+	
+	# If we have a master (follow for char or char for slaves), calculate if it is moving
 	if ($masterPos) {
 		$masterSpeed = ($master->{walk_speed} || 0.12);
 		$timeSinceMasterMoved = time - $master->{time_move};
@@ -2668,111 +2695,233 @@ sub meetingPosition {
 		# master is currently moving
 		} else {
 			$master_moving = 1;
+			
+			my $masterCurrentStep = calcStepsWalkedFromTimeAndSolution($master_solution, $masterSpeed, $timeSinceMasterMoved);
+			
+			my @sliced = @{$master_solution}[0..$masterCurrentStep];
+			my $time_to_current_step = calcTimeFromSolution(\@sliced, $masterSpeed);
+			$master_time_since_last_position = $timeSinceMasterMoved - $time_to_current_step;
+			
+			@missing_master_solution_steps = @{$master_solution}[$masterCurrentStep..$#{$master_solution}];
 		}
 	}
-
-	my $min_destination_dist = 1;
+	
+	# Minimun distance we should stop from target
+	my $min_destination_dist;
+	
+	# If this is a runFromTarget call, this should be runFromTarget_minStep
 	if ($runFromTargetActive) {
-		$min_destination_dist = $runFromTarget_dist+$runFromTarget_minAvoid;
+		$min_destination_dist = $runFromTarget_minStep;
+
+	# If this is not a runFromTarget call, but runFromTarget is 1, this should be runFromTarget_dist
 	} elsif ($runFromTarget) {
 		$min_destination_dist = $runFromTarget_dist;
+
+	# Otherwise it should be 1
+	} else {
+		$min_destination_dist = 1;
 	}
 
-	my $min_calc_dist = $min_destination_dist;
+	# attackMaxDistance should never be bigger than (or equal to) clientSight, otherwise we lose target from sight
+	if ($attackMaxDistance >= $config{clientSight}) {
+		$attackMaxDistance = ($config{clientSight}-1);
+	}
+	
+	# Max distance we should stop from the target, usually attackMaxDistance
+	my $max_destination_dist = $attackMaxDistance;
+	
+	# We can actually atack from 1 range further than expected on ortogonal only cells, abuse that if config tells to do so
+	$max_destination_dist += 1 if ($config{attackUseExtraRange});
 
-	# we can atack from 1 range further than expected on ortogonal only cells
-	my $max_destination_dist = ($attackMaxDistance+1);
-
+	# Max number of cells in the path to our meeting position
+	# TODO: Maybe should consider diagonals heavier? (would actually be easier to calculate)
 	my $max_path_dist;
 	if ($runFromTargetActive) {
 		$max_path_dist = $runFromTarget_maxPathDistance;
 	} else {
 		$max_path_dist = $attackRouteMaxPathDistance;
 	}
-	# Add 1 here to account for pos from solution so we don't have to do it multiple times later
+	
+	# Add 1 here to account for pos from solution (it always returns pos + path) so we don't have to do it multiple times later (used to save computing time)
 	$max_path_dist += 1;
 
-	if ($max_destination_dist >= $config{clientSight}) {
-		$max_destination_dist = ($config{clientSight}-1)
-	}
+	# Minimun distance we should calculate the pathing from the target (used to save computing time)
+	my $min_calc_dist = $min_destination_dist;
+		
+	# My current distance to the target
+	my $current_dist = blockDistance($realMyPos, $realTargetPos);
 
-	if ($runFromTargetActive && $max_destination_dist > $attackMaxDistance) {
-		$attackMaxDistance = $max_destination_dist;
+	# When runFromTarget is active we must get to the meeting point at least $minAheadTime ahead of the target
+	# otherwise it could get there faster than us and hit us
+	my $minAheadTime;
+	if ($runFromTargetActive) {
+		$minAheadTime = $targetSpeed*($runFromTarget_minStep-1);
 	}
 	
-	my $minAheadTime = $targetSpeed*$runFromTarget_minAvoid;
-
-	my $best_spot;
-	my $best_targetPosInStep;
-	my $best_dist_to_target;
-	my $best_time;
+	debug "\n\n";
+	debug "[TMT 0] my pos $realMyPos->{x} $realMyPos->{y}\n";
+	debug "[TMT 0] ta pos $realTargetPos->{x} $realTargetPos->{y}\n";
+	debug "[TMT 0] current_dist $current_dist\n";
+	debug "[TMT 0] min_destination_dist $min_destination_dist\n";
+	debug "[TMT 0] minAheadTime $minAheadTime ($targetSpeed * $runFromTarget_minStep)\n";
 	
+	# This is a math based idea to calculate more or less the distance from the current cell the actor would have to move for its
+	# greater speed to create a distance of at least $min_destination_dist between it and the target if the target was chasing the actor
+	if ($runFromTargetActive) {
+		# The amount of cells we have to move away to be at least min_destination_dist away from the target
+		my $need_dist = $min_destination_dist-$current_dist;
+		debug "[TMT 0] need_dist $need_dist\n";
+		
+		# My cells/sec
+		my $my_Ts = 1/$mySpeed;
+		debug "[TMT 0] my $mySpeed -> $my_Ts\n";
+		
+		# Target cells/sec
+		my $ta_Ts = 1/$targetSpeed;
+		debug "[TMT 0] ta $targetSpeed -> $ta_Ts\n";
+		
+		# My speed realative to the target
+		my $delta_ts = $my_Ts - $ta_Ts;
+		debug "[TMT 0] de $delta_ts\n";
+		
+		# The time it would take for the speed realative to the target to cover $need_dist
+		my $t_dif_w = $need_dist/$delta_ts;
+		debug "[TMT 0] t_dif_w $t_dif_w\n";
+		
+		# The amount of cells i could cover in $t_dif_w time (perfect dist away if no obstacles and moving in an ortogonal line)
+		my $w_dist = $t_dif_w * $my_Ts;
+		debug "[TMT 0] w_dist $w_dist\n";
+		
+		# Use a range of -30%~+30% of $w_dist distance from actor to try to find the meeting (avoiding) position
+		$max_destination_dist = int($w_dist*1.2);
+		debug "[TMT 0] max_destination_dist $max_destination_dist\n";
+		$min_calc_dist = int(($w_dist)*0.55);
+		debug "[TMT 0] min_calc_dist $min_calc_dist\n";
+		
+		if ($min_calc_dist < $min_destination_dist) {
+			$min_calc_dist = $min_destination_dist;
+			debug "[TMT 0] min_calc_dist $min_calc_dist\n";
+		}
+	}
+	debug "\n";
+	
+	my @add_blocks;
+
+	# Map using the pathfinding algorithm all cells close to the actor to find their path distance in cells (path_dist) and clientdist (w_dist)
+	my %explored_cells;
+	my $pathfinding = new PathFinding();
+	$pathfinding->resetExploring(
+		field => $field,
+		start => $realMyPos,
+		explore_len => $max_path_dist
+	);
+	my $explored = [];
+	$pathfinding->explore($explored);
+	
+	foreach my $exp (@{$explored}) {
+		$explored_cells{$exp->{x}}{$exp->{y}}{path_dist} = $exp->{d};
+		$explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g}/10;
+		$explored_cells{$exp->{x}}{$exp->{y}}{p} = 0;
+		if ($exp->{p} == 1) {
+			$explored_cells{$exp->{x}}{$exp->{y}}{p} = 1;
+			$explored_cells{$exp->{x}}{$exp->{y}}{px} = $exp->{px};
+			$explored_cells{$exp->{x}}{$exp->{y}}{py} = $exp->{py};
+		}
+		push(@add_blocks, {x => $exp->{x}, y => $exp->{y}});
+	}
+	
+	# Map using the pathfinding algorithm all cells close to the target to find their path distance in cells (path_dist) and clientdist (w_dist)
+	# Only do this when runFromTarget is active
+	my %target_explored_cells;
+	if ($runFromTargetActive) {
+		my $target_pathfinding = new PathFinding();
+		$target_pathfinding->resetExploring(
+			field => $field,
+			start => $realTargetPos,
+			explore_len => ($max_path_dist+$current_dist+1)
+		);
+		my $target_explored = [];
+		$target_pathfinding->explore($target_explored);
+		
+		foreach my $exp (@{$target_explored}) {
+			$target_explored_cells{$exp->{x}}{$exp->{y}}{path_dist} = $exp->{d};
+			$target_explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g}/10;
+			$target_explored_cells{$exp->{x}}{$exp->{y}}{p} = 0;
+			if ($exp->{p} == 1) {
+				$target_explored_cells{$exp->{x}}{$exp->{y}}{p} = 1;
+				$target_explored_cells{$exp->{x}}{$exp->{y}}{px} = $exp->{px};
+				$target_explored_cells{$exp->{x}}{$exp->{y}}{py} = $exp->{py};
+			}
+		}
+	}
+
+	# Prohibits cells near a portal
+	# Todo: Recalculate path when new portals are found?
+	my $portalDist = $config{'attackMinPortalDistance'} || 4;
 	my %prohibited;
 	for my $portal (@$portalsList) {
-		foreach my $px (($portal->{pos}{x}-$config{'attackMinPortalDistance'})..($portal->{pos}{x}+$config{'attackMinPortalDistance'})) {
-			foreach my $py (($portal->{pos}{y}-$config{'attackMinPortalDistance'})..($portal->{pos}{y}+$config{'attackMinPortalDistance'})) {
+		foreach my $px (($portal->{pos}{x}-$portalDist)..($portal->{pos}{x}+$portalDist)) {
+			foreach my $py (($portal->{pos}{y}-$portalDist)..($portal->{pos}{y}+$portalDist)) {
 				$prohibited{$px}{$py} = 1;
 			}
 		}
 	}
 	
+	# Prohibits current spot
 	$prohibited{$realMyPos->{x}}{$realMyPos->{y}} = 1;
-
-	my %allspots;
+	
+	# TODO: This is where we could call a hook for custom prohibited cells (eg. don't avoid near a geo)
+	
+	my @allspots;
+	# If $recheckPos is set, only check that cell
 	if (defined $recheckPos) {
-		$allspots{$recheckPos->{x}}{$recheckPos->{y}} = 1;
+		return if (exists $prohibited{$recheckPos->{x}} && exists $prohibited{$recheckPos->{x}}{$recheckPos->{y}});
+		return unless (exists $explored_cells{$recheckPos->{x}} && exists $explored_cells{$recheckPos->{x}}{$recheckPos->{y}});
+		push(@allspots, $recheckPos);
 	} else {
-		foreach my $possible_target_pos (@target_pos_to_check) {
-			foreach my $distance ($min_calc_dist..$max_destination_dist) {
-				my @blocks = calcRectArea($possible_target_pos->{targetPosInStep}{x}, $possible_target_pos->{targetPosInStep}{y}, $distance, $field);
-				foreach my $bspot (@blocks) {
-					next if (exists $prohibited{$bspot->{x}}{$bspot->{y}});
-					
-					next unless ($field->isWalkable($bspot->{x}, $bspot->{y}));
-					$allspots{$bspot->{x}}{$bspot->{y}} = 1;
-				}
-			}
+		foreach my $block (@add_blocks) {
+			# Excludes prohibited cells
+			next if (exists $prohibited{$block->{x}} && exists $prohibited{$block->{x}}{$block->{y}});
+			
+			# Excludes cells that are unreachable
+			#next unless (exists $explored_cells{$block->{x}} && exists $explored_cells{$block->{x}}{$block->{y}});
+			
+			# Excludes cells that are further than max_path_dist
+			#next if ($explored_cells{$block->{x}}{$block->{y}}{path_dist} > $max_path_dist);
+			
+			# Add valid cell to checking array
+			push(@allspots, $block);
 		}
 	}
+	
+	@allspots = sort {$explored_cells{$a->{x}}{$a->{y}}{w_dist} <=> $explored_cells{$b->{x}}{$b->{y}}{w_dist}} @allspots;
 
-	foreach my $x_spot (sort keys %allspots) {
-		SPOT: foreach my $y_spot (sort keys %{$allspots{$x_spot}}) {
-			my $spot;
-			$spot->{x} = $x_spot;
-			$spot->{y} = $y_spot;
-
-			my $solution = get_solution($field, $realMyPos, $spot);
-
-			# 4. It must be reachable
-			next if (scalar @{$solution} == 0);
-
-			# 5. It must have at max $max_path_dist of route distance to it from our current position.
-			next if (scalar @{$solution} > $max_path_dist);
-
-			my $time_actor_to_get_to_spot = calcTimeFromSolution($solution, $mySpeed);
-
-			my $total_time = ($timeSinceTargetMoved+$time_actor_to_get_to_spot);
-			my $temp_targetCurrentStep = calcStepsWalkedFromTimeAndSolution($target_solution, $targetSpeed, $total_time);
-			my $targetPosInStep = $target_solution->[$temp_targetCurrentStep];
-
-			# 6. It must not be the target current spot
-			next unless ($spot->{x} != $targetPosInStep->{x} || $spot->{y} != $targetPosInStep->{y});
-
-			my $dist_to_target = blockDistance($spot, $targetPosInStep);
-
-			# 7. It must be further away from the target than $min_destination_dist
-			next unless ($dist_to_target >= $min_destination_dist);
-
-			# 8. It must be able to attack the target (canAttack)
-			next unless (canAttack($field, $spot, $targetPosInStep, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
-
-
-			# 9. It must be within $followDistanceMax of MasterPos, if we have a master.
+	my $best_spot;
+	my $best_target_position;
+	my $best_dist_to_target;
+	my $best_time_to_spot;
+	my $best_time_target_to_get_to_spot;
+	my $best_time_ahead;
+	my $best_path_dist;
+	
+	SPOT: foreach my $spot (@allspots) {
+			my $time_actor_to_get_to_spot = $explored_cells{$spot->{x}}{$spot->{y}}{w_dist} * $mySpeed;
+			
+			next if (defined $best_time_to_spot && $time_actor_to_get_to_spot > $best_time_to_spot);
+			
+			my $timeAhead;
+			my $time_target_to_get_to_spot;
+			
+			my $time_c = $time_actor_to_get_to_spot;
+			$time_c -= $actor_time_since_last_position if (defined $recheckPos);
+			$time_c += 0.1 unless (defined $recheckPos);
+			
+			# 5. It must be within $followDistanceMax of MasterPos, if we have a master.
 			if ($realMasterPos) {
 				my $masterPosNow;
 				if ($master_moving) {
-					my $totalTime = $timeSinceMasterMoved + $time_actor_to_get_to_spot;
-					my $master_CurrentStep = calcStepsWalkedFromTimeAndSolution($master_solution, $masterSpeed, $totalTime);
+					my $master_totalTime = $time_c + $master_time_since_last_position;
+					my $master_CurrentStep = calcStepsWalkedFromTimeAndSolution(\@missing_master_solution_steps, $masterSpeed, $master_totalTime);
 					$masterPosNow = $master_solution->[$master_CurrentStep];
 				} else {
 					$masterPosNow = $realMasterPos;
@@ -2780,27 +2929,102 @@ sub meetingPosition {
 				next unless (blockDistance($spot, $masterPosNow) <= $followDistanceMax);
 				next unless ($spot->{x} != $masterPosNow->{x} || $spot->{y} != $masterPosNow->{y});
 			}
-
-			if ($runFromTargetActive) {
-				my $time_target_to_get_to_spot = calcTimeFromPathfinding($field, $realTargetPos, $spot, $targetSpeed);
-				my $timeAhead = $time_target_to_get_to_spot - $time_actor_to_get_to_spot;
+			
+			my $compare_dist;
+			my $compare_position;
+			my $debugmsg;
+			
+			if ($runFromTargetActive && exists $target_explored_cells{$spot->{x}} && exists $target_explored_cells{$spot->{x}}{$spot->{y}}) {
+				$debugmsg .= "[TMT 2] Chase \n";
+				
+				$time_target_to_get_to_spot = $target_explored_cells{$spot->{x}}{$spot->{y}}{w_dist} * $targetSpeed;
+				
+				$timeAhead = $time_target_to_get_to_spot;
+				$timeAhead -= $time_c;
+				$timeAhead -= $target_time_since_last_position;
+				
+				debug "[TMT 1] $spot->{x} $spot->{y}, ".
+				"actorT $time_actor_to_get_to_spot, ".
+				"time_c $time_c, ".
+				"targetT $time_target_to_get_to_spot, ".
+				"aheadT $timeAhead.".
+				"\n" if (defined $recheckPos);
 				next unless ($timeAhead > $minAheadTime);
-				$time_actor_to_get_to_spot -= $timeAhead;
+				my $mob_attack_cell = getClosestAdjacentCell($spot, $realTargetPos);
+				my $chase_total_time = $time_c + $target_time_since_last_position;
+				my $target_position_chase = Utils::calcPosFromExplored(\%target_explored_cells, $mob_attack_cell, $chase_total_time, $targetSpeed);
+				my $chase_dist = blockDistance($spot, $target_position_chase);
+				$compare_dist = $chase_dist;
+				$compare_position = $target_position_chase;
+				
+			} else {
+				$debugmsg .= "[TMT 2] Normal \n";
+				my $target_position;
+				if ($target_moving) {
+					my $total_time = $time_c + $target_time_since_last_position;
+					my $temp_targetCurrentStep = calcStepsWalkedFromTimeAndSolution(\@missing_target_solution_steps, $targetSpeed, $total_time);
+					$target_position = $target_solution->[$temp_targetCurrentStep];
+				} else {
+					$target_position = $realTargetPos;
+				}
+				next unless ($spot->{x} != $target_position->{x} || $spot->{y} != $target_position->{y});
+				my $dist_to_target = blockDistance($spot, $target_position);
+				$compare_dist = $dist_to_target;
+				$compare_position = $target_position;
 			}
+			
+			my $path_dist = $explored_cells{$spot->{x}}{$spot->{y}}{path_dist};
+			
+			$debugmsg .= "[TMT 2] $spot->{x} $spot->{y} (p $path_dist), ".
+			"mob pos $compare_position->{x} $compare_position->{y} (d $compare_dist), ".
+			"actorT $time_actor_to_get_to_spot, ".
+			"targetT $time_target_to_get_to_spot, ".
+			"aheadT $timeAhead.".
+			"\n";
+			
+			debug $debugmsg;
+			
+			next unless ($compare_dist >= $min_destination_dist);
+			next unless (canAttack($field, $spot, $compare_position, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
 
-			if (!defined($best_time) || $time_actor_to_get_to_spot < $best_time) {
-				$best_time = $time_actor_to_get_to_spot;
-				$best_spot = $spot;
-				$best_targetPosInStep = $targetPosInStep;
-				$best_dist_to_target = $dist_to_target;
-			}
-		}
+			$best_time_to_spot = $time_actor_to_get_to_spot;
+			$best_time_target_to_get_to_spot = $time_target_to_get_to_spot;
+			$best_time_ahead = $timeAhead;
+			$best_spot = $spot;
+			$best_target_position = $compare_position;
+			$best_dist_to_target = $compare_dist;
+			$best_path_dist = $path_dist;
+			debug "[--TMT--] New best $best_spot->{x} $best_spot->{y} (t $best_time_to_spot) (p $best_path_dist)."."\n\n";
 	}
 
 	if (defined $best_spot) {
-		debug "[meetingPosition] Best spot is $best_spot->{x} $best_spot->{y}, mob will be at $best_targetPosInStep->{x} $best_targetPosInStep->{y}, dist $best_dist_to_target, it will take $best_time seconds to get there.\n";
+		debug "[mT] Your ($realMyPos->{x} $realMyPos->{y}) best spot is $best_spot->{x} $best_spot->{y} (p $best_path_dist), ".
+		"mob will be at $best_target_position->{x} $best_target_position->{y}, ".
+		"dist $best_dist_to_target, ".
+		"actor tt $best_time_to_spot, ".
+		"target tt $best_time_target_to_get_to_spot, ".
+		"ahead time $best_time_ahead.".
+		"\n";
 		return $best_spot;
 	}
+}
+
+sub getClosestAdjacentCell {
+	my ($me, $mob) = @_;
+	my @blocks = calcRectArea($me->{x}, $me->{y}, 1, $field);
+
+	my $best_block;
+	my $shortest_dist;
+
+	foreach my $block (@blocks) {
+		next if (!$field->isWalkable($block->{x}, $block->{y}));
+		my $dist = adjustedBlockDistance($mob, $block);
+		if (!defined $shortest_dist || $shortest_dist > $dist) {
+			$shortest_dist = $dist;
+			$best_block = $block;
+		}
+	}
+	return $best_block;
 }
 
 sub objectAdded {

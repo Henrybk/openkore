@@ -144,6 +144,45 @@ sub reset {
 	);
 }
 
+sub resetExploring {
+	my $class = shift;
+	my %args = @_;
+
+	# Check arguments
+	croak "Required arguments missing or wrong, specify correct 'field' or 'weight_map' and 'width' and 'height'\n"
+	unless ($args{field} && UNIVERSAL::isa($args{field}, 'Field')) || ($args{weight_map} && $args{width} && $args{height});
+	croak "Required argument 'start' missing\n" unless $args{start};
+	croak "Required argument 'explore_len' missing\n" unless $args{explore_len};
+
+	# Rebuild 'field' arg temporary here, to avoid that stupid bug, when weightMap not available
+	if ($args{field} && UNIVERSAL::isa($args{field}, 'Field') && !$args{field}->{weightMap}) {
+		$args{field}->loadByName($args{field}->name, 1);
+	}
+
+	# Default optional arguments
+
+	$args{weight_map} = \($args{field}->{weightMap}) unless (defined $args{weight_map});
+	$args{width} = $args{field}{width} unless (defined $args{width});
+	$args{height} = $args{field}{height} unless (defined $args{height});
+	$args{min_x} = 0 unless (defined $args{min_x});
+	$args{max_x} = ($args{width}-1) unless (defined $args{max_x});
+	$args{min_y} = 0 unless (defined $args{min_y});
+	$args{max_y} = ($args{height}-1) unless (defined $args{max_y});
+
+	return $class->_resetExploring(
+		$args{weight_map}, 
+		$args{width}, 
+		$args{height},
+		$args{start}{x}, 
+		$args{start}{y},
+		$args{explore_len},
+		$args{min_x},
+		$args{max_x},
+		$args{min_y},
+		$args{max_y}
+	);
+}
+
 
 ##
 # $PathFinding->run(solution_array)
