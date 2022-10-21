@@ -408,24 +408,23 @@ PathFinding_run(session, solution_array)
 			av_extend (array, size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
-			int cont = 1;
+			int current = session->solution_size;
 
-			while (cont == 1)
+			while (1)
 			{
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
 				hv_store(rh, "x", 1, newSViv(currentNode.x), 0);
 
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
-				
-				av_unshift(array, 1);
 
-				av_store(array, 0, newRV((SV *)rh));
+				av_store(array, current, newRV((SV *)rh));
 				
-				if (currentNode.x == session->startX && currentNode.y == session->startY) {
-					cont = 0;
+				if (current == 0) {
+					break;
 				} else {
 					currentNode = session->currentMap[currentNode.predecessor];
+					current--;
 				}
 			}
 			
@@ -650,8 +649,6 @@ PathFinding_explore(session, solution_array)
 
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
 
-				hv_store(rh, "d", 1, newSViv(currentNode.predecessorCount), 0);
-
 				hv_store(rh, "g", 1, newSViv(currentNode.g), 0);
 				
 				if (currentNode.x == session->startX && currentNode.y == session->startY) {
@@ -664,10 +661,8 @@ PathFinding_explore(session, solution_array)
 					hv_store(rh, "px", 2, newSViv(predecessor.x), 0);
 					hv_store(rh, "py", 2, newSViv(predecessor.y), 0);
 				}
-				
-				av_unshift(array, 1);
 
-				av_store(array, 0, newRV((SV *)rh));
+				av_store(array, current, newRV((SV *)rh));
 				
 				current++;
 			}

@@ -654,7 +654,6 @@ sub processEscapeUnknownMaps {
 				message TF("Calculating random route to: %s: %s, %s\n", $field->descString(), $randX, $randY), "route";
 				ai_route(
 					$field->baseName, $randX, $randY,
-					maxRouteTime => $config{route_randomWalk_maxRouteTime},
 					attackOnRoute => 2,
 					noMapRoute => ($config{route_randomWalk} == 2 ? 1 : 0),
 					isRandomWalk => 1,
@@ -2404,7 +2403,6 @@ sub processRandomWalk {
 				$field->baseName,
 				$randX,
 				$randY,
-				maxRouteTime => $config{route_randomWalk_maxRouteTime},
 				attackOnRoute => 2,
 				noMapRoute => ($config{route_randomWalk} == 2 ? 1 : 0),
 				isRandomWalk => 1

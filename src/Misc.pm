@@ -2726,12 +2726,6 @@ sub meetingPosition {
 	if ($attackMaxDistance >= $config{clientSight}) {
 		$attackMaxDistance = ($config{clientSight}-1);
 	}
-	
-	# Max distance we should stop from the target, usually attackMaxDistance
-	my $max_destination_dist = $attackMaxDistance;
-	
-	# We can actually atack from 1 range further than expected on ortogonal only cells, abuse that if config tells to do so
-	$max_destination_dist += 1 if ($config{attackUseExtraRange});
 
 	# Max number of cells in the path to our meeting position
 	# TODO: Maybe should consider diagonals heavier? (would actually be easier to calculate)
@@ -2742,12 +2736,6 @@ sub meetingPosition {
 		$max_path_dist = $attackRouteMaxPathDistance;
 	}
 	
-	# Add 1 here to account for pos from solution (it always returns pos + path) so we don't have to do it multiple times later (used to save computing time)
-	$max_path_dist += 1;
-
-	# Minimun distance we should calculate the pathing from the target (used to save computing time)
-	my $min_calc_dist = $min_destination_dist;
-		
 	# My current distance to the target
 	my $current_dist = blockDistance($realMyPos, $realTargetPos);
 
@@ -2755,54 +2743,14 @@ sub meetingPosition {
 	# otherwise it could get there faster than us and hit us
 	my $minAheadTime;
 	if ($runFromTargetActive) {
-		$minAheadTime = $targetSpeed*($runFromTarget_minStep-1);
+		$minAheadTime = $targetSpeed*($runFromTarget_minStep);
 	}
 	
-	debug "\n\n";
+	debug "\n";
 	debug "[TMT 0] my pos $realMyPos->{x} $realMyPos->{y}\n";
 	debug "[TMT 0] ta pos $realTargetPos->{x} $realTargetPos->{y}\n";
 	debug "[TMT 0] current_dist $current_dist\n";
-	debug "[TMT 0] min_destination_dist $min_destination_dist\n";
 	debug "[TMT 0] minAheadTime $minAheadTime ($targetSpeed * $runFromTarget_minStep)\n";
-	
-	# This is a math based idea to calculate more or less the distance from the current cell the actor would have to move for its
-	# greater speed to create a distance of at least $min_destination_dist between it and the target if the target was chasing the actor
-	if ($runFromTargetActive) {
-		# The amount of cells we have to move away to be at least min_destination_dist away from the target
-		my $need_dist = $min_destination_dist-$current_dist;
-		debug "[TMT 0] need_dist $need_dist\n";
-		
-		# My cells/sec
-		my $my_Ts = 1/$mySpeed;
-		debug "[TMT 0] my $mySpeed -> $my_Ts\n";
-		
-		# Target cells/sec
-		my $ta_Ts = 1/$targetSpeed;
-		debug "[TMT 0] ta $targetSpeed -> $ta_Ts\n";
-		
-		# My speed realative to the target
-		my $delta_ts = $my_Ts - $ta_Ts;
-		debug "[TMT 0] de $delta_ts\n";
-		
-		# The time it would take for the speed realative to the target to cover $need_dist
-		my $t_dif_w = $need_dist/$delta_ts;
-		debug "[TMT 0] t_dif_w $t_dif_w\n";
-		
-		# The amount of cells i could cover in $t_dif_w time (perfect dist away if no obstacles and moving in an ortogonal line)
-		my $w_dist = $t_dif_w * $my_Ts;
-		debug "[TMT 0] w_dist $w_dist\n";
-		
-		# Use a range of -30%~+30% of $w_dist distance from actor to try to find the meeting (avoiding) position
-		$max_destination_dist = int($w_dist*1.2);
-		debug "[TMT 0] max_destination_dist $max_destination_dist\n";
-		$min_calc_dist = int(($w_dist)*0.55);
-		debug "[TMT 0] min_calc_dist $min_calc_dist\n";
-		
-		if ($min_calc_dist < $min_destination_dist) {
-			$min_calc_dist = $min_destination_dist;
-			debug "[TMT 0] min_calc_dist $min_calc_dist\n";
-		}
-	}
 	debug "\n";
 	
 	my @add_blocks;
@@ -2819,16 +2767,12 @@ sub meetingPosition {
 	$pathfinding->explore($explored);
 	
 	foreach my $exp (@{$explored}) {
-		$explored_cells{$exp->{x}}{$exp->{y}}{path_dist} = $exp->{d};
-		$explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g}/10;
-		$explored_cells{$exp->{x}}{$exp->{y}}{p} = 0;
-		if ($exp->{p} == 1) {
-			$explored_cells{$exp->{x}}{$exp->{y}}{p} = 1;
-			$explored_cells{$exp->{x}}{$exp->{y}}{px} = $exp->{px};
-			$explored_cells{$exp->{x}}{$exp->{y}}{py} = $exp->{py};
-		}
+		$explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
 		push(@add_blocks, {x => $exp->{x}, y => $exp->{y}});
+		#debug "[add_blocks] $exp->{x} $exp->{y} -> $exp->{g}\n";
 	}
+	
+	my %prohibited;
 	
 	# Map using the pathfinding algorithm all cells close to the target to find their path distance in cells (path_dist) and clientdist (w_dist)
 	# Only do this when runFromTarget is active
@@ -2844,8 +2788,7 @@ sub meetingPosition {
 		$target_pathfinding->explore($target_explored);
 		
 		foreach my $exp (@{$target_explored}) {
-			$target_explored_cells{$exp->{x}}{$exp->{y}}{path_dist} = $exp->{d};
-			$target_explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g}/10;
+			$target_explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
 			$target_explored_cells{$exp->{x}}{$exp->{y}}{p} = 0;
 			if ($exp->{p} == 1) {
 				$target_explored_cells{$exp->{x}}{$exp->{y}}{p} = 1;
@@ -2858,7 +2801,6 @@ sub meetingPosition {
 	# Prohibits cells near a portal
 	# Todo: Recalculate path when new portals are found?
 	my $portalDist = $config{'attackMinPortalDistance'} || 4;
-	my %prohibited;
 	for my $portal (@$portalsList) {
 		foreach my $px (($portal->{pos}{x}-$portalDist)..($portal->{pos}{x}+$portalDist)) {
 			foreach my $py (($portal->{pos}{y}-$portalDist)..($portal->{pos}{y}+$portalDist)) {
@@ -2875,69 +2817,55 @@ sub meetingPosition {
 	my @allspots;
 	# If $recheckPos is set, only check that cell
 	if (defined $recheckPos) {
-		return if (exists $prohibited{$recheckPos->{x}} && exists $prohibited{$recheckPos->{x}}{$recheckPos->{y}});
-		return unless (exists $explored_cells{$recheckPos->{x}} && exists $explored_cells{$recheckPos->{x}}{$recheckPos->{y}});
-		push(@allspots, $recheckPos);
-	} else {
-		foreach my $block (@add_blocks) {
-			# Excludes prohibited cells
-			next if (exists $prohibited{$block->{x}} && exists $prohibited{$block->{x}}{$block->{y}});
-			
-			# Excludes cells that are unreachable
-			#next unless (exists $explored_cells{$block->{x}} && exists $explored_cells{$block->{x}}{$block->{y}});
-			
-			# Excludes cells that are further than max_path_dist
-			#next if ($explored_cells{$block->{x}}{$block->{y}}{path_dist} > $max_path_dist);
-			
-			# Add valid cell to checking array
-			push(@allspots, $block);
-		}
+		@add_blocks = ();
+		push(@add_blocks, $recheckPos);
 	}
 	
-	@allspots = sort {$explored_cells{$a->{x}}{$a->{y}}{w_dist} <=> $explored_cells{$b->{x}}{$b->{y}}{w_dist}} @allspots;
+	foreach my $block (@add_blocks) {
+		# Excludes prohibited cells
+		next if (exists $prohibited{$block->{x}} && exists $prohibited{$block->{x}}{$block->{y}});
+		
+		# Excludes cells that are unreachable
+		#next unless (exists $explored_cells{$block->{x}} && exists $explored_cells{$block->{x}}{$block->{y}});
+			
+		# Add valid cell to checking array
+		push(@allspots, $block);
+	}
+	
+	#@allspots = sort {$explored_cells{$a->{x}}{$a->{y}}{w_dist} <=> $explored_cells{$b->{x}}{$b->{y}}{w_dist}} @allspots;
 
 	my $best_spot;
 	my $best_target_position;
 	my $best_dist_to_target;
+	my $best_w_dist;
 	my $best_time_to_spot;
 	my $best_time_target_to_get_to_spot;
 	my $best_time_ahead;
-	my $best_path_dist;
+	
+	my $time_extra = 0;
+	if (defined $recheckPos) {
+		$time_extra -= $actor_time_since_last_position;
+	} else {
+		$time_extra += 0.1;
+	}
 	
 	SPOT: foreach my $spot (@allspots) {
-			my $time_actor_to_get_to_spot = $explored_cells{$spot->{x}}{$spot->{y}}{w_dist} * $mySpeed;
+			my $w_dist = $explored_cells{$spot->{x}}{$spot->{y}}{w_dist}/10;
 			
-			next if (defined $best_time_to_spot && $time_actor_to_get_to_spot > $best_time_to_spot);
+			my $time_actor_to_get_to_spot = $w_dist * $mySpeed;
 			
 			my $timeAhead;
 			my $time_target_to_get_to_spot;
 			
 			my $time_c = $time_actor_to_get_to_spot;
-			$time_c -= $actor_time_since_last_position if (defined $recheckPos);
-			$time_c += 0.1 unless (defined $recheckPos);
-			
-			# 5. It must be within $followDistanceMax of MasterPos, if we have a master.
-			if ($realMasterPos) {
-				my $masterPosNow;
-				if ($master_moving) {
-					my $master_totalTime = $time_c + $master_time_since_last_position;
-					my $master_CurrentStep = calcStepsWalkedFromTimeAndSolution(\@missing_master_solution_steps, $masterSpeed, $master_totalTime);
-					$masterPosNow = $master_solution->[$master_CurrentStep];
-				} else {
-					$masterPosNow = $realMasterPos;
-				}
-				next unless (blockDistance($spot, $masterPosNow) <= $followDistanceMax);
-				next unless ($spot->{x} != $masterPosNow->{x} || $spot->{y} != $masterPosNow->{y});
-			}
+			$time_c += $time_extra;
 			
 			my $compare_dist;
 			my $compare_position;
 			my $debugmsg;
 			
 			if ($runFromTargetActive && exists $target_explored_cells{$spot->{x}} && exists $target_explored_cells{$spot->{x}}{$spot->{y}}) {
-				$debugmsg .= "[TMT 2] Chase \n";
-				
-				$time_target_to_get_to_spot = $target_explored_cells{$spot->{x}}{$spot->{y}}{w_dist} * $targetSpeed;
+				$time_target_to_get_to_spot = ($target_explored_cells{$spot->{x}}{$spot->{y}}{w_dist}/10) * $targetSpeed;
 				
 				$timeAhead = $time_target_to_get_to_spot;
 				$timeAhead -= $time_c;
@@ -2945,10 +2873,11 @@ sub meetingPosition {
 				
 				debug "[TMT 1] $spot->{x} $spot->{y}, ".
 				"actorT $time_actor_to_get_to_spot, ".
-				"time_c $time_c, ".
 				"targetT $time_target_to_get_to_spot, ".
+				"time_c $time_c, ".
 				"aheadT $timeAhead.".
 				"\n" if (defined $recheckPos);
+				$debugmsg .= "[TMT 2] Chases ";
 				next unless ($timeAhead > $minAheadTime);
 				my $mob_attack_cell = getClosestAdjacentCell($spot, $realTargetPos);
 				my $chase_total_time = $time_c + $target_time_since_last_position;
@@ -2958,7 +2887,7 @@ sub meetingPosition {
 				$compare_position = $target_position_chase;
 				
 			} else {
-				$debugmsg .= "[TMT 2] Normal \n";
+				$debugmsg .= "[TMT 2] Normal ";
 				my $target_position;
 				if ($target_moving) {
 					my $total_time = $time_c + $target_time_since_last_position;
@@ -2973,34 +2902,52 @@ sub meetingPosition {
 				$compare_position = $target_position;
 			}
 			
-			my $path_dist = $explored_cells{$spot->{x}}{$spot->{y}}{path_dist};
-			
-			$debugmsg .= "[TMT 2] $spot->{x} $spot->{y} (p $path_dist), ".
+			$debugmsg .= "$spot->{x} $spot->{y}, ".
 			"mob pos $compare_position->{x} $compare_position->{y} (d $compare_dist), ".
-			"actorT $time_actor_to_get_to_spot, ".
+			"wd $w_dist, ".
+			"actorT $time_actor_to_get_to_spot";
+			
+			$debugmsg .= ", ".
 			"targetT $time_target_to_get_to_spot, ".
-			"aheadT $timeAhead.".
-			"\n";
+			"aheadT $timeAhead." if (defined $timeAhead);
+			
+			$debugmsg .= "\n";
 			
 			debug $debugmsg;
 			
 			next unless ($compare_dist >= $min_destination_dist);
 			next unless (canAttack($field, $spot, $compare_position, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
+			
+			
+			# 5. It must be within $followDistanceMax of MasterPos, if we have a master.
+			if ($masterPos) {
+				my $masterPosNow;
+				if ($master_moving) {
+					my $master_totalTime = $time_c + $master_time_since_last_position;
+					my $master_CurrentStep = calcStepsWalkedFromTimeAndSolution(\@missing_master_solution_steps, $masterSpeed, $master_totalTime);
+					$masterPosNow = $master_solution->[$master_CurrentStep];
+				} else {
+					$masterPosNow = $realMasterPos;
+				}
+				next unless (blockDistance($spot, $masterPosNow) <= $followDistanceMax);
+				next unless ($spot->{x} != $masterPosNow->{x} || $spot->{y} != $masterPosNow->{y});
+			}
 
+			$best_w_dist = $w_dist;
 			$best_time_to_spot = $time_actor_to_get_to_spot;
 			$best_time_target_to_get_to_spot = $time_target_to_get_to_spot;
 			$best_time_ahead = $timeAhead;
 			$best_spot = $spot;
 			$best_target_position = $compare_position;
 			$best_dist_to_target = $compare_dist;
-			$best_path_dist = $path_dist;
-			debug "[--TMT--] New best $best_spot->{x} $best_spot->{y} (t $best_time_to_spot) (p $best_path_dist)."."\n\n";
+			last;
 	}
 
 	if (defined $best_spot) {
-		debug "[mT] Your ($realMyPos->{x} $realMyPos->{y}) best spot is $best_spot->{x} $best_spot->{y} (p $best_path_dist), ".
+		debug "[mT] Your ($realMyPos->{x} $realMyPos->{y}) best spot is $best_spot->{x} $best_spot->{y}, ".
 		"mob will be at $best_target_position->{x} $best_target_position->{y}, ".
 		"dist $best_dist_to_target, ".
+		"actor wd $best_w_dist, ".
 		"actor tt $best_time_to_spot, ".
 		"target tt $best_time_target_to_get_to_spot, ".
 		"ahead time $best_time_ahead.".

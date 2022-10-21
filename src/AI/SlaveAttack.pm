@@ -433,7 +433,6 @@ sub main {
 			$slave->route(
 				undef,
 				@{$pos}{qw(x y)},
-				maxRouteTime => $config{$slave->{configPrefix}.'attackMaxRouteTime'},
 				attackID => $ID,
 				avoidWalls => 0,
 				randomFactor => 0,
