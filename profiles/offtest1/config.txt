@@ -233,10 +233,11 @@ route_tryToGuessMissingPortalByDistance 1
 route_reAddMissingPortals 1
 
 runFromTarget 1
-runFromTarget_inAdvance 0
+runFromTarget_inAdvance 1
+runFromTarget_inAdvanceMin 7
 runFromTarget_dist 6
-runFromTarget_minStep 7
-runFromTarget_maxPathDistance 40
+runFromTarget_minStep 8
+runFromTarget_maxPathDistance 20
 runFromTarget_onlyWhenFaster 1
 
 saveMap prt_fild05

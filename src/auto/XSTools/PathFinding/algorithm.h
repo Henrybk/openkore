@@ -11,12 +11,11 @@ typedef struct {
 	
 	unsigned long nodeAdress;
 	
-	unsigned int predecessor;
-	
 	unsigned int whichlist;
 	long openListIndex;
 	
-	unsigned long predecessorCount;
+	unsigned long predecessor;
+	long predecessorCount;
 	
 	unsigned long g;
 	unsigned long h;
@@ -25,15 +24,13 @@ typedef struct {
 
 typedef struct {
 	bool avoidWalls;
-	const char *map_base_weight;
-	
 	bool customWeights;
-	unsigned int *second_weight_map;
+	bool useManhattan;
 	
 	unsigned int randomFactor;
 	
-	int useManhattan;
-	int explore;
+	const char *map_base_weight;
+	unsigned int *second_weight_map;
 	
 	unsigned long time_max;
 	
@@ -50,17 +47,18 @@ typedef struct {
 	int endX;
 	int endY;
 	
-	int solution_size;
-	int initialized;
-	int run;
-	int runExplore;
+	unsigned long solution_size;
 	
-	long openListSize;
-	long exploredListSize;
+	bool initialized;
 	
 	Node *currentMap;
 	
 	unsigned long *openList;
+	unsigned long openListSize;
+	
+	bool exploring;
+	long explore;
+	unsigned long exploredListSize;
 	unsigned long *exploredList;
 } CalcPath_session;
 
@@ -70,9 +68,11 @@ void CalcPath_init (CalcPath_session *session);
 
 int CalcPath_pathStep (CalcPath_session *session);
 
+void CalcPath_explore_init (CalcPath_session *session);
+
 int CalcPath_explore (CalcPath_session *session);
 
-int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, int useManhattan);
+int heuristic_cost_estimate(int currentX, int currentY, int goalX, int goalY, bool useManhattan);
 
 void reconstruct_path(CalcPath_session *session, Node* goal, Node* start);
 
@@ -82,11 +82,7 @@ void reajustOpenListItem (CalcPath_session *session, Node* node);
 
 Node* openListGetLowest (CalcPath_session *session);
 
-void free_currentMap (CalcPath_session *session);
-
-void free_openList (CalcPath_session *session);
-
-void free_exploredList (CalcPath_session *session);
+void free_initialized (CalcPath_session *session);
 
 void CalcPath_destroy (CalcPath_session *session);
 

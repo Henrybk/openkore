@@ -44,23 +44,12 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		char *weight_map_data = NULL;
 	
 	CODE:
+		//printf("[PathFinding__reset] start\n");
 		
 		/* If the object was already initiated, clean map memory */
 		if (session->initialized) {
-			free_currentMap(session);
+			free_initialized(session);
 			session->initialized = 0;
-		}
-		
-		/* If the path has already been calculated on this object, clean openlist memory */
-		if (session->run) {
-			free_openList(session);
-			session->run = 0;
-		}
-		
-		/* If the path has already been calculated on this object, clean exploredList memory */
-		if (session->runExplore) {
-			free_exploredList(session);
-			session->runExplore = 0;
 		}
 		
 		/* Check for any missing arguments */
@@ -154,22 +143,30 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		weight_map_data = (char *) SvPV_nolen (SvRV (weight_map));
 		session->map_base_weight = weight_map_data;
 		
+		session->time_max = (unsigned long) SvUV (time_max);
+		
 		session->width = (int) SvUV (width);
 		session->height = (int) SvUV (height);
-		
-		session->startX = (int) SvUV (startx);
-		session->startY = (int) SvUV (starty);
-		session->endX = (int) SvUV (destx);
-		session->endY = (int) SvUV (desty);
 		
 		session->min_x = (int) SvUV (min_x);
 		session->max_x = (int) SvUV (max_x);
 		session->min_y = (int) SvUV (min_y);
 		session->max_y = (int) SvUV (max_y);
 		
-		srand(time(0));
-		session->randomFactor = (int) SvUV (randomFactor);
+		session->startX = (int) SvUV (startx);
+		session->startY = (int) SvUV (starty);
+		session->endX = (int) SvUV (destx);
+		session->endY = (int) SvUV (desty);
+		
+		session->avoidWalls = (int) SvUV (avoidWalls);
 		session->useManhattan = (int) SvUV (useManhattan);
+		session->customWeights = (int) SvUV (customWeights);
+		
+		session->randomFactor = (int) SvUV (randomFactor);
+		srand(time(0));
+		
+		session->exploring = 0;
+		session->explore = 0;
 	
 		// Min and max check
 		if (session->min_x >= session->width || session->min_y >= session->height || session->min_x < 0 || session->min_y < 0) {
@@ -213,11 +210,6 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 			printf("[pathfinding reset error] End coordinate %d %d is out of the minimum and maximum coordinates (size: %d .. %d x %d .. %d).\n", session->endX, session->endY, session->min_x, session->max_x, session->min_y, session->max_y);
 			XSRETURN_NO;
 		}
-		
-		session->avoidWalls = (unsigned short) SvUV (avoidWalls);
-		session->customWeights = (unsigned short) SvUV (customWeights);
-		session->time_max = (unsigned int) SvUV (time_max);
-		session->explore = 0;
 		
 		CalcPath_init(session);
 		
@@ -371,26 +363,37 @@ PathFinding_run(session, solution_array)
 	PREINIT:
 		int status;
 	CODE:
+		//printf("[PathFinding_run] start\n");
 		
 		/* Check for any missing arguments */
 		if (!session || !solution_array) {
-			printf("[pathfinding run error] missing argument\n");
+			printf("[PathFinding_run error] missing argument\n");
 			XSRETURN_NO;
 		}
 		
 		/* solution_array should be a reference to an array */
 		if (!SvROK(solution_array)) {
-			printf("[pathfinding run error] solution_array is not a reference\n");
+			printf("[PathFinding_run error] solution_array is not a reference\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvTYPE(SvRV(solution_array)) != SVt_PVAV) {
-			printf("[pathfinding run error] solution_array is not an array reference\n");
+			printf("[PathFinding_run error] solution_array is not an array reference\n");
 			XSRETURN_NO;
 		}
 		
 		if (!SvOK(solution_array)) {
-			printf("[pathfinding run error] solution_array is not defined\n");
+			printf("[PathFinding_run error] solution_array is not defined\n");
+			XSRETURN_NO;
+		}
+		
+		if (!session->initialized) {
+			printf("[PathFinding_run error] You must call 'reset' before 'run'.\n");
+			XSRETURN_NO;
+		}
+		
+		if (session->exploring) {
+			printf("[PathFinding_run error] You must call 'reset' before 'run' (maybe you called 'resetExploring' by accident?).\n");
 			XSRETURN_NO;
 		}
 
@@ -400,7 +403,7 @@ PathFinding_run(session, solution_array)
 			RETVAL = status;
 		} else {
 			AV *array;
-			int size;
+			unsigned long size;
 
 			size = (session->solution_size + 1);
  			array = (AV *) SvRV (solution_array);
@@ -408,7 +411,7 @@ PathFinding_run(session, solution_array)
 			av_extend (array, size);
 			
 			Node currentNode = session->currentMap[(session->endY * session->width) + session->endX];
-			int current = session->solution_size;
+			unsigned long current = session->solution_size;
 
 			while (1)
 			{
@@ -439,26 +442,37 @@ PathFinding_runcount(session)
 	PREINIT:
 		int status;
 	CODE:
-
+		/* Check for any missing arguments */
+		if (!session) {
+			printf("[PathFinding_runcount error] missing argument\n");
+			XSRETURN_NO;
+		}
+		if (!session->initialized) {
+			printf("[PathFinding_runcount error] You must call 'reset' before 'runcount'.\n");
+			XSRETURN_NO;
+		}
+		if (session->exploring) {
+			printf("[PathFinding_runcount error] You must call 'reset' before 'runcount' (maybe you called 'resetExploring' by accident?).\n");
+			XSRETURN_NO;
+		}
 		status = CalcPath_pathStep (session);
 		
 		if (status < 0) {
 			RETVAL = status;
 		} else {
-			RETVAL = (int) session->solution_size;
+			RETVAL = (unsigned long) session->solution_size;
 		}
 	OUTPUT:
 		RETVAL
 
 void
-PathFinding__resetExploring(session, weight_map, width, height, startx, starty, explore_len, min_x, max_x, min_y, max_y)
+PathFinding__resetExploring(session, weight_map, width, height, startx, starty, min_x, max_x, min_y, max_y)
 		PathFinding session
 		SV * weight_map
 		SV * width
 		SV * height
 		SV * startx
 		SV * starty
-		SV * explore_len
 		SV * min_x
 		SV * max_x
 		SV * min_y
@@ -468,74 +482,57 @@ PathFinding__resetExploring(session, weight_map, width, height, startx, starty, 
 		char *weight_map_data = NULL;
 	
 	CODE:
-	
 		//printf("[PathFinding__resetExploring] start\n");
+		
 		/* If the object was already initiated, clean map memory */
 		if (session->initialized) {
-			free_currentMap(session);
+			free_initialized(session);
 			session->initialized = 0;
 		}
 		
-		/* If the path has already been calculated on this object, clean openlist memory */
-		if (session->run) {
-			free_openList(session);
-			session->run = 0;
-		}
-		
-		/* If the path has already been calculated on this object, clean exploredList memory */
-		if (session->runExplore) {
-			free_exploredList(session);
-			session->runExplore = 0;
-		}
-		
 		/* Check for any missing arguments */
-		if (!session || !weight_map || !width || !height || !startx || !starty || !explore_len || !min_x || !max_x || !min_y || !max_y) {
-			printf("[pathfinding reset error] missing argument\n");
+		if (!session || !weight_map || !width || !height || !startx || !starty || !min_x || !max_x || !min_y || !max_y) {
+			printf("[pathfinding resetExploring error] missing argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(width) || SvTYPE(width) >= SVt_PVAV || !SvOK(width)) {
-			printf("[pathfinding reset error] bad width argument\n");
+			printf("[pathfinding resetExploring error] bad width argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(height) || SvTYPE(height) >= SVt_PVAV || !SvOK(height)) {
-			printf("[pathfinding reset error] bad height argument\n");
+			printf("[pathfinding resetExploring error] bad height argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(startx) || SvTYPE(startx) >= SVt_PVAV || !SvOK(startx)) {
-			printf("[pathfinding reset error] bad startx argument\n");
+			printf("[pathfinding resetExploring error] bad startx argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(starty) || SvTYPE(starty) >= SVt_PVAV || !SvOK(starty)) {
-			printf("[pathfinding reset error] bad starty argument\n");
-			XSRETURN_NO;
-		}
-		
-		if (SvROK(explore_len) || SvTYPE(explore_len) >= SVt_PVAV || !SvOK(explore_len)) {
-			printf("[pathfinding explore error] bad explore_len argument\n");
+			printf("[pathfinding resetExploring error] bad starty argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(min_x) || SvTYPE(min_x) >= SVt_PVAV || !SvOK(min_x)) {
-			printf("[pathfinding reset error] bad min_x argument\n");
+			printf("[pathfinding resetExploring error] bad min_x argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(max_x) || SvTYPE(max_x) >= SVt_PVAV || !SvOK(max_x)) {
-			printf("[pathfinding reset error] bad max_x argument\n");
+			printf("[pathfinding resetExploring error] bad max_x argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(min_y) || SvTYPE(min_y) >= SVt_PVAV || !SvOK(min_y)) {
-			printf("[pathfinding reset error] bad min_y argument\n");
+			printf("[pathfinding resetExploring error] bad min_y argument\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvROK(max_y) || SvTYPE(max_y) >= SVt_PVAV || !SvOK(max_y)) {
-			printf("[pathfinding reset error] bad max_y argument\n");
+			printf("[pathfinding resetExploring error] bad max_y argument\n");
 			XSRETURN_NO;
 		}
 		
@@ -546,15 +543,16 @@ PathFinding__resetExploring(session, weight_map, width, height, startx, starty, 
 		session->width = (int) SvUV (width);
 		session->height = (int) SvUV (height);
 		
-		session->startX = (int) SvUV (startx);
-		session->startY = (int) SvUV (starty);
-		
-		session->explore = (int) SvUV (explore_len);
-		
 		session->min_x = (int) SvUV (min_x);
 		session->max_x = (int) SvUV (max_x);
 		session->min_y = (int) SvUV (min_y);
 		session->max_y = (int) SvUV (max_y);
+		
+		session->startX = (int) SvUV (startx);
+		session->startY = (int) SvUV (starty);
+		
+		session->exploring = 1;
+		session->explore = 0;
 	
 		// Min and max check
 		if (session->min_x >= session->width || session->min_y >= session->height || session->min_x < 0 || session->min_y < 0) {
@@ -583,58 +581,85 @@ PathFinding__resetExploring(session, weight_map, width, height, startx, starty, 
 			XSRETURN_NO;
 		}
 		
-		CalcPath_init(session);
+		CalcPath_explore_init(session);
 
 int
-PathFinding_explore(session, solution_array)
+PathFinding_explore(session, explore_len, solution_array)
 		PathFinding session
+		SV * explore_len
 		SV * solution_array
 	PREINIT:
 		int status;
 	CODE:
-		
 		//printf("[PathFinding_explore] start\n");
+		
 		/* Check for any missing arguments */
-		if (!session || !solution_array) {
-			printf("[pathfinding explore error] missing argument\n");
+		if (!session || !explore_len || !solution_array) {
+			printf("[PathFinding_explore error] missing argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(explore_len) || SvTYPE(explore_len) >= SVt_PVAV || !SvOK(explore_len)) {
+			printf("[PathFinding_explore error] bad explore_len argument\n");
 			XSRETURN_NO;
 		}
 		
 		/* solution_array should be a reference to an array */
 		if (!SvROK(solution_array)) {
-			printf("[pathfinding explore error] solution_array is not a reference\n");
+			printf("[PathFinding_explore error] solution_array is not a reference\n");
 			XSRETURN_NO;
 		}
 		
 		if (SvTYPE(SvRV(solution_array)) != SVt_PVAV) {
-			printf("[pathfinding explore error] solution_array is not an array reference\n");
+			printf("[PathFinding_explore error] solution_array is not an array reference\n");
 			XSRETURN_NO;
 		}
 		
 		if (!SvOK(solution_array)) {
-			printf("[pathfinding explore error] solution_array is not defined\n");
+			printf("[PathFinding_explore error] solution_array is not defined\n");
 			XSRETURN_NO;
 		}
 		
-		if (!session->explore) {
-			printf("[pathfinding explore error] resetExploring not called\n");
+		if (!session->initialized) {
+			printf("[PathFinding_explore error] You must call 'resetExploring' before 'explore'.\n");
 			XSRETURN_NO;
 		}
 		
+		if (!session->exploring) {
+			printf("[PathFinding_explore error] You must call 'resetExploring' before 'explore' (maybe you called 'reset' by accident?).\n");
+			XSRETURN_NO;
+		}
+		
+		long old_explore_len = session->explore;
+		session->explore = (long) SvUV (explore_len);
+		
+		if (session->explore < 0) {
+			printf("[PathFinding_explore error] explore_len %ld must be positive.\n", session->explore);
+			XSRETURN_NO;
+		}
+		
+		if (old_explore_len >= session->explore) {
+			printf("[PathFinding_explore error] explore_len must always increase between calls (old %ld -> new: %ld).\n", old_explore_len, session->explore);
+			XSRETURN_NO;
+		}
+		
+		unsigned long old_exploredListSize = session->exploredListSize;
 		status = CalcPath_explore (session);
 		
 		if (status < 0) {
 			RETVAL = status;
 		} else {
 			AV *array;
-			int size;
+			unsigned long size;
+			
+			unsigned long array_location;
 
 			size = session->exploredListSize;
  			array = (AV *) SvRV (solution_array);
 			av_clear (array);
 			av_extend (array, size);
 			
-			int current = 0;
+			unsigned long current = old_exploredListSize;
 			
 			Node currentNode;
 			Node predecessor;
@@ -642,6 +667,7 @@ PathFinding_explore(session, solution_array)
 			while (current < size)
 			{
 				currentNode = session->currentMap[session->exploredList[current]];
+				array_location = current - old_exploredListSize;
 				
 				HV * rh = (HV *)sv_2mortal((SV *)newHV());
 
@@ -650,6 +676,8 @@ PathFinding_explore(session, solution_array)
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
 
 				hv_store(rh, "g", 1, newSViv(currentNode.g), 0);
+
+				hv_store(rh, "pc", 1, newSViv(currentNode.predecessorCount), 0);
 				
 				if (currentNode.x == session->startX && currentNode.y == session->startY) {
 					hv_store(rh, "p", 1, newSViv(0), 0);
@@ -662,7 +690,7 @@ PathFinding_explore(session, solution_array)
 					hv_store(rh, "py", 2, newSViv(predecessor.y), 0);
 				}
 
-				av_store(array, current, newRV((SV *)rh));
+				av_store(array, array_location, newRV((SV *)rh));
 				
 				current++;
 			}

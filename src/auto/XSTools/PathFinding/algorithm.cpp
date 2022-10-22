@@ -38,8 +38,6 @@ CalcPath_new ()
 	session = (CalcPath_session*) malloc (sizeof (CalcPath_session));
 	
 	session->initialized = 0;
-	session->run = 0;
-	session->runExplore = 0;
 	
 	return session;
 }
@@ -62,18 +60,22 @@ CalcPath_init (CalcPath_session *session)
 	start->y = session->startY;
 	start->nodeAdress = startAdress;
 	
-	if (session->explore == 0) {
-		unsigned long goalAdress = (session->endY * session->width) + session->endX;
-		Node* goal = &session->currentMap[goalAdress];
-		goal->x = session->endX;
-		goal->y = session->endY;
-		goal->nodeAdress = goalAdress;
-		start->h = heuristic_cost_estimate(start->x, start->y, goal->x, goal->y, session->useManhattan);
-	} else {
-		start->h = 0;
-	}
+	unsigned long goalAdress = (session->endY * session->width) + session->endX;
+	Node* goal = &session->currentMap[goalAdress];
+	goal->x = session->endX;
+	goal->y = session->endY;
+	goal->nodeAdress = goalAdress;
 	
+	start->h = heuristic_cost_estimate(start->x, start->y, goal->x, goal->y, session->useManhattan);
+	start->g = 0;
 	start->f = start->h;
+	
+	session->openListSize = 0;
+	// Allocate enough memory in openList to hold the adress of all nodes in the map
+	session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
+	
+	// To initialize the pathfinding add only the start node to openList
+	openListAdd (session, start);
 	
 	session->initialized = 1;
 }
@@ -82,23 +84,8 @@ CalcPath_init (CalcPath_session *session)
 int 
 CalcPath_pathStep (CalcPath_session *session)
 {
-	if (!session->initialized) {
-		printf("[pathfinding run error] You must call 'reset' before 'run'.\n");
-		return -2;
-	}
-	
 	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
 	Node* goal = &session->currentMap[((session->endY * session->width) + session->endX)];
-	
-	if (!session->run) {
-		session->run = 1;
-		session->openListSize = 0;
-		// Allocate enough memory in openList to hold the adress of all nodes in the map
-		session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
-		
-		// To initialize the pathfinding add only the start node to openList
-		openListAdd (session, start);
-	}
 	
 	// If the start node and goal node are the same return a valid path with length 0
 	if (goal->nodeAdress == start->nodeAdress) {
@@ -136,7 +123,7 @@ CalcPath_pathStep (CalcPath_session *session)
 		loop++;
 		if (loop == 100) {
 			if (GetTickCount() - timeout > session->time_max) {
-				printf("[pathfinding run error] Pathfinding ended before provided time.\n");
+				printf("[pathfinding CalcPath_pathStep error] Pathfinding ended before provided time.\n");
 				return -3;
 			} else
 				loop = 0;
@@ -233,30 +220,45 @@ CalcPath_pathStep (CalcPath_session *session)
 	return -1;
 }
 
+// Create a new pathfinding session, or reset an existing session.
+// Resetting is preferred over destroying and creating, because it saves unnecessary memory allocations, thus improving performance.
+void
+CalcPath_explore_init (CalcPath_session *session)
+{
+	// Allocate enough memory in currentMap to hold all nodes in the map
+	// Here we use calloc instead of malloc (calloc sets all memory allocated to 0's) so all uninitialized cells have whichlist set to NONE
+	session->currentMap = (Node*) calloc(session->height * session->width, sizeof(Node));
+	
+	unsigned long startAdress = (session->startY * session->width) + session->startX;
+	Node* start = &session->currentMap[startAdress];
+	start->x = session->startX;
+	start->y = session->startY;
+	start->nodeAdress = startAdress;
+	
+	start->h = 0;
+	start->g = 0;
+	start->f = 0;
+	start->predecessorCount = 0;
+	
+	session->openListSize = 0;
+	// Allocate enough memory in openList to hold the adress of all nodes in the map
+	session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
+	
+	session->exploredListSize = 0;
+	session->exploredList = (unsigned long*) calloc((session->height * session->width), sizeof(unsigned long));
+	
+	// To initialize the pathfinding add only the start node to openList
+	openListAdd (session, start);
+	
+	session->initialized = 1;
+}
+
 int 
 CalcPath_explore (CalcPath_session *session)
 {
 	//printf("[CalcPath_explore] start\n");
-	if (!session->initialized) {
-		printf("[pathfinding run error] You must call 'reset' before 'run'.\n");
-		return -2;
-	}
 	
 	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
-	
-	if (!session->run) {
-		session->run = 1;
-		session->runExplore = 1;
-		session->openListSize = 0;
-		// Allocate enough memory in openList to hold the adress of all nodes in the map
-		session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
-		
-		session->exploredListSize = 0;
-		session->exploredList = (unsigned long*) calloc((session->height * session->width), sizeof(unsigned long));
-		
-		// To initialize the pathfinding add only the start node to openList
-		openListAdd (session, start);
-	}
 	
 	Node* currentNode;
 	Node* neighborNode;
@@ -282,20 +284,24 @@ CalcPath_explore (CalcPath_session *session)
 		// Set currentNode to the top node in openList, and remove it from openList.
 		currentNode = openListGetLowest (session);
 		
-		session->exploredList[session->exploredListSize] = currentNode->nodeAdress;
-		session->exploredListSize++;
-		
-		//printf("[CalcPath_explore] coordinate %d %d (%d)\n", currentNode->x, currentNode->y, currentNode->predecessorCount);
+		//printf("[CalcPath_explore] coordinate %d %d (g %d) (p %d)\n", currentNode->x, currentNode->y, currentNode->g, currentNode->predecessorCount);
 
 		if (currentNode->predecessorCount == session->explore) {
-			continue;
+			//continue;
+			openListAdd (session, currentNode);
+			//printf("-- [CalcPath_explore] Returning on coordinate %d %d (g %d) (p %d)\n", currentNode->x, currentNode->y, currentNode->g, currentNode->predecessorCount);
+			return 1;
 		}
+		
+		session->exploredList[session->exploredListSize] = currentNode->nodeAdress;
+		session->exploredListSize++;
 		
 		// Loop between all neighbors
 		for (i = 0; i <= 7; i++)
 		{
 			neighbor_x = currentNode->x + i_x[i];
 			neighbor_y = currentNode->y + i_y[i];
+			//printf("[CalcPath_explore] coordinate %d %d -> Neighbor %d %d\n", currentNode->x, currentNode->y, neighbor_x, neighbor_y);
 
 			if (neighbor_x > session->max_x || neighbor_y > session->max_y || neighbor_x < session->min_x || neighbor_y < session->min_y) {
 				continue;
@@ -362,7 +368,7 @@ CalcPath_explore (CalcPath_session *session)
 
 // The heuristic used is diagonal distance, unless specified to use manhattan (to mimic client)
 int
-heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY, int useManhattan)
+heuristic_cost_estimate (int currentX, int currentY, int goalX, int goalY, bool useManhattan)
 {
 	int xDistance = abs(currentX - goalX);
 	int yDistance = abs(currentY - goalY);
@@ -416,7 +422,6 @@ openListAdd (CalcPath_session *session, Node* currentNode)
 	
 	// Repeat while currentNode still has a parent node, otherwise currentNode is the top node in the heap
 	while (parentIndex >= 0) {
-		
 		parentNode = &session->currentMap[session->openList[parentIndex]];
 		
 		// If parent node is bigger than currentNode, exchange their positions
@@ -555,46 +560,27 @@ openListGetLowest (CalcPath_session *session)
 	return lowestNode;
 }
 
-// Frees the memory allocated by currentMap
+// Frees all the memory allocated by objects
 void
-free_currentMap (CalcPath_session *session)
-{
-	free(session->currentMap);
-	if (session->customWeights) {
-		free(session->second_weight_map);
-	}
-}
-
-// Frees the memory allocated by openList
-void
-free_openList (CalcPath_session *session)
-{
-	free(session->openList);
-}
-
-// Frees the memory allocated by exploredList
-void
-free_exploredList (CalcPath_session *session)
-{
-	free(session->exploredList);
-}
-
-// Garantees that all memory allocations have been freed the pathfinding object is destroyed
-void
-CalcPath_destroy (CalcPath_session *session)
+free_initialized (CalcPath_session *session)
 {
 	if (session->initialized) {
 		free(session->currentMap);
+		free(session->openList);
 		if (session->customWeights) {
 			free(session->second_weight_map);
 		}
+		if (session->exploring) {
+			free(session->exploredList);
+		}
 	}
-	if (session->run) {
-		free(session->openList);
-	}
-	if (session->runExplore) {
-		free(session->exploredList);
-	}
+}
+
+// Garantees that all memory allocations have been freed the when the pathfinding object is destroyed
+void
+CalcPath_destroy (CalcPath_session *session)
+{
+	free_initialized(session);
 	free(session);
 }
 

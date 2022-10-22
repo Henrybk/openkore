@@ -267,11 +267,12 @@ sub cleanRoute {
 	undef $args->{sentAvoid};
 	undef $args->{avoidindDeleted};
 	undef $args->{runFromTargetActive};
+	undef $args->{runFromTarget_inAdvance};
 	undef $args->{sentApproach};
 }
 
 sub setRoute {
-	my ($args, $pos, $meetingSubRoute, $runFromTarget, $runFromTargetActive) = @_;
+	my ($args, $pos, $meetingSubRoute, $runFromTarget, $runFromTargetActive, $runFromTarget_inAdvance) = @_;
 	
 	my $target = Actor::get($args->{ID}, 1);
 	$args->{move_start} = time;
@@ -281,6 +282,7 @@ sub setRoute {
 	$args->{sentAvoid} = $runFromTarget;
 	$args->{avoidindDeleted} = 0;
 	$args->{runFromTargetActive} = $runFromTargetActive;
+	$args->{runFromTarget_inAdvance} = $runFromTarget_inAdvance;
 	$args->{sentApproach} = $meetingSubRoute;
 	
 	$char->route(
@@ -524,7 +526,10 @@ sub main {
 					}
 					debug TF("[Reajust Avoid 2] pos (%d %d) is still good, target %s (%d %d), distance %d, maxDistance %d.\n", $pos->{x}, $pos->{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}), 'ai_attack';
 					
-					if (timeOut($char->{time_move}, ($char->{time_move_calc}-0.1)) && $moving_to_spot) {
+					if ($pos->{x} == $realMyPos->{x} && $pos->{y} == $realMyPos->{y}) {
+						debug "[Avoid cleanRoute 5] Already at meeting point\n";
+						cleanRoute($args);
+					} elsif (timeOut($char->{time_move}, ($char->{time_move_calc}-0.1)) && $moving_to_spot) {
 						debug TF("[Reajust Avoid 3] Finished traveling avoid path, dist $realMonsterDist, runFromTarget_dist $config{'runFromTarget_dist'}.\n"), 'ai_attack';
 						debug "[Avoid cleanRoute 3]\n";
 						cleanRoute($args);
@@ -532,11 +537,12 @@ sub main {
 						debug TF("[Reajust Avoid 3] Still traveling avoid path, dist $realMonsterDist, runFromTarget_dist $config{'runFromTarget_dist'}.\n"), 'ai_attack';
 						if ($args->{needReajust} && !$moving_to_spot) {
 							debug TF("[Reajust Avoid 4] Re starting route bc needReajust and not yet moving_to_spot.\n"), 'ai_attack';
-							setRoute($args, $pos, 0, 1, $args->{runFromTargetActive})
+							setRoute($args, $pos, 0, 1, $args->{runFromTargetActive}, 0)
 						}
 						return;
 					}
 				} else {
+					debug TF("[Reajust Avoid 2] Current spot (%d %d) not good anymore, let recalculate, target %s (%d %d), distance %d, maxDistance %d.\n", $args->{sentPos}{x}, $args->{sentPos}{y}, $target, $realMonsterPos->{x}, $realMonsterPos->{y}, $realMonsterDist, $args->{attackMethod}{maxDistance}), 'ai_attack';
 					debug "[Avoid cleanRoute 2]\n";
 					cleanRoute($args);
 				}
@@ -550,18 +556,14 @@ sub main {
 	if (
 		$config{'runFromTarget'} &&
 		$realMonsterDist < $config{'runFromTarget_dist'} &&
-		(!$target_is_aggressive || (!$config{'runFromTarget_onlyWhenFaster'} || $targetSpeed >= $mySpeed))
+		$target_is_aggressive &&
+		(!$config{'runFromTarget_onlyWhenFaster'} || $targetSpeed >= $mySpeed)
 	) {
 		
-		my $runFromTargetActive = 0;
-		if ($target_is_aggressive) {
-			$runFromTargetActive = 1;
-		}
-		
-		my $pos = meetingPosition($char, 1, $target, $args->{attackMethod}{maxDistance}, $runFromTargetActive);
+		my $pos = meetingPosition($char, 1, $target, $args->{attackMethod}{maxDistance}, 1);
 		if ($pos) {
-			debug TF("[runFromTarget] (runFromTargetActive $runFromTargetActive) %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $pos->{x}, $pos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
-			setRoute($args, $pos, 0, 1, $runFromTargetActive)
+			debug TF("[runFromTarget] %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $pos->{x}, $pos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
+			setRoute($args, $pos, 0, 1, 1, 0)
 			
 		} else {
 			debug TF("%s no acceptable place to kite from (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
@@ -581,7 +583,8 @@ sub main {
 	} elsif (
 		$config{"attackBeyondMaxDistance_waitForAgressive"} &&
 		$target_is_aggressive &&
-		($canAttack == 0 || $canAttack == -1)
+		#($canAttack == 0 || $canAttack == -1)
+		$canAttack == 0
 	) {
 		$args->{ai_attack_failed_waitForAgressive_give_up}{timeout} = 6 if !$args->{ai_attack_failed_waitForAgressive_give_up}{timeout};
 		$args->{ai_attack_failed_waitForAgressive_give_up}{time} = time if !$args->{ai_attack_failed_waitForAgressive_give_up}{time};
@@ -607,9 +610,7 @@ sub main {
 			}
 		}
 
-	} elsif (
-		$canAttack < 1
-	) {
+	} elsif ($canAttack < 1 ) {
 		debug "Attack $char ($realMyPos->{x} $realMyPos->{y}) - target $target ($realMonsterPos->{x} $realMonsterPos->{y})\n";
 		if ($ranged && $canAttack == 0) {
 			debug "[Attack] [Ranged] [No range] Too far from us to attack, distance is $realMonsterDist, attack maxDistance is $args->{attackMethod}{maxDistance}\n", 'ai_attack';
@@ -623,11 +624,21 @@ sub main {
 			debug "[Attack] [Melee] [No LOS] No LOS\n", 'ai_attack';
 			
 		}
+		
+		my $runFromTargetActive = 0;
+		if ($config{'runFromTarget'} && $target_is_aggressive) {
+			$runFromTargetActive = 1;
+		}
 
-		my $pos = meetingPosition($char, 1, $target, $args->{attackMethod}{maxDistance});
+		my $pos = meetingPosition($char, 1, $target, $args->{attackMethod}{maxDistance}, $runFromTargetActive);
 		if ($pos) {
-			debug "Attack $char ($realMyPos->{x} $realMyPos->{y}) - moving to meeting position ($pos->{x} $pos->{y})\n", 'ai_attack';
-			setRoute($args, $pos, 1, 0, 0)
+			if ($runFromTargetActive) {
+				debug "Attack+runFromTargetActive $char ($realMyPos->{x} $realMyPos->{y}) - moving to meeting position ($pos->{x} $pos->{y})\n", 'ai_attack';
+				setRoute($args, $pos, 0, 1, 1, 0)
+			} else {
+				debug "Attack $char ($realMyPos->{x} $realMyPos->{y}) - moving to meeting position ($pos->{x} $pos->{y})\n", 'ai_attack';
+				setRoute($args, $pos, 1, 0, 0, 0)
+			}
 		} else {
 			message T("Unable to calculate a meetingPosition to target, dropping target\n"), "ai_attack";
 			giveUp($args, $ID, 1);
@@ -665,7 +676,7 @@ sub main {
 					my $pos = meetingPosition($char, 1, $target, $args->{attackMethod}{maxDistance}, 1);
 					if ($pos) {
 						debug TF("[runFromTarget_inAdvance] %s kiteing from (%d %d) to (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $pos->{x}, $pos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';
-						setRoute($args, $pos, 0, 1, 1)
+						setRoute($args, $pos, 0, 1, 1, 1)
 						
 					} else {
 						debug TF("[runFromTarget_inAdvance] %s no acceptable place to kite from (%d %d), mob at (%d %d).\n", $char, $realMyPos->{x}, $realMyPos->{y}, $realMonsterPos->{x}, $realMonsterPos->{y}), 'ai_attack';

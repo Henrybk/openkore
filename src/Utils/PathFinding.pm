@@ -152,7 +152,6 @@ sub resetExploring {
 	croak "Required arguments missing or wrong, specify correct 'field' or 'weight_map' and 'width' and 'height'\n"
 	unless ($args{field} && UNIVERSAL::isa($args{field}, 'Field')) || ($args{weight_map} && $args{width} && $args{height});
 	croak "Required argument 'start' missing\n" unless $args{start};
-	croak "Required argument 'explore_len' missing\n" unless $args{explore_len};
 
 	# Rebuild 'field' arg temporary here, to avoid that stupid bug, when weightMap not available
 	if ($args{field} && UNIVERSAL::isa($args{field}, 'Field') && !$args{field}->{weightMap}) {
@@ -175,7 +174,6 @@ sub resetExploring {
 		$args{height},
 		$args{start}{x}, 
 		$args{start}{y},
-		$args{explore_len},
 		$args{min_x},
 		$args{max_x},
 		$args{min_y},
