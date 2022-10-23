@@ -10,7 +10,7 @@ use Misc;
 Plugins::register("bench", "bench", \&core_Unload, \&core_Reload);
 
 my $commands_hooks = Commands::register(
-	['bench', 'test notification',			\&cmdTest],
+	['bench', '',			\&cmdTest],
 );
 
 sub core_Unload {
@@ -32,34 +32,88 @@ sub cmdTest {
 }
 
 sub bench {
-	my $n = 10000;
+	my $n = 100000;
 	
 	my $wid = $field->{width};
 	my $hei = $field->{height};
+	
+	my $dist = 15;
 	
 	my @startx;
 	my @endx;
 	my @starty;
 	my @endy;
 	
-	for(my $i = 0; $i < $n; $i++){
-		$start[$i]->{x} = int rand $wid;
-		$start[$i]->{y} = int rand $hei;
-		$end[$i]->{x} = int rand $wid;
-		$end[$i]->{y} = int rand $hei;
-	}
-	
 	my $time_s;
 	my $time_e;
-	my $time_d;
+	
+	print "[bench] Preparing $n test benchs with dist $dist\n";
+	for(my $i = 0; $i < $n; $i++){
+		while (!exists $start[$i]->{x} || !$field->isWalkable($start[$i]->{x}, $start[$i]->{y})) {
+			$start[$i]->{x} = int rand $wid;
+			$start[$i]->{y} = int rand $hei;
+		}
+		if (!$dist) {
+			while (!exists $end[$i]->{x} || !$field->isWalkable($end[$i]->{x}, $end[$i]->{y})) {
+				$end[$i]->{x} = int rand $wid;
+				$end[$i]->{y} = int rand $hei;
+			}
+		} else {
+			while (!exists $end[$i]->{x} || !$field->isWalkable($end[$i]->{x}, $end[$i]->{y})) {
+				$end[$i]->{x} = $start[$i]->{x} + (int(rand($dist*2)) - $dist);
+				$end[$i]->{y} = $start[$i]->{y} + (int(rand($dist*2)) - $dist);
+			}
+		}
+	}
+	
+	my @results1;
+	my @results2;
 	
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$field->checkLOS($start[$i], $end[$i], 1);
+		$results1[$i] = $field->checkLOS($start[$i], $end[$i], 1);
 	}
 	$time_e = time;
-	$time_d = $time_e - $time_s;
-	print "checkLOS took $time_d\n";
+	printTime('checkLOS1', $time_s, $time_e, $n);
+	
+	$time_s = time;
+	for(my $i = 0; $i < $n; $i++){
+		$results2[$i] = $field->checkLOS2($start[$i], $end[$i], 1);
+	}
+	$time_e = time;
+	printTime('checkLOS2', $time_s, $time_e, $n);
+	
+	checkResults(\@results1, \@results2, 'checkLOS1', 'checkLOS2');
 }
+
+sub printTime {
+	my ($name, $time_s, $time_e, $n) = @_;
+	my $time_t = $time_e - $time_s;
+	my $time_po = ($time_t/$n)*1000;
+	print "[bench] $name took $time_po"."ms"." per operation\n";
+	
+	
+}
+
+sub checkResults {
+	my ($results1, $results2, $name1, $name2) = @_;
+	print "[bench] Comparing results from $name1 x $name2\n";
+	
+	my $current_index = 0;
+	while ($current_index <= $#{$results1}) {
+		my $result1 = $results1->[$current_index];
+		my $result2 = $results2->[$current_index];
+		if ($result1 != $result2) {
+			print "[bench] Error at index $current_index: $name1=$result1 $name2=$result2\n";
+			return 0;
+		}
+	} continue {
+		$current_index++;
+	}
+	print "[bench] No diferences found between $name1 x $name2\n";
+	return 1;
+}
+
+
 
 1;
