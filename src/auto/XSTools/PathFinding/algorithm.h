@@ -82,7 +82,7 @@ void reajustOpenListItem (CalcPath_session *session, Node* node);
 
 Node* openListGetLowest (CalcPath_session *session);
 
-int checkLOSxs_inside (int start_x, int start_y, int end_x, int end_y, int tile, int width, char * rawMap_data);
+int checkLOSxs_inside (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data);
 
 void free_initialized (CalcPath_session *session);
 

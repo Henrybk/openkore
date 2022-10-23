@@ -32,7 +32,7 @@ sub cmdTest {
 }
 
 sub bench {
-	my $n = 100000;
+	my $n = 10000;
 	
 	my $wid = $field->{width};
 	my $hei = $field->{height};
@@ -81,8 +81,16 @@ sub bench {
 	}
 	$time_e = time;
 	printTime('checkLOS2', $time_s, $time_e, $n);
-	
 	checkResults(\@results1, \@results2, 'checkLOS1', 'checkLOS2');
+	
+	my @results3;
+	$time_s = time;
+	for(my $i = 0; $i < $n; $i++){
+		$results3[$i] = $field->checkLOS3($start[$i], $end[$i], 1);
+	}
+	$time_e = time;
+	printTime('checkLOS3', $time_s, $time_e, $n);
+	checkResults(\@results1, \@results3, 'checkLOS1', 'checkLOS3');
 }
 
 sub printTime {

@@ -842,13 +842,14 @@ PathFinding_meeting(actor_session, target_session, max_explore_len, actor_speed,
 
 
 int
-PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, rawMap)
+PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, rawMap)
 		SV * istart_x
 		SV * istart_y
 		SV * iend_x
 		SV * iend_y
 		SV * itile
 		SV * iwidth
+		SV * iheight
 		SV * rawMap
 		
 	CODE:
@@ -858,10 +859,11 @@ PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, rawMap
 		int end_y = (int) SvUV (iend_y);
 		int tile = (int) SvUV (itile);
 		int width = (int) SvUV (iwidth);
+		int height = (int) SvUV (iheight);
 		
 		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
 		
-		RETVAL = checkLOSxs_inside(start_x, start_y, end_x, end_y, tile, width, rawMap_data);
+		RETVAL = checkLOSxs_inside(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data);
 		
 	OUTPUT:
 		RETVAL

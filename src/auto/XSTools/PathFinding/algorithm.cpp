@@ -562,7 +562,13 @@ openListGetLowest (CalcPath_session *session)
 }
 
 int
-checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, char * rawMap_data) {
+checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data) {
+	if (start_x < 0 || start_x >= width || start_y < 0 || start_y >= height) {
+		return 0;
+	}
+	if (end_x < 0 || end_x >= width || end_y < 0 || end_y >= height) {
+		return 0;
+	}
 	int dx;
 	int dy;
 	int wx;

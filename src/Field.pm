@@ -490,8 +490,6 @@ sub checkLOS3 {
 	my ($self, $from, $to, $can_snipe) = @_;
 	
 	my ($start_x, $start_y, $end_x, $end_y) = ($from->{x}, $from->{y}, $to->{x}, $to->{y});
-	return 0 if ($self->isOffMap($start_x, $start_y));
-	return 0 if ($self->isOffMap($end_x, $end_y));
 	
 	my $tile;
 	if ($can_snipe) {
@@ -500,7 +498,7 @@ sub checkLOS3 {
 		$tile = TILE_WALK;
 	}
 	
-	return PathFinding::checkLOSxs($start_x, $start_y, $end_x, $end_y, $tile, $self->{width}, \$self->{rawMap});
+	return PathFinding::checkLOSxs($start_x, $start_y, $end_x, $end_y, $tile, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 # Used for checking if there are no obstacles in a given walking solution
