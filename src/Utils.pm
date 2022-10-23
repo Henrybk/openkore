@@ -326,58 +326,6 @@ sub getClientDist {
 # Reference: hercules src\map\path.c distance
 sub blockDistance {
 	my ($pos1, $pos2) = @_;
-	
-	my $error = 0;
-	if (!defined $pos1) {
-		print "blockDistance pos1 undef\n";
-		$error = 1;
-	}
-	if (!defined $pos2) {
-		print "blockDistance pos1 undef\n";
-		$error = 1;
-	}
-	if (!exists $pos1->{x}) {
-		print "blockDistance pos1 !exists x\n";
-		$error = 1;
-	}
-	if (!exists $pos1->{y}) {
-		print "blockDistance pos1 !exists y\n";
-		$error = 1;
-	}
-	if (!defined $pos1->{x}) {
-		print "blockDistance pos1 !defined x\n";
-		$error = 1;
-	}
-	if (!defined $pos1->{y}) {
-		print "blockDistance pos1 !defined y\n";
-		$error = 1;
-	}
-	if (!exists $pos2->{x}) {
-		print "blockDistance pos2 !exists x\n";
-		$error = 1;
-	}
-	if (!exists $pos2->{y}) {
-		print "blockDistance pos2 !exists y\n";
-		$error = 1;
-	}
-	if (!defined $pos2->{x}) {
-		print "blockDistance pos2 !defined x\n";
-		$error = 1;
-	}
-	if (!defined $pos2->{y}) {
-		print "blockDistance pos2 !defined y\n";
-		$error = 1;
-	}
-	
-	if ($error) {
-		print whowasi(1)."\n";
-		print whowasi(2)."\n";
-		print whowasi(3)."\n";
-		print whowasi(4)."\n";
-		print whowasi(5)."\n";
-		sleep 500000000000
-	}
-
 	return max(abs($pos1->{x} - $pos2->{x}),
 	           abs($pos1->{y} - $pos2->{y}));
 }
