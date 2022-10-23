@@ -344,6 +344,85 @@ sub closestWalkableSpot {
 # Reference: hercules src\map\path.c path_search_long
 sub checkLOS {
 	my ($self, $from, $to, $can_snipe) = @_;
+
+	my ($X0, $Y0, $X1, $Y1) = ($from->{x}, $from->{y}, $to->{x}, $to->{y});
+
+	my $steep;
+	my $posX = 1;
+	my $posY = 1;
+	if ($X1 - $X0 < 0) {
+		$posX = -1;
+	}
+	if ($Y1 - $Y0 < 0) {
+		$posY = -1;
+	}
+	if (abs($Y0 - $Y1) < abs($X0 - $X1)) {
+		$steep = 0;
+	} else {
+		$steep = 1;
+	}
+	if ($steep == 1) {
+		my $Yt = $Y0;
+		$Y0 = $X0;
+		$X0 = $Yt;
+
+		$Yt = $Y1;
+		$Y1 = $X1;
+		$X1 = $Yt;
+	}
+	if ($X0 > $X1) {
+		my $Xt = $X0;
+		$X0 = $X1;
+		$X1 = $Xt;
+
+		my $Yt = $Y0;
+		$Y0 = $Y1;
+		$Y1 = $Yt;
+	}
+	my $dX = $X1 - $X0;
+	my $dY = abs($Y1 - $Y0);
+	my $E = 0;
+	my $dE;
+	if ($dX) {
+		$dE = $dY / $dX;
+	} else {
+		# Delta X is 0, it only occures when $from is equal to $to
+		return 1;
+	}
+	my $stepY;
+	if ($Y0 < $Y1) {
+		$stepY = 1;
+	} else {
+		$stepY = -1;
+	}
+	my $Y = $Y0;
+	my $Erate = 0.99;
+	if (($posY == -1 && $posX == 1) || ($posY == 1 && $posX == -1)) {
+		$Erate = 0.01;
+	}
+	for (my $X=$X0;$X<=$X1;$X++) {
+		$E += $dE;
+		if ($steep == 1) {
+			if (!$self->isWalkable($Y, $X)) {
+				return 0 if (!$can_snipe);
+				return 0 if (!$self->isSnipable($Y, $X))
+			}
+		} else {
+			if (!$self->isWalkable($X, $Y)) {
+				return 0 if (!$can_snipe);
+				return 0 if (!$self->isSnipable($X, $Y))
+			}
+		}
+		if ($E >= $Erate) {
+			$Y += $stepY;
+			$E -= 1;
+		}
+	}
+	return 1;
+}
+
+sub checkLOS2 {
+	my ($self, $from, $to, $can_snipe) = @_;
 	
 	my ($start_x, $start_y, $end_x, $end_y) = ($from->{x}, $from->{y}, $to->{x}, $to->{y});
 	return 0 if ($self->isOffMap($start_x, $start_y));
@@ -358,9 +437,12 @@ sub checkLOS {
 	
 	my $dx;
 	my $dy;
-	my $wx = 0;
-	my $wy = 0;
+	my $wx;
+	my $wy;
 	my $weight;
+	
+	my $offset;
+	my $width;
 
 	$dx = ($end_x - $start_x);
 	if ($dx < 0) {
@@ -375,9 +457,11 @@ sub checkLOS {
 		$weight = abs($end_y - $start_y);
 	}
 	
-	my $offset = $self->getOffset($start_x, $start_y);
-	my $width = $self->{width};
+	$offset = $self->getOffset($start_x, $start_y);
+	$width = $self->{width};
 	
+	$wx = 0;
+	$wy = 0;
 	while ($start_x != $end_x || $start_y != $end_y) {
 		$wx += $dx;
 		$wy += $dy;
@@ -400,6 +484,23 @@ sub checkLOS {
 	}
 
 	return 1;
+}
+
+sub checkLOS3 {
+	my ($self, $from, $to, $can_snipe) = @_;
+	
+	my ($start_x, $start_y, $end_x, $end_y) = ($from->{x}, $from->{y}, $to->{x}, $to->{y});
+	return 0 if ($self->isOffMap($start_x, $start_y));
+	return 0 if ($self->isOffMap($end_x, $end_y));
+	
+	my $tile;
+	if ($can_snipe) {
+		$tile = TILE_WALK|TILE_SNIPE;
+	} else {
+		$tile = TILE_WALK;
+	}
+	
+	return PathFinding::checkLOSxs($start_x, $start_y, $end_x, $end_y, $tile, $self->{width}, \$self->{rawMap});
 }
 
 # Used for checking if there are no obstacles in a given walking solution

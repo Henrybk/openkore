@@ -18,6 +18,13 @@ PathFinding_create()
 	OUTPUT:
 		RETVAL
 
+void
+PathFinding_DESTROY(session)
+		PathFinding session
+	PREINIT:
+		session = (PathFinding) 0; /* shut up compiler warning */
+	CODE:
+		CalcPath_destroy (session);
 
 void
 PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightMap, randomFactor, useManhattan, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
@@ -631,7 +638,8 @@ PathFinding_explore(session, explore_len, solution_array)
 		}
 		
 		long old_explore_len = session->explore;
-		session->explore = (long) SvUV (explore_len);
+		session->explore = (long) SvIV (explore_len);
+		session->explore = session->explore*10;
 		
 		if (session->explore < 0) {
 			printf("[PathFinding_explore error] explore_len %ld must be positive.\n", session->explore);
@@ -700,10 +708,160 @@ PathFinding_explore(session, explore_len, solution_array)
 	OUTPUT:
 		RETVAL
 
-void
-PathFinding_DESTROY(session)
-		PathFinding session
+int
+PathFinding_meeting(actor_session, target_session, max_explore_len, actor_speed, target_speed, dist)
+		PathFinding actor_session
+		PathFinding target_session
+		SV * max_explore_len
+		SV * actor_speed
+		SV * target_speed
+		SV * dist
 	PREINIT:
-		session = (PathFinding) 0; /* shut up compiler warning */
+		int actor_status;
+		int target_status;
 	CODE:
-		CalcPath_destroy (session);
+		//printf("[PathFinding_meeting] start\n");
+		
+		/* Check for any missing arguments */
+		if (!actor_session || !target_session || !max_explore_len || !actor_speed || !target_speed || !dist) {
+			printf("[PathFinding_meeting error] missing argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(max_explore_len) || SvTYPE(max_explore_len) >= SVt_PVAV || !SvOK(max_explore_len)) {
+			printf("[PathFinding_meeting error] bad max_explore_len argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(actor_speed) || SvTYPE(actor_speed) >= SVt_PVAV || !SvOK(actor_speed)) {
+			printf("[PathFinding_meeting error] bad actor_speed argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(target_speed) || SvTYPE(target_speed) >= SVt_PVAV || !SvOK(target_speed)) {
+			printf("[PathFinding_meeting error] bad target_speed argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (SvROK(dist) || SvTYPE(dist) >= SVt_PVAV || !SvOK(dist)) {
+			printf("[PathFinding_meeting error] bad dist argument\n");
+			XSRETURN_NO;
+		}
+		
+		if (!actor_session->initialized) {
+			printf("[PathFinding_meeting error] You must call 'resetExploring' before 'explore'.\n");
+			XSRETURN_NO;
+		}
+		
+		if (!actor_session->exploring) {
+			printf("[PathFinding_meeting error] You must call 'resetExploring' before 'explore' (maybe you called 'reset' by accident?).\n");
+			XSRETURN_NO;
+		}
+		
+		if (!target_session->initialized) {
+			printf("[PathFinding_meeting error] You must call 'resetExploring' before 'explore'.\n");
+			XSRETURN_NO;
+		}
+		
+		if (!target_session->exploring) {
+			printf("[PathFinding_meeting error] You must call 'resetExploring' before 'explore' (maybe you called 'reset' by accident?).\n");
+			XSRETURN_NO;
+		}
+		
+		long l_max_explore_len = (long) SvIV (max_explore_len);
+		
+		if (l_max_explore_len < 0) {
+			printf("[PathFinding_meeting error] max_explore_len %ld must be positive.\n", l_max_explore_len);
+			XSRETURN_NO;
+		}
+		
+		long l_actor_speed = (long) SvIV (actor_speed);
+		long l_target_speed = (long) SvIV (target_speed);
+		long run_dist = (long) SvIV (dist);
+		run_dist = run_dist*10;
+		
+		long current_explore_len = 1;
+
+		while (current_explore_len <= l_max_explore_len)
+		{
+			printf("[meeting explore loop %ld] start\n", current_explore_len);
+			unsigned long old_exploredListSize = actor_session->exploredListSize;
+			
+			actor_session->explore = current_explore_len;
+			actor_session->explore = actor_session->explore*10;
+			actor_status = CalcPath_explore (actor_session);
+			
+			unsigned long size = actor_session->exploredListSize;
+			
+			if (size == old_exploredListSize) {
+				printf("[PathFinding_meeting end 1] size did not increase after %ld iterations.\n", current_explore_len);
+				XSRETURN_IV(-1);
+			}
+			
+			unsigned long current_exploredList_index = old_exploredListSize;
+			
+			Node current_actor_Node;
+			Node current_target_Node;
+
+			while (current_exploredList_index < size)
+			{
+				unsigned long address = actor_session->exploredList[current_exploredList_index];
+				current_actor_Node = actor_session->currentMap[address];
+				
+				unsigned long max_g = (((current_actor_Node.g * l_actor_speed)/l_target_speed)+run_dist);
+				
+				printf("[meeting exploredList loop %lu] %d %d - g %lu - maxg %lu - targetExp %ld\n", current_exploredList_index, current_actor_Node.x, current_actor_Node.y, current_actor_Node.g, max_g, target_session->explore);
+				
+				if (target_session->explore < max_g) {
+					target_session->explore = max_g;
+					target_status = CalcPath_explore (target_session);
+				}
+				
+				current_target_Node = target_session->currentMap[address];
+				
+				if (current_target_Node.whichlist == 2) {
+					if (current_target_Node.g >= max_g) {
+						printf("[PathFinding_meeting end 2] Found %d %d at g %lu.\n", current_actor_Node.x, current_actor_Node.y, current_actor_Node.g);
+						XSRETURN_IV(1);
+					}
+					
+				} else {
+					printf("[PathFinding_meeting end 3] Found %d %d at g %lu.\n", current_actor_Node.x, current_actor_Node.y, current_actor_Node.g);
+					XSRETURN_IV(1);
+				}
+				
+				current_exploredList_index++;
+			}
+			current_explore_len++;
+		}
+		printf("[PathFinding_meeting end 4] did not find cell after %ld iterations.\n", current_explore_len);
+		XSRETURN_IV(0);
+		
+	OUTPUT:
+		RETVAL
+
+
+int
+PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, rawMap)
+		SV * istart_x
+		SV * istart_y
+		SV * iend_x
+		SV * iend_y
+		SV * itile
+		SV * iwidth
+		SV * rawMap
+		
+	CODE:
+		int start_x = (int) SvUV (istart_x);
+		int start_y = (int) SvUV (istart_y);
+		int end_x = (int) SvUV (iend_x);
+		int end_y = (int) SvUV (iend_y);
+		int tile = (int) SvUV (itile);
+		int width = (int) SvUV (iwidth);
+		
+		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
+		
+		RETVAL = checkLOSxs_inside(start_x, start_y, end_x, end_y, tile, width, rawMap_data);
+		
+	OUTPUT:
+		RETVAL

@@ -59,6 +59,7 @@ CalcPath_init (CalcPath_session *session)
 	start->x = session->startX;
 	start->y = session->startY;
 	start->nodeAdress = startAdress;
+	start->predecessorCount = 0;
 	
 	unsigned long goalAdress = (session->endY * session->width) + session->endX;
 	Node* goal = &session->currentMap[goalAdress];
@@ -199,6 +200,7 @@ CalcPath_pathStep (CalcPath_session *session)
 				neighborNode->y = neighbor_y;
 				neighborNode->nodeAdress = neighbor_adress;
 				neighborNode->predecessor = currentNode->nodeAdress;
+				neighborNode->predecessorCount = currentNode->predecessorCount + 1;
 				neighborNode->g = g_score;
 				neighborNode->h = heuristic_cost_estimate(neighborNode->x, neighborNode->y, session->endX, session->endY, session->useManhattan);
 				neighborNode->f = neighborNode->g + neighborNode->h;
@@ -209,6 +211,7 @@ CalcPath_pathStep (CalcPath_session *session)
 				// Check if we have found a shorter path to neighborNode, if so update it to have currentNode as its predecessor.
 				if (g_score < neighborNode->g) {
 					neighborNode->predecessor = currentNode->nodeAdress;
+					neighborNode->predecessorCount = currentNode->predecessorCount + 1;
 					neighborNode->g = g_score;
 					neighborNode->f = neighborNode->g + neighborNode->h;
 					// Here we could remove neighborNode from openList and add it again to get it to the right position, but reajusting it saves time.
@@ -258,8 +261,6 @@ CalcPath_explore (CalcPath_session *session)
 {
 	//printf("[CalcPath_explore] start\n");
 	
-	Node* start = &session->currentMap[((session->startY * session->width) + session->startX)];
-	
 	Node* currentNode;
 	Node* neighborNode;
 	
@@ -278,7 +279,7 @@ CalcPath_explore (CalcPath_session *session)
 	
 	while (1) {
 		if (session->openListSize == 0) {
-			return 1;
+			return 0;
 		}
 		
 		// Set currentNode to the top node in openList, and remove it from openList.
@@ -286,7 +287,7 @@ CalcPath_explore (CalcPath_session *session)
 		
 		//printf("[CalcPath_explore] coordinate %d %d (g %d) (p %d)\n", currentNode->x, currentNode->y, currentNode->g, currentNode->predecessorCount);
 
-		if (currentNode->predecessorCount == session->explore) {
+		if (currentNode->g >= session->explore) {
 			//continue;
 			openListAdd (session, currentNode);
 			//printf("-- [CalcPath_explore] Returning on coordinate %d %d (g %d) (p %d)\n", currentNode->x, currentNode->y, currentNode->g, currentNode->predecessorCount);
@@ -343,8 +344,8 @@ CalcPath_explore (CalcPath_session *session)
 				neighborNode->y = neighbor_y;
 				neighborNode->nodeAdress = neighbor_adress;
 				neighborNode->predecessor = currentNode->nodeAdress;
-				neighborNode->g = g_score;
 				neighborNode->predecessorCount = currentNode->predecessorCount + 1;
+				neighborNode->g = g_score;
 				neighborNode->h = 0;
 				neighborNode->f = g_score;
 				openListAdd (session, neighborNode);
@@ -354,8 +355,8 @@ CalcPath_explore (CalcPath_session *session)
 				// Check if we have found a shorter path to neighborNode, if so update it to have currentNode as its predecessor.
 				if (g_score < neighborNode->g) {
 					neighborNode->predecessor = currentNode->nodeAdress;
-					neighborNode->g = g_score;
 					neighborNode->predecessorCount = currentNode->predecessorCount + 1;
+					neighborNode->g = g_score;
 					neighborNode->f = g_score;
 					// Here we could remove neighborNode from openList and add it again to get it to the right position, but reajusting it saves time.
 					reajustOpenListItem (session, neighborNode);
@@ -558,6 +559,74 @@ openListGetLowest (CalcPath_session *session)
 	}
 	
 	return lowestNode;
+}
+
+int
+checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, char * rawMap_data) {
+	int dx;
+	int dy;
+	int wx;
+	int wy;
+	int weight;
+	
+	int offset;
+	
+	int value;
+	
+	int temp;
+	dx = end_x - start_x;
+	if (dx < 0) {
+		temp = start_x;
+		start_x = end_x;
+		end_x = temp;
+		
+		temp = start_y;
+		start_y = end_y;
+		end_y = temp;
+		
+		dx = -dx;
+	}
+	dy = end_y - start_y;
+	
+	int absdy;
+	if (dy >= 0) {
+		absdy = dy;
+	} else {
+		absdy = -dy;
+	}
+
+	if (dx > absdy) {
+		weight = dx;
+	} else {
+		weight = absdy;
+	}
+	offset = (start_y * width) + start_x;
+	
+	wx = 0;
+	wy = 0;
+	while (start_x != end_x || start_y != end_y) {
+		wx += dx;
+		wy += dy;
+		if (wx >= weight) {
+			wx -= weight;
+			start_x++;
+			offset++;
+		}
+		if (wy >= weight) {
+			wy -= weight;
+			start_y++;
+			offset += width;
+		} else if (wy < 0) {
+			wy += weight;
+			start_y--;
+			offset -= width;
+		}
+		value = rawMap_data[offset];
+		if (!(value & tile)) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 // Frees all the memory allocated by objects

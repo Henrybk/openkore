@@ -2792,6 +2792,7 @@ sub meetingPosition {
 
 	$explored_array = [];
 	$pathfinding->explore($max_path_dist, $explored_array);
+	#PathFinding::explore($pathfinding, $max_path_dist, $explored_array);
 	foreach my $exp (@{$explored_array}) {
 		$explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
 		$explored_cells{$exp->{x}}{$exp->{y}}{pc} = $exp->{pc};
@@ -2973,6 +2974,23 @@ sub meetingPosition {
 		"target tt $best_time_target_to_get_to_spot, ".
 		"ahead time $best_time_ahead.".
 		"\n";
+		
+		if ($runFromTargetActive) {
+			my $actor_pathfinding = new PathFinding();
+			$actor_pathfinding->resetExploring(
+				field => $field,
+				start => $realMyPos
+			);
+			
+			my $target_pathfinding = new PathFinding();
+			$target_pathfinding->resetExploring(
+				field => $field,
+				start => $realTargetPos
+			);
+			
+			PathFinding::meeting($actor_pathfinding, $target_pathfinding, 40, ($mySpeed*1000), ($targetSpeed*1000), $runFromTarget_minStep);
+		}
+		
 		return $best_spot;
 	}
 }
