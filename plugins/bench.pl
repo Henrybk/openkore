@@ -67,8 +67,6 @@ sub bench {
 	}
 	
 	my @results1;
-	my @results2;
-	
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
 		$results1[$i] = $field->checkLOS($start[$i], $end[$i], 1);
@@ -76,6 +74,7 @@ sub bench {
 	$time_e = time;
 	printTime('checkLOS1', $time_s, $time_e, $n);
 	
+	my @results2;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
 		$results2[$i] = $field->checkLOS2($start[$i], $end[$i], 1);
