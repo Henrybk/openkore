@@ -87,9 +87,26 @@ sub bench {
 
 sub printTime {
 	my ($name, $time_s, $time_e, $n) = @_;
+	
+	my $decimals = 2;
+	
+	my $time_po;
+	my @units = ('sec', 'milisec', 'microsec', 'nanosec');
+	
 	my $time_t = $time_e - $time_s;
-	my $time_po = ($time_t/$n)*1000;
-	print "[bench] $name took $time_po"."ms"." per operation\n";
+	
+	$time_po = ($time_t/$n);
+	
+	my $ui = 0;
+	while ($time_po < 1) {
+		$time_po *= 1000;
+		$ui++;
+	}
+	
+	my $decimal_round = (10**$decimals);
+	$time_po = int($time_po*($decimal_round))/$decimal_round;
+	
+	print "[bench] $name: $time_po ".($units[$ui])." p.o.\n";
 	
 	
 }
