@@ -140,7 +140,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		}
 		
 		/* Get the weight_map data */
-		weight_map_data = (char *) SvPV_nolen (SvRV (weight_map));
+		weight_map_data = (char *) SvPVbyte_nolen (SvRV (weight_map));
 		session->map_base_weight = weight_map_data;
 		
 		session->time_max = (unsigned long) SvUV (time_max);
@@ -537,7 +537,7 @@ PathFinding__resetExploring(session, weight_map, width, height, startx, starty, 
 		}
 		
 		/* Get the weight_map data */
-		weight_map_data = (char *) SvPV_nolen (SvRV (weight_map));
+		weight_map_data = (char *) SvPVbyte_nolen (SvRV (weight_map));
 		session->map_base_weight = weight_map_data;
 		
 		session->width = (int) SvUV (width);

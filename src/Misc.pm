@@ -2856,14 +2856,6 @@ sub meetingPosition {
 			$time_target_to_get_to_spot = $t_w_dist * $targetSpeed;
 			$timeAhead = $time_target_to_get_to_spot - $time_actor_to_get_to_spot;
 			
-			if (defined $recheckPos) {
-				debug "[TMT 1 RP] $spot->{x} $spot->{y}, ".
-				"actorT $time_actor_to_get_to_spot, ".
-				"targetT $time_target_to_get_to_spot, ".
-				"aheadT $timeAhead.".
-				"\n" 
-			}
-			
 			next if (!defined $recheckPos && $minAheadTime >= $timeAhead);
 			
 			my $mob_attack_cell = getClosestAdjacentCell($spot, $realTargetPos);
