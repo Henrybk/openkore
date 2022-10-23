@@ -107,8 +107,6 @@ sub printTime {
 	$time_po = int($time_po*($decimal_round))/$decimal_round;
 	
 	print "[bench] $name: $time_po ".($units[$ui])." p.o.\n";
-	
-	
 }
 
 sub checkResults {
