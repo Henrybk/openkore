@@ -840,6 +840,28 @@ PathFinding_meeting(actor_session, target_session, max_explore_len, actor_speed,
 	OUTPUT:
 		RETVAL
 
+int
+PathFinding_isWalkablexs(ix, iy, itile, iwidth, iheight, rawMap)
+		SV * ix
+		SV * iy
+		SV * itile
+		SV * iwidth
+		SV * iheight
+		SV * rawMap
+		
+	CODE:
+		int x = (int) SvUV (ix);
+		int y = (int) SvUV (iy);
+		int tile = (int) SvUV (itile);
+		int width = (int) SvUV (iwidth);
+		int height = (int) SvUV (iheight);
+		
+		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
+		
+		RETVAL = isWalkablexs_inside(x, y, tile, width, height, rawMap_data);
+		
+	OUTPUT:
+		RETVAL
 
 int
 PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, rawMap)
@@ -867,7 +889,6 @@ PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheigh
 		
 	OUTPUT:
 		RETVAL
-
 
 int
 PathFinding_canAttackxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, irange, iclientSight, rawMap)
@@ -900,7 +921,6 @@ PathFinding_canAttackxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheig
 	OUTPUT:
 		RETVAL
 
-
 int
 PathFinding_blockDistancexs(istart_x, istart_y, iend_x, iend_y)
 		SV * istart_x
@@ -919,7 +939,6 @@ PathFinding_blockDistancexs(istart_x, istart_y, iend_x, iend_y)
 	OUTPUT:
 		RETVAL
 
-
 int
 PathFinding_getClientDistxs(istart_x, istart_y, iend_x, iend_y)
 		SV * istart_x
@@ -934,6 +953,65 @@ PathFinding_getClientDistxs(istart_x, istart_y, iend_x, iend_y)
 		int end_y = (int) SvUV (iend_y);
 		
 		RETVAL = getClientDistxs_inside(start_x, start_y, end_x, end_y);
+		
+	OUTPUT:
+		RETVAL
+
+int
+PathFinding_get_client_easy_solutionxs(istart_x, istart_y, iend_x, iend_y, solution_array)
+		SV * istart_x
+		SV * istart_y
+		SV * iend_x
+		SV * iend_y
+		SV * solution_array
+		
+	CODE:
+		int start_x = (int) SvUV (istart_x);
+		int start_y = (int) SvUV (istart_y);
+		int end_x = (int) SvUV (iend_x);
+		int end_y = (int) SvUV (iend_y);
+		
+		int size = blockDistancexs_inside(start_x, start_y, end_x, end_y);
+		
+		AV *array;
+ 		array = (AV *) SvRV (solution_array);
+		av_clear (array);
+		av_extend (array, size);
+		
+		int stepType;
+		int i = 0;
+
+		while (1) {
+			HV * rh = (HV *)sv_2mortal((SV *)newHV());
+
+			hv_store(rh, "x", 1, newSViv(start_x), 0);
+			hv_store(rh, "y", 1, newSViv(start_y), 0);
+
+			av_store(array, i, newRV((SV *)rh));
+			i++;
+
+			stepType = 0;
+			if (start_x < end_x) {
+				start_x++;
+				stepType++;
+			} else if (start_x > end_x) {
+				start_x--;
+				stepType++;
+			}
+			if (start_y < end_y) {
+				start_y++;
+				stepType++;
+			} else if (start_y > end_y) {
+				start_y--;
+				stepType++;
+			}
+
+			if (stepType == 0) {
+				break;
+			}
+		}
+		
+		RETVAL = 1;
 		
 	OUTPUT:
 		RETVAL

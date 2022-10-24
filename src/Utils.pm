@@ -120,51 +120,11 @@ sub get_client_solution {
 # Obstacles should be checked using Field::checkPathFree
 #
 # Reference: hercules src\map\path.c path_search - flag&1
+# 108 us -> 42us
 sub get_client_easy_solution {
 	my ($pos, $pos_to) = @_;
-
-	my $posX = $$pos{x};
-	my $posY = $$pos{y};
-	my $pos_toX = $$pos_to{x};
-	my $pos_toY = $$pos_to{y};
-
-	# 1 - vertical or horizontal
-	# 2 - diagonal
-	my $stepType = 0;
-
 	my $solution = [];
-
-	while (1) {
-		push(@{$solution}, { x => $posX, y => $posY });
-
-		$stepType = 0;
-		if ($posX < $pos_toX) {
-			$posX++;
-			$stepType++;
-		}
-		if ($posX > $pos_toX) {
-			$posX--;
-			$stepType++;
-		}
-		if ($posY < $pos_toY) {
-			$posY++;
-			$stepType++;
-		}
-		if ($posY > $pos_toY) {
-			$posY--;
-			$stepType++;
-		}
-
-		if ($stepType == 2) {
-			next;
-		} elsif ($stepType == 1) {
-			next;
-		}
-
-		# $stepType == 0 then $pos == $pos_to
-		last;
-	}
-
+	PathFinding::get_client_easy_solutionxs($pos->{x}, $pos->{y}, $pos_to->{x}, $pos_to->{y}, $solution);
 	return $solution;
 }
 

@@ -32,12 +32,12 @@ sub cmdTest {
 }
 
 sub bench {
-	my $n = 100000;
+	my $n = 1000;
 	
 	my $wid = $field->{width};
 	my $hei = $field->{height};
 	
-	my $dist = 25;
+	my $dist = 0;
 	
 	my @startx;
 	my @endx;
@@ -65,25 +65,25 @@ sub bench {
 				$end[$i]->{y} = $start[$i]->{y} + (int(rand($dist*2)) - $dist);
 			}
 		}
-		$range[$i] = (int(rand(14)))+1;
+		$range[$i] = (int(rand(14))+1);
 	}
 	
 	my @results1;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$results1[$i] = $field->canAttack($start[$i], $end[$i], 1, $range[$i], 15);
+		$results1[$i] = Utils::get_client_easy_solution($start[$i], $end[$i]);
 	}
 	$time_e = time;
-	printTime('canAttack1', $time_s, $time_e, $n);
+	printTime('get_client_easy_solution1', $time_s, $time_e, $n);
 	
 	my @results2;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$results2[$i] = $field->canAttack2($start[$i], $end[$i], 1, $range[$i], 15);
+		$results2[$i] = Utils::get_client_easy_solution2($start[$i], $end[$i]);
 	}
 	$time_e = time;
-	printTime('canAttack2', $time_s, $time_e, $n);
-	checkResults(\@results1, \@results2, 'canAttack1', 'canAttack2');
+	printTime('get_client_easy_solution2', $time_s, $time_e, $n);
+	checkResults(\@results1, \@results2, 'pos', 'get_client_easy_solution1', 'get_client_easy_solution2');
 }
 
 sub printTime {
@@ -111,17 +111,39 @@ sub printTime {
 }
 
 sub checkResults {
-	my ($results1, $results2, $name1, $name2) = @_;
+	my ($results1, $results2, $type, $name1, $name2) = @_;
 	print "[bench] Comparing results from $name1 x $name2\n";
 	
 	my $current_index = 0;
 	while ($current_index <= $#{$results1}) {
 		my $result1 = $results1->[$current_index];
 		my $result2 = $results2->[$current_index];
-		if ($result1 != $result2) {
-			print "[bench] Error at index $current_index: $name1=$result1 $name2=$result2\n";
-			return 0;
+		
+		if ($type eq 'scalar') {
+			if ($result1 != $result2) {
+				print "[bench scalar] Error at index $current_index: $name1=$result1 $name2=$result2\n";
+				return 0;
+			}
+		
+		} elsif ($type eq 'pos') {
+			my $size1 = scalar @{$result1};
+			my $size2 = scalar @{$result2};
+			if ($size1 != $size2) {
+				print "[bench pos] Error at index $current_index: size $name1=$size1 $name2=$size2\n";
+				return 0;
+			}
+			foreach my $i (0..($size1-1)) {
+				my $x1 = $result1->[$i]{x};
+				my $y1 = $result1->[$i]{y};
+				my $x2 = $result2->[$i]{x};
+				my $y2 = $result2->[$i]{y};
+				if ($x1 != $x2 || $y1 != $y2) {
+					print "[bench pos] Error at index $current_index: pos $name1='$x1 $y1' $name2='$x2 $y2'\n";
+					return 0;
+				}
+			}
 		}
+		
 	} continue {
 		$current_index++;
 	}

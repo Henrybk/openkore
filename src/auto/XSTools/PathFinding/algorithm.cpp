@@ -562,6 +562,23 @@ openListGetLowest (CalcPath_session *session)
 }
 
 int
+isWalkablexs_inside(int start_x, int start_y, int tile, int width, int height, char * rawMap_data) {
+	if (start_x < 0 || start_x >= width || start_y < 0 || start_y >= height) {
+		return 0;
+	}
+	int offset;
+	
+	int value;
+	
+	offset = (start_y * width) + start_x;
+	value = rawMap_data[offset];
+	if (!(value & tile)) {
+		return 0;
+	}
+	return 1;
+}
+
+int
 checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data) {
 	if (start_x < 0 || start_x >= width || start_y < 0 || start_y >= height) {
 		return 0;

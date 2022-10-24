@@ -82,6 +82,8 @@ void reajustOpenListItem (CalcPath_session *session, Node* node);
 
 Node* openListGetLowest (CalcPath_session *session);
 
+int isWalkablexs_inside(int start_x, int start_y, int tile, int width, int height, char * rawMap_data);
+
 int checkLOSxs_inside (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data);
 
 int canAttackxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, int range, int clientSight, char * rawMap_data);

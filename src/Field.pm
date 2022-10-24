@@ -249,48 +249,40 @@ sub getCellInfo {
 # boolean $Field->isWalkable(int x, int y)
 #
 # Check whether you can walk on ($x,$y) on this field.
+#  1.73 microsec -> 798.04 nanosec p.o.
 sub isWalkable {
 	my ($self, $x, $y) = @_;
-	return 0 if ($self->isOffMap($x, $y));
-	my $offset = $self->getOffset($x, $y);
-	my $value = $self->getBlock($offset);
-	return ($value & TILE_WALK);
+	return PathFinding::isWalkablexs($x, $y, TILE_WALK, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 ##
 # boolean $Field->isSnipable(int x, int y)
 #
 # Check whether you can snipe through ($x,$y) on this field.
+#  1.73 microsec -> 798.04 nanosec p.o.
 sub isSnipable {
 	my ($self, $x, $y) = @_;
-	return 0 if ($self->isOffMap($x, $y));
-	my $offset = $self->getOffset($x, $y);
-	my $value = $self->getBlock($offset);
-	return ($value & TILE_SNIPE);
+	return PathFinding::isWalkablexs($x, $y, TILE_SNIPE, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 ##
 # boolean $Field->isWater(int x, int y)
 #
 # Check whether there is water ($x,$y) on this field.
+#  1.73 microsec -> 798.04 nanosec p.o.
 sub isWater {
 	my ($self, $x, $y) = @_;
-	return 0 if ($self->isOffMap($x, $y));
-	my $offset = $self->getOffset($x, $y);
-	my $value = $self->getBlock($offset);
-	return ($value & TILE_WATER);
+	return PathFinding::isWalkablexs($x, $y, TILE_WATER, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 ##
 # boolean $Field->isCliff(int x, int y)
 #
 # Check whether cell ($x,$y) in a cliff on this field.
+#  1.73 microsec -> 798.04 nanosec p.o.
 sub isCliff {
 	my ($self, $x, $y) = @_;
-	return 0 if ($self->isOffMap($x, $y));
-	my $offset = $self->getOffset($x, $y);
-	my $value = $self->getBlock($offset);
-	return ($value & TILE_CLIFF);
+	return PathFinding::isWalkablexs($x, $y, TILE_CLIFF, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 sub getBlockWeight {
