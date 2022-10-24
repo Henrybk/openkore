@@ -32,17 +32,18 @@ sub cmdTest {
 }
 
 sub bench {
-	my $n = 10000;
+	my $n = 100000;
 	
 	my $wid = $field->{width};
 	my $hei = $field->{height};
 	
-	my $dist = 15;
+	my $dist = 25;
 	
 	my @startx;
 	my @endx;
 	my @starty;
 	my @endy;
+	my @range;
 	
 	my $time_s;
 	my $time_e;
@@ -64,33 +65,25 @@ sub bench {
 				$end[$i]->{y} = $start[$i]->{y} + (int(rand($dist*2)) - $dist);
 			}
 		}
+		$range[$i] = (int(rand(14)))+1;
 	}
 	
 	my @results1;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$results1[$i] = $field->checkLOS($start[$i], $end[$i], 1);
+		$results1[$i] = $field->canAttack($start[$i], $end[$i], 1, $range[$i], 15);
 	}
 	$time_e = time;
-	printTime('checkLOS1', $time_s, $time_e, $n);
+	printTime('canAttack1', $time_s, $time_e, $n);
 	
 	my @results2;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$results2[$i] = $field->checkLOS2($start[$i], $end[$i], 1);
+		$results2[$i] = $field->canAttack2($start[$i], $end[$i], 1, $range[$i], 15);
 	}
 	$time_e = time;
-	printTime('checkLOS2', $time_s, $time_e, $n);
-	checkResults(\@results1, \@results2, 'checkLOS1', 'checkLOS2');
-	
-	my @results3;
-	$time_s = time;
-	for(my $i = 0; $i < $n; $i++){
-		$results3[$i] = $field->checkLOS3($start[$i], $end[$i], 1);
-	}
-	$time_e = time;
-	printTime('checkLOS3', $time_s, $time_e, $n);
-	checkResults(\@results1, \@results3, 'checkLOS1', 'checkLOS3');
+	printTime('canAttack2', $time_s, $time_e, $n);
+	checkResults(\@results1, \@results2, 'canAttack1', 'canAttack2');
 }
 
 sub printTime {

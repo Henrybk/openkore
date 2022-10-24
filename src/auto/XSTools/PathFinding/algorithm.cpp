@@ -635,6 +635,49 @@ checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int 
 	return 1;
 }
 
+int
+canAttackxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, int range, int clientSight, char * rawMap_data) {
+	int distance = blockDistancexs_inside(start_x, start_y, end_x, end_y);
+	if (distance < 2) {
+		return 1;
+	}
+	if (distance >= clientSight) {
+		return 0;
+	}
+	
+	int client_distance = getClientDistxs_inside(start_x, start_y, end_x, end_y);
+	if (client_distance > range) {
+		return 0;
+	}
+	if (!checkLOSxs_inside(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data)) {
+		return -1 ;
+	}
+	
+	return 1;
+}
+
+int
+blockDistancexs_inside (int start_x, int start_y, int end_x, int end_y)
+{
+	int dx = abs(start_x - end_x);
+	int dy = abs(start_y - end_y);
+	return dx > dy ? dx : dy;
+}
+
+int
+getClientDistxs_inside (int start_x, int start_y, int end_x, int end_y)
+{
+	int dx = start_x - end_x;
+	int dy = start_y - end_y;
+
+	double temp_dist = sqrt((double)(dx*dx + dy*dy));
+
+	temp_dist -= 0.0625;
+	if(temp_dist < 0) temp_dist = 0;
+
+	return ((int)temp_dist);
+}
+
 // Frees all the memory allocated by objects
 void
 free_initialized (CalcPath_session *session)

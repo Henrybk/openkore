@@ -867,3 +867,73 @@ PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheigh
 		
 	OUTPUT:
 		RETVAL
+
+
+int
+PathFinding_canAttackxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, irange, iclientSight, rawMap)
+		SV * istart_x
+		SV * istart_y
+		SV * iend_x
+		SV * iend_y
+		SV * itile
+		SV * iwidth
+		SV * iheight
+		SV * irange
+		SV * iclientSight
+		SV * rawMap
+		
+	CODE:
+		int start_x = (int) SvUV (istart_x);
+		int start_y = (int) SvUV (istart_y);
+		int end_x = (int) SvUV (iend_x);
+		int end_y = (int) SvUV (iend_y);
+		int tile = (int) SvUV (itile);
+		int width = (int) SvUV (iwidth);
+		int height = (int) SvUV (iheight);
+		int range = (int) SvUV (irange);
+		int clientSight = (int) SvUV (iclientSight);
+		
+		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
+		
+		RETVAL = canAttackxs_inside(start_x, start_y, end_x, end_y, tile, width, height, range, clientSight, rawMap_data);
+		
+	OUTPUT:
+		RETVAL
+
+
+int
+PathFinding_blockDistancexs(istart_x, istart_y, iend_x, iend_y)
+		SV * istart_x
+		SV * istart_y
+		SV * iend_x
+		SV * iend_y
+		
+	CODE:
+		int start_x = (int) SvUV (istart_x);
+		int start_y = (int) SvUV (istart_y);
+		int end_x = (int) SvUV (iend_x);
+		int end_y = (int) SvUV (iend_y);
+		
+		RETVAL = blockDistancexs_inside(start_x, start_y, end_x, end_y);
+		
+	OUTPUT:
+		RETVAL
+
+
+int
+PathFinding_getClientDistxs(istart_x, istart_y, iend_x, iend_y)
+		SV * istart_x
+		SV * istart_y
+		SV * iend_x
+		SV * iend_y
+		
+	CODE:
+		int start_x = (int) SvUV (istart_x);
+		int start_y = (int) SvUV (istart_y);
+		int end_x = (int) SvUV (iend_x);
+		int end_y = (int) SvUV (iend_y);
+		
+		RETVAL = getClientDistxs_inside(start_x, start_y, end_x, end_y);
+		
+	OUTPUT:
+		RETVAL

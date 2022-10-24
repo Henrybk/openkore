@@ -2879,7 +2879,7 @@ sub meetingPosition {
 			
 			next unless ($compare_dist >= $min_destination_dist);
 			if ($target_explored_cells{$spot->{x}}{$spot->{y}}{pc} <= 10) {
-				next unless (canAttack($field, $spot, $compare_position, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
+				next unless ($field->canAttack($spot, $compare_position, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
 			}
 			
 		} else {
@@ -2905,7 +2905,7 @@ sub meetingPosition {
 			debug $debugmsg;
 			
 			next unless ($compare_dist >= $min_destination_dist);
-			next unless (canAttack($field, $spot, $compare_position, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
+			next unless ($field->canAttack($spot, $compare_position, $attackCanSnipe, $attackMaxDistance, $config{clientSight}) == 1);
 		}
 		
 		# 5. It must be within $followDistanceMax of MasterPos, if we have a master.

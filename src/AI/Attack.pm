@@ -463,7 +463,7 @@ sub main {
 	#  1: sucess
 	my $canAttack = -2;
 	if ($melee || $ranged) {
-		$canAttack = canAttack($field, $realMyPos, $realMonsterPos, $config{attackCanSnipe}, $args->{attackMethod}{maxDistance}, $config{clientSight});
+		$canAttack = $field->canAttack($realMyPos, $realMonsterPos, $config{attackCanSnipe}, $args->{attackMethod}{maxDistance}, $config{clientSight});
 	}
 	
 	my $target_is_aggressive = is_aggressive($target, undef, 0, 0);

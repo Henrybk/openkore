@@ -314,7 +314,7 @@ sub main {
 	#  1: sucess
 	my $canAttack = -2;
 	if ($melee || $ranged) {
-		$canAttack = canAttack($field, $realMyPos, $realMonsterPos, $config{$slave->{configPrefix}.'attackCanSnipe'}, $args->{attackMethod}{maxDistance}, $config{clientSight});
+		$canAttack = $field->canAttack($realMyPos, $realMonsterPos, $config{$slave->{configPrefix}.'attackCanSnipe'}, $args->{attackMethod}{maxDistance}, $config{clientSight});
 	}
 	
 	if (

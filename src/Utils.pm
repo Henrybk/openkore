@@ -41,7 +41,7 @@ our @EXPORT = (
 	qw(get_client_solution get_client_easy_solution get_solution calcPosFromPathfinding calcTimeFromPathfinding calcStepsWalkedFromTimeAndSolution calcTimeFromSolution
 	calcPosFromTime calcTime calcPosition fieldAreaCorrectEdges getSquareEdgesFromCoord
 	checkMovementDirection countSteps
-	distance blockDistance specifiedBlockDistance adjustedBlockDistance getClientDist canAttack
+	distance blockDistance specifiedBlockDistance adjustedBlockDistance getClientDist
 	intToSignedInt intToSignedShort
 	getVector moveAlong moveAlongVector
 	normalize vectorToDegree max min round ceil),
@@ -276,43 +276,13 @@ sub calcPosFromExplored {
 	return $pos;
 }
 
-# Returns:
-# -1: No LOS
-#  0: out of range
-#  1: sucess
-#
-# Reference: hercules src\map\battle.c battle_check_range
-sub canAttack {
-	my ($field, $pos1, $pos2, $attackCanSnipe, $range, $clientSight) = @_;
-
-	my $distance = blockDistance($pos1, $pos2);
-	return 1 if ($distance < 2);
-
-	# hercules conf\map\battle\client.conf area_size
-	# Here the check is done against area_size (which is by default 14, can be higher, eg. 22 in OathRO)
-	# Openkore clientSight should be area_size+1 (by default 15)
-	return 0 if ($distance >= $clientSight);
-
-	my $client_distance = getClientDist($pos1, $pos2);
-	return 0 unless ($client_distance <= $range);
-
-	return -1 unless ($field->checkLOS($pos1, $pos2, $attackCanSnipe));
-
-	return 1;
-}
-
 # Only God and gravity developers know why this is done this way, but I tested in the client and it works 100% of the time
 #
 # Reference: hercules src\map\path.c distance_client
+# 956ns -> 618ns
 sub getClientDist {
 	my ($pos1, $pos2) = @_;
-	my $xD = abs($pos1->{x} - $pos2->{x});
-	my $yD = abs($pos1->{y} - $pos2->{y});
-	my $temp_dist = sqrt(($xD*$xD) + ($yD*$yD));
-	$temp_dist -= 0.0625;
-	$temp_dist = 0 if($temp_dist < 0);
-	$temp_dist = int($temp_dist);
-	return $temp_dist
+	return PathFinding::getClientDistxs($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
 }
 
 ##
@@ -324,10 +294,10 @@ sub getClientDist {
 # This is used for e.g. weapon range calculation.
 #
 # Reference: hercules src\map\path.c distance
+# 650ns -> 580ns
 sub blockDistance {
 	my ($pos1, $pos2) = @_;
-	return max(abs($pos1->{x} - $pos2->{x}),
-	           abs($pos1->{y} - $pos2->{y}));
+	return PathFinding::blockDistancexs($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
 }
 
 ##
