@@ -69,8 +69,7 @@ our @EXPORT = (
 	visualDump/,
 
 	# Field math
-	qw/calcRectArea
-	calcRectArea2
+	qw/calcRectArea2
 	objectInsideSpell
 	objectInsideCasting
 	objectIsMovingTowards
@@ -539,64 +538,6 @@ sub visualDump {
 ### CATEGORY: Field math
 #######################################
 #######################################
-
-##
-# calcRectArea($x, $y, $radius, $field)
-# Returns: an array with position hashes. Each has contains an x and a y key.
-#
-# Creates a rectangle with center ($x,$y) and radius $radius,
-# and returns a list of positions of the border of the rectangle.
-sub calcRectArea {
-	my ($x, $y, $radius, $field) = @_;
-	my (%topLeft, %topRight, %bottomLeft, %bottomRight);
-
-	sub capX {
-		return 0 if ($_[0] < 0);
-		return $_[1]->width - 1 if ($_[0] >= $_[1]->width);
-		return int $_[0];
-	}
-	sub capY {
-		return 0 if ($_[0] < 0);
-		return $_[1]->height - 1 if ($_[0] >= $_[1]->height);
-		return int $_[0];
-	}
-
-	# Get the avoid area as a rectangle
-	$topLeft{x} = capX($x - $radius, $field);
-	$topLeft{y} = capY($y + $radius, $field);
-	$topRight{x} = capX($x + $radius, $field);
-	$topRight{y} = capY($y + $radius, $field);
-	$bottomLeft{x} = capX($x - $radius, $field);
-	$bottomLeft{y} = capY($y - $radius, $field);
-	$bottomRight{x} = capX($x + $radius, $field);
-	$bottomRight{y} = capY($y - $radius, $field);
-
-	# Walk through the border of the rectangle
-	# Record the blocks that are walkable
-	my @walkableBlocks;
-	for (my $x = $topLeft{x}; $x <= $topRight{x}; $x++) {
-		if ($field->isWalkable($x, $topLeft{y})) {
-			push @walkableBlocks, {x => $x, y => $topLeft{y}};
-		}
-	}
-	for (my $x = $bottomLeft{x}; $x <= $bottomRight{x}; $x++) {
-		if ($field->isWalkable($x, $bottomLeft{y})) {
-			push @walkableBlocks, {x => $x, y => $bottomLeft{y}};
-		}
-	}
-	for (my $y = $bottomLeft{y} + 1; $y < $topLeft{y}; $y++) {
-		if ($field->isWalkable($topLeft{x}, $y)) {
-			push @walkableBlocks, {x => $topLeft{x}, y => $y};
-		}
-	}
-	for (my $y = $bottomRight{y} + 1; $y < $topRight{y}; $y++) {
-		if ($field->isWalkable($topRight{x}, $y)) {
-			push @walkableBlocks, {x => $topRight{x}, y => $y};
-		}
-	}
-
-	return @walkableBlocks;
-}
 
 ##
 # calcRectArea2($x, $y, $radius, $minRange)
@@ -2528,9 +2469,11 @@ sub meetingPosition {
 		error "[meetingPosition] attackMaxDistance must be positive ($attackMaxDistance).\n";
 		return;
 	}
+	
+	my $start_time = time;
 
 	my $mySpeed = ($actor->{walk_speed} || 0.12);
-	my $timeSinceActorMoved = time - $actor->{time_move};
+	my $timeSinceActorMoved = $start_time - $actor->{time_move};
 
 	my $my_solution;
 	my $timeActorFinishMove;
@@ -2588,8 +2531,6 @@ sub meetingPosition {
 	
 	# Minimun distance we must be from target after the avoiding is over
 	my $runFromTarget_minAvoid = $runFromTarget_minStep - $runFromTarget_dist;
-	
-	my $actor_time_since_last_position;
 
 	my $realMyPos;
 	# Actor has finished moving and is at pos_to
@@ -2598,75 +2539,29 @@ sub meetingPosition {
 
 	# Actor is currently moving
 	} else {
-		my $steps_walked = calcStepsWalkedFromTimeAndSolution($my_solution, $mySpeed, $timeSinceActorMoved);
-		$realMyPos = $my_solution->[$steps_walked];
-		
-		my @sliced = @{$my_solution}[0..$steps_walked];
-		my $time_to_current_step = calcTimeFromSolution(\@sliced, $mySpeed);
-		$actor_time_since_last_position = $timeSinceActorMoved - $time_to_current_step;
-	}
-
-	# Should never happen (really, so throw and error here)
-	unless ($field->isWalkable($realMyPos->{x}, $realMyPos->{y})) {
-		error "[meetingPosition] calculated current cell ($realMyPos->{x} $realMyPos->{y}) is not walkable, ignoring.\n";
-		$realMyPos = $field->closestWalkableSpot($realMyPos, 1);
+		$realMyPos = calcPosFromTimeAndSolution($my_solution, $mySpeed, $timeSinceActorMoved);
 	}
 
 	my $targetSpeed = ($target->{walk_speed} || 0.12);
-	my $timeSinceTargetMoved = time - $target->{time_move};
+	my $timeSinceTargetMoved = $start_time - $target->{time_move};
 
 	my $target_solution = get_solution($field, $target->{pos}, $target->{pos_to});
 
 	# Calculate the time target will need to finish moving from pos to pos_to
 	my $timeTargetFinishMove = calcTimeFromSolution($target_solution, $targetSpeed);
-	
-	my $target_time_since_last_position;
 
 	my $realTargetPos;
-	my $targetTotalSteps;
-	my $targetCurrentStep;
-
-	my @target_pos_to_check;
 	my $target_moving;
-	my @missing_target_solution_steps;
-	
-	# TODO: myDistToTargetPosInStep is not used anywhere, find a use for it or delete it
-	my $myDistToTargetPosInStep;
 
 	# Target has finished moving
 	if ($timeSinceTargetMoved >= $timeTargetFinishMove) {
 		$target_moving = 0;
 		$realTargetPos = $target->{pos_to};
-		$myDistToTargetPosInStep = blockDistance($realMyPos, $realTargetPos);
-		$target_pos_to_check[0] = {
-			targetPosInStep => $realTargetPos,
-			myDistToTargetPosInStep => $myDistToTargetPosInStep
-		};
 
 	# Target is currently moving
 	} else {
 		$target_moving = 1;
-		$targetTotalSteps = $#{$target_solution};
-		$targetCurrentStep = calcStepsWalkedFromTimeAndSolution($target_solution, $targetSpeed, $timeSinceTargetMoved);
-		$realTargetPos = $target_solution->[$targetCurrentStep];
-		
-		my @sliced = @{$target_solution}[0..$targetCurrentStep];
-		my $time_to_current_step = calcTimeFromSolution(\@sliced, $targetSpeed);
-		$target_time_since_last_position = $timeSinceTargetMoved - $time_to_current_step;
-		
-		@missing_target_solution_steps = @{$target_solution}[$targetCurrentStep..$#{$target_solution}];
-
-		my $steps_count = 0;
-		# Calculate avery single step in the path from target pos to pos_to, but exclude the ones the target has already traversed
-		foreach my $currentStep ($targetCurrentStep..$targetTotalSteps) {
-			$myDistToTargetPosInStep = blockDistance($realMyPos, $target_solution->[$currentStep]);
-			$target_pos_to_check[$steps_count] = {
-				targetPosInStep => $target_solution->[$currentStep],
-				myDistToTargetPosInStep => $myDistToTargetPosInStep
-			};
-		} continue {
-			$steps_count++;
-		}
+		$realTargetPos = calcPosFromTimeAndSolution($target_solution, $targetSpeed, $timeSinceTargetMoved);
 	}
 
 	my $master_moving;
@@ -2674,13 +2569,11 @@ sub meetingPosition {
 	my $timeSinceMasterMoved;
 	my $realMasterPos;
 	my $masterSpeed;
-	my $master_time_since_last_position;
-	my @missing_master_solution_steps;
 	
 	# If we have a master (follow for char or char for slaves), calculate if it is moving
 	if ($masterPos) {
 		$masterSpeed = ($master->{walk_speed} || 0.12);
-		$timeSinceMasterMoved = time - $master->{time_move};
+		$timeSinceMasterMoved = $start_time - $master->{time_move};
 
 		$master_solution = get_solution($field, $master->{pos}, $master->{pos_to});
 
@@ -2695,14 +2588,6 @@ sub meetingPosition {
 		# master is currently moving
 		} else {
 			$master_moving = 1;
-			
-			my $masterCurrentStep = calcStepsWalkedFromTimeAndSolution($master_solution, $masterSpeed, $timeSinceMasterMoved);
-			
-			my @sliced = @{$master_solution}[0..$masterCurrentStep];
-			my $time_to_current_step = calcTimeFromSolution(\@sliced, $masterSpeed);
-			$master_time_since_last_position = $timeSinceMasterMoved - $time_to_current_step;
-			
-			@missing_master_solution_steps = @{$master_solution}[$masterCurrentStep..$#{$master_solution}];
 		}
 	}
 	
@@ -2750,7 +2635,7 @@ sub meetingPosition {
 	debug "[TMT 0] minAheadTime $minAheadTime ($targetSpeed * $runFromTarget_minStep)\n";
 	debug "\n";
 	
-	# Map using the pathfinding algorithm all cells close to the target to find their path distance in cells (path_dist) and clientdist (w_dist)
+	# Map using the pathfinding algorithm all cells close to the target to find their path distance in cells (path_dist) and clientdist (g)
 	# Only do this when runFromTarget is active
 	my %target_explored_cells;
 	my $target_explored;
@@ -2767,7 +2652,7 @@ sub meetingPosition {
 		$target_max_path_dist = ($max_path_dist+$current_dist+1);
 		$target_pathfinding->explore($target_max_path_dist, $target_explored);
 		foreach my $exp (@{$target_explored}) {
-			$target_explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
+			$target_explored_cells{$exp->{x}}{$exp->{y}}{g} = $exp->{g};
 			$target_explored_cells{$exp->{x}}{$exp->{y}}{pc} = $exp->{pc};
 			$target_explored_cells{$exp->{x}}{$exp->{y}}{p} = 0;
 			if ($exp->{p} == 1) {
@@ -2780,7 +2665,7 @@ sub meetingPosition {
 	
 	my @allspots;
 
-	# Map using the pathfinding algorithm all cells close to the actor to find their path distance in cells (path_dist) and clientdist (w_dist)
+	# Map using the pathfinding algorithm all cells close to the actor to find their path distance in cells (path_dist) and clientdist (g)
 	my %explored_cells;
 	my $explored_array;
 	my $pathfinding = new PathFinding();
@@ -2794,7 +2679,7 @@ sub meetingPosition {
 	$pathfinding->explore($max_path_dist, $explored_array);
 	#PathFinding::explore($pathfinding, $max_path_dist, $explored_array);
 	foreach my $exp (@{$explored_array}) {
-		$explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
+		$explored_cells{$exp->{x}}{$exp->{y}}{g} = $exp->{g};
 		$explored_cells{$exp->{x}}{$exp->{y}}{pc} = $exp->{pc};
 		push(@allspots, {x => $exp->{x}, y => $exp->{y}});
 		#debug "[add allspots $max_path_dist] $exp->{x} $exp->{y} -> $exp->{g}\n";
@@ -2827,7 +2712,7 @@ sub meetingPosition {
 	my $best_spot;
 	my $best_target_position;
 	my $best_dist_to_target;
-	my $best_w_dist;
+	my $best_g;
 	my $best_time_to_spot;
 	my $best_time_target_to_get_to_spot;
 	my $best_time_ahead;
@@ -2840,9 +2725,9 @@ sub meetingPosition {
 		my $spot = $allspots[$current_index];
 		next if (exists $prohibited{$spot->{x}} && exists $prohibited{$spot->{x}}{$spot->{y}});
 		
-		my $w_dist = $explored_cells{$spot->{x}}{$spot->{y}}{w_dist}/10;
+		my $g = $explored_cells{$spot->{x}}{$spot->{y}}{g}/10;
 		
-		my $time_actor_to_get_to_spot = $w_dist * $mySpeed;
+		my $time_actor_to_get_to_spot = $g * $mySpeed;
 		
 		my $timeAhead;
 		my $time_target_to_get_to_spot;
@@ -2853,8 +2738,8 @@ sub meetingPosition {
 		
 		if ($runFromTargetActive && exists $target_explored_cells{$spot->{x}} && exists $target_explored_cells{$spot->{x}}{$spot->{y}}) {
 			
-			my $t_w_dist = ($target_explored_cells{$spot->{x}}{$spot->{y}}{w_dist}/10);
-			$time_target_to_get_to_spot = $t_w_dist * $targetSpeed;
+			my $t_g = ($target_explored_cells{$spot->{x}}{$spot->{y}}{g}/10);
+			$time_target_to_get_to_spot = $t_g * $targetSpeed;
 			$timeAhead = $time_target_to_get_to_spot - $time_actor_to_get_to_spot;
 			
 			next if (!defined $recheckPos && $minAheadTime >= $timeAhead);
@@ -2868,10 +2753,10 @@ sub meetingPosition {
 			$debugmsg .= "[TMT 2] Chases ";
 			$debugmsg .= "$spot->{x} $spot->{y}, ".
 			"mob pos $compare_position->{x} $compare_position->{y} (d $compare_dist), ".
-			"wd $w_dist, ".
+			"wd $g, ".
 			"actorT $time_actor_to_get_to_spot";
 			$debugmsg .= ", ".
-			"target wd $t_w_dist, ".
+			"target wd $t_g, ".
 			"targetT $time_target_to_get_to_spot, ".
 			"aheadT $timeAhead.";
 			$debugmsg .= "\n";
@@ -2886,8 +2771,7 @@ sub meetingPosition {
 			
 			my $target_position;
 			if ($target_moving) {
-				my $temp_targetCurrentStep = calcStepsWalkedFromTimeAndSolution(\@missing_target_solution_steps, $targetSpeed, $time_actor_to_get_to_spot);
-				$target_position = $target_solution->[$temp_targetCurrentStep];
+				$target_position = calcPosFromTimeAndSolution($target_solution, $targetSpeed, ($timeSinceTargetMoved+$time_actor_to_get_to_spot));
 			} else {
 				$target_position = $realTargetPos;
 			}
@@ -2899,7 +2783,7 @@ sub meetingPosition {
 			$debugmsg .= "[TMT 2] Normal ";
 			$debugmsg .= "$spot->{x} $spot->{y}, ".
 			"mob pos $compare_position->{x} $compare_position->{y} (d $compare_dist), ".
-			"wd $w_dist, ".
+			"wd $g, ".
 			"actorT $time_actor_to_get_to_spot";
 			$debugmsg .= "\n";
 			debug $debugmsg;
@@ -2912,8 +2796,7 @@ sub meetingPosition {
 		if ($masterPos) {
 			my $masterPosNow;
 			if ($master_moving) {
-				my $master_CurrentStep = calcStepsWalkedFromTimeAndSolution(\@missing_master_solution_steps, $masterSpeed, $time_actor_to_get_to_spot);
-				$masterPosNow = $master_solution->[$master_CurrentStep];
+				$masterPosNow = calcPosFromTimeAndSolution($master_solution, $masterSpeed, ($timeSinceMasterMoved+$time_actor_to_get_to_spot));
 			} else {
 				$masterPosNow = $realMasterPos;
 			}
@@ -2921,7 +2804,7 @@ sub meetingPosition {
 			next unless ($spot->{x} != $masterPosNow->{x} || $spot->{y} != $masterPosNow->{y});
 		}
 
-		$best_w_dist = $w_dist;
+		$best_g = $g;
 		$best_time_to_spot = $time_actor_to_get_to_spot;
 		$best_time_target_to_get_to_spot = $time_target_to_get_to_spot;
 		$best_time_ahead = $timeAhead;
@@ -2939,7 +2822,7 @@ sub meetingPosition {
 			$max_path_dist += 5;
 			$pathfinding->explore($max_path_dist, $explored_array);
 			foreach my $exp (@{$explored_array}) {
-				$explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
+				$explored_cells{$exp->{x}}{$exp->{y}}{g} = $exp->{g};
 				$explored_cells{$exp->{x}}{$exp->{y}}{pc} = $exp->{pc};
 				push(@allspots, {x => $exp->{x}, y => $exp->{y}});
 				#debug "[add allspots extra $max_path_dist] $exp->{x} $exp->{y} -> $exp->{g}\n";
@@ -2952,7 +2835,7 @@ sub meetingPosition {
 				$target_max_path_dist += 5;
 				$target_pathfinding->explore($target_max_path_dist, $target_explored);
 				foreach my $exp (@{$target_explored}) {
-					$target_explored_cells{$exp->{x}}{$exp->{y}}{w_dist} = $exp->{g};
+					$target_explored_cells{$exp->{x}}{$exp->{y}}{g} = $exp->{g};
 					$target_explored_cells{$exp->{x}}{$exp->{y}}{pc} = $exp->{pc};
 					$target_explored_cells{$exp->{x}}{$exp->{y}}{p} = 0;
 					if ($exp->{p} == 1) {
@@ -2969,7 +2852,7 @@ sub meetingPosition {
 		debug "[mT] Your ($realMyPos->{x} $realMyPos->{y}) best spot is $best_spot->{x} $best_spot->{y}, ".
 		"mob will be at $best_target_position->{x} $best_target_position->{y}, ".
 		"dist $best_dist_to_target, ".
-		"actor wd $best_w_dist, ".
+		"actor wd $best_g, ".
 		"actor tt $best_time_to_spot, ".
 		"target tt $best_time_target_to_get_to_spot, ".
 		"ahead time $best_time_ahead.".
@@ -2988,7 +2871,7 @@ sub meetingPosition {
 				start => $realTargetPos
 			);
 			
-			PathFinding::meeting($actor_pathfinding, $target_pathfinding, 40, ($mySpeed*1000), ($targetSpeed*1000), $runFromTarget_minStep);
+			#PathFinding::meeting($actor_pathfinding, $target_pathfinding, 40, ($mySpeed*1000), ($targetSpeed*1000), $runFromTarget_minStep);
 		}
 		
 		return $best_spot;
@@ -2997,7 +2880,7 @@ sub meetingPosition {
 
 sub getClosestAdjacentCell {
 	my ($me, $mob) = @_;
-	my @blocks = calcRectArea($me->{x}, $me->{y}, 1, $field);
+	my @blocks = $field->calcRectArea($me->{x}, $me->{y}, 1);
 
 	my $best_block;
 	my $shortest_dist;
@@ -4548,8 +4431,8 @@ sub compilePortals {
 
 				my %start = %{$mapSpawns{$map}{$spawn}};
 				my %dest = %{$mapPortals{$map}{$portal}};
-				my $closest_start = $field->closestWalkableSpot(\%start, 1);
-				my $closest_dest = $field->closestWalkableSpot(\%dest, 1);
+				my $closest_start = $field->closestWalkableSpot(\%start, 2);
+				my $closest_dest = $field->closestWalkableSpot(\%dest, 2);
 				my $count;
 
 				if (!defined $closest_start || !defined $closest_dest) {

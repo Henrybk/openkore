@@ -42,6 +42,8 @@ typedef struct {
 	int min_y;
 	int max_y;
 	
+	long max_steps;
+	
 	int startX;
 	int startY;
 	int endX;
@@ -82,15 +84,17 @@ void reajustOpenListItem (CalcPath_session *session, Node* node);
 
 Node* openListGetLowest (CalcPath_session *session);
 
-int isWalkablexs_inside(int start_x, int start_y, int tile, int width, int height, char * rawMap_data);
+int checkTile_cpp (int start_x, int start_y, int tile, int width, int height, char * rawMap_data);
 
-int checkLOSxs_inside (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data);
+int checkLOS_cpp (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data);
 
-int canAttackxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, int range, int clientSight, char * rawMap_data);
+int canAttack_cpp (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, int range, int clientSight, char * rawMap_data);
 
-int blockDistancexs_inside (int start_x, int start_y, int end_x, int end_y);
+int checkPathFree_cpp (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data);
 
-int getClientDistxs_inside (int start_x, int start_y, int end_x, int end_y);
+int blockDistance_cpp (int start_x, int start_y, int end_x, int end_y);
+
+int getClientDist_cpp (int start_x, int start_y, int end_x, int end_y);
 
 void free_initialized (CalcPath_session *session);
 

@@ -121,6 +121,7 @@ sub reset {
 		$args{max_x} = ($args{width}-1) unless (defined $args{max_x});
 		$args{min_y} = 0 unless (defined $args{min_y});
 		$args{max_y} = ($args{height}-1) unless (defined $args{max_y});
+		$args{max_steps} = 0 unless (defined $args{max_steps});
 	}
 
 	return $class->_reset(
@@ -140,7 +141,8 @@ sub reset {
 		$args{min_x},
 		$args{max_x},
 		$args{min_y},
-		$args{max_y}
+		$args{max_y},
+		$args{max_steps}
 	);
 }
 

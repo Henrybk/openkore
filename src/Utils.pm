@@ -38,9 +38,9 @@ our @EXPORT = (
 	@{$Utils::DataStructures::EXPORT_TAGS{all}},
 
 	# Math
-	qw(get_client_solution get_client_easy_solution get_solution calcPosFromPathfinding calcTimeFromPathfinding calcStepsWalkedFromTimeAndSolution calcTimeFromSolution
+	qw(get_client_solution get_client_easy_solution get_solution calcPosFromPathfinding calcTimeFromPathfinding calcPosFromTimeAndSolution calcTimeFromSolution
 	calcPosFromTime calcTime calcPosition fieldAreaCorrectEdges getSquareEdgesFromCoord
-	checkMovementDirection countSteps
+	checkMovementDirection
 	distance blockDistance specifiedBlockDistance adjustedBlockDistance getClientDist
 	intToSignedInt intToSignedShort
 	getVector moveAlong moveAlongVector
@@ -86,16 +86,18 @@ sub get_client_solution {
 
 	my $solution = [];
 
-	# Optimization so we don't need to call the Pathfinding just to get this cell
-	if ($pos->{x} == $pos_to->{x} && $pos->{y} == $pos_to->{y}) {
-		push(@{$solution}, { x => $pos->{x}, y => $pos->{y} });
-		return $solution;
-	}
-
 	# Game client uses the same A* Pathfinding as openkore but uses and inadmissible heuristic (Manhattan distance)
 	# To better simulate the client pathfinding we tell openkore's pathfinding to use the same Manhattan heuristic
 	# We also deactivate any custom pathfinding weights (randomFactor, avoidWalls, customWeights)
-	my ($min_pathfinding_x, $min_pathfinding_y, $max_pathfinding_x, $max_pathfinding_y) = getSquareEdgesFromCoord($field, $pos, 35);
+	
+	my $dist = blockDistance($pos, $pos_to);
+
+	# This 17 is actually set at
+	# hercules conf\map\battle\client.conf max_walk_path (which is by default 17, can be higher)
+	if ($dist > 20) {
+		return $solution;
+	}
+	
 	my $dist_path = new PathFinding(
 		field => $field,
 		start => $pos,
@@ -103,10 +105,7 @@ sub get_client_solution {
 		avoidWalls => 0,
 		randomFactor => 0,
 		useManhattan => 1,
-		min_x => $min_pathfinding_x,
-		max_x => $max_pathfinding_x,
-		min_y => $min_pathfinding_y,
-		max_y => $max_pathfinding_y
+		max_steps => 20
 	)->run($solution);
 	return $solution;
 }
@@ -124,7 +123,7 @@ sub get_client_solution {
 sub get_client_easy_solution {
 	my ($pos, $pos_to) = @_;
 	my $solution = [];
-	PathFinding::get_client_easy_solutionxs($pos->{x}, $pos->{y}, $pos_to->{x}, $pos_to->{y}, $solution);
+	PathFinding::get_client_easy_solution_XS($pos->{x}, $pos->{y}, $pos_to->{x}, $pos_to->{y}, $solution);
 	return $solution;
 }
 
@@ -144,9 +143,8 @@ sub get_solution {
 	}
 
 	# If there are no obstacles between Pos and PosTo use calcPosFromTime to save time.
-	my $easy_solution = get_client_easy_solution($pos, $pos_to);
-	if ($field->checkPathFree($easy_solution)) {
-		return $easy_solution;
+	if ($field->checkPathFree($pos, $pos_to)) {
+		return get_client_easy_solution($pos, $pos_to);
 
 	# If there are obstacles then use the client pathfinding to solve it
 	} else {
@@ -178,9 +176,7 @@ sub calcPosFromPathfinding {
 		$solution = get_solution($field, $actor->{pos}, $actor->{pos_to});
 	}
 
-	my $steps_walked = calcStepsWalkedFromTimeAndSolution($solution, $speed, $time);
-
-	my $pos = $solution->[$steps_walked];
+	my $pos = calcPosFromTimeAndSolution($solution, $speed, $time);
 
 	return $pos;
 }
@@ -202,38 +198,24 @@ sub calcTimeFromPathfinding {
 
 # Currently the go-to function to get the position of a given actor on critical ocasions (eg. Attack logic)
 sub calcPosFromExplored {
-	my ($explored_cells, $spot, $time, $speed) = @_;
-
-	my $solution;
+	my ($explored_cells, $spot, $time_elapsed, $speed) = @_;
 	
-	my $cell;
-	
-	my $next;
-	$next->{x} = $spot->{x};
-	$next->{y} = $spot->{y};
-	#use Data::Dumper;
-	
-	#print Dumper $explored_cells;
-	
-	while (1) {
-		$cell->{x} = $next->{x};
-		$cell->{y} = $next->{y};
-		unshift(@{$solution}, { x => $cell->{x}, y => $cell->{y} });
-		last unless ($explored_cells->{$cell->{x}}{$cell->{y}}{p} == 1);
-		#print "Setting cell from $cell->{x} $cell->{y} to $explored_cells->{$cell->{x}}{$cell->{y}}{px} $explored_cells->{$cell->{x}}{$cell->{y}}{py}\n";
-		$next->{x} = $explored_cells->{$cell->{x}}{$cell->{y}}{px};
-		$next->{y} = $explored_cells->{$cell->{x}}{$cell->{y}}{py};
+	if (!defined $time_elapsed) {
+		$time_elapsed = 0;
+	} else {
+		$time_elapsed *= 10;
 	}
 	
-	#print Dumper $solution;
-	#print "[calcPosFromExplored] end $spot->{x} $spot->{y} | cell $cell->{x} $cell->{y}\n";
-	#sleep 100000;
-
-	my $steps_walked = calcStepsWalkedFromTimeAndSolution($solution, $speed, $time);
-
-	my $pos = $solution->[$steps_walked];
-
-	return $pos;
+	my $cell;
+	$cell->{x} = $spot->{x};
+	$cell->{y} = $spot->{y};
+	
+	while (1) {
+		if ($time_elapsed > ($explored_cells->{$cell->{x}}{$cell->{y}}{g}*$speed)) {
+			return $cell;
+		}
+		($cell->{x}, $cell->{y}) = ($explored_cells->{$cell->{x}}{$cell->{y}}{px}, $explored_cells->{$cell->{x}}{$cell->{y}}{py});
+	}
 }
 
 # Only God and gravity developers know why this is done this way, but I tested in the client and it works 100% of the time
@@ -242,7 +224,7 @@ sub calcPosFromExplored {
 # 956ns -> 618ns
 sub getClientDist {
 	my ($pos1, $pos2) = @_;
-	return PathFinding::getClientDistxs($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
+	return PathFinding::getClientDist_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
 }
 
 ##
@@ -257,67 +239,26 @@ sub getClientDist {
 # 650ns -> 580ns
 sub blockDistance {
 	my ($pos1, $pos2) = @_;
-	return PathFinding::blockDistancexs($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
+	return PathFinding::blockDistance_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
 }
 
 ##
-# calcStepsWalkedFromTimeAndSolution(solution, speed, time_elapsed)
+# calcPosFromTimeAndSolution(solution, speed, time_elapsed)
 # solution: Reference to an array in which the solution is stored. It will contain hashes of x and y coordinates from the start to the end of the path, the first array element should be the current position.
 # speed: The actor speed in blocks / second.
 # time_elapsed: The amount of time that has passed since movement started.
 #
-# Returns in which step of solution the character currently is, including possibly step 0.
-#
-# Example:
-# my $steps_walked;
-# $steps_walked = calcStepsWalkedFromTimeAndSolution($solution, $speed, $time_elapsed)
-# print "You are currently at: $solution->[$steps_walked]{x} $solution->[$steps_walked]{y}\n";
-sub calcStepsWalkedFromTimeAndSolution {
+# Returns in which cell of solution the character currently is in.
+sub calcPosFromTimeAndSolution {
 	my ($solution, $speed, $time_elapsed) = @_;
-
-	my $stepType = 0; # 1 - vertical or horizontal; 2 - diagonal
-	my $current_step = 0; # step
-
-	my %current_pos = ( x => $solution->[0]{x}, y => $solution->[0]{y} );
-	my %next_pos;
-
-	my @steps = @{$solution}[1..$#{$solution}];
-
-	my $dist = @steps;
-
-	my $time_needed_ortogonal = $speed;
-	my $time_needed_diagonal = $speed * (MOVE_DIAGONAL_COST / MOVE_COST);
-	my $time_needed;
-
-	while ($current_step < $dist) {
-		%next_pos = ( x => $steps[$current_step]{x}, y => $steps[$current_step]{y} );
-
-		$stepType = 0;
-
-		if ($current_pos{x} != $next_pos{x}) {
-			$stepType++;
-		}
-
-		if ($current_pos{y} != $next_pos{y}) {
-			$stepType++;
-		}
-
-		if ($stepType == 2) {
-			$time_needed = $time_needed_diagonal;
-		} elsif ($stepType == 1) {
-			$time_needed = $time_needed_ortogonal;
-		}
-
-		if ($time_elapsed > $time_needed) {
-			$time_elapsed -= $time_needed;
-			%current_pos = %next_pos;
-			$current_step++;
-		} else {
-			last;
+	
+	$time_elapsed *= 10;
+	
+	foreach my $step_i (reverse (0..$#{$solution})) {
+		if ($time_elapsed > ($solution->[$step_i]{g}*$speed)) {
+			return $solution->[$step_i];
 		}
 	}
-
-	return $current_step;
 }
 
 ##
@@ -328,48 +269,7 @@ sub calcStepsWalkedFromTimeAndSolution {
 # Returns the amount of seconds to walk the given Solution with the given speed.
 sub calcTimeFromSolution {
 	my ($solution, $speed) = @_;
-
-	my $stepType = 0; # 1 - vertical or horizontal; 2 - diagonal
-	my $current_step = 0; # step
-
-	my %current_pos = ( x => $solution->[0]{x}, y => $solution->[0]{y} );
-	my %next_pos;
-
-	my @steps = @{$solution}[1..$#{$solution}];
-
-	my $dist = @steps;
-
-	my $time_needed_ortogonal = $speed;
-	my $time_needed_diagonal = $speed * (MOVE_DIAGONAL_COST / MOVE_COST);
-	my $time_needed;
-
-	my $summed_time = 0;
-
-	while ($current_step < $dist) {
-		%next_pos = ( x => $steps[$current_step]{x}, y => $steps[$current_step]{y} );
-
-		$stepType = 0;
-
-		if ($current_pos{x} != $next_pos{x}) {
-			$stepType++;
-		}
-
-		if ($current_pos{y} != $next_pos{y}) {
-			$stepType++;
-		}
-
-		if ($stepType == 2) {
-			$time_needed = $time_needed_diagonal;
-		} elsif ($stepType == 1) {
-			$time_needed = $time_needed_ortogonal;
-		}
-
-		$summed_time += $time_needed;
-		%current_pos = %next_pos;
-		$current_step++;
-	}
-
-	return $summed_time;
+	return (($solution->[$#{$solution}]{g}*$speed)/10);
 }
 
 ##
@@ -388,8 +288,7 @@ sub calcPosFromTime {
 	}
 
 	my $solution = get_client_easy_solution($pos, $pos_to);
-	my $steps_walked = calcStepsWalkedFromTimeAndSolution($solution, $speed, $time);
-	my $pos = $solution->[$steps_walked];
+	my $pos = calcPosFromTimeAndSolution($solution, $speed, $time);
 	return $pos;
 }
 
@@ -507,36 +406,6 @@ sub checkMovementDirection {
 	my $obj1ToObj2Degree = vectorToDegree(\%objVec);
 	return abs($obj1ToObj2Degree - $movementDegree) <= $fuzziness ||
 		(($obj1ToObj2Degree - $movementDegree) % 360) <= $fuzziness;
-}
-
-##
-# countSteps(pos, pos_to)
-#
-# Returns: the number of steps from $pos to $pos_to.
-# Walls are not considered.
-sub countSteps {
-	my ($pos, $pos_to) = @_;
-	my $posX = $$pos{x};
-	my $posY = $$pos{y};
-	my $pos_toX = $$pos_to{x};
-	my $pos_toY = $$pos_to{y};
-	my $s = 0; # steps
-	while ($posX ne $pos_toX || $posY ne $pos_toY) {
-		$s++;
-		if ($posX < $pos_toX) {
-			$posX++;
-		}
-		if ($posX > $pos_toX) {
-			$posX--;
-		}
-		if ($posY < $pos_toY) {
-			$posY++;
-		}
-		if ($posY > $pos_toY) {
-			$posY--;
-		}
-	}
-	return $s;
 }
 
 ##

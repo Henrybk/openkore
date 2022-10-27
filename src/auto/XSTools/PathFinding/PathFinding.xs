@@ -27,7 +27,7 @@ PathFinding_DESTROY(session)
 		CalcPath_destroy (session);
 
 void
-PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightMap, randomFactor, useManhattan, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y)
+PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightMap, randomFactor, useManhattan, width, height, startx, starty, destx, desty, time_max, min_x, max_x, min_y, max_y, max_steps)
 		PathFinding session
 		SV * weight_map
 		SV * avoidWalls
@@ -46,6 +46,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		SV * max_x
 		SV * min_y
 		SV * max_y
+		SV * max_steps
 	
 	PREINIT:
 		char *weight_map_data = NULL;
@@ -60,7 +61,7 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		}
 		
 		/* Check for any missing arguments */
-		if (!session || !weight_map || !avoidWalls  || !customWeights || !secondWeightMap || !randomFactor || !useManhattan || !width || !height || !startx || !starty || !destx || !desty || !time_max || !min_x || !max_x || !min_y || !max_y) {
+		if (!session || !weight_map || !avoidWalls  || !customWeights || !secondWeightMap || !randomFactor || !useManhattan || !width || !height || !startx || !starty || !destx || !desty || !time_max || !min_x || !max_x || !min_y || !max_y || !max_steps) {
 			printf("[pathfinding reset error] missing argument\n");
 			XSRETURN_NO;
 		}
@@ -146,6 +147,11 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 			XSRETURN_NO;
 		}
 		
+		if (SvROK(max_steps) || SvTYPE(max_steps) >= SVt_PVAV || !SvOK(max_steps)) {
+			printf("[pathfinding reset error] bad max_steps argument\n");
+			XSRETURN_NO;
+		}
+		
 		/* Get the weight_map data */
 		weight_map_data = (char *) SvPVbyte_nolen (SvRV (weight_map));
 		session->map_base_weight = weight_map_data;
@@ -159,6 +165,8 @@ PathFinding__reset(session, weight_map, avoidWalls, customWeights, secondWeightM
 		session->max_x = (int) SvUV (max_x);
 		session->min_y = (int) SvUV (min_y);
 		session->max_y = (int) SvUV (max_y);
+		
+		session->max_steps = (int) SvUV (max_steps);
 		
 		session->startX = (int) SvUV (startx);
 		session->startY = (int) SvUV (starty);
@@ -428,6 +436,8 @@ PathFinding_run(session, solution_array)
 
 				hv_store(rh, "y", 1, newSViv(currentNode.y), 0);
 
+				hv_store(rh, "g", 1, newSViv(currentNode.g), 0);
+
 				av_store(array, current, newRV((SV *)rh));
 				
 				if (current == 0) {
@@ -685,7 +695,7 @@ PathFinding_explore(session, explore_len, solution_array)
 
 				hv_store(rh, "g", 1, newSViv(currentNode.g), 0);
 
-				hv_store(rh, "pc", 1, newSViv(currentNode.predecessorCount), 0);
+				hv_store(rh, "pc", 2, newSViv(currentNode.predecessorCount), 0);
 				
 				if (currentNode.x == session->startX && currentNode.y == session->startY) {
 					hv_store(rh, "p", 1, newSViv(0), 0);
@@ -841,7 +851,7 @@ PathFinding_meeting(actor_session, target_session, max_explore_len, actor_speed,
 		RETVAL
 
 int
-PathFinding_isWalkablexs(ix, iy, itile, iwidth, iheight, rawMap)
+PathFinding_checkTile_XS(ix, iy, itile, iwidth, iheight, rawMap)
 		SV * ix
 		SV * iy
 		SV * itile
@@ -858,13 +868,13 @@ PathFinding_isWalkablexs(ix, iy, itile, iwidth, iheight, rawMap)
 		
 		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
 		
-		RETVAL = isWalkablexs_inside(x, y, tile, width, height, rawMap_data);
+		RETVAL = checkTile_cpp(x, y, tile, width, height, rawMap_data);
 		
 	OUTPUT:
 		RETVAL
 
 int
-PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, rawMap)
+PathFinding_checkLOS_XS(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, rawMap)
 		SV * istart_x
 		SV * istart_y
 		SV * iend_x
@@ -885,13 +895,13 @@ PathFinding_checkLOSxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheigh
 		
 		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
 		
-		RETVAL = checkLOSxs_inside(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data);
+		RETVAL = checkLOS_cpp(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data);
 		
 	OUTPUT:
 		RETVAL
 
 int
-PathFinding_canAttackxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, irange, iclientSight, rawMap)
+PathFinding_canAttack_XS(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, irange, iclientSight, rawMap)
 		SV * istart_x
 		SV * istart_y
 		SV * iend_x
@@ -916,13 +926,161 @@ PathFinding_canAttackxs(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheig
 		
 		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
 		
-		RETVAL = canAttackxs_inside(start_x, start_y, end_x, end_y, tile, width, height, range, clientSight, rawMap_data);
+		RETVAL = canAttack_cpp(start_x, start_y, end_x, end_y, tile, width, height, range, clientSight, rawMap_data);
+		
+	OUTPUT:
+		RETVAL
+
+void
+PathFinding_calcRectArea_XS(i_x, i_y, iradius, itile, iwidth, iheight, rawMap, solution_array)
+		SV * i_x
+		SV * i_y
+		SV * iradius
+		SV * itile
+		SV * iwidth
+		SV * iheight
+		SV * rawMap
+		SV * solution_array
+		
+	CODE:
+		int x = (int) SvUV (i_x);
+		int y = (int) SvUV (i_y);
+		int radius = (int) SvUV (iradius);
+		int tile = (int) SvUV (itile);
+		int width = (int) SvUV (iwidth);
+		int height = (int) SvUV (iheight);
+		
+		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
+		
+		AV *array;
+ 		array = (AV *) SvRV (solution_array);
+		av_clear (array);
+		
+		int min_x = (x - radius);
+		int min_y = (y - radius);
+		int max_x = (x + radius);
+		int max_y = (y + radius);
+	
+		if (min_x < 0) {
+			min_x = 0;
+		}
+
+		if (min_y < 0) {
+			min_y = 0;
+		}
+
+		if (max_x >= width) {
+			max_x = width-1;
+		}
+
+		if (max_y >= height) {
+			max_y = height-1;
+		}
+		
+		int offset;
+		
+		int value;
+		
+		int size;
+		
+		x = min_x;
+		y = min_y;
+		offset = (y * width) + x;
+		size = 0;
+		
+		while (x < max_x) {
+			value = rawMap_data[offset];
+			if (value & tile) {
+				av_extend (array, (size+1));
+				HV * rh = (HV *)sv_2mortal((SV *)newHV());
+
+				hv_store(rh, "x", 1, newSViv(x), 0);
+				hv_store(rh, "y", 1, newSViv(y), 0);
+
+				av_store(array, size, newRV((SV *)rh));
+				size++;
+			}
+			offset++;
+			x++;
+		}
+		
+		while (y < max_y) {
+			value = rawMap_data[offset];
+			if (value & tile) {
+				av_extend (array, (size+1));
+				HV * rh = (HV *)sv_2mortal((SV *)newHV());
+
+				hv_store(rh, "x", 1, newSViv(x), 0);
+				hv_store(rh, "y", 1, newSViv(y), 0);
+
+				av_store(array, size, newRV((SV *)rh));
+				size++;
+			}
+			offset += width;
+			y++;
+		}
+		
+		while (x > min_x) {
+			value = rawMap_data[offset];
+			if (value & tile) {
+				av_extend (array, (size+1));
+				HV * rh = (HV *)sv_2mortal((SV *)newHV());
+
+				hv_store(rh, "x", 1, newSViv(x), 0);
+				hv_store(rh, "y", 1, newSViv(y), 0);
+
+				av_store(array, size, newRV((SV *)rh));
+				size++;
+			}
+			offset--;
+			x--;
+		}
+		
+		while (y > min_y) {
+			value = rawMap_data[offset];
+			if (value & tile) {
+				av_extend (array, (size+1));
+				HV * rh = (HV *)sv_2mortal((SV *)newHV());
+
+				hv_store(rh, "x", 1, newSViv(x), 0);
+				hv_store(rh, "y", 1, newSViv(y), 0);
+
+				av_store(array, size, newRV((SV *)rh));
+				size++;
+			}
+			offset -= width;
+			y--;
+		}
+
+int
+PathFinding_checkPathFree_XS(istart_x, istart_y, iend_x, iend_y, itile, iwidth, iheight, rawMap)
+		SV * istart_x
+		SV * istart_y
+		SV * iend_x
+		SV * iend_y
+		SV * itile
+		SV * iwidth
+		SV * iheight
+		SV * rawMap
+		
+	CODE:
+		int start_x = (int) SvUV (istart_x);
+		int start_y = (int) SvUV (istart_y);
+		int end_x = (int) SvUV (iend_x);
+		int end_y = (int) SvUV (iend_y);
+		int tile = (int) SvUV (itile);
+		int width = (int) SvUV (iwidth);
+		int height = (int) SvUV (iheight);
+		
+		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
+		
+		RETVAL = checkPathFree_cpp(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data);
 		
 	OUTPUT:
 		RETVAL
 
 int
-PathFinding_blockDistancexs(istart_x, istart_y, iend_x, iend_y)
+PathFinding_blockDistance_XS(istart_x, istart_y, iend_x, iend_y)
 		SV * istart_x
 		SV * istart_y
 		SV * iend_x
@@ -934,13 +1092,13 @@ PathFinding_blockDistancexs(istart_x, istart_y, iend_x, iend_y)
 		int end_x = (int) SvUV (iend_x);
 		int end_y = (int) SvUV (iend_y);
 		
-		RETVAL = blockDistancexs_inside(start_x, start_y, end_x, end_y);
+		RETVAL = blockDistance_cpp(start_x, start_y, end_x, end_y);
 		
 	OUTPUT:
 		RETVAL
 
 int
-PathFinding_getClientDistxs(istart_x, istart_y, iend_x, iend_y)
+PathFinding_getClientDist_XS(istart_x, istart_y, iend_x, iend_y)
 		SV * istart_x
 		SV * istart_y
 		SV * iend_x
@@ -952,13 +1110,13 @@ PathFinding_getClientDistxs(istart_x, istart_y, iend_x, iend_y)
 		int end_x = (int) SvUV (iend_x);
 		int end_y = (int) SvUV (iend_y);
 		
-		RETVAL = getClientDistxs_inside(start_x, start_y, end_x, end_y);
+		RETVAL = getClientDist_cpp(start_x, start_y, end_x, end_y);
 		
 	OUTPUT:
 		RETVAL
 
 int
-PathFinding_get_client_easy_solutionxs(istart_x, istart_y, iend_x, iend_y, solution_array)
+PathFinding_get_client_easy_solution_XS(istart_x, istart_y, iend_x, iend_y, solution_array)
 		SV * istart_x
 		SV * istart_y
 		SV * iend_x
@@ -971,7 +1129,7 @@ PathFinding_get_client_easy_solutionxs(istart_x, istart_y, iend_x, iend_y, solut
 		int end_x = (int) SvUV (iend_x);
 		int end_y = (int) SvUV (iend_y);
 		
-		int size = blockDistancexs_inside(start_x, start_y, end_x, end_y);
+		int size = blockDistance_cpp(start_x, start_y, end_x, end_y);
 		
 		AV *array;
  		array = (AV *) SvRV (solution_array);
@@ -979,6 +1137,7 @@ PathFinding_get_client_easy_solutionxs(istart_x, istart_y, iend_x, iend_y, solut
 		av_extend (array, size);
 		
 		int stepType;
+		int g = 0;
 		int i = 0;
 
 		while (1) {
@@ -986,6 +1145,7 @@ PathFinding_get_client_easy_solutionxs(istart_x, istart_y, iend_x, iend_y, solut
 
 			hv_store(rh, "x", 1, newSViv(start_x), 0);
 			hv_store(rh, "y", 1, newSViv(start_y), 0);
+			hv_store(rh, "g", 1, newSViv(g), 0);
 
 			av_store(array, i, newRV((SV *)rh));
 			i++;
@@ -1006,7 +1166,11 @@ PathFinding_get_client_easy_solutionxs(istart_x, istart_y, iend_x, iend_y, solut
 				stepType++;
 			}
 
-			if (stepType == 0) {
+			if (stepType == 1) {
+				g += 10;
+			} else if (stepType == 2) {
+				g += 14;
+			} else if (stepType == 0) {
 				break;
 			}
 		}

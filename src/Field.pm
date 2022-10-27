@@ -252,7 +252,7 @@ sub getCellInfo {
 #  1.73 microsec -> 798.04 nanosec p.o.
 sub isWalkable {
 	my ($self, $x, $y) = @_;
-	return PathFinding::isWalkablexs($x, $y, TILE_WALK, $self->{width}, $self->{height}, \$self->{rawMap});
+	return PathFinding::checkTile_XS($x, $y, TILE_WALK, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 ##
@@ -262,7 +262,7 @@ sub isWalkable {
 #  1.73 microsec -> 798.04 nanosec p.o.
 sub isSnipable {
 	my ($self, $x, $y) = @_;
-	return PathFinding::isWalkablexs($x, $y, TILE_SNIPE, $self->{width}, $self->{height}, \$self->{rawMap});
+	return PathFinding::checkTile_XS($x, $y, TILE_SNIPE, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 ##
@@ -272,7 +272,7 @@ sub isSnipable {
 #  1.73 microsec -> 798.04 nanosec p.o.
 sub isWater {
 	my ($self, $x, $y) = @_;
-	return PathFinding::isWalkablexs($x, $y, TILE_WATER, $self->{width}, $self->{height}, \$self->{rawMap});
+	return PathFinding::checkTile_XS($x, $y, TILE_WATER, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 ##
@@ -282,7 +282,7 @@ sub isWater {
 #  1.73 microsec -> 798.04 nanosec p.o.
 sub isCliff {
 	my ($self, $x, $y) = @_;
-	return PathFinding::isWalkablexs($x, $y, TILE_CLIFF, $self->{width}, $self->{height}, \$self->{rawMap});
+	return PathFinding::checkTile_XS($x, $y, TILE_CLIFF, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 sub getBlockWeight {
@@ -318,7 +318,7 @@ sub closestWalkableSpot {
 	my @current_distance = (1..$max_distance);
 	
 	foreach my $distance (@current_distance) {
-		my @blocks = Misc::calcRectArea($center{x}, $center{y}, $distance, $self);
+		my @blocks = $self->calcRectArea($center{x}, $center{y}, $distance);
 		foreach my $block (@blocks) {
 			next if (!$self->isWalkable($block->{x}, $block->{y}));
 			return $block;
@@ -326,6 +326,21 @@ sub closestWalkableSpot {
 	}
 	
 	return undef;
+}
+
+##
+# $Field->calcRectArea($x, $y, $radius)
+# Returns: an array with position hashes. Each has contains an x and a y key.
+#
+# Creates a rectangle with center ($x,$y) and radius $radius,
+# and returns a list of positions of the border of the rectangle.
+# 8.9us -> 1.1us
+sub calcRectArea {
+	my ($self, $x, $y, $radius) = @_;
+
+	my @walkableBlocks;
+	PathFinding::calcRectArea_XS($x, $y, $radius, TILE_WALK, $self->{width}, $self->{height}, \$self->{rawMap}, \@walkableBlocks);
+	return @walkableBlocks;
 }
 
 # Bresenham's algorithm
@@ -345,7 +360,7 @@ sub checkLOS {
 		$tile = TILE_WALK;
 	}
 	
-	return PathFinding::checkLOSxs($from->{x}, $from->{y}, $to->{x}, $to->{y}, $tile, $self->{width}, $self->{height}, \$self->{rawMap});
+	return PathFinding::checkLOS_XS($from->{x}, $from->{y}, $to->{x}, $to->{y}, $tile, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 # Returns:
@@ -365,7 +380,7 @@ sub canAttack {
 		$tile = TILE_WALK;
 	}
 	
-	return PathFinding::canAttackxs($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y}, $tile, $self->{width}, $self->{height}, $range, $clientSight, \$self->{rawMap});
+	return PathFinding::canAttack_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y}, $tile, $self->{width}, $self->{height}, $range, $clientSight, \$self->{rawMap});
 }
 
 # Used for checking if there are no obstacles in a given walking solution
@@ -377,39 +392,8 @@ sub canAttack {
 #
 # Reference: hercules src\map\path.c path_search - flag&1
 sub checkPathFree {
-	my ($self, $solution) = @_;
-
-	return 0 unless ($self->isWalkable($solution->[0]{x}, $solution->[0]{y}));
-
-	my %current_pos;
-	my %next_pos;
-
-	my $stepType = 0; # 1 - vertical or horizontal; 2 - diagonal
-
-	my $last = $#{$solution};
-
-	foreach my $current_step (0..$last) {
-		%current_pos = ( x => $solution->[$current_step]{x}, y => $solution->[$current_step]{y} );
-
-		my $next_step = $current_step+1;
-		%next_pos = ( x => $solution->[$next_step]{x}, y => $solution->[$next_step]{y} );
-		return 0 unless ($self->isWalkable($next_pos{x}, $next_pos{y}));
-
-		$stepType = 0;
-		if ($current_pos{x} != $next_pos{x}) {
-			$stepType++;
-		}
-		if ($current_pos{y} != $next_pos{y}) {
-			$stepType++;
-		}
-
-		if ($stepType == 2) {
-			return 0 unless ($self->isWalkable($current_pos{x}, $next_pos{y}));
-			return 0 unless ($self->isWalkable($next_pos{x}, $current_pos{y}));
-		}
-
-		return 1 if ($next_step == $last);
-	}
+	my ($self, $from, $to) = @_;
+	return PathFinding::checkPathFree_XS($from->{x}, $from->{y}, $to->{x}, $to->{y}, TILE_WALK, $self->{width}, $self->{height}, \$self->{rawMap});
 }
 
 # Checks wheter you can send a move command from $from to $to
@@ -417,13 +401,13 @@ sub checkPathFree {
 # Reference: hercules src\map\unit.c unit_walk_toxy
 #
 # Todo this should be used in a lot more places like Task::Route and Follow
+# 47 us -> 12 us
 sub canMove {
 	my ($self, $from, $to) = @_;
 
 	return 0 unless ($self->isWalkable($to->{x}, $to->{y}));
 
 	my $dist = blockDistance($from, $to);
-	return 1 if ($dist < 2);
 
 	# This 17 is actually set at
 	# hercules conf\map\battle\client.conf max_walk_path (which is by default 17, can be higher)
@@ -432,9 +416,13 @@ sub canMove {
 	}
 
 	# If there are no obstacles return success
-	my $easy_solution = get_client_easy_solution($from, $to);
-	if ($self->checkPathFree($easy_solution)) {
+	if ($self->checkPathFree($from, $to)) {
 		return 1;
+	}
+	
+	# If there are obstacles and the path is walkable the max solution dist acceptable is 14 (double check to save time)
+	if ($dist > 14) {
+		return 0;
 	}
 
 	# If there are obstacles and OFFICIAL_WALKPATH is defined (which is by default) then calculate a client pathfinding
@@ -445,33 +433,13 @@ sub canMove {
 		return 0;
 	}
 
-	# Pathfinding always returns the original cell in the solution, so remove 1 from it
-	$dist_path -= 1;
-
-	# If there are obstacles and the path is walkable the max solution dist acceptable is 14
-	if ($dist_path > 14) {
+	# Pathfinding always returns the original cell in the solution, so remove 1 from it (or compare to 15 (14+1))
+	#$dist_path -= 1;
+	if ($dist_path > 15) {
 		return 0;
 	}
 
 	return 1;
-}
-
-sub checkWallLength {
-	my ($self, $pos, $dx, $dy, $length) = @_;
-
-	my $x = $pos->{x};
-	my $y = $pos->{y};
-	my $len = 0;
-
-	while (1) {
-		last if ($self->isOffMap($x, $y));
-		$x += $dx;
-		$y += $dy;
-		$len++;
-		last unless (!$self->isWalkable($x, $y) && $len < $length);
-	}
-
-	return (($len >= $length) ? 1 : 0);
 }
 
 ##

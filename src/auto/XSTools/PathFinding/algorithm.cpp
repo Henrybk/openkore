@@ -35,7 +35,7 @@ CalcPath_new ()
 {
 	CalcPath_session *session;
 
-	session = (CalcPath_session*) malloc (sizeof (CalcPath_session));
+	session = (CalcPath_session*) calloc (1, sizeof (CalcPath_session));
 	
 	session->initialized = 0;
 	
@@ -73,7 +73,7 @@ CalcPath_init (CalcPath_session *session)
 	
 	session->openListSize = 0;
 	// Allocate enough memory in openList to hold the adress of all nodes in the map
-	session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
+	session->openList = (unsigned long*) calloc((session->height * session->width), sizeof(unsigned long));
 	
 	// To initialize the pathfinding add only the start node to openList
 	openListAdd (session, start);
@@ -132,6 +132,10 @@ CalcPath_pathStep (CalcPath_session *session)
 		
 		// Set currentNode to the top node in openList, and remove it from openList.
 		currentNode = openListGetLowest (session);
+		
+		if (session->max_steps && currentNode->predecessorCount > session->max_steps) {
+			return -1;
+		}
 
 		// If currentNode is the goal we have reached the destination, reconstruct and return the path.
 		if (goal->predecessor) {
@@ -245,7 +249,7 @@ CalcPath_explore_init (CalcPath_session *session)
 	
 	session->openListSize = 0;
 	// Allocate enough memory in openList to hold the adress of all nodes in the map
-	session->openList = (unsigned long*) malloc((session->height * session->width) * sizeof(unsigned long));
+	session->openList = (unsigned long*) calloc((session->height * session->width), sizeof(unsigned long));
 	
 	session->exploredListSize = 0;
 	session->exploredList = (unsigned long*) calloc((session->height * session->width), sizeof(unsigned long));
@@ -562,7 +566,7 @@ openListGetLowest (CalcPath_session *session)
 }
 
 int
-isWalkablexs_inside(int start_x, int start_y, int tile, int width, int height, char * rawMap_data) {
+checkTile_cpp(int start_x, int start_y, int tile, int width, int height, char * rawMap_data) {
 	if (start_x < 0 || start_x >= width || start_y < 0 || start_y >= height) {
 		return 0;
 	}
@@ -579,7 +583,7 @@ isWalkablexs_inside(int start_x, int start_y, int tile, int width, int height, c
 }
 
 int
-checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data) {
+checkLOS_cpp(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data) {
 	if (start_x < 0 || start_x >= width || start_y < 0 || start_y >= height) {
 		return 0;
 	}
@@ -653,8 +657,8 @@ checkLOSxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int 
 }
 
 int
-canAttackxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, int range, int clientSight, char * rawMap_data) {
-	int distance = blockDistancexs_inside(start_x, start_y, end_x, end_y);
+canAttack_cpp(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, int range, int clientSight, char * rawMap_data) {
+	int distance = blockDistance_cpp(start_x, start_y, end_x, end_y);
 	if (distance < 2) {
 		return 1;
 	}
@@ -662,11 +666,11 @@ canAttackxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int
 		return 0;
 	}
 	
-	int client_distance = getClientDistxs_inside(start_x, start_y, end_x, end_y);
+	int client_distance = getClientDist_cpp(start_x, start_y, end_x, end_y);
 	if (client_distance > range) {
 		return 0;
 	}
-	if (!checkLOSxs_inside(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data)) {
+	if (!checkLOS_cpp(start_x, start_y, end_x, end_y, tile, width, height, rawMap_data)) {
 		return -1 ;
 	}
 	
@@ -674,7 +678,67 @@ canAttackxs_inside(int start_x, int start_y, int end_x, int end_y, int tile, int
 }
 
 int
-blockDistancexs_inside (int start_x, int start_y, int end_x, int end_y)
+checkPathFree_cpp(int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data) {
+	int offset;
+	
+	int value;
+	
+	int stepX;
+	int stepY;
+	
+	offset = (start_y * width) + start_x;
+	value = rawMap_data[offset];
+	
+	if (!(value & tile)) {
+		return 0;
+	}
+
+	while (1) {
+	
+		stepX = 0;
+		stepY = 0;
+		
+		if (start_x < end_x) {
+			start_x++;
+			stepX++;
+		} else if (start_x > end_x) {
+			start_x--;
+			stepX--;
+		}
+		if (start_y < end_y) {
+			start_y++;
+			stepY += width;
+		} else if (start_y > end_y) {
+			start_y--;
+			stepY -= width;
+		}
+		
+		if (stepX != 0 && stepY != 0) {
+			value = rawMap_data[(offset + stepX)];
+			if (!(value & tile)) {
+				return 0;
+			}
+			value = rawMap_data[(offset + stepY)];
+			if (!(value & tile)) {
+				return 0;
+			}
+		}
+			
+		offset += (stepX + stepY);
+		value = rawMap_data[offset];
+		
+		if (!(value & tile)) {
+			return 0;
+		}
+		
+		if (stepX == 0 && stepY == 0) {
+			return 1;
+		}
+	}
+}
+
+int
+blockDistance_cpp (int start_x, int start_y, int end_x, int end_y)
 {
 	int dx = abs(start_x - end_x);
 	int dy = abs(start_y - end_y);
@@ -682,7 +746,7 @@ blockDistancexs_inside (int start_x, int start_y, int end_x, int end_y)
 }
 
 int
-getClientDistxs_inside (int start_x, int start_y, int end_x, int end_y)
+getClientDist_cpp (int start_x, int start_y, int end_x, int end_y)
 {
 	int dx = start_x - end_x;
 	int dy = start_y - end_y;
