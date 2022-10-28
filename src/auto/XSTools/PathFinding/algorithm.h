@@ -92,6 +92,8 @@ int canAttack_cpp (int start_x, int start_y, int end_x, int end_y, int tile, int
 
 int checkPathFree_cpp (int start_x, int start_y, int end_x, int end_y, int tile, int width, int height, char * rawMap_data);
 
+int * getSquareEdgesFromCoord_cpp (int x, int y, int radius, int width, int height);
+
 int blockDistance_cpp (int start_x, int start_y, int end_x, int end_y);
 
 int getClientDist_cpp (int start_x, int start_y, int end_x, int end_y);

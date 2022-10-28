@@ -2539,7 +2539,7 @@ sub meetingPosition {
 
 	# Actor is currently moving
 	} else {
-		$realMyPos = calcPosFromTimeAndSolution($my_solution, $mySpeed, $timeSinceActorMoved);
+		$realMyPos = calcPosFromSolution($my_solution, $mySpeed, $timeSinceActorMoved);
 	}
 
 	my $targetSpeed = ($target->{walk_speed} || 0.12);
@@ -2561,7 +2561,7 @@ sub meetingPosition {
 	# Target is currently moving
 	} else {
 		$target_moving = 1;
-		$realTargetPos = calcPosFromTimeAndSolution($target_solution, $targetSpeed, $timeSinceTargetMoved);
+		$realTargetPos = calcPosFromSolution($target_solution, $targetSpeed, $timeSinceTargetMoved);
 	}
 
 	my $master_moving;
@@ -2771,7 +2771,7 @@ sub meetingPosition {
 			
 			my $target_position;
 			if ($target_moving) {
-				$target_position = calcPosFromTimeAndSolution($target_solution, $targetSpeed, ($timeSinceTargetMoved+$time_actor_to_get_to_spot));
+				$target_position = calcPosFromSolution($target_solution, $targetSpeed, ($timeSinceTargetMoved+$time_actor_to_get_to_spot));
 			} else {
 				$target_position = $realTargetPos;
 			}
@@ -2796,7 +2796,7 @@ sub meetingPosition {
 		if ($masterPos) {
 			my $masterPosNow;
 			if ($master_moving) {
-				$masterPosNow = calcPosFromTimeAndSolution($master_solution, $masterSpeed, ($timeSinceMasterMoved+$time_actor_to_get_to_spot));
+				$masterPosNow = calcPosFromSolution($master_solution, $masterSpeed, ($timeSinceMasterMoved+$time_actor_to_get_to_spot));
 			} else {
 				$masterPosNow = $realMasterPos;
 			}

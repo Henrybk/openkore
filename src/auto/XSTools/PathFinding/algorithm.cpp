@@ -737,6 +737,38 @@ checkPathFree_cpp(int start_x, int start_y, int end_x, int end_y, int tile, int 
 	}
 }
 
+int *
+getSquareEdgesFromCoord_cpp (int x, int y, int radius, int width, int height)
+{
+	static int limits[4];
+	
+	// min_x
+	limits[0] = (x - radius);
+	if (limits[0] < 0) {
+		limits[0] = 0;
+	}
+	
+	// min_y
+	limits[1] = (y - radius);
+	if (limits[1] < 0) {
+		limits[1] = 0;
+	}
+	
+	// max_x
+	limits[2] = (x + radius);
+	if (limits[2] >= width) {
+		limits[2] = width-1;
+	}
+	
+	// max_y
+	limits[3] = (y + radius);
+	if (limits[3] >= height) {
+		limits[3] = height-1;
+	}
+	
+	return limits;
+}
+
 int
 blockDistance_cpp (int start_x, int start_y, int end_x, int end_y)
 {

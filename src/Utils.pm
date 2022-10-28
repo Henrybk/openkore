@@ -38,8 +38,8 @@ our @EXPORT = (
 	@{$Utils::DataStructures::EXPORT_TAGS{all}},
 
 	# Math
-	qw(get_client_solution get_client_easy_solution get_solution calcPosFromPathfinding calcTimeFromPathfinding calcPosFromTimeAndSolution calcTimeFromSolution
-	calcPosFromTime calcTime calcPosition fieldAreaCorrectEdges getSquareEdgesFromCoord
+	qw(get_client_solution get_client_easy_solution get_solution calcPosFromPathfinding calcTimeFromPathfinding calcPosFromSolution calcTimeFromSolution
+	calcPosFromTime calcTime calcPosition
 	checkMovementDirection
 	distance blockDistance specifiedBlockDistance adjustedBlockDistance getClientDist
 	intToSignedInt intToSignedShort
@@ -176,7 +176,7 @@ sub calcPosFromPathfinding {
 		$solution = get_solution($field, $actor->{pos}, $actor->{pos_to});
 	}
 
-	my $pos = calcPosFromTimeAndSolution($solution, $speed, $time);
+	my $pos = calcPosFromSolution($solution, $speed, $time);
 
 	return $pos;
 }
@@ -196,7 +196,6 @@ sub calcTimeFromPathfinding {
 	return $summed_time;
 }
 
-# Currently the go-to function to get the position of a given actor on critical ocasions (eg. Attack logic)
 sub calcPosFromExplored {
 	my ($explored_cells, $spot, $time_elapsed, $speed) = @_;
 	
@@ -206,53 +205,30 @@ sub calcPosFromExplored {
 		$time_elapsed *= 10;
 	}
 	
-	my $cell;
-	$cell->{x} = $spot->{x};
-	$cell->{y} = $spot->{y};
-	
+	my ($x, $y) = ($spot->{x}, $spot->{y});
 	while (1) {
-		if ($time_elapsed > ($explored_cells->{$cell->{x}}{$cell->{y}}{g}*$speed)) {
-			return $cell;
+		if ($time_elapsed > ($explored_cells->{$x}{$y}{g}*$speed)) {
+			return { x => $x, y => $y };
 		}
-		($cell->{x}, $cell->{y}) = ($explored_cells->{$cell->{x}}{$cell->{y}}{px}, $explored_cells->{$cell->{x}}{$cell->{y}}{py});
+		($x, $y) = ($explored_cells->{$x}{$y}{px}, $explored_cells->{$x}{$y}{py});
 	}
 }
 
-# Only God and gravity developers know why this is done this way, but I tested in the client and it works 100% of the time
-#
-# Reference: hercules src\map\path.c distance_client
-# 956ns -> 618ns
-sub getClientDist {
-	my ($pos1, $pos2) = @_;
-	return PathFinding::getClientDist_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
-}
-
 ##
-# blockDistance(pos1, pos2)
-# pos1, pos2: references to position hash tables.
-# Returns: the distance in number of blocks (integer).
-#
-# Calculates the distance in number of blocks between pos1 and pos2.
-# This is used for e.g. weapon range calculation.
-#
-# Reference: hercules src\map\path.c distance
-# 650ns -> 580ns
-sub blockDistance {
-	my ($pos1, $pos2) = @_;
-	return PathFinding::blockDistance_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
-}
-
-##
-# calcPosFromTimeAndSolution(solution, speed, time_elapsed)
+# calcPosFromSolution(solution, speed, time_elapsed)
 # solution: Reference to an array in which the solution is stored. It will contain hashes of x and y coordinates from the start to the end of the path, the first array element should be the current position.
 # speed: The actor speed in blocks / second.
 # time_elapsed: The amount of time that has passed since movement started.
 #
 # Returns in which cell of solution the character currently is in.
-sub calcPosFromTimeAndSolution {
+sub calcPosFromSolution {
 	my ($solution, $speed, $time_elapsed) = @_;
 	
-	$time_elapsed *= 10;
+	if (!defined $time_elapsed) {
+		$time_elapsed = 0;
+	} else {
+		$time_elapsed *= 10;
+	}
 	
 	foreach my $step_i (reverse (0..$#{$solution})) {
 		if ($time_elapsed > ($solution->[$step_i]{g}*$speed)) {
@@ -280,7 +256,7 @@ sub calcTimeFromSolution {
 #
 # Walls and pathfinding are not considered.
 sub calcPosFromTime {
-	my ($pos, $pos_to, $speed, $time) = @_;
+	my ($pos, $pos_to, $speed, $time_elapsed) = @_;
 
 	# If Pos and PosTo are the same return Pos
 	if ($pos->{x} == $pos_to->{x} && $pos->{y} == $pos_to->{y}) {
@@ -288,7 +264,7 @@ sub calcPosFromTime {
 	}
 
 	my $solution = get_client_easy_solution($pos, $pos_to);
-	my $pos = calcPosFromTimeAndSolution($solution, $speed, $time);
+	my $pos = calcPosFromSolution($solution, $speed, $time_elapsed);
 	return $pos;
 }
 
@@ -354,34 +330,28 @@ sub calcPosition {
 	}
 }
 
-sub fieldAreaCorrectEdges {
-    my ($field, $x1, $y1, $x2, $y2) = @_;
-
-	if ($x1 < 0) {
-		$x1 = 0;
-	}
-
-	if ($y1 < 0) {
-		$y1 = 0;
-	}
-
-	if ($x2 >= $field->width) {
-		$x2 = $field->width-1;
-	}
-
-	if ($y2 >= $field->height) {
-		$y2 = $field->height-1;
-	}
-
-	return ($x1, $y1, $x2, $y2);
+# Only God and gravity developers know why this is done this way, but I tested in the client and it works 100% of the time
+#
+# Reference: hercules src\map\path.c distance_client
+# 956ns -> 618ns
+sub getClientDist {
+	my ($pos1, $pos2) = @_;
+	return PathFinding::getClientDist_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
 }
 
-sub getSquareEdgesFromCoord {
-    my ($field, $start, $dist_from_center) = @_;
-
-	my ($min_x, $min_y, $max_x, $max_y) = fieldAreaCorrectEdges($field, ($start->{x} - $dist_from_center), ($start->{y} - $dist_from_center), ($start->{x} + $dist_from_center), ($start->{y} + $dist_from_center));
-
-	return ($min_x, $min_y, $max_x, $max_y);
+##
+# blockDistance(pos1, pos2)
+# pos1, pos2: references to position hash tables.
+# Returns: the distance in number of blocks (integer).
+#
+# Calculates the distance in number of blocks between pos1 and pos2.
+# This is used for e.g. weapon range calculation.
+#
+# Reference: hercules src\map\path.c distance
+# 650ns -> 580ns
+sub blockDistance {
+	my ($pos1, $pos2) = @_;
+	return PathFinding::blockDistance_XS($pos1->{x}, $pos1->{y}, $pos2->{x}, $pos2->{y});
 }
 
 ##

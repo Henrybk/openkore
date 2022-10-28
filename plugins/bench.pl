@@ -42,17 +42,17 @@ sub bench {
 	
 	my $use_dist = 1;
 	my $use_sol = 0;
-	my $use_range = 0;
-	my $use_time = 1;
+	my $use_range = 1;
+	my $use_time = 0;
 	my $use_explored = 0;
 	
-	my $dist = 15;
+	my $dist = 30;
 	
 	my $min_range = 1;
 	my $max_range = 30;
 	
 	my $min_time = 0;
-	my $max_time = 4;
+	my $max_time = 10;
 	
 	my @start = ();
 	my @end = ();
@@ -86,6 +86,7 @@ sub bench {
 				}
 			}
 		}
+		
 		$range[$i] = (int(rand($delta_range))+$min_range) if ($use_range);
 		
 		$sol[$i] = Utils::get_solution($field, $start[$i], $end[$i]) if ($use_sol);
@@ -125,19 +126,19 @@ sub bench {
 	my @results1;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$results1[$i] = Utils::get_client_solution($field, $start[$i], $end[$i]);
+		$results1[$i] = $field->getSquareEdgesFromCoord($start[$i], $range[$i]);
 	}
 	$time_e = time;
-	printTime('get_client_solution1', $time_s, $time_e, $n);
+	printTime('getSquareEdgesFromCoord1', $time_s, $time_e, $n);
 	
 	my @results2;
 	$time_s = time;
 	for(my $i = 0; $i < $n; $i++){
-		$results2[$i] = Utils::get_client_solution2($field, $start[$i], $end[$i]);
+		$results2[$i] = $field->getSquareEdgesFromCoord2($start[$i], $range[$i]);
 	}
 	$time_e = time;
-	printTime('get_client_solution2', $time_s, $time_e, $n);
-	my $check = checkResults(\@results1, \@results2, 'array_pos', 'get_client_solution1', 'get_client_solution2');
+	printTime('getSquareEdgesFromCoord2', $time_s, $time_e, $n);
+	my $check = checkResults(\@results1, \@results2, 'array_scalar', 'getSquareEdgesFromCoord1', 'getSquareEdgesFromCoord2');
 	printError(\@results1, \@results2, \@start, \@end, \@range, \@sol, \@time, $check, $use_sol, $use_range, $use_time) if ($check != -1);
 
 }
@@ -193,11 +194,27 @@ sub checkResults {
 				return $current_index;
 			}
 		
+		} elsif ($type eq 'array_scalar') {
+			my $size1 = scalar @{$result1};
+			my $size2 = scalar @{$result2};
+			if ($size1 != $size2) {
+				print "[bench array_scalar] Error at index $current_index: size $name1=$size1 $name2=$size2\n";
+				return $current_index;
+			}
+			foreach my $i (0..($size1-1)) {
+				my $rr1 = $result1->[$i];
+				my $rr2 = $result2->[$i];
+				if ($rr1 != $rr2) {
+					print "[bench array_scalar] Error at index $current_index: $name1=$rr1 $name2=$rr2\n";
+					return $current_index;
+				}
+			}
+		
 		} elsif ($type eq 'array_pos') {
 			my $size1 = scalar @{$result1};
 			my $size2 = scalar @{$result2};
 			if ($size1 != $size2) {
-				print "[bench pos] Error at index $current_index: size $name1=$size1 $name2=$size2\n";
+				print "[bench array_pos] Error at index $current_index: size $name1=$size1 $name2=$size2\n";
 				return $current_index;
 			}
 			foreach my $i (0..($size1-1)) {
@@ -206,7 +223,7 @@ sub checkResults {
 				my $x2 = $result2->[$i]{x};
 				my $y2 = $result2->[$i]{y};
 				if ($x1 != $x2 || $y1 != $y2) {
-					print "[bench pos] Error at index $current_index: pos $name1='$x1 $y1' $name2='$x2 $y2'\n";
+					print "[bench array_pos] Error at index $current_index: pos $name1='$x1 $y1' $name2='$x2 $y2'\n";
 					return $current_index;
 				}
 			}
@@ -217,7 +234,7 @@ sub checkResults {
 			my $x2 = $result2->{x};
 			my $y2 = $result2->{y};
 			if ($x1 != $x2 || $y1 != $y2) {
-				print "[bench pos] Error at index $current_index: pos $name1='$x1 $y1' $name2='$x2 $y2'\n";
+				print "[bench single_pos] Error at index $current_index: pos $name1='$x1 $y1' $name2='$x2 $y2'\n";
 				return $current_index;
 			}
 		}

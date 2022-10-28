@@ -328,6 +328,14 @@ sub closestWalkableSpot {
 	return undef;
 }
 
+sub getSquareEdgesFromCoord {
+    my ($self, $start, $radius) = @_;
+
+	my @coords;
+	PathFinding::getSquareEdgesFromCoord_XS($start->{x}, $start->{y}, $radius, $self->{width}, $self->{height}, \@coords);
+	return @coords;
+}
+
 ##
 # $Field->calcRectArea($x, $y, $radius)
 # Returns: an array with position hashes. Each has contains an x and a y key.

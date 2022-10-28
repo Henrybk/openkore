@@ -952,30 +952,15 @@ PathFinding_calcRectArea_XS(i_x, i_y, iradius, itile, iwidth, iheight, rawMap, s
 		
 		char * rawMap_data = (char *) SvPVbyte_nolen (SvRV (rawMap));
 		
+		int * limits = getSquareEdgesFromCoord_cpp(x, y, radius, width, height);
+		int min_x = limits[0];
+		int min_y = limits[1];
+		int max_x = limits[2];
+		int max_y = limits[3];
+		
 		AV *array;
  		array = (AV *) SvRV (solution_array);
 		av_clear (array);
-		
-		int min_x = (x - radius);
-		int min_y = (y - radius);
-		int max_x = (x + radius);
-		int max_y = (y + radius);
-	
-		if (min_x < 0) {
-			min_x = 0;
-		}
-
-		if (min_y < 0) {
-			min_y = 0;
-		}
-
-		if (max_x >= width) {
-			max_x = width-1;
-		}
-
-		if (max_y >= height) {
-			max_y = height-1;
-		}
 		
 		int offset;
 		
@@ -1078,6 +1063,34 @@ PathFinding_checkPathFree_XS(istart_x, istart_y, iend_x, iend_y, itile, iwidth, 
 		
 	OUTPUT:
 		RETVAL
+
+void
+PathFinding_getSquareEdgesFromCoord_XS(i_x, i_y, iradius, iwidth, iheight, solution_array)
+		SV * i_x
+		SV * i_y
+		SV * iradius
+		SV * iwidth
+		SV * iheight
+		SV * solution_array
+		
+	CODE:
+		int x = (int) SvUV (i_x);
+		int y = (int) SvUV (i_y);
+		int radius = (int) SvUV (iradius);
+		int width = (int) SvUV (iwidth);
+		int height = (int) SvUV (iheight);
+		
+		int * limits = getSquareEdgesFromCoord_cpp(x, y, radius, width, height);
+		
+		AV *array;
+ 		array = (AV *) SvRV (solution_array);
+		av_clear (array);
+		av_extend (array, 4);
+		
+		av_store(array, 0, newSViv(limits[0]));
+		av_store(array, 1, newSViv(limits[1]));
+		av_store(array, 2, newSViv(limits[2]));
+		av_store(array, 3, newSViv(limits[3]));
 
 int
 PathFinding_blockDistance_XS(istart_x, istart_y, iend_x, iend_y)
