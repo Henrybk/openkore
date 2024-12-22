@@ -52,6 +52,7 @@ our @EXPORT = (
 	ai_skillUse
 	ai_skillUse2
 	ai_storageAutoCheck
+	ai_useTeleport
 	ai_canOpenStorage
 	cartGet
 	cartAdd
@@ -95,7 +96,10 @@ sub state {
 			error "Invalid AI state value given to AI::state (".($_[0])."). Ignoring state change.\n";
 			return;
 		}
-		Plugins::callHook('AI_state_change', {old => $AI, new => $_[0]});
+		Plugins::callHook('AI_state_change', {
+			old => $AI,
+			new => $_[0]
+		});
 		$AI = $_[0];
 	}
 	return $AI;
@@ -125,13 +129,12 @@ sub queue {
 
 sub clear {
 	my $total = scalar @_;
-	
+
 	# If no arg was given clear all AI queue
 	if ($total == 0) {
 		undef @ai_seq;
 		undef @ai_seq_args;
-		undef %ai_v;
-	
+
 	# If 1 arg was given find it in the queue
 	} elsif ($total == 1) {
 		my $wanted_action = shift;
@@ -142,13 +145,13 @@ sub clear {
 			last;
 		}
 		return unless (defined $seq_index); # return unless we found the action in the queue
-		
+
 		splice(@ai_seq, $seq_index , 1); # Splice it out of @ai_seq
 		splice(@ai_seq_args, $seq_index , 1);  # Splice it out of @ai_seq_args
 		# When there are multiple of the same action (route, attack, route) the splices of remove the first one
 		# So recursively call AI::clear again with the same action until none is found
 		AI::clear($wanted_action);
-	
+
 	# If more than 1 arg was given recursively call AI::clear for each one
 	} else {
 		foreach (@_) {
@@ -588,7 +591,8 @@ sub ai_skillUse {
 		tag => shift,
 		ret => shift,
 		waitBeforeUse => { time => time, timeout => shift },
-		prefix => shift
+		prefix => shift,
+		isStartSkill => shift
 	);
 	$args{giveup}{time} = time;
 	$args{giveup}{timeout} = $timeout{ai_skill_use_giveup}{timeout};
@@ -615,7 +619,7 @@ sub ai_skillUse {
 #
 # FIXME: Finish and use Task::UseSkill instead.
 sub ai_skillUse2 {
-	my ($skill, $lvl, $maxCastTime, $minCastTime, $target, $prefix, $waitBeforeUse, $tag) = @_;
+	my ($skill, $lvl, $maxCastTime, $minCastTime, $target, $prefix, $waitBeforeUse, $tag, $isStartSkill) = @_;
 
 	ai_skillUse(
 		$skill->getHandle(),
@@ -625,7 +629,7 @@ sub ai_skillUse2 {
 		$skill->getTargetType == Skill::TARGET_LOCATION ? (@{$target->{pos_to}}{qw(x y)})
 			: $skill->getTargetType == Skill::TARGET_SELF ? ($skill->getOwner->{ID}, undef)
 			: ($target->{ID}, undef),
-		$tag, undef, $waitBeforeUse, $prefix
+		$tag, undef, $waitBeforeUse, $prefix, $isStartSkill
 	)
 }
 
@@ -721,6 +725,13 @@ sub cartAdd {
 sub ai_talkNPC {
 	require Task::TalkNPC;
 	AI::queue("NPC", new Task::TalkNPC(type => 'talknpc', x => $_[0], y => $_[1], sequence => $_[2]));
+}
+
+##
+# void ai_useTeleport(int level)
+# level: 1 - Random, 2 - Respawn
+sub ai_useTeleport {
+	$char->useTeleport(@_);
 }
 
 sub attack { $char->attack(@_) }

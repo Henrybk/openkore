@@ -132,7 +132,7 @@ sub new {
 		'00BE' => ['stat_info', 'v C', [qw(type val)]], # 5 was "stats_points_needed"
 		'00C0' => ['emoticon', 'a4 C', [qw(ID type)]], # 7
 		'00C2' => ['users_online', 'V', [qw(users)]], # 6
-		'00C3' => ['job_equipment_hair_change', 'a4 C2', [qw(ID part number)]], # 8
+		'00C3' => ['sprite_change', 'a4 C2', [qw(ID type value1)]], # 8
 		'00C4' => ['npc_store_begin', 'a4', [qw(ID)]], # 6
 		'00C6' => ['npc_store_info', 'v a*', [qw(len itemList)]],#-1
 		'00C7' => ['npc_sell_list', 'v a*', [qw(len itemsdata)]], # -1
@@ -307,7 +307,10 @@ sub new {
 		'01D3' => ['sound_effect', 'Z24 C V a4', [qw(name type term ID)]], # 35
 		'01D4' => ['npc_talk_text', 'a4', [qw(ID)]], # 6
 		'01D6' => ['map_property2', 'v', [qw(type)]], # 4
-		'01D7' => ['player_equipment', 'a4 C v2', [qw(sourceID type ID1 ID2)]], # 11 # TODO: inconsistent with C structs
+		'01D7' => ($rpackets{'01D7'}{length} == 15) # or 11
+			? ['sprite_change', 'a4 C V2', [qw(ID type value1 value2)]] # 15
+			: ['sprite_change', 'a4 C v2', [qw(ID type value1 value2)]] # 11
+		,
 		'01D8' => ['actor_exists', 'a4 v14 a4 a2 v2 C2 a3 C3 v',		[qw(ID walk_speed opt1 opt2 option type hair_style weapon shield lowhead tophead midhead hair_color clothes_color head_dir guildID emblemID manner opt3 stance sex coords xSize ySize act lv)]], # 54 # standing
 		'01D9' => ['actor_connected', 'a4 v14 a4 a2 v2 C2 a3 C2 v',		[qw(ID walk_speed opt1 opt2 option type hair_style weapon shield lowhead tophead midhead hair_color clothes_color head_dir guildID emblemID manner opt3 stance sex coords xSize ySize lv)]], # 53 # spawning
 		'01DA' => ['actor_moved', 'a4 v9 V v5 a4 a2 v2 C2 a6 C2 v',	[qw(ID walk_speed opt1 opt2 option type hair_style weapon shield lowhead tick tophead midhead hair_color clothes_color head_dir guildID emblemID manner opt3 stance sex coords xSize ySize lv)]], # 60 # walking
@@ -466,6 +469,7 @@ sub new {
 		'02EF' => ['font', 'a4 v', [qw(ID fontID)]], # 8
 		'02F0' => ['progress_bar', 'V2', [qw(color time)]],
 		'02F2' => ['progress_bar_stop'],
+		'02F7' => ['guild_name', 'a4 a4 V C a4 Z24 a4', [qw(guildID emblemID mode is_master interSID guildName master_char_id)]], #47
 		'040C' => ['local_broadcast', 'v a4 v4 Z*', [qw(len color font_type font_size font_align font_y message)]], # -1
 		'043D' => ['skill_post_delay', 'v V', [qw(ID time)]],
 		'043E' => ['skill_post_delaylist', 'v a*', [qw(len skill_list)]],
@@ -578,7 +582,7 @@ sub new {
 		'09A6' => ['banking_check', 'V2 v',[qw(zeny zeny2 reason)]],
 		'09A8' => ['banking_deposit', 'v V2 V',[qw(reason zeny zeny2 balance)]],
 		'09AA' => ['banking_withdraw', 'v V2 V',[qw(reason zeny zeny2 balance)]],
-		'09BB' => ['storage_opened'],
+		'09BB' => ['storage_opened', 'v2', [qw(items items_max)]],
 		'09BF' => ['storage_closed'],
 		'09CA' => ['area_spell_multiple3', 'v a*', [qw(len spellInfo)]], # -1
 		'09CB' => ['skill_used_no_damage', 'v V a4 a4 C', [qw(skillID amount targetID sourceID success)]],
@@ -590,6 +594,7 @@ sub new {
 		'09DB' => ['actor_moved', 'v C a4 a4 v3 V v5 a4 v6 a4 a2 v V C2 a6 C2 v2 V2 C Z*', [qw(len object_type ID charID walk_speed opt1 opt2 option type hair_style weapon shield lowhead tick tophead midhead hair_color clothes_color head_dir costume guildID emblemID manner opt3 stance sex coords xSize ySize lv font maxHP HP isBoss name)]],
 		'09DC' => ['actor_connected', 'v C a4 a4 v3 V v11 a4 a2 v V C2 a3 C2 v2 V2 C Z*', [qw(len object_type ID charID walk_speed opt1 opt2 option type hair_style weapon shield lowhead tophead midhead hair_color clothes_color head_dir costume guildID emblemID manner opt3 stance sex coords xSize ySize lv font maxHP HP isBoss name)]],
 		'09DD' => ['actor_exists', 'v C a4 a4 v3 V v11 a4 a2 v V C2 a3 C3 v2 V2 C Z*', [qw(len object_type ID charID walk_speed opt1 opt2 option type hair_style weapon shield lowhead tophead midhead hair_color clothes_color head_dir costume guildID emblemID manner opt3 stance sex coords xSize ySize act lv font maxHP HP isBoss name)]],
+		'09DE' => ['private_message', 'v V Z24 C Z*', [qw(len charID privMsgUser isAdmin privMsg)]],
 		'09DF' => ['private_message_sent', 'C V', [qw(type charID)]],
 		'09E5' => ['shop_sold_long', 'v2 a4 V2', [qw(number amount charID time zeny)]],
 		'09E7' => ['unread_rodex', 'C', [qw(show)]],   # 3
@@ -732,6 +737,7 @@ sub new {
 		'0B32' => ['skills_list'],
 		'0B33' => ['skill_update', 'v V v3 C v', [qw(skillID type lv sp range up lv2)]], #17
 		'0B39' => ['item_list_nonstackable', 'v C a*', [qw(len type itemInfo)]],
+		'0B3D' => ['vender_items_list', 'v a4 a4 a*', [qw(len venderID venderCID itemList)]], # -1
 		'0B41' => ['inventory_item_added', 'a2 v V C2 a16 V C2 a4 v a25 C v C2', [qw(ID amount nameID identified broken cards type_equip type fail expire unknown options favorite viewID upgrade grade)]],
 		'0B44' => ['storage_item_added', 'a2 V V C3 a16 a25 C2', [qw(ID amount nameID type identified broken cards options upgrade grade)]],
 		'0B45' => ['cart_item_added', 'a2 V V C3 a16 a25 C2', [qw(ID amount nameID type identified broken upgrade cards options upgrade grade)]],
@@ -746,6 +752,7 @@ sub new {
 		'0B7C' => ['guild_expulsion_list', 'v a*', [qw(len expulsion_list)]], # -1
 		'0B7D' => ['guild_members_list', 'v a*', [qw(len member_list)]], # -1
 		'0B7E' => ['guild_member_add', 'a4 a4 v5 V4 Z24', [qw(ID charID hair_style hair_color sex jobID lv contribution online position lastLoginTime name)]], # 60 TODO
+		'0B8D' => ['repute_info', 'v C a*', [qw(len sucess reputeInfo)]], # -1
 	};
 
 	# Item RECORD Struct's
@@ -880,6 +887,7 @@ sub items_nonstackable {
 	) {
 		return $items->{type7};
 	} elsif ($args->{switch} eq '0B0A') { # item_list
+		return $items->{type7} if ($masterServer->{itemListUseOldType});
 		return $items->{type8};
 	} elsif ($args->{switch} eq '0B39') { # item_list
 		return $items->{type9};
@@ -924,6 +932,7 @@ sub items_stackable {
 	) {
 		return $items->{type6};
 	} elsif ($args->{switch} eq '0B09') { # item_list
+		return $items->{type6} if ($masterServer->{itemListUseOldType});
 		return $items->{type7};
 	} else {
 		warning "items_stackable: unsupported packet ($args->{switch})!\n";
@@ -1008,7 +1017,10 @@ sub _items_list {
 
 		my $index = ($local_item->{binID} >= 0) ? $local_item->{binID} : $local_item->{ID};
 		debug "$args->{debug_str}: $local_item->{name} ($index) x $local_item->{amount} - $itemTypes_lut{$local_item->{type}}\n", 'parseMsg';
-		Plugins::callHook($args->{hook}, {index => $index, item => $local_item});
+		Plugins::callHook($args->{hook}, {
+			index => $index,
+			item => $local_item
+		});
 	}
 }
 
@@ -1323,7 +1335,7 @@ sub skill_use_location {
 	my $source = Actor::get($sourceID);
 	my $skillName = Skill->new(idn => $skillID)->getName();
 	my $disp = skillUseLocation_string($source, $skillName, $args);
-	
+
 	delete $source->{casting};
 
 	# Print skill use message
@@ -1359,8 +1371,8 @@ sub skill_used_no_damage {
 	countCastOn($args->{sourceID}, $args->{targetID}, $args->{skillID});
 	if ($args->{sourceID} eq $accountID) {
 		my $pos = calcPosFromPathfinding($field, $char);
-		$char->{pos} = $pos;
-		$char->{pos_to} = $pos;
+		%{$char->{pos}} = %{$pos};
+		%{$char->{pos_to}} = %{$pos};
 		$char->{time_move} = 0;
 		$char->{time_move_calc} = 0;
 		$char->{solution} = [];

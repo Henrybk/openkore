@@ -88,23 +88,23 @@ sub new {
 
 sub has_homunculus {
 	my ($self) = @_;
-	
+
 	if ($self && $self->{homunculus} && $self->{slaves} && scalar(keys(%{$self->{slaves}})) && $self->{homunculus}{ID} && exists $self->{slaves}{$self->{homunculus}{ID}}) {
 		return 1;
 	}
-	
+
 	return 0;
 }
 
 sub has_mercenary {
 	my ($self) = @_;
-	
+
 	if ($self && $self->{mercenary} && $self->{slaves} && scalar(keys(%{$self->{slaves}})) && $self->{mercenary}{ID} && exists $self->{slaves}{$self->{mercenary}{ID}}) {
 		return 1;
 	}
-	
+
 	return 0;
-} 
+}
 
 sub nameString {
 	my ($self, $otherActor) = @_;
@@ -190,6 +190,17 @@ sub sp_percent {
 }
 
 ##
+# float $char->ap_percent()
+#
+# Returns your AP percentage (between 0 and 100).
+sub ap_percent {
+	my ($self) = @_;
+
+	return main::percent_ap($self);
+}
+
+
+##
 # float $char->weight_percent()
 #
 # Returns your weight percentage (between 0 and 100).
@@ -199,7 +210,7 @@ sub weight_percent {
 	if ($self->{weight_max}) {
 		return $self->{weight} / $self->{weight_max} * 100;
 	}
-	
+
 	return 0;
 }
 
@@ -209,11 +220,11 @@ sub weight_percent {
 # Returns your base exp percentage (between 0 and 100).
 sub exp_base_percent {
 	my ($self) = @_;
-	
+
 	if ($self->{exp_max}) {
 		return ($self->{exp} / $self->{exp_max} * 100);
 	}
-		
+
 	return 0;
 }
 
@@ -223,11 +234,11 @@ sub exp_base_percent {
 # Returns your job exp percentage (between 0 and 100).
 sub exp_job_percent {
 	my ($self) = @_;
-	
+
 	if ($self->{exp_job_max}) {
 		return ($self->{exp_job} / $self->{exp_job_max} * 100);
 	}
-	
+
 	return 0;
 }
 
@@ -272,11 +283,11 @@ sub dequeue { shift; goto &AI::dequeue }
 
 sub attack {
 	my ($self, $targetID) = @_;
-	
+
 	return unless $self->SUPER::attack($targetID);
-	
+
 	my $target = Actor::get($targetID);
-	
+
 	$startedattack = 1;
 
 	Plugins::callHook('attack_start', {ID => $targetID});
@@ -296,7 +307,7 @@ sub attack {
 				next;
 			}
 
-			if (existsInList($config{"autoSwitch_$i"}, $monsters{$targetID}{'name'}) || 
+			if (existsInList($config{"autoSwitch_$i"}, $monsters{$targetID}{'name'}) ||
 				existsInList($config{"autoSwitch_$i"}, $monsters{$targetID}{nameID})) {
 				message TF("Encounter Monster : %s\n", $monsters{$targetID}{'name'});
 				if ($config{"autoSwitch_$i"."_rightHand"}) {
@@ -309,7 +320,7 @@ sub attack {
 					$Req = $char->inventory->getByName($config{"autoSwitch_${i}_rightHand"});
 					if ($Req && !$Req->{equipped}){
 						message TF("Auto Equiping [R]: %s\n", $config{"autoSwitch_$i"."_rightHand"}), "equip";
-						%eq_list = (rightHand => $Req->{binID});
+						%eq_list = (rightHand => $config{"autoSwitch_${i}_rightHand"});
 					}
 
 				}
@@ -335,7 +346,7 @@ sub attack {
 
 						if ($Leq) {
 							message TF("Auto Equiping [L]: %s (%s)\n", $config{"autoSwitch_$i"."_leftHand"}, $Leq), "equip";
-							$eq_list{leftHand} = $Leq->{binID};
+							$eq_list{leftHand} = $config{"autoSwitch_${i}_leftHand"};
 						}
 					}
 				}
@@ -377,7 +388,7 @@ sub attack {
 			$Req = $char->inventory->getByName($config{"autoSwitch_default_rightHand"});
 			if ($Req && !$Req->{equipped}){
 				message TF("Auto Equiping [R]: %s\n", $config{"autoSwitch_default_rightHand"}), "equip";
-				%eq_list = (rightHand => $Req->{binID});
+				%eq_list = (rightHand => $config{"autoSwitch_default_rightHand"});
 			}
 
 		}
@@ -404,7 +415,7 @@ sub attack {
 
 				if ($Leq) {
 					message TF("Auto Equiping [L]: %s\n", $config{"autoSwitch_default_leftHand"}), "equip";
-					$eq_list{leftHand} = $Leq->{binID};
+					$eq_list{leftHand} = $config{"autoSwitch_default_leftHand"};
 				}
 			}
 		}
@@ -431,7 +442,7 @@ sub attack {
 	} #END OF BLOCK AUTOEQUIP
 }
 
-sub sendSit { 
+sub sendSit {
 	if ($config{'sitTensionRelax'} > 0 && $char->{skills}{LK_TENSIONRELAX}{lv} > 0) {
 		my $skill = new Skill(handle => 'LK_TENSIONRELAX');
 		AI::ai_skillUse2($skill, $char->{skills}{LK_TENSIONRELAX}{lv}, 1, 0, $char, "LK_TENSIONRELAX");
@@ -441,6 +452,10 @@ sub sendSit {
 }
 sub sendStand { $messageSender->sendAction(0, ACTION_STAND) }
 sub sendMove { $messageSender->sendMove(@_[1, 2]) }
+sub sendStopSkillUse {
+	my ($self) = @_;
+	$messageSender->sendStopSkillUse($self->{last_continuous_skill_used});
+}
 
 sub sendAttack {
 	my ($self, $attackID) = @_;

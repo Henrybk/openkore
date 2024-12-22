@@ -99,7 +99,10 @@ our %EXPORT_TAGS = (
 						VAR_BODYSTATENORMAL VAR_HEALTHSTATENORMAL VAR_STUN VAR_SLEEP VAR_UNDEAD VAR_BLIND VAR_BLOODING VAR_BSPOINT VAR_ACPOINT VAR_BSRANK
 						VAR_ACRANK VAR_CHANGESPEED VAR_CHANGESPEEDTIME VAR_MAGICATKPOWER VAR_MER_KILLCOUNT VAR_MER_FAITH VAR_MDEFPERCENT VAR_CRITICAL_DEF
 						VAR_ITEMPOWER VAR_MAGICDAMAGEREDUCE VAR_STATUSMAGICPOWER VAR_PLUSMAGICPOWEROFITEM VAR_ITEMMAGICPOWER VAR_NAME VAR_FSMSTATE
-						VAR_ATTMPOWER VAR_CARTWEIGHT VAR_HP_SELF VAR_SP_SELF VAR_COSTUME_BODY VAR_RESET_COSTUMES)],
+						VAR_ATTMPOWER VAR_CARTWEIGHT VAR_HP_SELF VAR_SP_SELF VAR_COSTUME_BODY VAR_RESET_COSTUMES
+						VAR_SP_POW VAR_SP_STA VAR_SP_WIS VAR_SP_SPL VAR_SP_CON VAR_SP_CRT
+						VAR_SP_PATK VAR_SP_SMATK VAR_SP_RES VAR_SP_MRES VAR_SP_HPLUS VAR_SP_CRATE VAR_SP_TRAITPOINT VAR_SP_AP VAR_SP_MAXAP
+						VAR_SP_UPOW VAR_SP_USTA VAR_SP_UWIS VAR_SP_USPL VAR_SP_UCON VAR_SP_UCRT)],
 	party_invite => [qw(ANSWER_ALREADY_OTHERGROUPM ANSWER_JOIN_REFUSE ANSWER_JOIN_ACCEPT ANSWER_MEMBER_OVERSIZE ANSWER_DUPLICATE
 						ANSWER_JOINMSG_REFUSE ANSWER_UNKNOWN_ERROR ANSWER_UNKNOWN_CHARACTER ANSWER_INVALID_MAPPROPERTY)],
 	party_leave => [qw(GROUPMEMBER_DELETE_LEAVE GROUPMEMBER_DELETE_EXPEL)],
@@ -426,6 +429,27 @@ use constant {
 	VAR_SP_SELF => 0xcb,
 	VAR_COSTUME_BODY => 0xcc,
 	VAR_RESET_COSTUMES => 0xcd,
+	VAR_SP_POW => 0xdb,
+	VAR_SP_STA => 0xdc,
+	VAR_SP_WIS => 0xdd,
+	VAR_SP_SPL => 0xde,
+	VAR_SP_CON => 0xdf,
+	VAR_SP_CRT => 0xe0,
+	VAR_SP_PATK => 0xe1,
+	VAR_SP_SMATK => 0xe2,
+	VAR_SP_RES => 0xe3,
+	VAR_SP_MRES => 0xe4,
+	VAR_SP_HPLUS => 0xe5,
+	VAR_SP_CRATE => 0xe6,
+	VAR_SP_TRAITPOINT => 0xe7,
+	VAR_SP_AP => 0xe8,
+	VAR_SP_MAXAP => 0xe9,
+	VAR_SP_UPOW => 0xf7,
+	VAR_SP_USTA => 0xf8,
+	VAR_SP_UWIS => 0xf9,
+	VAR_SP_USPL => 0xfa,
+	VAR_SP_UCON => 0xfb,
+	VAR_SP_UCRT => 0xfc,
 };
 
 # party invite result
@@ -680,28 +704,28 @@ sub received_characters_unpackString {
 	for ($masterServer && $masterServer->{charBlockSize}) {
 		if ($_ == 175) {  # PACKETVER >= 20201007 [hp, hp_max, sp and sp_max are now uint64]
 			$char_info = {
-	            types => 'a4 V2 V V2 V6 v V2 V2 V2 V2 v2 V v9 Z24 C8 v Z16 V4 C',
+				types => 'a4 V2 V V2 V6 v V2 V2 V2 V2 v2 V v9 Z24 C8 v Z16 V4 C',
 				keys => [qw(charID exp exp_2 zeny exp_job exp_job_2 lv_job body_state health_state effect_state stance manner status_point hp hp_2 hp_max hp_max_2 sp sp_2 sp_max sp_max_2 walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon rename_addon sex)],
 			};
 		} elsif ($_ == 155) {  # PACKETVER >= 20170830 [base and job exp are now uint64]
 			$char_info = {
-	            types => 'a4 V2 V V2 V6 v V2 v4 V v9 Z24 C8 v Z16 V4 C',
+				types => 'a4 V2 V V2 V6 v V2 v4 V v9 Z24 C8 v Z16 V4 C',
 				keys => [qw(charID exp exp_2 zeny exp_job exp_job_2 lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon rename_addon sex)],
 			};
 
 		} elsif ($_ == 147) { # PACKETVER >= 20141022 [iRO Doram Update, walk_speed is now long]
 			$char_info = {
-			    types => 'a4 V9 v V2 v4 V v9 Z24 C8 v Z16 V4 C',
+				types => 'a4 V9 v V2 v4 V v9 Z24 C8 v Z16 V4 C',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon rename_addon sex)],
 			};
 
-        } elsif ($_ == 146) { # equal to charblocksize 147, but not added sex. (Sep, 2019)
+		} elsif ($_ == 146) { # equal to charblocksize 147, but not added sex. (Sep, 2019)
 			$char_info = {
-			    types => 'a4 V9 v V2 v4 V v9 Z24 C8 v Z16 V4',
+				types => 'a4 V9 v V2 v4 V v9 Z24 C8 v Z16 V4',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon rename_addon)],
 			};
 
-        } elsif ($_ == 145) { # PACKETVER >= 20141016 [support to double sex account]
+		} elsif ($_ == 145) { # PACKETVER >= 20141016 [support to double sex account]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v Z16 V4 C',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon rename_addon sex)],
@@ -713,66 +737,66 @@ sub received_characters_unpackString {
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon rename_addon)],
 			};
 
-        } elsif ($_ == 140) { # PACKETVER >= 20110928 [added change slot feature]
+		} elsif ($_ == 140) { # PACKETVER >= 20110928 [added change slot feature]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v Z16 V3',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe slot_addon)],
 			};
 
-        } elsif ($_ == 136) { # PACKETVER >= 20110111 [added robe]
+		} elsif ($_ == 136) { # PACKETVER >= 20110111 [added robe]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v Z16 V2',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date robe)],
 			};
 
-        } elsif ($_ == 132) { # PACKETVER >= 20100803 [added delete date]
+		} elsif ($_ == 132) { # PACKETVER >= 20100803 [added delete date]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v Z16 V',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map delete_date)],
 			};
 
-        } elsif ($_ == 128) { # [Update in last_map size]
+		} elsif ($_ == 128) { # [Update in last_map size]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v Z16',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map)],
 			};
 
-        } elsif ($_ == 124) { # PACKETVER >= 20100803 [added last_map, bRO (bitfrost update)]
+		} elsif ($_ == 124) { # PACKETVER >= 20100803 [added last_map, bRO (bitfrost update)]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v Z12',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed last_map)],
 			};
 
-        } elsif ($_ == 116) { # Unknown change
+		} elsif ($_ == 116) { # Unknown change
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v x4',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed)],
 			};
 
-        } elsif ($_ == 112) { # [Added is_renamed]
+		} elsif ($_ == 112) { # [Added is_renamed]
 			$char_info = {
 				types => 'a4 V9 v V2 v14 Z24 C8 v',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color is_renamed)],
 			};
 
-        } elsif ($_ == 108) { # [Added hair_color]
+		} elsif ($_ == 108) { # [Added hair_color]
 			$char_info = {
 				types => 'a4 V9 v17 Z24 C6 v2',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot hair_color)],
 			};
 
-        } elsif ($_ == 106) { # PACKETVER >= 2003+ [First known charBlockSize]
+		} elsif ($_ == 106) { # PACKETVER >= 2003+ [First known charBlockSize]
 			$char_info = {
 				types => 'a4 V9 v17 Z24 C6 v',
 				keys => [qw(charID exp zeny exp_job lv_job body_state health_state effect_state stance manner status_point hp hp_max sp sp_max walkspeed jobID hair_style weapon lv skill_point head_bottom shield head_top head_mid hair_pallete clothes_color name str agi vit int dex luk slot)],
 			};
 
-        } else {
-		    die "Unknown charBlockSize: $_";
+		} else {
+			die "Unknown charBlockSize: $_";
 		}
 		return $char_info;
 	}
-	    die "masterserver or charBlockSize is undefined";
+		die "masterserver or charBlockSize is undefined";
 }
 
 sub received_characters_slots_info {
@@ -799,7 +823,7 @@ sub received_characters_slots_info {
 		$charServer = $net->serverPeerHost . ":" . $net->serverPeerPort;
 	}
 
-	$self->received_characters($args) if($args->{charInfo});
+	$self->received_characters($args) if ($args->{charInfo});
 }
 
 # Send to client Characters pages in Char Select Screen
@@ -812,8 +836,8 @@ sub received_characters {
 
 	# rAthena and Hercules send all pages
 	# Official Server send only pages with characters + 1 empty (tested bRO, iRO) Jul-2020
-	if(length($args->{charInfo} == 0)) {
-		$charSvrSet{sync_received_characters} = $charSvrSet{sync_Count} if(exists $charSvrSet{sync_received_characters});
+	if (length($args->{charInfo} == 0)) {
+		$charSvrSet{sync_received_characters} = $charSvrSet{sync_Count} if (exists $charSvrSet{sync_received_characters});
 	} else {
 		$charSvrSet{sync_received_characters}++ if (exists $charSvrSet{sync_received_characters});
 	}
@@ -823,16 +847,22 @@ sub received_characters {
 	return unless exists $args->{charInfo};
 
 	for (my $i = 0; $i < length($args->{charInfo}); $i += $masterServer->{charBlockSize}) {
-		my $character = new Actor::You;
+		my $temporary_character;
+		@{$temporary_character}{@{$char_info->{keys}}} = unpack($char_info->{types}, substr($args->{charInfo}, $i, $masterServer->{charBlockSize}));
+
+		my $character;
 
 		# Re-use existing $char object instead of re-creating it.
 		# Required because existing AI sequences (eg, route) keep a reference to $char.
-		if ($char && $char->{ID} eq $accountID && $char->{charID} eq $character->{charID}) {
+		if ($char && $char->{ID} eq $accountID && $char->{charID} eq $temporary_character->{charID}) {
 			$character = $char;
+		} elsif (exists $chars[$temporary_character->{slot}] && $chars[$temporary_character->{slot}]->{charID} eq $temporary_character->{charID}) { # Re-use existing $char object from $chars if available.
+			$character = $chars[$temporary_character->{slot}];
+		} else { # create new one
+			$character = new Actor::You;
 		}
 
 		@{$character}{@{$char_info->{keys}}} = unpack($char_info->{types}, substr($args->{charInfo}, $i, $masterServer->{charBlockSize}));
-
 		$character->{ID} = $accountID;
 
 		$character->{name} = bytesToString($character->{name});
@@ -864,7 +894,7 @@ sub received_characters {
 		$timeout{'charlogin'}{'time'} = time;
 
 	} elsif ($config{pauseCharLogin}) {
-		return if($config{XKore} eq 1 || $config{XKore} eq 3);
+		return if ($config{XKore} eq 1 || $config{XKore} eq 3);
 		if (!defined $timeout{'char_login_pause'}{'timeout'}) {
 			$timeout{'char_login_pause'}{'timeout'} = $config{pauseCharLogin};
 		}
@@ -940,7 +970,7 @@ sub character_creation_successful {
 	$net->setState(3);
 	message TF("Character %s (%d) created.\n", $character->{name}, $character->{slot}), "info";
 
-	Plugins::callHook('char_created', {	char => $character });
+	Plugins::callHook('char_created', {char => $character});
 
 	if (charSelectScreen() == 1) {
 		$firstLoginMap = 1;
@@ -1030,7 +1060,7 @@ sub parse_account_server_info {
 			types => 'a20 V v a126',
 			keys => [qw(name users unknown ip_port)],
 		};
-	} elsif ($args->{switch} eq '0276' && $masterServer->{serverType} eq "tRO") { # tRO 2020 # keep this here to future uses
+	} elsif ($args->{switch} eq '0276' && ($masterServer->{serverType} eq "tRO" or $masterServer->{serverType} eq "aRO")) { # tRO 2020 and aRO 2022. Keep this here to future uses
 		$server_info = {
 			len => 36,
 			types => 'a4 v Z20 v5',
@@ -1145,14 +1175,14 @@ sub account_server_info {
 	@servers = @{$args->{servers}};
 	my @state = ("Idle", "Normal", "Busy", "Full");
 
-	my $msg = center(T(" Servers "), 53, '-') ."\n" .
-			T("#   Name                  Users  IP              Port  SID   State\n");
+	my $msg = center(T(" Servers "), 70, '-') ."\n" .
+			T("#   Name                  Users  IP              Port   SID    State\n");
 	for (my $num = 0; $num < @servers; $num++) {
 		$msg .= swrite(
 			"@<< @<<<<<<<<<<<<<<<<<<<< @<<<<< @<<<<<<<<<<<<<< @<<<<< @<<<<< @<<<<<<",
 			[$num, $servers[$num]{name}, $servers[$num]{users}, $servers[$num]{ip}, $servers[$num]{port}, ($servers[$num]{sid}) ? $servers[$num]{sid} : 0, defined($servers[$num]{state}) ? $state[$servers[$num]{state}] : 0]);
 	}
-	$msg .= ('-'x53) . "\n";
+	$msg .= ('-'x70) . "\n";
 	message $msg, "connection";
 
 	if ($net->version != 1) {
@@ -1241,7 +1271,7 @@ sub map_loaded {
 	push(@{$char->{solution}}, { x => $char->{pos}{x}, y => $char->{pos}{y} });
 
 	# set initial status from data received from the char server (seems needed on eA, dunno about kRO)}
-	if($masterServer->{private}){ setStatus($char, $char->{opt1}, $char->{opt2}, $char->{option}); }
+	if ($masterServer->{private}){ setStatus($char, $char->{opt1}, $char->{opt2}, $char->{option}); }
 
 	# ignoreAll
 	$ignored_all = 0;
@@ -1259,15 +1289,15 @@ sub map_load_error {
 	my ($self, $args) = @_;
 
 	error T("Error while try to login in map-server: ");
-	if($args->{error} == 0) {
+	if ($args->{error} == 0) {
 		error TF("Wrong Client Type (%s). \n", $args->{error});
-	} elsif($args->{error} == 1) {
+	} elsif ($args->{error} == 1) {
 		error TF("Wrong ID (%s). \n", $args->{error});
-	} elsif($args->{error} == 2) {
+	} elsif ($args->{error} == 2) {
 		error TF("Timeout (%s). \n", $args->{error});
-	} elsif($args->{error} == 3) {
+	} elsif ($args->{error} == 3) {
 		error TF("Already Logged In (%s). \n", $args->{error});
-	} elsif($args->{error} == 4) {
+	} elsif ($args->{error} == 4) {
 		error TF("Waiting State (%s). \n", $args->{error}); # ??
 	} else {
 		error TF("Unknown Error (%s). \n", $args->{error});
@@ -1429,9 +1459,7 @@ our %stat_info_handlers = (
 
 		return unless $actor->isa('Actor::You');
 
-		Plugins::callHook('base_level_changed', {
-			level	=> $actor->{lv}
-		});
+		Plugins::callHook('base_level_changed', {level	=> $actor->{lv}});
 
 		if ($config{dcOnLevel} && $actor->{lv} >= $config{dcOnLevel}) {
 			message TF("Disconnecting on level %s!\n", $config{dcOnLevel});
@@ -1464,7 +1492,7 @@ our %stat_info_handlers = (
 
 		Plugins::callHook('zeny_change', {
 			zeny	=> $actor->{zeny},
-			change	=> $change,
+			change	=> $change
 		});
 
 		if ($config{dcOnZeny} && $actor->{zeny} <= $config{dcOnZeny}) {
@@ -1533,9 +1561,7 @@ our %stat_info_handlers = (
 
 		return unless $actor->isa('Actor::You');
 
-		Plugins::callHook('job_level_changed', {
-			level	=> $actor->{lv_job}
-		});
+		Plugins::callHook('job_level_changed', {level => $actor->{lv_job}});
 
 		if ($config{dcOnJobLevel} && $actor->{lv_job} >= $config{dcOnJobLevel}) {
 			message TF("Disconnecting on job level %d!\n", $config{dcOnJobLevel});
@@ -1547,6 +1573,27 @@ our %stat_info_handlers = (
 	VAR_MER_KILLCOUNT, sub { $_[0]{kills} = $_[1] },
 	VAR_MER_FAITH, sub { $_[0]{faith} = $_[1] },
 	#...
+	VAR_SP_POW, sub { $_[0]{pow} = $_[1] },
+	VAR_SP_STA, sub { $_[0]{sta} = $_[1] },
+	VAR_SP_WIS, sub { $_[0]{wis} = $_[1] },
+	VAR_SP_SPL, sub { $_[0]{spl} = $_[1] },
+	VAR_SP_CON, sub { $_[0]{con} = $_[1] },
+	VAR_SP_CRT, sub { $_[0]{crt} = $_[1] },
+	VAR_SP_PATK, sub { $_[0]{patk} = $_[1] },
+	VAR_SP_SMATK, sub { $_[0]{smatk} = $_[1] },
+	VAR_SP_RES, sub { $_[0]{res} = $_[1] },
+	VAR_SP_MRES, sub { $_[0]{mres} = $_[1] },
+	VAR_SP_HPLUS, sub { $_[0]{hplus} = $_[1] },
+	VAR_SP_CRATE, sub { $_[0]{crate} = $_[1] },
+	VAR_SP_TRAITPOINT, sub { $_[0]{traitpoint} = $_[1] },
+	VAR_SP_AP, sub { $_[0]{ap} = $_[1] },
+	VAR_SP_MAXAP, sub { $_[0]{ap_max} = $_[1] },
+	VAR_SP_UPOW, sub { $_[0]{need_pow} = $_[1] },
+	VAR_SP_USTA, sub { $_[0]{need_sta} = $_[1] },
+	VAR_SP_UWIS, sub { $_[0]{need_wis} = $_[1] },
+	VAR_SP_USPL, sub { $_[0]{need_spl} = $_[1] },
+	VAR_SP_UCON, sub { $_[0]{need_con} = $_[1] },
+	VAR_SP_UCRT, sub { $_[0]{need_crt} = $_[1] },
 );
 
 # Notifies client of a character parameter change.
@@ -1579,15 +1626,15 @@ sub stat_info {
 		'0ACB' => $char,
 	}->{$args->{switch}};
 
-	if($args->{switch} eq "081E") {
-		if(!$char->{elemental}) {
+	if ($args->{switch} eq "081E") {
+		if (!$char->{elemental}) {
 			$char->{elemental} = new Actor::Elemental;
 		}
 		$actor = $char->{elemental}; # Sorcerer's Spirit
 	}
 
-	if($args->{switch} eq "02A2") {
-		if(!$char->{mercenary}) {
+	if ($args->{switch} eq "02A2") {
+		if (!$char->{mercenary}) {
 			$char->{mercenary} = new Actor::Slave::Mercenary;
 		}
 		$actor = $char->{mercenary};
@@ -1647,13 +1694,37 @@ sub stats_added {
 			$char->{luk} = $args->{val};
 			debug "Luck: $args->{val}\n", "parseMsg";
 
+		} elsif ($args->{type} == VAR_SP_POW) {
+			$char->{pow} = $args->{val};
+			debug "Power: $args->{val}\n", "parseMsg";
+
+		} elsif ($args->{type} == VAR_SP_STA) {
+			$char->{sta} = $args->{val};
+			debug "Stamina: $args->{val}\n", "parseMsg";
+
+		} elsif ($args->{type} == VAR_SP_WIS) {
+			$char->{wis} = $args->{val};
+			debug "Wisdom: $args->{val}\n", "parseMsg";
+
+		} elsif ($args->{type} == VAR_SP_SPL) {
+			$char->{spl} = $args->{val};
+			debug "Spell: $args->{val}\n", "parseMsg";
+
+		} elsif ($args->{type} == VAR_SP_CON) {
+			$char->{con} = $args->{val};
+			debug "Concentration: $args->{val}\n", "parseMsg";
+
+		} elsif ($args->{type} == VAR_SP_CRT) {
+			$char->{crt} = $args->{val};
+			debug "Creative: $args->{val}\n", "parseMsg";
+
 		} else {
-			debug "Something: $args->{val}\n", "parseMsg";
+			error "$args->{type}: $args->{val}\n", "parseMsg";
 		}
 	}
 	Plugins::callHook('packet_charStats', {
-		type	=> $args->{type},
-		val	=> $args->{val},
+		type => $args->{type},
+		val => $args->{val}
 	});
 }
 
@@ -1740,6 +1811,8 @@ sub stat_info2 {
 		$char->{luk_bonus} = $val2;
 		debug "Luck: $val + $val2\n", "parseMsg";
 	}
+	$char->inventory->onStatInfo2() if (!$masterServer->{itemListType});
+
 }
 # Notifies clients in an area, that an other visible object is walking (ZC_NOTIFY_PLAYERMOVE).
 # 0086 <id>.L <walk data>.6B <walk start time>.L
@@ -1761,7 +1834,7 @@ sub actor_display {
 	my ($self, $args) = @_;
 	return unless changeToInGameState();
 	my ($actor, $mustAdd);
-	
+
 	#### Initialize ####
 
 	my $nameID = unpack("V", $args->{ID});
@@ -1790,25 +1863,6 @@ sub actor_display {
 		%coordsFrom = %coordsTo;
 	}
 
-	# Remove actors that are located outside the map
-	# This may be caused by:
-	#  - server sending us false actors
-	#  - actor packets not being parsed correctly
-	if (defined $field && ($field->isOffMap($coordsFrom{x}, $coordsFrom{y}) || $field->isOffMap($coordsTo{x}, $coordsTo{y}))) {
-		warning TF("Ignoring actor with off map coordinates: (%d,%d)->(%d,%d), field max: (%d,%d)\n",$coordsFrom{x},$coordsFrom{y},$coordsTo{x},$coordsTo{y},$field->width(),$field->height());
-		return;
-	}
-	
-	if (($coordsFrom{x} == 0 && $coordsFrom{y} == 0) || ($coordsTo{x} == 0 && $coordsTo{y} == 0)) {
-		warning TF("Ignoring bugged actor moved packet ($args->{switch}) ($coordsFrom{x} $coordsFrom{y})->($coordsTo{x} $coordsTo{y})\n");
-		return;
-	}
-	
-	if (blockDistance(\%coordsFrom, \%coordsTo) > ($config{clientSight} + $config{clientSight_removeBeyond})) {
-		warning TF("Ignoring bugged actor moved packet ($args->{switch}) ($coordsFrom{x} $coordsFrom{y})->($coordsTo{x} $coordsTo{y})\n");
-		return;
-	}
-	
 =pod
 	# Zealotus bug
 	if ($args->{type} == 1200) {
@@ -1988,16 +2042,35 @@ sub actor_display {
 	$actor->{jobID} = $args->{type};
 	$actor->{type} = $args->{type};
 	$actor->{lv} = $args->{lv};
-	$actor->{pos} = {%coordsFrom};
-	$actor->{pos_to} = {%coordsTo};
 	$actor->{walk_speed} = $args->{walk_speed} / 1000 if (exists $args->{walk_speed} && $args->{switch} ne "0086");
-	$actor->{time_move} = time;
-	$actor->{time_move_calc} = calcTime(\%coordsFrom, \%coordsTo, $actor->{walk_speed});
 	$actor->{len} = $args->{len} if $args->{len};
 	# 0086 would need that?
 	$actor->{object_type} = $args->{object_type} if (defined $args->{object_type});
 
-	# Remove actors with a distance greater than clientSight. Useful for vending (so you don't spam
+	# Remove actors that are located outside the map
+	# This may be caused by:
+	#  - server sending us false actors
+	#  - actor packets not being parsed correctly
+	if (defined $field && ($field->isOffMap($coordsFrom{x}, $coordsFrom{y}) || $field->isOffMap($coordsTo{x}, $coordsTo{y}))) {
+		warning TF("Ignoring actor with off map coordinates: (%d, %d)->(%d, %d), field max: (%d, %d)\n",$coordsFrom{x},$coordsFrom{y},$coordsTo{x},$coordsTo{y},$field->width(),$field->height());
+		$actor->{avoid} = 1;
+		return;
+	}
+
+	if ( ($coordsFrom{x} == 0 && $coordsFrom{y} == 0) || ($coordsTo{x} == 0 && $coordsTo{y} == 0) ||
+		 (blockDistance(\%coordsFrom, \%coordsTo) > $config{clientSight}) ) {
+			warning TF("Ignoring bugged actor moved packet (%s) (%d, %d)->(%d, %d)\n", $args->{switch}, $coordsFrom{x}, $coordsFrom{y}, $coordsTo{x}, $coordsTo{y});
+			# seems this is just a position bug, lets just ignore the change in position
+			# $actor->{avoid} = 1;
+		return;
+	}
+
+	$actor->{pos} = {%coordsFrom};
+	$actor->{pos_to} = {%coordsTo};
+	$actor->{time_move} = time;
+	$actor->{time_move_calc} = calcTime(\%coordsFrom, \%coordsTo, $actor->{walk_speed});
+
+	# Ignore actors with a distance greater than clientSight. Useful for vending (so you don't spam
 	# too many packets in prontera and cause server lag). As a side effect, you won't be able to "see" actors
 	# beyond clientSight.
 	if ($config{clientSight}) {
@@ -2005,17 +2078,16 @@ sub actor_display {
 		my $realMyPos = calcPosition($char);
 		my $realActorPos = calcPosition($actor);
 		my $realActorDist = blockDistance($realMyPos, $realActorPos);
-		
-		my $max_sight_base = $config{clientSight};
-		my $max_sight_extra = $config{clientSight_removeBeyond};
-		
-		my $max_sight = $max_sight_base + $max_sight_extra;
-		
-		if ($realActorDist >= $max_sight) {
-			Log::warning "Removed out of sight actor $actor->{name} at ($actor->{pos_to}{x}, $actor->{pos_to}{y}) (distance: $realActorDist > max $max_sight)\n";
-			return;
+
+		if ($realActorDist >= $config{clientSight}) {
+			my ($actor_type) = $object_class =~ /\:\:(\w+)$/;
+			warning TF("Avoiding out of sight %s: '%s' at (%d, %d) (distance: %d >= max %d) - check clientSight in config.txt\n", $actor_type, $actor->{name}, $actor->{pos_to}{x}, $actor->{pos_to}{y}, $realActorDist, $config{clientSight});
+			$actor->{avoid} = 1;
+		} else {
+			$actor->{avoid} = 0;
 		}
 	}
+
 
 	if (UNIVERSAL::isa($actor, "Actor::Player")) {
 		# None of this stuff should matter if the actor isn't a player... => does matter for a guildflag npc!
@@ -2172,7 +2244,8 @@ typedef enum <unnamed-tag> {
 			my $domain = existsInList($config{friendlyAID}, unpack("V", $actor->{ID})) ? 'parseMsg_presence' : 'parseMsg_presence/player';
 			debug "Player Exists: " . $actor->name . " ($actor->{binID}) Level $actor->{lv} $sex_lut{$actor->{sex}} $jobs_lut{$actor->{jobID}} ($coordsFrom{x}, $coordsFrom{y})\n", $domain;
 
-			Plugins::callHook('player', {player => $actor});  #backwards compatibility
+			playerLog("player " .$actor->{name} ." is near (" .$field->{baseName} .", lvl=" .$actor->{lv} .", job=" .$jobs_lut{$actor->{jobID}} .")") if (!$field->isCity);
+			Plugins::callHook('player', {player => $actor}); #backwards compatibility
 
 			Plugins::callHook('player_exist', {player => $actor});
 
@@ -2186,18 +2259,23 @@ typedef enum <unnamed-tag> {
 
 		} elsif ($actor->isa('Actor::Monster')) {
 			debug sprintf("Monster Exists: %s (%d)\n", $actor->name, $actor->{binID}), "parseMsg_presence", 1;
+			Plugins::callHook('monster_exist', {monster => $actor});
 
 		} elsif ($actor->isa('Actor::Pet')) {
 			debug sprintf("Pet Exists: %s (%d)\n", $actor->name, $actor->{binID}), "parseMsg_presence", 1;
+			Plugins::callHook('pet_exist', {pet => $actor});
 
 		} elsif ($actor->isa('Actor::Slave')) {
 			debug sprintf("Slave Exists: %s (%d)\n", $actor->name, $actor->{binID}), "parseMsg_presence", 1;
+			Plugins::callHook('slave_exist', {slave => $actor});
 
 		} elsif ($actor->isa('Actor::Elemental')) {
 			debug sprintf("Elemental Exists: %s (%d)\n", $actor->name, $actor->{binID}), "parseMsg_presence", 1;
+			Plugins::callHook('elemental_exist', {elemental => $actor});
 
 		} else {
 			debug sprintf("Unknown Actor Exists: %s (%d)\n", $actor->name, $actor->{binID}), "parseMsg_presence", 1;
+			Plugins::callHook('unknown_exist', {unknown => $actor});
 		}
 
 	} elsif ($args->{switch} eq "0079" ||
@@ -2217,7 +2295,8 @@ typedef enum <unnamed-tag> {
 			my $domain = existsInList($config{friendlyAID}, unpack("V", $args->{ID})) ? 'parseMsg_presence' : 'parseMsg_presence/player';
 			debug "Player Connected: ".$actor->name." ($actor->{binID}) Level $args->{lv} $sex_lut{$actor->{sex}} $jobs_lut{$actor->{jobID}} ($coordsTo{x}, $coordsTo{y})\n", $domain;
 
-			Plugins::callHook('player', {player => $actor});  #backwards compatibailty
+			playerLog("player " .$actor->{name} ." is near (" .$field->{baseName} .", lvl=" .$actor->{lv} .", job=" .$jobs_lut{$actor->{jobID}} .")") if (!$field->isCity);
+			Plugins::callHook('player', {player => $actor}); #backwards compatibailty
 
 			Plugins::callHook('player_connected', {player => $actor});
 		} else {
@@ -2247,54 +2326,63 @@ typedef enum <unnamed-tag> {
 
 		if ($actor->isa('Actor::Player')) {
 			debug "Player Moved: " . $actor->name . " ($actor->{binID}) Level $actor->{lv} $sex_lut{$actor->{sex}} $jobs_lut{$actor->{jobID}} - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-		        Plugins::callHook('player_moved', $actor);
+			Plugins::callHook('player_moved', $actor);
 		} elsif ($actor->isa('Actor::Monster')) {
 			debug "Monster Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-		        Plugins::callHook('monster_moved', $actor);
+			Plugins::callHook('monster_moved', $actor);
 		} elsif ($actor->isa('Actor::Pet')) {
 			debug "Pet Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-		        Plugins::callHook('pet_moved', $actor);
+			Plugins::callHook('pet_moved', $actor);
 		} elsif ($actor->isa('Actor::Slave')) {
 			debug "Slave Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-			   Plugins::callHook('slave_moved', $actor);
+			Plugins::callHook('slave_moved', $actor);
 		} elsif ($actor->isa('Actor::Portal')) {
 			# This can never happen of course.
 			debug "Portal Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-		        Plugins::callHook('portal_moved', $actor);
+			Plugins::callHook('portal_moved', $actor);
 		} elsif ($actor->isa('Actor::NPC')) {
 			# Neither can this.
 			debug "NPC Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-		        Plugins::callHook('npc_moved', $actor);
+			Plugins::callHook('npc_moved', $actor);
 		} elsif ($actor->isa('Actor::Elemental')) {
 			debug "Elemental Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
-		        Plugins::callHook('pet_moved', $actor);
+			Plugins::callHook('pet_moved', $actor);
 		} else {
 			debug "Unknown Actor Moved: " . $actor->nameIdx . " - ($coordsFrom{x}, $coordsFrom{y}) -> ($coordsTo{x}, $coordsTo{y})\n", "parseMsg";
+			Plugins::callHook('unknown_moved', $actor);
 		}
 
 	} elsif ($args->{switch} eq "007C") {
 		# Actor Spawned
 		if ($actor->isa('Actor::Player')) {
 			debug "Player Spawned: " . $actor->nameIdx . " $sex_lut{$actor->{sex}} $jobs_lut{$actor->{jobID}}\n", "parseMsg";
+			Plugins::callHook('player_spawned', {player => $actor});
 		} elsif ($actor->isa('Actor::Monster')) {
 			debug "Monster Spawned: " . $actor->nameIdx . "\n", "parseMsg";
+			Plugins::callHook('monster_spawned', {monster => $actor});
 		} elsif ($actor->isa('Actor::Pet')) {
 			debug "Pet Spawned: " . $actor->nameIdx . "\n", "parseMsg";
+			Plugins::callHook('pet_spawned', {pet => $actor});
 		} elsif ($actor->isa('Actor::Slave')) {
 			debug "Slave Spawned: " . $actor->nameIdx . " $jobs_lut{$actor->{jobID}}\n", "parseMsg";
+			Plugins::callHook('slave_spawned', {slave => $actor});
 		} elsif ($actor->isa('Actor::Portal')) {
 			# Can this happen?
 			debug "Portal Spawned: " . $actor->nameIdx . "\n", "parseMsg";
+			Plugins::callHook('portal_spawned', {portal => $actor});
 		} elsif ($actor->isa('Actor::Elemental')) {
 			debug "Elemental Spawned: " . $actor->nameIdx . "\n", "parseMsg";
+			Plugins::callHook('elemental_spawned', {elemental => $actor});
 		} elsif ($actor->isa('NPC')) {
 			debug "NPC Spawned: " . $actor->nameIdx . "\n", "parseMsg";
+			Plugins::callHook('npc_spawned', {npc => $actor});
 		} else {
 			debug "Unknown Spawned: " . $actor->nameIdx . "\n", "parseMsg";
+			Plugins::callHook('unknown_spawned', {unknown => $actor});
 		}
 	}
 
-	if($char->{elemental}{ID} eq $actor->{ID}) {
+	if ($char->{elemental}{ID} eq $actor->{ID}) {
 		$char->{elemental} = $actor;
 	}
 }
@@ -2335,9 +2423,9 @@ sub actor_died_or_disappeared {
 			$monster->{dead} = 1;
 
 			if ((AI::action ne "attack" || AI::args(0)->{ID} eq $ID) &&
-			    ($config{itemsTakeAuto_party} &&
-			    ($monster->{dmgFromParty} > 0 ||
-			     $monster->{dmgFromYou} > 0))) {
+				($config{itemsTakeAuto_party} &&
+				($monster->{dmgFromParty} > 0 ||
+				 $monster->{dmgFromYou} > 0))) {
 				AI::clear("items_take");
 				ai_items_take($monster->{pos}{x}, $monster->{pos}{y},
 					$monster->{pos_to}{x}, $monster->{pos_to}{y});
@@ -2439,7 +2527,7 @@ sub actor_died_or_disappeared {
 				$slave->{dead} = 1;
 				if ($slave->isa("AI::Slave::Homunculus") || $slave->isa("Actor::Slave::Homunculus")) {
 					AI::SlaveManager::removeSlave($slave) if ($char->has_homunculus);
-					
+
 				} elsif ($slave->isa("AI::Slave::Mercenary") || $slave->isa("Actor::Slave::Mercenary")) {
 					AI::SlaveManager::removeSlave($slave) if ($char->has_mercenary);
 				}
@@ -2478,7 +2566,7 @@ sub actor_died_or_disappeared {
 		$elemental->{gone_time} = time;
 		Plugins::callHook('elemental_disappeared', {elemental => $elemental});
 
-		if($char->{elemental}{ID} eq $ID) {
+		if ($char->{elemental}{ID} eq $ID) {
 			$char->{elemental} = undef;
 		}
 
@@ -2564,7 +2652,13 @@ sub actor_action {
 		$target->{sitting} = 0 unless $args->{type} == ACTION_ATTACK_NOMOTION || $args->{type} == ACTION_ATTACK_MULTIPLE_NOMOTION || $totalDamage == 0;
 
 		my $msg = attack_string($source, $target, $dmgdisplay, ($args->{src_speed}));
-		Plugins::callHook('packet_attack', {sourceID => $args->{sourceID}, targetID => $args->{targetID}, msg => \$msg, dmg => $totalDamage, type => $args->{type}});
+		Plugins::callHook('packet_attack', {
+			sourceID => $args->{sourceID},
+			targetID => $args->{targetID},
+			msg => \$msg,
+			dmg => $totalDamage,
+			type => $args->{type}
+		});
 
 		my $status = sprintf("[%3d/%3d]", percent_hp($char), percent_sp($char));
 
@@ -2629,6 +2723,7 @@ sub actor_info {
 		$player->{title}{ID} = $args->{titleID} if defined $args->{titleID};
 		message "Player Info: " . $player->nameIdx . "\n", "parseMsg_presence", 2;
 		updatePlayerNameCache($player);
+		playerLog("player " .$player->{name} ." is near (" .$field->{baseName} .", lvl=" .$player->{lv} .", job=" .$jobs_lut{$player->{jobID}} .")") if (!$field->isCity);
 		Plugins::callHook('charNameUpdate', {player => $player});
 	}
 
@@ -2774,10 +2869,11 @@ sub account_payment_info {
 	my $H_h = int(($H_minute % 1440) / 60);
 	my $H_m = int(($H_minute % 1440) % 60);
 
-	message  T("============= Account payment information =============\n"), "info";
-	message TF("Pay per day  : %s day(s) %s hour(s) and %s minute(s)\n", $D_d, $D_h, $D_m), "info";
-	message TF("Pay per hour : %s day(s) %s hour(s) and %s minute(s)\n", $H_d, $H_h, $H_m), "info";
-	message  "-------------------------------------------------------\n", "info";
+	my $msg = center(T(" Account payment information "), 56, '-') ."\n" .
+			TF("Pay per day  : %s day(s) %s hour(s) and %s minute(s)\n", $D_d, $D_h, $D_m).
+			TF("Pay per hour : %s day(s) %s hour(s) and %s minute(s)\n", $H_d, $H_h, $H_m);
+	$msg .= ('-'x56) . "\n";
+	message $msg, "info";
 }
 
 # TODO
@@ -2801,7 +2897,7 @@ sub homunculus_property {
 	foreach (@{$args->{KEYS}}) {
 		$slave->{$_} = $args->{$_};
 	}
-	
+
 	# ST0's counterpart for ST kRO, since it attempts to support all servers
 	# TODO: we do this for homunculus, mercenary and our char... make 1 function and pass actor and attack_range?
 	# or make function in Actor class
@@ -2831,7 +2927,7 @@ sub homunculus_state_handler {
 			$char->{homunculus}{renameflag} = 0;
 			message T("Your Homunculus has not been renamed\n"), 'homunculus';
 		}
-		
+
 		if ($args->{state} & 2) {
 			$char->{homunculus}{vaporized} = 1;
 			AI::SlaveManager::removeSlave($char->{homunculus}) if ($char->has_homunculus);
@@ -2841,7 +2937,7 @@ sub homunculus_state_handler {
 			AI::SlaveManager::addSlave($char->{homunculus}) if (!$char->has_homunculus);
 			message T("Your Homunculus is not vaporized\n"), 'homunculus';
 		}
-		
+
 		if ($args->{state} & 4) {
 			$char->{homunculus}{dead} = 0;
 			AI::SlaveManager::addSlave($char->{homunculus}) if (!$char->has_homunculus);
@@ -2851,36 +2947,36 @@ sub homunculus_state_handler {
 			AI::SlaveManager::removeSlave($char->{homunculus}) if ($char->has_homunculus);
 			message T("Your Homunculus is dead\n"), 'homunculus';
 		}
-	
+
 	} elsif (defined $slave->{state} && $slave->{state} != $args->{state}) {
 		if (($args->{state} & 1) && !($slave->{state} & 1)) {
 			$char->{homunculus}{renameflag} = 1;
 			message T("Your Homunculus was renamed\n"), 'homunculus';
 		}
-		
+
 		if (($args->{state} & 2) && !($slave->{state} & 2)) {
 			$char->{homunculus}{vaporized} = 1;
 			AI::SlaveManager::removeSlave($char->{homunculus}) if ($char->has_homunculus);
 			message T("Your Homunculus was vaporized!\n"), 'homunculus';
 		}
-		
+
 		if (($args->{state} & 4) && !($slave->{state} & 4)) {
 			$char->{homunculus}{dead} = 0;
 			AI::SlaveManager::addSlave($char->{homunculus}) if (!$char->has_homunculus);
 			message T("Your Homunculus was resurrected!\n"), 'homunculus';
 		}
-		
+
 		if (!($args->{state} & 1) && ($slave->{state} & 1)) {
 			$char->{homunculus}{renameflag} = 0;
 			message T("Your Homunculus was un-renamed? lol\n"), 'homunculus';
 		}
-		
+
 		if (!($args->{state} & 2) && ($slave->{state} & 2)) {
 			$char->{homunculus}{vaporized} = 0;
 			AI::SlaveManager::addSlave($char->{homunculus}) if (!$char->has_homunculus);
 			message T("Your Homunculus was recalled!\n"), 'homunculus';
 		}
-		
+
 		if (!($args->{state} & 4) && ($slave->{state} & 4)) {
 			$char->{homunculus}{dead} = 1;
 			AI::SlaveManager::removeSlave($char->{homunculus}) if ($char->has_homunculus);
@@ -3172,7 +3268,7 @@ sub misc_config {
 	my ($self, $args) = @_;
 
 	if (defined ($args->{show_eq_flag})) {
-		if($args->{show_eq_flag} == 1) {
+		if ($args->{show_eq_flag} == 1) {
 			message T("Your Equipment information is now open to the public.\n");
 		} else {
 			message T("Your Equipment information is now not open to the public.\n");
@@ -3180,7 +3276,7 @@ sub misc_config {
 	}
 
 	if (defined ($args->{call_flag})) {
-		if($args->{call_flag} == 1) {
+		if ($args->{call_flag} == 1) {
 			message T("Allowed being summoned by skills: Urgent Call, Marriage Skills, etc.\n");
 		} else {
 			message T("Not Allowed being summoned by skills: Urgent Call, Marriage Skills, etc.\n");
@@ -3188,7 +3284,7 @@ sub misc_config {
 	}
 
 	if (defined ($args->{pet_autofeed_flag})) {
-		if($args->{pet_autofeed_flag} == 1) {
+		if ($args->{pet_autofeed_flag} == 1) {
 			message T("Pet automatic feeding is ON. (Ragexe Client Feature)\n");
 		} else {
 			message T("Pet automatic feeding is OFF. (Ragexe Client Feature)\n");
@@ -3196,7 +3292,7 @@ sub misc_config {
 	}
 
 	if (defined ($args->{homunculus_autofeed_flag})) {
-		if($args->{homunculus_autofeed_flag} == 1) {
+		if ($args->{homunculus_autofeed_flag} == 1) {
 			message T("Homunculus automatic feeding is ON. (Ragexe Client Feature)\n");
 		} else {
 			message T("Homunculus automatic feeding is OFF. (Ragexe Client Feature)\n");
@@ -3265,7 +3361,7 @@ sub show_script {
 		debug $npc->name . " ($npc->{nameID}): $message\n", 'parseMsg';
 		Plugins::callHook('show_script', {
 			ID => $ID,
-			message => $message,
+			message => $message
 		});
 	}
 }
@@ -3333,27 +3429,27 @@ sub gospel_buff_aligned {
 	my $status = unpack("V1", $args->{ID});
 
 	if ($status == 21) {
-     		message T("All abnormal status effects have been removed.\n"), "info";
+		message T("All abnormal status effects have been removed.\n"), "info";
 	} elsif ($status == 22) {
-     		message T("You will be immune to abnormal status effects for the next minute.\n"), "info";
+		message T("You will be immune to abnormal status effects for the next minute.\n"), "info";
 	} elsif ($status == 23) {
-     		message T("Your Max HP will stay increased for the next minute.\n"), "info";
+		message T("Your Max HP will stay increased for the next minute.\n"), "info";
 	} elsif ($status == 24) {
-     		message T("Your Max SP will stay increased for the next minute.\n"), "info";
+		message T("Your Max SP will stay increased for the next minute.\n"), "info";
 	} elsif ($status == 25) {
-     		message T("All of your Stats will stay increased for the next minute.\n"), "info";
+		message T("All of your Stats will stay increased for the next minute.\n"), "info";
 	} elsif ($status == 28) {
-     		message T("Your weapon will remain blessed with Holy power for the next minute.\n"), "info";
+		message T("Your weapon will remain blessed with Holy power for the next minute.\n"), "info";
 	} elsif ($status == 29) {
-     		message T("Your armor will remain blessed with Holy power for the next minute.\n"), "info";
+		message T("Your armor will remain blessed with Holy power for the next minute.\n"), "info";
 	} elsif ($status == 30) {
-     		message T("Your Defense will stay increased for the next 10 seconds.\n"), "info";
+		message T("Your Defense will stay increased for the next 10 seconds.\n"), "info";
 	} elsif ($status == 31) {
-     		message T("Your Attack strength will stay increased for the next minute.\n"), "info";
+		message T("Your Attack strength will stay increased for the next minute.\n"), "info";
 	} elsif ($status == 32) {
-     		message T("Your Accuracy and Flee Rate will stay increased for the next minute.\n"), "info";
+		message T("Your Accuracy and Flee Rate will stay increased for the next minute.\n"), "info";
 	} else {
-     		#message T("Unknown buff from Gospel: " . $status . "\n"), "info";
+		#message T("Unknown buff from Gospel: " . $status . "\n"), "info";
 	}
 }
 
@@ -3546,7 +3642,10 @@ sub arrow_equipped {
 		$item->{equipped} = 32768;
 		$ai_v{temp}{waitForEquip}-- if $ai_v{temp}{waitForEquip};
 		message TF("Arrow/Bullet equipped: %s (%d) x %s\n", $item->{name}, $item->{binID}, $item->{amount});
-		Plugins::callHook('equipped_item', {slot => 'arrow', item => $item});
+		Plugins::callHook('equipped_item', {
+			slot => 'arrow',
+			item => $item
+		});
 	}
 }
 
@@ -3598,12 +3697,15 @@ sub inventory_item_added {
 		$disp .= " (". $field->baseName . ")\n";
 		itemLog($disp);
 
-		Plugins::callHook('item_gathered',{item => $item->{name}, amount => $amount});
+		Plugins::callHook('item_gathered', {
+			item => $item->{name},
+			amount => $amount
+		});
 
 		$args->{item} = $item;
 
 		# TODO: move this stuff to AI()
-		if(defined($ai_v{npc_talk})) { # avoid autovivification
+		if (defined($ai_v{npc_talk})) { # avoid autovivification
 			if (grep {$_ eq $item->{nameID}} @{$ai_v{npc_talk}{itemsIDlist}}, $ai_v{npc_talk}{itemID}) {
 
 				$ai_v{'npc_talk'}{'talk'} = 'buy';
@@ -3673,7 +3775,7 @@ sub rental_expired {
 		inventoryItemRemoved($item->{binID}, 1);
 		Plugins::callHook('rental_expired', {
 			index => $item->{binID},
-			nameID => $item->{nameID},
+			nameID => $item->{nameID}
 		});
 	}
 }
@@ -3712,28 +3814,22 @@ sub shop_sold {
 
 	# Call hook before we possibly remove $articles[$number] or
 	# $articles itself as a result of the sale.
-	Plugins::callHook(
-		'vending_item_sold',
-		{
-			'vendShopIndex' => $number,
-			'amount' => $amount,
-			'vendArticle' => $articles[$number], #This is a hash
-			'zenyEarned' => $earned,
-			'packetType' => "short",
-		}
-	);
+	Plugins::callHook('vending_item_sold', {
+		'vendShopIndex' => $number,
+		'amount' => $amount,
+		'vendArticle' => $articles[$number], #This is a hash
+		'zenyEarned' => $earned,
+		'packetType' => "short"
+	});
 
 	# Adjust the shop's articles for sale, and notify if the sold
 	# item and/or the whole shop has been sold out.
 	if ($articles[$number]{quantity} < 1) {
 		message TF("Sold out: %s\n", $articles[$number]{name}), "sold";
-		Plugins::callHook(
-			'vending_item_sold_out',
-			{
-				'vendShopIndex' => $number,
-				'vendArticle' => $articles[$number],
-			}
-		);
+		Plugins::callHook('vending_item_sold_out', {
+			'vendShopIndex' => $number,
+			'vendArticle' => $articles[$number]
+		});
 		#$articles[$number] = "";
 		if (!--$articles){
 			message T("Items have been sold out.\n"), "sold";
@@ -3762,30 +3858,24 @@ sub shop_sold_long {
 
 	# Call hook before we possibly remove $articles[$number] or
 	# $articles itself as a result of the sale.
-	Plugins::callHook(
-		'vending_item_sold',
-		{
-			'vendShopIndex' => $number,
-			'amount' => $amount,
-			'vendArticle' => $articles[$number], #This is a hash
-			'buyerCharID' => $args->{charID},
-			'zenyEarned' => $earned,
-			'time' => $when,
-			'packetType' => "long",
-		}
-	);
+	Plugins::callHook('vending_item_sold', {
+		'vendShopIndex' => $number,
+		'amount' => $amount,
+		'vendArticle' => $articles[$number], #This is a hash
+		'buyerCharID' => $args->{charID},
+		'zenyEarned' => $earned,
+		'time' => $when,
+		'packetType' => "long"
+	});
 
 	# Adjust the shop's articles for sale, and notify if the sold
 	# item and/or the whole shop has been sold out.
 	if ($articles[$number]{quantity} < 1) {
 		message TF("Sold out: %s\n", $articles[$number]{name}), "sold";
-		Plugins::callHook(
-			'vending_item_sold_out',
-			{
-				'vendShopIndex' => $number,
-				'vendArticle' => $articles[$number],
-			}
-		);
+		Plugins::callHook('vending_item_sold_out', {
+			'vendShopIndex' => $number,
+			'vendArticle' => $articles[$number]
+		});
 		#$articles[$number] = "";
 		if (!--$articles){
 			message T("Items have been sold out.\n"), "sold";
@@ -3812,10 +3902,10 @@ sub vending_start {
 	my $msg = center(" $shop{title} ", 83, '-') . "\n" .
 		T("#  Name                                       Type                     Price Amount\n");
 	for (my $i = 0; $i < $item_list_len; $i += $item_len) {
-	    my $item = {};
-	    @$item{qw( price number quantity type nameID identified broken upgrade cards options location sprite_id)} = unpack $item_pack, substr $args->{itemList}, $i, $item_len;
+		my $item = {};
+		@$item{qw( price number quantity type nameID identified broken upgrade cards options location sprite_id)} = unpack $item_pack, substr $args->{itemList}, $i, $item_len;
 		$item->{name} = itemName($item);
-	    $articles[delete $item->{number}] = $item;
+		$articles[delete $item->{number}] = $item;
 		$articles++;
 
 		debug ("Item added to Vender Store: $item->{name} - $item->{price} z\n", "vending", 2);
@@ -3832,8 +3922,8 @@ sub vending_start {
 sub vender_items_list {
 	my ($self, $args) = @_;
 
-    $venderID = $args->{venderID};
-    $venderCID = $args->{venderCID};
+	$venderID = $args->{venderID};
+	$venderCID = $args->{venderCID};
 
 	my $expireDate = 0;
 	my $item_pack = $self->{vender_items_list_item_pack} || 'V v2 C v C3 a8';
@@ -3866,7 +3956,7 @@ sub vender_items_list {
 	$msg .= ('-'x88) . "\n";
 	message $msg, $config{showDomain_Shop} || 'list';
 
-	if($args->{expireDate}) {
+	if ($args->{expireDate}) {
 		$expireDate = $args->{expireDate};
 		my $date = int(time) + int($args->{expireDate}/1000);
 		message "Expire Date: ".getFormattedDate($date)."\n";
@@ -3876,7 +3966,7 @@ sub vender_items_list {
 		venderID => $args->{venderID},
 		venderCID => $args->{venderCID},
 		itemList => $venderItemList,
-		expireDate => $expireDate,
+		expireDate => $expireDate
 	});
 }
 
@@ -4002,21 +4092,21 @@ sub account_id {
 sub marriage_partner_name {
 	my ($self, $args) = @_;
 
-	message TF("Marriage partner name: %s\n", $args->{name});
+	message TF("Marriage partner name: %s\n", bytesToString($args->{name}));
 }
 
 sub login_pin_code_request {
 	# This is ten second-level password login for 2013/3/29 upgrading of twRO
 	my ($self, $args) = @_;
 
-	if($args->{flag} ne 0 && ($config{XKore} eq "1" || $config{XKore} eq "3")) {
+	if ($args->{flag} ne 0 && ($config{XKore} eq "1" || $config{XKore} eq "3")) {
 		$timeout{master}{time} = time;
 		return;
 	}
 
 	# tRO "workaround"
 	# receive pincode means that we already received all character pages
-	$charSvrSet{sync_received_characters} = $charSvrSet{sync_Count} if(exists $charSvrSet{sync_received_characters} && !$masterServer->{private});
+	$charSvrSet{sync_received_characters} = $charSvrSet{sync_Count} if (exists $charSvrSet{sync_received_characters} && !$masterServer->{private});
 
 	# flags:
 	# 0 - correct
@@ -4132,7 +4222,7 @@ sub actor_status_active {
 sub map_property3 {
 	my ($self, $args) = @_;
 
-	if($config{'status_mapType'}){
+	if ($config{'status_mapType'}){
 		$char->setStatus(@$_) for map {[$_->[1], $args->{type} == $_->[0]]}
 		grep { $args->{type} == $_->[0] || $char->{statuses}{$_->[1]} }
 		map {[$_, defined $mapTypeHandle{$_} ? $mapTypeHandle{$_} : "UNKNOWN_MAPTYPE_$_"]}
@@ -4150,9 +4240,7 @@ sub map_property3 {
 
 	$pvp = {6 => 1, 8 => 2, 19 => 3}->{$args->{type}};
 	if ($pvp) {
-		Plugins::callHook('pvp_mode', {
-			pvp => $pvp # 1 PvP, 2 GvG, 3 Battleground
-		});
+		Plugins::callHook('pvp_mode', {pvp => $pvp});# 1 PvP, 2 GvG, 3 Battleground
 	}
 }
 
@@ -4200,7 +4288,7 @@ sub area_spell {
 		x => $x,
 		y => $y,
 		type => $type,
-		isVisible => $isVisible,
+		isVisible => $isVisible
 	});
 }
 
@@ -4248,7 +4336,7 @@ sub area_spell_multiple2 {
 		y => $y,
 		type => $type,
 		isVisible => $isVisible,
-		range => $range,
+		range => $range
 	});
 }
 
@@ -4298,14 +4386,14 @@ sub area_spell_multiple3 {
 		type => $type,
 		isVisible => $isVisible,
 		range => $range,
-		lvl => $lvl,
+		lvl => $lvl
 	});
 }
 
 sub sync_request_ex {
 	my ($self, $args) = @_;
 
-	return if($config{XKore} eq 1 || $config{XKore} eq 3); # let the clien hanle this
+	return if ($config{XKore} eq 1 || $config{XKore} eq 3); # let the clien hanle this
 
 	# Debug Log
 	# message "Received Sync Ex : 0x" . $args->{switch} . "\n";
@@ -4417,40 +4505,47 @@ sub cash_shop_buy_result {
 
 }
 
-sub player_equipment {
+sub sprite_change {
 	my ($self, $args) = @_;
 
-	my ($sourceID, $type, $ID1, $ID2) = @{$args}{qw(sourceID type ID1 ID2)};
-	my $player = ($sourceID ne $accountID)? $playersList->getByID($sourceID) : $char;
+	my ($ID, $type, $value1, $value2) = @{$args}{qw(ID type value1 value2)};
+	my $player = ($ID ne $accountID)? $playersList->getByID($ID) : $char;
 	return unless $player;
 
 	if ($type == 0) {
-		# Player changed job
-		$player->{jobID} = $ID1;
+		$player->{jobID} = $value1;
+		message TF("%s changed Job to: %s\n", $player, $jobs_lut{$value1}), "parseMsg_statuslook";
 
 	} elsif ($type == 2) {
-		if ($ID1 ne $player->{weapon}) {
-			message TF("%s changed Weapon to %s\n", $player, itemName({nameID => $ID1})), "parseMsg_statuslook", 2;
-			$player->{weapon} = $ID1;
+		if ($value1 ne $player->{weapon}) {
+			message TF("%s changed Weapon to %s (%d)\n", $player, itemName({nameID => $value1}), $value1), "parseMsg_statuslook", 2;
+			$player->{weapon} = $value1;
 		}
-		if ($ID2 ne $player->{shield}) {
-			message TF("%s changed Shield to %s\n", $player, itemName({nameID => $ID2})), "parseMsg_statuslook", 2;
-			$player->{shield} = $ID2;
+		if ($value2 ne $player->{shield}) {
+			message TF("%s changed Shield to %s (%d)\n", $player, itemName({nameID => $value2}), $value2), "parseMsg_statuslook", 2;
+			$player->{shield} = $value2;
 		}
 	} elsif ($type == 3) {
-		message TF("%s changed Lower headgear to %s (%d)\n", $player, headgearName($ID1), $ID1), "parseMsg_statuslook";
-		$player->{headgear}{low} = $ID1;
+		message TF("%s changed Lower headgear to %s (%d)\n", $player, headgearName($value1), $value1), "parseMsg_statuslook";
+		$player->{headgear}{low} = $value1;
 	} elsif ($type == 4) {
-		message TF("%s changed Upper headgear to %s (%d)\n", $player, headgearName($ID1), $ID1), "parseMsg_statuslook";
-		$player->{headgear}{top} = $ID1;
+		message TF("%s changed Upper headgear to %s (%d)\n", $player, headgearName($value1), $value1), "parseMsg_statuslook";
+		$player->{headgear}{top} = $value1;
 	} elsif ($type == 5) {
-		message TF("%s changed Middle headgear to %s (%d)\n", $player, headgearName($ID1), $ID1), "parseMsg_statuslook";
-		$player->{headgear}{mid} = $ID1;
+		message TF("%s changed Middle headgear to %s (%d)\n", $player, headgearName($value1), $value1), "parseMsg_statuslook";
+		$player->{headgear}{mid} = $value1;
+	} elsif ($args->{part} == 6) {
+ 		message TF("%s changed Hair color to: %s (%d)\n", $player, $haircolors{$value1}, $value1), "parseMsg_statuslook";
+		$player->{hair_color} = $value1;
 	} elsif ($type == 9) {
-		if ($player->{shoes} && $ID1 ne $player->{shoes}) {
-			message TF("%s changed Shoes to: %s\n", $player, itemName({nameID => $ID1})), "parseMsg_statuslook", 2;
+		if ($player->{shoes} && $value1 ne $player->{shoes}) {
+			message TF("%s changed Shoes to: %s\n", $player, itemName({nameID => $value1})), "parseMsg_statuslook", 2;
 		}
-		$player->{shoes} = $ID1;
+		$player->{shoes} = $value1;
+	} elsif ($type == 12) {
+ 		message TF("%s changed Robe to: SPRITE_ROBE_ID=%d\n", $player, $value1, $value1), "parseMsg_statuslook";
+	} else {
+		error TF("%s changed unknown sprite type (%d), write about it to OpenKore developer\n", $player, $type), "parseMsg_statuslook";
 	}
 }
 
@@ -4478,65 +4573,65 @@ sub progress_bar_stop {
 # 097a <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <mob_id>.L <killed>.W <total>.W <mob name>.24B }*count }*num (ZC_ALL_QUEST_LIST2)
 # 09f8 <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <hunt identification>.L <mob type>.L <mob_id>.L <min level>.W <max level>.W <killed>.W <total>.W <mob name>.24B }*count }*num  (ZC_ALL_QUEST_LIST3)
 sub quest_all_list {
-    my ( $self, $args ) = @_;
+	my ( $self, $args ) = @_;
 
-    my $offset = 0;
+	my $offset = 0;
 
-    my $quest_info;
+	my $quest_info;
 
-    if ($args->{switch} eq '02B1') {  # DEFAULT PACKET
-        $quest_info = {
-            quest_pack => 'V C',
-            quest_keys => [qw(quest_id active)],
-            quest_len => 5,
-            mission_pack => '',
-            mission_keys => [],
-            mission_len => 0,
-        };
+	if ($args->{switch} eq '02B1') {  # DEFAULT PACKET
+		$quest_info = {
+			quest_pack => 'V C',
+			quest_keys => [qw(quest_id active)],
+			quest_len => 5,
+			mission_pack => '',
+			mission_keys => [],
+			mission_len => 0,
+		};
 
-    } elsif ($args->{switch} eq '097A') { # SERVERTYPE >= 20141022
-        $quest_info = {
-            quest_pack => 'V C V2 v',
-            quest_keys => [qw(quest_id active time_expire time_start mission_amount)],
-            quest_len => 15,
-            mission_pack => 'V v2 Z24',
-            mission_keys => [qw(mob_id mob_count mob_goal mob_name_original)],
-            mission_len => 32,
-        };
+	} elsif ($args->{switch} eq '097A') { # SERVERTYPE >= 20141022
+		$quest_info = {
+			quest_pack => 'V C V2 v',
+			quest_keys => [qw(quest_id active time_expire time_start mission_amount)],
+			quest_len => 15,
+			mission_pack => 'V v2 Z24',
+			mission_keys => [qw(mob_id mob_count mob_goal mob_name_original)],
+			mission_len => 32,
+		};
 
-    } elsif ($args->{switch} eq '09F8') { # SERVERTYPE >= 20150513
-        $quest_info = {
-            quest_pack => 'V C V2 v',
-            quest_keys => [qw(quest_id active time_expire time_start mission_amount)],
-            quest_len => 15,
-            mission_pack => 'V3 v4 Z24',
-            mission_keys => [qw(hunt_id mob_type mob_id min_level max_level mob_count mob_goal mob_name_original)],
-            mission_len => 44,
-        };
+	} elsif ($args->{switch} eq '09F8') { # SERVERTYPE >= 20150513
+		$quest_info = {
+			quest_pack => 'V C V2 v',
+			quest_keys => [qw(quest_id active time_expire time_start mission_amount)],
+			quest_len => 15,
+			mission_pack => 'V3 v4 Z24',
+			mission_keys => [qw(hunt_id mob_type mob_id min_level max_level mob_count mob_goal mob_name_original)],
+			mission_len => 44,
+		};
 
-    } elsif ($args->{switch} eq '0AFF') { # SERVERTYPE >= 20150513
-        $quest_info = {
-            quest_pack => 'V C V2 v',
-            quest_keys => [qw(quest_id active time_expire time_start mission_amount)],
-            quest_len => 15,
-            mission_pack => 'V4 v4 Z24',
-            mission_keys => [qw(hunt_id hunt_id_cont mob_type mob_id min_level max_level mob_count mob_goal mob_name_original)],
-            mission_len => 48,
-        };
+	} elsif ($args->{switch} eq '0AFF') { # SERVERTYPE >= 20150513
+		$quest_info = {
+			quest_pack => 'V C V2 v',
+			quest_keys => [qw(quest_id active time_expire time_start mission_amount)],
+			quest_len => 15,
+			mission_pack => 'V4 v4 Z24',
+			mission_keys => [qw(hunt_id hunt_id_cont mob_type mob_id min_level max_level mob_count mob_goal mob_name_original)],
+			mission_len => 48,
+		};
 
-    } else { # this can't happen
-        return;
-    }
+	} else { # this can't happen
+		return;
+	}
 
-    # Long quest lists are split up over multiple packets. Only reset the quest list if we've switched maps.
-    our $quest_generation      ||= 0;
-    our $last_quest_generation ||= 0;
-    if ( $last_quest_generation != $quest_generation ) {
-        $last_quest_generation = $quest_generation;
-        $questList             = {};
-    }
+	# Long quest lists are split up over multiple packets. Only reset the quest list if we've switched maps.
+	our $quest_generation      ||= 0;
+	our $last_quest_generation ||= 0;
+	if ( $last_quest_generation != $quest_generation ) {
+		$last_quest_generation = $quest_generation;
+		$questList             = {};
+	}
 
-    for (my $i = 0 ; $i < $args->{quest_amount} ; $i++) {
+	for (my $i = 0 ; $i < $args->{quest_amount} ; $i++) {
         my $quest;
 
         @{$quest}{@{$quest_info->{quest_keys}}} = unpack($quest_info->{quest_pack}, substr($args->{message}, $offset, $quest_info->{quest_len}));
@@ -4562,12 +4657,12 @@ sub quest_all_list {
 
             $offset += $quest_info->{mission_len};
 
-            Plugins::callHook('quest_mission_added', {
-                questID => $quest->{quest_id},
-                mission_id => $mission->{mob_id}
-            });
-        }
-    }
+			Plugins::callHook('quest_mission_added', {
+				questID => $quest->{quest_id},
+				mission_id => $mission->{mob_id}
+			});
+		}
+	}
 
 	Plugins::callHook('quest_list');
 }
@@ -4575,23 +4670,23 @@ sub quest_all_list {
 # 02b2 <packet len>.W <num>.L { <quest id>.L <start time>.L <expire time>.L <mobs>.W { <mob id>.L <mob count>.W <mob name>.24B }*3 }*num
 # note: this packet shows all quests + their missions and has variable length
 sub quest_all_mission {
-    my ($self, $args) = @_;
+	my ($self, $args) = @_;
 
-    my $offset = 0;
+	my $offset = 0;
 
-    my $quest_info = {
-            quest_pack => 'V3 v',
-            quest_keys => [qw(quest_id time_start time_expire mission_amount)],
-            quest_len => 14,
-            mission_pack => 'V v Z24',
-            mission_keys => [qw(mob_id mob_count mob_name_original)],
-            mission_len => 30,
-    };
+	my $quest_info = {
+			quest_pack => 'V3 v',
+			quest_keys => [qw(quest_id time_start time_expire mission_amount)],
+			quest_len => 14,
+			mission_pack => 'V v Z24',
+			mission_keys => [qw(mob_id mob_count mob_name_original)],
+			mission_len => 30,
+	};
 
-    for (my $i = 0 ; $i < $args->{mission_amount} ; $i++) {
-        my $quest;
+	for (my $i = 0 ; $i < $args->{mission_amount} ; $i++) {
+		my $quest;
 
-        @{$quest}{@{$quest_info->{quest_keys}}} = unpack($quest_info->{quest_pack}, substr($args->{message}, $offset, $quest_info->{quest_len}));
+		@{$quest}{@{$quest_info->{quest_keys}}} = unpack($quest_info->{quest_pack}, substr($args->{message}, $offset, $quest_info->{quest_len}));
 
 		my $char_quest = \%{$questList->{$quest->{quest_id}}};
 
@@ -4599,82 +4694,82 @@ sub quest_all_mission {
 			$char_quest->{$key} = $quest->{$key};
 		}
 
-        debug "Quest ID: $char_quest->{quest_id} - active: $char_quest->{active}\n", "info";
+		debug "Quest ID: $char_quest->{quest_id} - active: $char_quest->{active}\n", "info";
 
-        $offset += $quest_info->{quest_len};
+		$offset += $quest_info->{quest_len};
 
-        for ( my $j = 0 ; $j < 3; $j++ ) {
+		for ( my $j = 0 ; $j < 3; $j++ ) {
 
-			if($j >= $char_quest->{mission_amount}) {
+			if ($j >= $char_quest->{mission_amount}) {
 				$offset += $quest_info->{mission_len};
 				next;
 			}
 
-            my $mission;
+			my $mission;
 
-            @{$mission}{@{$quest_info->{mission_keys}}} = unpack($quest_info->{mission_pack}, substr($args->{message}, $offset, $quest_info->{mission_len}));
+			@{$mission}{@{$quest_info->{mission_keys}}} = unpack($quest_info->{mission_pack}, substr($args->{message}, $offset, $quest_info->{mission_len}));
 			$mission->{mob_name} = bytesToString($mission->{mob_name_original});
-            $mission->{mission_index} = $j;
+			$mission->{mission_index} = $j;
 
-            %{$questList->{$char_quest->{quest_id}}->{missions}->{$mission->{mob_id}}} = %$mission;
+			%{$questList->{$char_quest->{quest_id}}->{missions}->{$mission->{mob_id}}} = %$mission;
 
-            debug "- MobID: $mission->{mob_id} - Name: $mission->{mob_name} - Count: $mission->{mob_count}\n", "info";
+			debug "- MobID: $mission->{mob_id} - Name: $mission->{mob_name} - Count: $mission->{mob_count}\n", "info";
 
-            $offset += $quest_info->{mission_len};
+			$offset += $quest_info->{mission_len};
 
-            Plugins::callHook('quest_mission_added', {
+			Plugins::callHook('quest_mission_added', {
 				questID => $char_quest->{quest_id},
 				mission_id => $mission->{mob_id}
 			});
-        }
-    }
+		}
+	}
 }
 
 # 02b3 <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W { <mob id>.L <mob count>.W <mob name>.24B }*3 (ZC_ADD_QUEST)
 # 09f9 <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W { <hunt identification>.L <mob type>.L <mob id>.L <min level>.W <max level>.W <mob count>.W <mob name>.24B }*3 (ZC_ADD_QUEST_EX)
 # note: this packet shows all missions for 1 quest and has fixed length
 sub quest_add {
-    my ($self, $args) = @_;
+	my ($self, $args) = @_;
 
-    my $offset = 0;
+	my $offset = 0;
 
-    my $quest_info;
+	my $quest_info;
 
-    if ($args->{switch} eq '09F9') {  # SERVERTYPE >= 20150513
-        $quest_info = {
-            mission_pack => 'V3 v3 Z24',
-            mission_keys => [qw(hunt_id mob_type mob_id min_level max_level mob_count mob_name_original)],
-            mission_len => 42,
-        };
+	if ($args->{switch} eq '09F9') {  # SERVERTYPE >= 20150513
+		$quest_info = {
+			mission_pack => 'V3 v3 Z24',
+			mission_keys => [qw(hunt_id mob_type mob_id min_level max_level mob_count mob_name_original)],
+			mission_len => 42,
+		};
 
-    } elsif ($args->{switch} eq '0B0C') {  # SERVERTYPE >= 20150513
-        $quest_info = {
-            mission_pack => 'V4 v3 Z24',
-            mission_keys => [qw(hunt_id hunt_id_cont mob_type mob_id min_level max_level mob_count mob_name_original)],
-            mission_len => 46,
-        };
+	} elsif ($args->{switch} eq '0B0C') {  # SERVERTYPE >= 20150513
+		$quest_info = {
+			mission_pack => 'V4 v3 Z24',
+			mission_keys => [qw(hunt_id hunt_id_cont mob_type mob_id min_level max_level mob_count mob_name_original)],
+			mission_len => 46,
+		};
 
-    } else { # DEFAULT PACKET - 02B3
-        $quest_info = {
-            mission_pack => 'V v Z24',
-            mission_keys => [qw(mob_id mob_count mob_name_original)],
-            mission_len => 30,
-        };
-    }
+	} else { # DEFAULT PACKET - 02B3
+		$quest_info = {
+			mission_pack => 'V v Z24',
+			mission_keys => [qw(mob_id mob_count mob_name_original)],
+			mission_len => 30,
+		};
+	}
 
-    my $quest = \%{$questList->{$args->{questID}}};
+	my $quest = \%{$questList->{$args->{questID}}};
 	$quest->{quest_id} = $args->{questID};
-    $quest->{active} = $args->{active};
-    $quest->{time_start} = $args->{time_start};
-    $quest->{time_expire} = $args->{time_expire};
-    $quest->{mission_amount} = $args->{mission_amount};
+	$quest->{active} = $args->{active};
+	$quest->{time_start} = $args->{time_start};
+	$quest->{time_expire} = $args->{time_expire};
+	$quest->{mission_amount} = $args->{mission_amount};
 
-    if ($args->{questID}) {
-        message TF("Quest: %s has been added.\n", $quests_lut{$args->{questID}} ? "$quests_lut{$args->{questID}}{title} ($args->{questID})" : $args->{questID}), "info";
-    }
+	if ($args->{questID}) {
+		message TF("Quest: %s has been added.\n", $quests_lut{$args->{questID}} ? "$quests_lut{$args->{questID}}{title} ($args->{questID})" : $args->{questID}), "info";
+	}
 
 	for ( my $j = 0 ; $j < 3; $j++ ) {
-		if($j >= $quest->{mission_amount}) {
+		if ($j >= $quest->{mission_amount}) {
 			$offset += $quest_info->{mission_len};
 			next;
 		}
@@ -4696,9 +4791,7 @@ sub quest_add {
 		});
 	}
 
-    Plugins::callHook('quest_added', {
-        questID => $args->{questID}
-    });
+	Plugins::callHook('quest_added', {questID => $args->{questID}});
 }
 
 # 02b5 <packet len>.W <mobs>.W { <quest id>.L <mob id>.L <total count>.W <current count>.W }*3 (ZC_UPDATE_MISSION_HUNT)
@@ -4706,30 +4799,30 @@ sub quest_add {
 sub quest_update_mission_hunt {
 	my ($self, $args) = @_;
 
-    my $offset = 0;
+	my $offset = 0;
 
-    my $quest_info;
+	my $quest_info;
 
-    if ($args->{switch} eq '09FA') {
-        $quest_info = {
-            mission_pack => 'V2 v2',
-            mission_keys => [qw(questID hunt_id mob_goal mob_count)],
-            mission_len => 12,
-        };
-
-    } elsif($args->{switch} eq '0AFE') {
+	if ($args->{switch} eq '09FA') {
 		$quest_info = {
-            mission_pack => 'V3 v2',
-            mission_keys => [qw(questID hunt_id hunt_id_cont mob_goal mob_count)],
-            mission_len => 16,
-        };
+			mission_pack => 'V2 v2',
+			mission_keys => [qw(questID hunt_id mob_goal mob_count)],
+			mission_len => 12,
+		};
+
+	} elsif ($args->{switch} eq '0AFE') {
+		$quest_info = {
+			mission_pack => 'V3 v2',
+			mission_keys => [qw(questID hunt_id hunt_id_cont mob_goal mob_count)],
+			mission_len => 16,
+		};
 	} else { # 02B5 and 08FE
-        $quest_info = {
-            mission_pack => 'V2 v2',
-            mission_keys => [qw(questID mob_id mob_goal mob_count)],
-            mission_len => 12,
-        };
-    }
+		$quest_info = {
+			mission_pack => 'V2 v2',
+			mission_keys => [qw(questID mob_id mob_goal mob_count)],
+			mission_len => 12,
+		};
+	}
 
 	# workaround 08FE dont have mission_count
 	if ($args->{switch} eq '08FE') {
@@ -4739,7 +4832,7 @@ sub quest_update_mission_hunt {
 	for (my $i = 0; $i < $args->{mission_amount}; $i++) {
 		my $mission;
 
-        @{$mission}{@{$quest_info->{mission_keys}}} = unpack($quest_info->{mission_pack}, substr($args->{message}, $offset, $quest_info->{mission_len}));
+		@{$mission}{@{$quest_info->{mission_keys}}} = unpack($quest_info->{mission_pack}, substr($args->{message}, $offset, $quest_info->{mission_len}));
 
 		my $quest = \%{$questList->{$mission->{questID}}};
 
@@ -4782,14 +4875,14 @@ sub quest_update_mission_hunt {
 		debug "- MobID: $mission->{mob_id} - Name: $mission->{mob_name} - Count: $mission->{mob_count} - Goal: $mission->{mob_goal}\n", "info";
 
 		if ($config{questDisplayStyle}) {
-			if($config{questDisplayStyle} >= 2) {
+			if ($config{questDisplayStyle} >= 2) {
 				warning TF("[%s] Quest - defeated [%s] progress (%s/%s)\n", $quests_lut{$mission->{questID}} ? "$quests_lut{$mission->{questID}}{title} ($mission->{questID})" : $mission->{questID}, $quest_mission->{mob_name}, $quest_mission->{mob_count}, $quest_mission->{mob_goal}), "info";
 			} else {
 				warning TF("%s [%s/%s]\n", $quest_mission->{mob_name}, $quest_mission->{mob_count}, $quest_mission->{mob_goal}), "info";
 			}
 		}
 
-        $offset += $quest_info->{mission_len};
+		$offset += $quest_info->{mission_len};
 
 		Plugins::callHook('quest_mission_updated', {
 			questID => $quest_mission->{questID},
@@ -4888,9 +4981,7 @@ sub makable_item_list {
 	message($msg, "list");
 	message T("You can now use the 'create' command.\n"), "info";
 
-	Plugins::callHook('makable_item_list', {
-		item_list => $makableList,
-	});
+	Plugins::callHook('makable_item_list', {item_list => $makableList});
 }
 
 sub storage_opened {
@@ -5106,9 +5197,19 @@ sub inventory_items_stackable {
 
 sub item_list_start {
 	my ($self, $args) = @_;
-	debug "Starting Item List. ID: $args->{type}".
-			($args->{name} ? " ($args->{name})\n" : "\n"), "info";
 	$current_item_list = $args->{type};
+
+	debug "Starting Item List. ID: $args->{type}". ($args->{name} ? " ($args->{name})\n" : "\n"), "info";
+
+	if ( $args->{type} == INVTYPE_INVENTORY ) {
+		$char->inventory->onitemListStart();
+	} elsif ( $args->{type} == INVTYPE_CART ) {
+		$char->cart->onitemListStart();
+	} elsif ( $args->{type} == INVTYPE_STORAGE || $args->{type} == INVTYPE_GUILD_STORAGE ) {
+		$char->storage->onitemListStart();
+	} else {
+		warning TF("Unsupported item_list_start type (%s)", $args->{type}), "info";
+	}
 }
 
 sub item_list_stackable {
@@ -5147,7 +5248,7 @@ sub item_list_stackable {
 		$arguments->{getter} = sub { $char->storage->getByID($_[0]{ID}) };
 		$arguments->{adder} = sub { $char->storage->add($_[0]) };
 	} else {
-		warning TF("Unsupported item_list type (%s)", $args->{type}), "info";
+		warning TF("Unsupported item_list_stackable type (%s)", $args->{type}), "info";
 	}
 
 	$self->_items_list($arguments);
@@ -5197,7 +5298,7 @@ sub item_list_nonstackable {
 		$arguments->{adder} = sub { $char->storage->add($_[0]) };
 
 	} else {
-		warning TF("Unsupported item_list type (%s)", $args->{type}), "info";
+		warning TF("Unsupported item_list_nonstackable type (%s)", $args->{type}), "info";
 	}
 
 	$self->_items_list($arguments);
@@ -5206,6 +5307,15 @@ sub item_list_nonstackable {
 sub item_list_end {
 	my ($self, $args) = @_;
 	debug TF("Ending Item List. ID: %s\n", $args->{type}), "info";
+	if ( $args->{type} == INVTYPE_INVENTORY ) {
+		$char->inventory->onitemListEnd();
+	} elsif ( $args->{type} == INVTYPE_CART ) {
+		$char->cart->onitemListEnd();
+	} elsif ( $args->{type} == INVTYPE_STORAGE || $args->{type} == INVTYPE_GUILD_STORAGE ) {
+		$char->storage->onitemListEnd();
+	} else {
+		warning TF("Unsupported item_list_end type (%s)", $args->{type}), "info";
+	}
 	undef $current_item_list;
 }
 
@@ -5447,9 +5557,7 @@ sub chat_created {
 	binAdd(\@currentChatRoomUsers, $char->{name});
 	message T("Chat Room Created\n");
 
-	Plugins::callHook('chat_created', {
-		chat => $chatRooms{$accountID},
-	});
+	Plugins::callHook('chat_created', {chat => $chatRooms{$accountID}});
 }
 
 # Display a chat above the owner (ZC_ROOM_NEWENTRY).
@@ -5520,9 +5628,7 @@ sub chat_users {
 
 	message TF("You have joined the Chat Room %s\n", $chat->{title});
 
-	Plugins::callHook('chat_joined', {
-		chat => $chat,
-	});
+	Plugins::callHook('chat_joined', {chat => $chat});
 }
 
 # Displays messages regarding join chat failures (ZC_REFUSE_ENTER_ROOM).
@@ -5539,7 +5645,7 @@ sub chat_users {
 sub chat_join_result {
 	my ($self, $args) = @_;
 
-	if($args->{type} == 0) {
+	if ($args->{type} == 0) {
 		message T("Can't join Chat Room - Room is Full\n");
 	} elsif ($args->{type} == 1) {
 		message T("Can't join Chat Room - Incorrect Password\n");
@@ -5708,10 +5814,10 @@ sub deal_begin {
 
 	if ($args->{type} == 0) {
 		error T("That person is too far from you to trade.\n"), "deal";
-		Plugins::callHook("error_deal", { type =>$args->{type}} );
+		Plugins::callHook('error_deal', {type => $args->{type}});
 	} elsif ($args->{type} == 2) {
 		error T("That person is in another deal.\n"), "deal";
-		Plugins::callHook("error_deal", { type =>$args->{type}} );
+		Plugins::callHook('error_deal', {type => $args->{type}});
 	} elsif ($args->{type} == 3) {
 		if (%incomingDeal) {
 			$currentDeal{name} = $incomingDeal{name};
@@ -5729,13 +5835,13 @@ sub deal_begin {
 			undef %outgoingDeal;
 		}
 		message TF("Engaged Deal with %s\n", $currentDeal{name}), "deal";
-		Plugins::callHook("engaged_deal", {name => $currentDeal{name}});
+		Plugins::callHook('engaged_deal', {name => $currentDeal{name}});
 	} elsif ($args->{type} == 5) {
 		error T("That person is opening storage.\n"), "deal";
-		Plugins::callHook("error_deal", { type =>$args->{type}} );
+		Plugins::callHook('error_deal', {type =>$args->{type}});
 	} else {
 		error TF("Deal request failed (unknown error %s).\n", $args->{type}), "deal";
-		Plugins::callHook("error_deal", { type =>$args->{type}} );
+		Plugins::callHook('error_deal', {type =>$args->{type}});
 	}
 }
 
@@ -5744,7 +5850,7 @@ sub deal_cancelled {
 	undef %outgoingDeal;
 	undef %currentDeal;
 	message T("Deal Cancelled\n"), "deal";
-	Plugins::callHook("cancelled_deal");
+	Plugins::callHook('cancelled_deal');
 }
 
 sub deal_complete {
@@ -5752,7 +5858,7 @@ sub deal_complete {
 	undef %incomingDeal;
 	undef %currentDeal;
 	message T("Deal Complete\n"), "deal";
-	Plugins::callHook("complete_deal");
+	Plugins::callHook('complete_deal');
 }
 
 sub deal_finalize {
@@ -5760,7 +5866,7 @@ sub deal_finalize {
 	if ($args->{type} == 1) {
 		$currentDeal{other_finalize} = 1;
 		message TF("%s finalized the Deal\n", $currentDeal{name}), "deal";
-		Plugins::callHook("finalized_deal", {name => $currentDeal{name}});
+		Plugins::callHook('finalized_deal', {name => $currentDeal{name}});
 
 	} else {
 		$currentDeal{you_finalize} = 1;
@@ -5779,7 +5885,7 @@ sub deal_request {
 	$timeout{ai_dealAutoCancel}{time} = time;
 	message TF("%s (level %s) Requests a Deal\n", $user, $level), "deal";
 	message T("Type 'deal' to start dealing, or 'deal no' to deny the deal.\n"), "deal";
-	Plugins::callHook("incoming_deal", {
+	Plugins::callHook('incoming_deal', {
 		name => $user,
 		level => $level,
 		ID => $args->{ID}
@@ -5841,7 +5947,7 @@ sub emoticon {
 		if ($index ne "") {
 			my $masterID = AI::args($index)->{ID};
 			if ($config{'followEmotion'} && $masterID eq $args->{ID} &&
-			       blockDistance($char->{pos_to}, $player->{pos_to}) <= $config{'followEmotion_distance'})
+				blockDistance($char->{pos_to}, $player->{pos_to}) <= $config{'followEmotion_distance'})
 			{
 				my %args = ();
 				$args{timeout} = time + rand (1) + 0.75;
@@ -5899,7 +6005,7 @@ sub emoticon {
 #     12 = BAN_PAY_CHANGE
 #     13 = BAN_PAY_WRONGIP
 #     14 = BAN_PAY_PNGAMEROOM
-#     15 = disconnected by a GM -> if( servicetype == taiwan ) MsgStringTable[579]
+#     15 = disconnected by a GM -> if (servicetype == taiwan) MsgStringTable[579]
 #     16 = BAN_JAPAN_REFUSE1
 #     17 = BAN_JAPAN_REFUSE2
 #     18 = BAN_INFORMATION_REMAINED_ANOTHER_ACCOUNT
@@ -5949,7 +6055,7 @@ sub errors {
 			error T("Server shutting down\n"), "connection";
 		}
 	} elsif ($args->{type} == 1) {
-		if($config{'dcOnServerClose'} == 1) {
+		if ($config{'dcOnServerClose'} == 1) {
 			error T("Auto disconnecting on ServerClose!\n");
 			chatLog("k", T("*** Server is closed , auto disconnect! ***\n"));
 			$quit = 1;
@@ -6060,7 +6166,7 @@ sub friend_request {
 	$incomingFriend{'name'} = bytesToString($args->{name});
 	message TF("%s wants to be your friend\n", $incomingFriend{'name'});
 	message TF("Type 'friend accept' to be friend with %s, otherwise type 'friend reject'\n", $incomingFriend{'name'});
-	Plugins::callHook("friend_request", {
+	Plugins::callHook('friend_request', {
 		accountID => $incomingFriend{'accountID'},
 		charID => $incomingFriend{'charID'},
 		name => $incomingFriend{'name'}
@@ -6143,15 +6249,15 @@ sub slave_calcproperty_handler {
 	# so we don't devide by 0
 	# wtf
 =pod
-	$slave->{hp_max}       = ($args->{hp_max} > 0) ? $args->{hp_max} : $args->{hp};
-	$slave->{sp_max}       = ($args->{sp_max} > 0) ? $args->{sp_max} : $args->{sp};
+	$slave->{hp_max} = ($args->{hp_max} > 0) ? $args->{hp_max} : $args->{hp};
+	$slave->{sp_max} = ($args->{sp_max} > 0) ? $args->{sp_max} : $args->{sp};
 =cut
 
-	$slave->{attack_speed}     = int (200 - (($args->{aspd} < 10) ? 10 : ($args->{aspd} / 10)));
+	$slave->{attack_speed} = int (200 - (($args->{aspd} < 10) ? 10 : ($args->{aspd} / 10)));
 }
 
 sub EAC_key {
-	return if($masterServer->{'ignoreAntiCheatWarning'});
+	return if ($masterServer->{'ignoreAntiCheatWarning'});
 	chatLog("k", T("*** Easy Anti-Cheat Detected ***\n"));
 	error T("OpenKore don't have support to servers with Easy Anti-Cheat Shield, please read the FAQ (github).\n");
 	quit();
@@ -6288,7 +6394,7 @@ sub guild_info {
 		$guild{$_} = $args->{$_};
 	}
 	$guild{name} = bytesToString($args->{name});
-	$guild{master} = bytesToString($args->{master}) if($args->{master});
+	$guild{master} = bytesToString($args->{master}) if ($args->{master});
 	$guild{members}++; # count ourselves in the guild members count
 }
 
@@ -6371,7 +6477,7 @@ sub guild_location {
 		# check if char is the online (we can have more then 1 char per account in our guild)
 		# why use accountID instead of charID?
 		if ($guildMember->{ID} eq $args->{ID} && $guildMember->{online}) {
-			last if($args->{x} == 0 || $args->{y} == 0);
+			last if ($args->{x} == 0 || $args->{y} == 0);
 			$guildMember->{pos}{x} = $args->{x};
 			$guildMember->{pos}{y} = $args->{y};
 			$guildMember->{pos_to}{x} = $args->{x};
@@ -6512,11 +6618,9 @@ sub guild_name {
 		$messageSender->sendGuildRequestInfo(0);		# Requests for Basic Information Guild, Hostile Alliance Information
 		$messageSender->sendGuildRequestInfo(3);
 		$messageSender->sendGuildRequestInfo(1);		# Requests for Members list, list job title
-	}
-	elsif ($masterServer->{serverType} eq 'jRO') {
+	} elsif ($masterServer->{serverType} eq 'jRO') {
 		$messageSender->sendGuildRequestInfo(1);		# Requests for Members list, list job title
-	}
-	else {
+	} else {
 		$messageSender->sendGuildMasterMemberCheck();
 		$messageSender->sendGuildRequestInfo(4);			# Requests for Expulsion list
 		$messageSender->sendGuildRequestInfo(0);			# Requests for Basic Information Guild, Hostile Alliance Information
@@ -6689,7 +6793,7 @@ sub guild_member_map_change {
 sub guild_member_add {
 	my ($self, $args) = @_;
 
-	if($guild{member}) {
+	if ($guild{member}) {
 		my $index = scalar @{$guild{member}};
 		foreach (@{$args->{KEYS}}) {
 			@{$guild{member}[$index]}{$_} = $args->{$_};
@@ -6963,7 +7067,7 @@ sub item_disappeared {
 						|| ($control->{attack_sp}   ne "" && $control->{attack_sp} > $char->{sp})
 						);
 				}
-				if (distance($item->{pos}, $monster->{pos}) == 0) {
+				if (distance($item->{pos}, $monster->{pos}) <= ($config{attackLooters_dist} || 0)) {
 					attack($monster->{ID});
 					message TF("Attack Looter: %s looted %s\n", $monster->nameIdx, $item->{name}), "looter";
 					last;
@@ -6990,68 +7094,6 @@ sub item_upgrade {
 		message TF("Item %s has been upgraded to +%s\n", $item->{name}, $upgrade), "parseMsg/upgrade";
 		$item->setName(itemName($item));
 	}
-}
-
-sub job_equipment_hair_change {
-	my ($self, $args) = @_;
-	return unless changeToInGameState();
-
-	my $actor = Actor::get($args->{ID});
-	assertClass($actor, "Actor") if DEBUG;
-
-	if ($args->{part} == 0) {
-		# Job change
-		$actor->{jobID} = $args->{number};
- 		message TF("%s changed job to: %s\n", $actor, $jobs_lut{$args->{number}}), "parseMsg/job", ($actor->isa('Actor::You') ? 0 : 2);
-
-	} elsif ($args->{part} == 3) {
-		# Bottom headgear change
- 		message TF("%s changed bottom headgear to: %s\n", $actor, headgearName($args->{number})), "parseMsg_statuslook", 2 unless $actor->isa('Actor::You');
-		$actor->{headgear}{low} = $args->{number} if ($actor->isa('Actor::Player') || $actor->isa('Actor::You'));
-
-	} elsif ($args->{part} == 4) {
-		# Top headgear change
- 		message TF("%s changed top headgear to: %s\n", $actor, headgearName($args->{number})), "parseMsg_statuslook", 2 unless $actor->isa('Actor::You');
-		$actor->{headgear}{top} = $args->{number} if ($actor->isa('Actor::Player') || $actor->isa('Actor::You'));
-
-	} elsif ($args->{part} == 5) {
-		# Middle headgear change
- 		message TF("%s changed middle headgear to: %s\n", $actor, headgearName($args->{number})), "parseMsg_statuslook", 2 unless $actor->isa('Actor::You');
-		$actor->{headgear}{mid} = $args->{number} if ($actor->isa('Actor::Player') || $actor->isa('Actor::You'));
-
-	} elsif ($args->{part} == 6) {
-		# Hair color change
-		$actor->{hair_color} = $args->{number};
- 		message TF("%s changed hair color to: %s (%s)\n", $actor, $haircolors{$args->{number}}, $args->{number}), "parseMsg/hairColor", ($actor->isa('Actor::You') ? 0 : 2);
-	}
-
-	#my %parts = (
-	#	0 => 'Body',
-	#	2 => 'Right Hand',
-	#	3 => 'Low Head',
-	#	4 => 'Top Head',
-	#	5 => 'Middle Head',
-	#	8 => 'Left Hand'
-	#);
-	#if ($part == 3) {
-	#	$part = 'low';
-	#} elsif ($part == 4) {
-	#	$part = 'top';
-	#} elsif ($part == 5) {
-	#	$part = 'mid';
-	#}
-	#
-	#my $name = getActorName($ID);
-	#if ($part == 3 || $part == 4 || $part == 5) {
-	#	my $actor = Actor::get($ID);
-	#	$actor->{headgear}{$part} = $items_lut{$number} if ($actor);
-	#	my $itemName = $items_lut{$itemID};
-	#	$itemName = 'nothing' if (!$itemName);
-	#	debug "$name changes $parts{$part} ($part) equipment to $itemName\n", "parseMsg";
-	#} else {
-	#	debug "$name changes $parts{$part} ($part) equipment to item #$number\n", "parseMsg";
-	#}
-
 }
 
 # Leap, Snap, Back Slide... Various knockback
@@ -7105,6 +7147,8 @@ sub map_change {
 	my ($self, $args) = @_;
 	return unless changeToInGameState();
 
+	$messageSender->sendStopSkillUse($char->{last_continuous_skill_used}) if $char->{last_skill_used_is_continuous};
+
 	my $oldMap = $field ? $field->baseName : undef; # Get old Map name without InstanceID
 	my ($map) = $args->{map} =~ /([\s\S]*)\./;
 	my $map_noinstance;
@@ -7133,9 +7177,7 @@ sub map_change {
 		ai_setMapChanged($i);
 	}
 	AI::SlaveManager::setMapChanged ();
-	if ($net->version == 0) {
-		$ai_v{portalTrace_mapChanged} = time;
-	}
+	$ai_v{portalTrace_mapChanged} = time;
 
 	my %coords = (
 		x => $args->{x},
@@ -7210,7 +7252,7 @@ sub map_changed {
 	AI::SlaveManager::setMapChanged ();
 	$ai_v{portalTrace_mapChanged} = time;
 
-	if($args->{'url'} =~ /.*\:\d+/) {
+	if ($args->{'url'} =~ /.*\:\d+/) {
 		$map_ip = $args->{url};
 		$map_ip =~ s/:[0-9\0]+//;
 		$map_port = $args->{port};
@@ -7380,7 +7422,12 @@ sub npc_talk_close {
 	my ($self, $args) = @_;
 	# 00b6: long ID
 	# "Close" icon appreared on the NPC message dialog
-	return if($ai_v{'npc_talk'}{'talk'} eq 'buy_or_sell');
+	if (!defined $ai_v{'npc_talk'}{'ID'} || $ai_v{'npc_talk'}{'ID'} ne $args->{ID}) {
+		debug "We received an strange 'npc_talk_done', just ignoring it\n", "npc";
+		return;
+	}
+
+	return if ($ai_v{'npc_talk'}{'talk'} eq 'buy_or_sell');
 
 	my $ID = $args->{ID};
 	my $name = getNPCName($ID);
@@ -7510,7 +7557,7 @@ sub npc_store_info {
 	my $pack;
 	my $keys;
 
-	if( $args->{switch} eq '0B77' ) {
+	if ($args->{switch} eq '0B77') {
 		$pack = "V3 C v V";
 		$keys = [qw( nameID price _ type sprite_id location )];
 	} else {
@@ -7637,7 +7684,7 @@ sub npc_market_info {
 	for (my $i = 0; $i < length($args->{itemList}); $i += $len) {
 		my $item = Actor::Item->new;
 		@$item{qw( nameID type price amount weight )} = unpack $pack, substr $args->{itemList}, $i, $len;
-		next if(!$item->{amount}); # Client behavior (dont show the item in market window)
+		next if (!$item->{amount}); # Client behavior (dont show the item in market window)
 		# Workaround some npcs that have items appearing more than once in their store list,
 		# for example the Trader at moc_ruins 90 149 sells only bananas, but 6 times
 		#
@@ -7712,7 +7759,7 @@ sub npc_market_purchase_result {
 	for (my $i = 0; $i < length($args->{itemList}); $i += $len) {
 		my $item = Actor::Item->new;
 		@$item{qw( nameID type price amount weight )} = unpack $pack, substr $args->{itemList}, $i, $len;
-		next if(!$item->{amount}); # Client behavior (dont show the item in market window)
+		next if (!$item->{amount}); # Client behavior (dont show the item in market window)
 		# Workaround some npcs that have items appearing more than once in their store list,
 		# for example the Trader at moc_ruins 90 149 sells only bananas, but 6 times
 		#
@@ -7774,7 +7821,10 @@ sub deal_add_you {
 	$currentDeal{you}{$item->{nameID}}{nameID} = $item->{nameID};
 	message TF("You added Item to Deal: %s x %s\n", $item->{name}, $currentDeal{lastItemAmount}), "deal";
 	inventoryItemRemoved($item->{binID}, $currentDeal{lastItemAmount});
-	Plugins::callHook("deal_you_added", {id => $id, item => $item});
+	Plugins::callHook('deal_you_added', {
+		id => $id,
+		item => $item
+	});
 }
 
 sub skill_exchange_item {
@@ -7995,7 +8045,7 @@ sub received_character_ID_and_Map {
 		}
 	}
 
-	if(exists $args->{mapUrl} && $args->{'mapUrl'} =~ /.*\:\d+/) {
+	if (exists $args->{mapUrl} && $args->{'mapUrl'} =~ /.*\:\d+/) {
 		$map_ip = $args->{mapUrl};
 		$map_ip =~ s/:[0-9\0]+//;
 		$map_port = $args->{mapPort};
@@ -8006,7 +8056,7 @@ sub received_character_ID_and_Map {
 	}
 
 	# Workaround. Current xKore 1 is not able to define the $char
-	if($config{XKore} == 1) {
+	if ($config{XKore} == 1) {
 		foreach my $character (@chars) {
 			if (getHex($charID) eq getHex($character->{charID})) {
 				configModify("char", $character->{slot});
@@ -8137,13 +8187,13 @@ sub party_join {
 
 # TODO: store this state
 sub party_allow_invite {
-   my ($self, $args) = @_;
+	my ($self, $args) = @_;
 
-   if ($args->{type}) {
-      message T("Not allowed other player invite to Party\n"), "party", 1;
-   } else {
-      message T("Allowed other player invite to Party\n"), "party", 1;
-   }
+	if ($args->{type}) {
+		message T("Not allowed other player invite to Party\n"), "party", 1;
+	} else {
+		message T("Allowed other player invite to Party\n"), "party", 1;
+	}
 }
 
 sub party_chat {
@@ -8181,7 +8231,7 @@ sub party_exp {
 	} else {
 		error T("Error setting party option\n");
 	}
-	if(exists($args->{itemPickup}) || exists($args->{itemDivision})) {
+	if (exists($args->{itemPickup}) || exists($args->{itemDivision})) {
 		$char->{party}{itemPickup} = $args->{itemPickup};
 		$char->{party}{itemDivision} = $args->{itemDivision};
 		if ($args->{itemPickup} == 0) {
@@ -8231,7 +8281,7 @@ sub party_invite {
 	$incomingParty{ID} = $args->{ID};
 	$incomingParty{ACK} = $args->{switch} eq '02C6' ? '02C7' : '00FF';
 	$timeout{ai_partyAutoDeny}{time} = time;
-	Plugins::callHook("party_invite", {
+	Plugins::callHook('party_invite', {
 		partyID => $args->{ID},
 		partyName => $name
 	});
@@ -8360,7 +8410,7 @@ sub party_users_info {
 
 	for (my $i = 0; $i < length($args->{playerInfo}); $i += $player_info->{len}) {
 		# in 0a43 lasts bytes: { <item pickup rule>.B <item share rule>.B <unknown>.L }
-		next if(length($args->{playerInfo}) - $i == 6);
+		next if (length($args->{playerInfo}) - $i == 6);
 
 		my $ID = substr($args->{playerInfo}, $i, 4);
 
@@ -8412,22 +8462,26 @@ sub rodex_mail_list {
 		$mail_info = {
 			len => 45,
 			types => 'C V2 C2 Z24 V v x4',
-			keys => [qw(openType mailID1 mailID2 isRead type sender expireDateTime Titlelength)],
+			keys => [qw(openType mailID1 mailID2 isRead attach sender expireSecconds Titlelength)],
 		};
 
 	} elsif ($args->{switch} eq '0AC2') {
 		$mail_info = {
 			len => 41,
 			types => 'C V2 C2 Z24 V v',
-			keys => [qw(openType mailID1 mailID2 isRead type sender expireDateTime Titlelength)],
+			keys => [qw(openType mailID1 mailID2 isRead attach sender expireSecconds Titlelength)],
 		};
 
 	} else { # 09F0, 0A7D
 		$mail_info = {
 			len => 44,
 			types => 'V2 C2 Z24 V2 v',
-			keys => [qw(mailID1 mailID2 isRead type sender regDateTime expireDateTime Titlelength)],
+			keys => [qw(mailID1 mailID2 isRead attach sender regDateTime expireSecconds Titlelength)],
 		};
+	}
+
+	if ($args->{switch} eq '09F0' || $args->{switch} eq '0A7D') {
+		$rodexCurrentType = $args->{attach};
 	}
 
 	if ($args->{switch} eq '0A7D' || $args->{switch} eq '0AC2'  || $args->{switch} eq '0B5F') {
@@ -8444,7 +8498,9 @@ sub rodex_mail_list {
 		$rodexList->{mails_per_page} = $args->{amount};
 	}
 
-	my $print_msg = center(" " . "Rodex Mail Page ". $rodexList->{current_page} . " ", 119, '-') . "\n";
+	my $mail_len;
+	my $msg = center(" ". TF("Rodex Mail Page %d", $rodexList->{current_page}) ." ", 119, '-') . "\n" .
+							T(" #  ID       From                    Att  New  Expire    Title\n");
 
 	my $index = 0;
 	for (my $i = 0; $i < length($args->{mailList}); $i+=$mail_info->{len}) {
@@ -8456,26 +8512,28 @@ sub rodex_mail_list {
 		$mail->{sender} = solveMSG(bytesToString($mail->{sender}));
 		$mail->{page} = $rodexList->{current_page};
 		$mail->{page_index} = $index;
+		$mail->{expireDay} = int ($mail->{expireSecconds} / 60 / 60 / 24);
 
 		$i+= $mail->{Titlelength};
 
 		$rodexList->{mails}{$mail->{mailID1}} = $mail;
-
 		$rodexList->{current_page_last_mailID} = $mail->{mailID1};
 
-		my @content;
-		push(@content, "Text");
-		push(@content, "Zeny") if( $mail->{type} & (1 << 1) );
-		push(@content, "Item") if( $mail->{type} & (1 << 2) );
+		my %attach = (
+			#0 => '-',		# no attach
+			2 => T('z'),	# only zeny
+			4 => T('i'),	# only item
+			6 => T('z+i'),	# zeny + item
+			12 => T('gift'),# a gift from the admin
+        );
+		$mail->{attach} = $attach{$mail->{attach}};
 
-		my $content = join(', ', @content);
-
-		$print_msg .= swrite("@<<< @<<<<< @<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<< @<<< @<<< @<<<<<<<< @<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<< @<<<<<<<<<<<<<<<", [$index, "From:", $mail->{sender}, "Read:", $mail->{isRead} ? "Yes" : "No", "ID:", $mail->{mailID1}, "Title:", $mail->{title}, "Content:", $content]);
+		$msg .= swrite("@>  @<<<<<<< @<<<<<<<<<<<<<<<<<<<<<< @<<< @<<  @>>>>>>>  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", [$index, $mail->{mailID1}, $mail->{sender}, $mail->{attach} ? $mail->{attach} : "-", $mail->{isRead} ? T("No") : T("Yes"), $mail->{expireDay} ." ".T("Days"), $mail->{title}]);
 
 		$index++;
 	}
-	$print_msg .= sprintf("%s\n", ('-'x119));
-	message $print_msg, "list";
+	$msg .= ('-'x119) . "\n";
+	message $msg, "list";
 
 	Plugins::callHook('rodex_mail_list', {
 		'mails' => $rodexList->{mails},
@@ -8495,9 +8553,20 @@ sub rodex_read_mail {
 
 	my $mail = {};
 
-	$mail->{body} = solveMSG(bytesToString(substr($msg, $header_len, $args->{text_len})));
+	$mail->{body} = bytesToString( substr($msg, $header_len, $args->{text_len}) );
+	chomp ($mail->{body});
+	$mail->{body} = solveMSG($mail->{body});
+
 	$mail->{zeny1} = $args->{zeny1};
 	$mail->{zeny2} = $args->{zeny2};
+
+	$mail->{type} = $args->{type};
+	my %opentype = (
+		0 => T('Mail from players'),
+		1 => T('Account mail'),
+		2 => T('Return'),
+		3 => T('Unset'),
+	);
 
 	my $item_pack = $self->{rodex_read_mail_item_pack} || 'v2 C3 a8 a4 C a4 a25';
 	my $item_len = length pack $item_pack;
@@ -8506,15 +8575,14 @@ sub rodex_read_mail {
 
 	$mail->{items} = [];
 
-	message center(" " . "Mail (" . $args->{mailID1} . ") " . $rodexList->{mails}{$args->{mailID1}}->{sender} . " ", 119, '-') . "\n";
-	message sprintf("From: %s \n", $rodexList->{mails}{$args->{mailID1}}->{sender});
-	message "Message:\n" . $mail->{body};
-	# FIXME for some reason message can't concatenate bytesToString + "\n"
-	message "\n";
+	my $print_msg = center(" " .TF("Mail %d from %s", $args->{mailID1}, $rodexList->{mails}{$args->{mailID1}}{sender}) ." ", 119, '-') . "\n";
+	$print_msg .= swrite("@<<<<<<<<<<< @<<<<<<<<<<<<<<<<", [T("Mail type:"), $opentype{$mail->{type}}]);
+	$print_msg .= swrite("@<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", [T("Title:"), $rodexList->{mails}{$args->{mailID1}}{title}]);
+	$print_msg .= T("Message:") ."     " .$mail->{body} ."\n";
+	message $print_msg, "list";
 
-	my $print_msg .= swrite("@<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", ["Item count:", $args->{itemCount}]);
-
-	$print_msg .= swrite("@<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", ["Zeny:", $args->{zeny1}]);
+	$print_msg = swrite("@<<<<<<<<<<< @<<<<<<", [T("Item count:"), $args->{itemCount}]);
+	$print_msg .= swrite("@<<<<<<<<<<< @<<<<<<<<<", [T("Zeny:"), $args->{zeny1}]);
 
 	my $index = 0;
 	for (my $i = ($header_len + $args->{text_len}); $i < $args->{RAW_MSG_SIZE}; $i += $item_len) {
@@ -8541,7 +8609,7 @@ sub rodex_read_mail {
 		$index++;
 	}
 
-	$print_msg .= sprintf("%s\n", ('-'x119));
+	$print_msg .= ('-'x119) . "\n";
 	message $print_msg, "list";
 
 	@{$rodexList->{mails}{$args->{mailID1}}}{qw(body items zeny1 zeny2)} = @{$mail}{qw(body items zeny1 zeny2)};
@@ -8577,9 +8645,9 @@ sub rodex_remove_item {
 
 	my $rodex_item = $rodexWrite->{items}->getByID($args->{ID});
 
-	my $disp = TF("Item removed from rodex mail message: %s (%d) x %d - %s",
+	my $msg = TF("Item removed from rodex mail message: %s (%d) x %d - %s",
 			$rodex_item->{name}, $rodex_item->{binID}, $args->{amount}, $itemTypes_lut{$rodex_item->{type}});
-	message "$disp\n", "drop";
+	message "$msg\n", "drop";
 
 	$rodex_item->{amount} -= $args->{amount};
 	if ($rodex_item->{amount} <= 0) {
@@ -8590,10 +8658,18 @@ sub rodex_remove_item {
 sub rodex_add_item {
 	my ( $self, $args ) = @_;
 
-	if ($args->{fail}) {
-		error T("You failed to add an item to rodex mail.\n");
-		return;
+	if ($args->{fail} == 1) {
+		error T("Item attachment has been failed.\n");#RODEX_ADD_ITEM_WEIGHT_ERROR
+	} elsif ($args->{fail} == 2) {
+		error T("Item attachment has been failed.\n");#MsgStringTable[2630]
+	} elsif ($args->{fail} == 3) {
+		error T("Maximum number of item attachments has been exceeded.\n");#MsgStringTable[2698]
+	} elsif ($args->{fail} == 4) {
+		error T("This item is banned to attach.\n");#MsgStringTable[2700]
+	} elsif ($args->{fail} != 0) {
+		error TF("Unknown error %s\n", $args->{fail});
 	}
+	return if ($args->{fail});
 
 	my $rodex_item = $rodexWrite->{items}->getByID($args->{ID});
 
@@ -8610,14 +8686,15 @@ sub rodex_add_item {
 		$rodex_item->{upgrade} = $args->{upgrade};
 		$rodex_item->{cards} = $args->{cards};
 		$rodex_item->{options} = $args->{options};
+		$rodex_item->{weight} = $args->{weight};
 		$rodex_item->{name} = itemName($rodex_item);
 
 		$rodexWrite->{items}->add($rodex_item);
 	}
 
-	my $disp = TF("Item added to rodex mail message: %s (%d) x %d - %s",
+	my $msg = TF("Item added to rodex mail message: %s (%d) x %d - %s",
 			$rodex_item->{name}, $rodex_item->{binID}, $args->{amount}, $itemTypes_lut{$rodex_item->{type}});
-	message "$disp\n", "drop";
+	message "$msg\n", "drop";
 }
 
 sub rodex_open_write {
@@ -8626,8 +8703,12 @@ sub rodex_open_write {
 	$rodexWrite = {};
 
 	$rodexWrite->{items} = new InventoryList;
-	$rodexWrite->{name} = $args->{name};
-
+	if ($args->{name}) {
+		$rodexWrite->{target}{name} = bytesToString($args->{name});
+		$messageSender->rodex_checkname($rodexWrite->{target}{name});
+	}
+	$rodexWrite->{title} = T("TITLE");
+	debug "Rodex Mail Target: '$rodexWrite->{target}{name}', Title: '$rodexWrite->{title}'\n";
 }
 
 sub rodex_check_player {
@@ -8637,6 +8718,7 @@ sub rodex_check_player {
 
 	if (!$args->{char_id}) {
 		error TF("Could not find player with name '%s'.\n", $name);
+		delete $rodexWrite->{target};
 		return;
 	}
 
@@ -8645,17 +8727,16 @@ sub rodex_check_player {
 			target => [qw(char_id class base_level)],
 		};
 	} elsif ($args->{switch} eq '0A51') {
-		$rodexWrite->{name} = $name;
+		$rodexWrite->{target}{name} = $name;
 		$rodex_check_player_unpack = {
 			target => [qw(char_id class base_level name)],
 		};
 	}
 
-	my $print_msg = center(" " . "Rodex Mail Target" . " ", 119, '-') . "\n";
-
-	$print_msg .= swrite("@<<<<< @<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<< @<<< @<<<<<< @<<<<<<<<<<<<<<<< @<<<<<<<< @<<<<<<<<<", ["Name:", $rodexWrite->{name}, "Base Level:", $args->{base_level}, "Class:", $jobs_lut{$args->{class}}, "Char ID:", $args->{char_id}]);
-
-	$print_msg .= sprintf("%s\n", ('-'x119));
+	my $print_msg = center( " " .T("Rodex Mail Target") ." ", 62, '-') . "\n";
+	$print_msg .= swrite("   @>>>> @<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<< @<<<", [T("Name:"), $rodexWrite->{target}{name}, T("Base Level:"), $args->{base_level}]);
+	$print_msg .= swrite("@>>>>>>> @<<<<<<<<<<<<<<<<<<<<<<< @<<<<< @<<<<<<<<<<<<<<<<<<<<", [T("Char ID:"), $args->{char_id}, T("Class:"), $jobs_lut{$args->{class}}]);
+	$print_msg .= ('-'x62) . "\n";
 	message $print_msg, "list";
 
 	@{$rodexWrite->{target}}{@{$rodex_check_player_unpack->{target}}} = @{$args}{@{$rodex_check_player_unpack->{target}}};
@@ -8684,6 +8765,7 @@ sub rodex_get_zeny {
 	message T("The zeny of the rodex mail was requested with success.\n");
 
 	$rodexList->{mails}{$args->{mailID1}}{zeny1} = 0;
+	$rodexList->{mails}{$args->{mailID1}}{zeny1} = $rodexList->{mails}{$args->{mailID1}}{attach} eq 'z' ? 0 : 'i';
 }
 
 sub rodex_get_item {
@@ -8697,6 +8779,7 @@ sub rodex_get_item {
 	message T("The items of the rodex mail were requested with success.\n");
 
 	$rodexList->{mails}{$args->{mailID1}}{items} = [];
+	$rodexList->{mails}{$args->{mailID1}}{attach} = $rodexList->{mails}{$args->{mailID1}}{attach} eq 'i' ? undef : 'z';
 }
 
 sub rodex_delete {
@@ -8785,19 +8868,19 @@ sub booking_delete {
 }
 
 sub clan_user {
-    my ($self, $args) = @_;
-    foreach (qw(onlineuser totalmembers)) {
-        $clan{$_} = $args->{$_};
-    }
-    $clan{onlineuser} = $args->{onlineuser};
-    $clan{totalmembers} = $args->{totalmembers};
+	my ($self, $args) = @_;
+	foreach (qw(onlineuser totalmembers)) {
+		$clan{$_} = $args->{$_};
+	}
+	$clan{onlineuser} = $args->{onlineuser};
+	$clan{totalmembers} = $args->{totalmembers};
 }
 
 sub clan_info {
-    my ($self, $args) = @_;
-    foreach (qw(clan_ID clan_name clan_master clan_map alliance_count antagonist_count)) {
-        $clan{$_} = $args->{$_};
-    }
+	my ($self, $args) = @_;
+	foreach (qw(clan_ID clan_name clan_master clan_map alliance_count antagonist_count)) {
+		$clan{$_} = $args->{$_};
+	}
 
 	$clan{clan_name} = bytesToString($args->{clan_name});
 	$clan{clan_master} = bytesToString($args->{clan_master});
@@ -8808,7 +8891,7 @@ sub clan_info {
 	$clan{ally_names} = "";
 	$clan{antagonist_names} = "";
 
-	if($args->{alliance_count} > 0) {
+	if ($args->{alliance_count} > 0) {
 		for ($count; $count < $args->{alliance_count}; $count++) {
 			$clan{ally_names} .= bytesToString(unpack("Z24", substr($args->{ally_antagonist_names}, $i, 24))).", ";
 			$i += 24;
@@ -8816,7 +8899,7 @@ sub clan_info {
 	}
 
 	$count = 0;
-	if($args->{antagonist_count} > 0) {
+	if ($args->{antagonist_count} > 0) {
 		for ($count; $count < $args->{antagonist_count}; $count++) {
 			$clan{antagonist_names} .= bytesToString(unpack("Z24", substr($args->{ally_antagonist_names}, $i, 24))).", ";
 			$i += 24;
@@ -8850,7 +8933,7 @@ sub clan_chat {
 sub clan_leave {
 	my ($self, $args) = @_;
 
-	if($clan{clan_name}) {
+	if ($clan{clan_name}) {
 		message TF("[Clan] You left %s\n", $clan{clan_name});
 		undef %clan;
 	}
@@ -9062,14 +9145,14 @@ sub refine_result {
 sub upgrade_message {
 	my ($self, $args) = @_;
 	my $item = itemNameSimple($args->{itemID});
-	if($args->{type} == 0) { # Success
+	if ($args->{type} == 0) { # Success
 		message TF("Weapon upgraded: %s\n", $item), "info";
-	} elsif($args->{type} == 1) { # Fail
+	} elsif ($args->{type} == 1) { # Fail
 		message TF("Weapon not upgraded: %s\n", $item), "info";
 		# message TF("Weapon upgraded: %s\n", $item), "info";
-	} elsif($args->{type} == 2) { # Fail Lvl
+	} elsif ($args->{type} == 2) { # Fail Lvl
 		error TF("Cannot upgrade %s until you level up the upgrade weapon skill.\n", $item), "info";
-	} elsif($args->{type} == 3) { # Fail Item
+	} elsif ($args->{type} == 3) { # Fail Item
 		message TF("You lack item %s to upgrade the weapon.\n", $item), "info";
 	}
 }
@@ -9077,7 +9160,7 @@ sub upgrade_message {
 sub open_buying_store_fail { #0x812
 	my ($self, $args) = @_;
 	my $result = $args->{result};
-	if($result == 1){
+	if ($result == 1){
 		error T("Failed to open Purchasing Store.\n"),"info";
 	} elsif ($result == 2){
 		error T("The total weight of the item exceeds your weight limit. Please reconfigure.\n"), "info";
@@ -9151,7 +9234,7 @@ sub search_store_result {
 		};
 
 		push(@universalCatalogPage, $universalCatalogInfo);
-		Plugins::callHook("search_store", $universalCatalogInfo);
+		Plugins::callHook('search_store', $universalCatalogInfo);
 	}
 
 	return unless scalar @universalCatalogPage;
@@ -9186,22 +9269,23 @@ sub message_string {
 	my ($self, $args) = @_;
 
 	my $index = ++$args->{index};
+	my $param = bytesToString($args->{param}) if $args->{param};
 
 	if ($msgTable[$index]) { # show message from msgstringtable.txt
-		if($args->{param} && ($args->{switch} eq '07E2' || $args->{switch} eq '0A6F') ) {
-			warning sprintf($msgTable[$index], $args->{param})."\n";
+		if ($param && ($args->{switch} eq '07E2' || $args->{switch} eq '0A6F') ) {
+			warning sprintf($msgTable[$index], $param)."\n";
 		} else {
 			warning "$msgTable[$index]\n";
 		}
 	} else {
-		warning TF("Unknown message_string: %s param: %s. Need to update the file msgstringtable.txt (from data.grf)\n", $index, $args->{param});
+		warning TF("Unknown message_string: %s param: %s. Need to update the file msgstringtable.txt (from data.grf)\n", $index, $param);
 	}
 
 	$self->mercenary_off() if ($index >= 1267 && $index <= 1270);
 
 	Plugins::callHook('packet_message_string', {
 		index => $index,
-		val => $args->{param}
+		val => $param
 	});
 }
 
@@ -9396,8 +9480,10 @@ sub sell_result {
 	if ($args->{fail}) {
 		error T("Sell failed.\n");
 	} else {
+		message TF("Sold %s items.\n", @sellList.""), "success";
 		message T("Sell completed.\n"), "success";
 	}
+	@sellList = ();
 	if (AI::is("sellAuto")) {
 		AI::args->{recv_sell_packet} = 1;
 	}
@@ -9429,11 +9515,11 @@ sub boss_map_info {
 
 sub adopt_reply {
 	my ($self, $args) = @_;
-	if($args->{type} == 0) {
+	if ($args->{type} == 0) {
 		message T("You cannot adopt more than 1 child.\n"), "info";
-	} elsif($args->{type} == 1) {
+	} elsif ($args->{type} == 1) {
 		message T("You must be at least character level 70 in order to adopt someone.\n"), "info";
-	} elsif($args->{type} == 2) {
+	} elsif ($args->{type} == 2) {
 		message T("You cannot adopt a married person.\n"), "info";
 	}
 }
@@ -9448,41 +9534,41 @@ sub GM_silence {
 }
 
 sub guild_storage_log {
-    my ($self, $args) = @_;
+	my ($self, $args) = @_;
 
-    if ($args->{result} == 0 || $args->{result} == 1) {
-        my %action = (
-            0 => T('Get'),
-            1 => T('Put'),
-        );
+	if ($args->{result} == 0 || $args->{result} == 1) {
+		my %action = (
+			0 => T('Get'),
+			1 => T('Put'),
+		);
 
-        my $storage_info = {
-            len => 83,
-            types => 'a4 v V C V a8 C v a8 Z24 Z24 C',
-            keys => [qw(ID nameID amount action upgrade uniqueID identified type_equip cards charName time attribute)],
-        };
+		my $storage_info = {
+			len => 83,
+			types => 'a4 v V C V a8 C v a8 Z24 Z24 C',
+			keys => [qw(ID nameID amount action upgrade uniqueID identified type_equip cards charName time attribute)],
+		};
 
-        my $message = center(T("[ Guild Storage LOG ]"), 80, '-') ."\n".
-            T("#  Name                     Item-Name                                         Amount  Action          Time\n");
+		my $message = center(T("[ Guild Storage LOG ]"), 80, '-') ."\n".
+			T("#  Name                     Item-Name                                         Amount  Action          Time\n");
 
-        my $index = 0;
-        for (my $i = 0; $i < length($args->{log}); $i+= $storage_info->{len}) {
-            my $item;
-            @{$item}{@{$storage_info->{keys}}} = unpack($storage_info->{types}, substr($args->{log}, $i, $storage_info->{len}));
-            $item->{charName} = bytesToString($item->{charName});
-            $item->{time} = bytesToString($item->{time});
-            $message .= swrite(sprintf("\@%s \@%s \@%s \@%s \@%s \@%s", ('<'x2), ('<'x24), ('<'x48), ('<'x6), ('<'x7), ('<'x20)), [$index, $item->{charName}, itemName($item), $item->{amount}, $action{$item->{action}}, $item->{time}]);
-            $index++;
-        }
+		my $index = 0;
+		for (my $i = 0; $i < length($args->{log}); $i+= $storage_info->{len}) {
+			my $item;
+			@{$item}{@{$storage_info->{keys}}} = unpack($storage_info->{types}, substr($args->{log}, $i, $storage_info->{len}));
+			$item->{charName} = bytesToString($item->{charName});
+			$item->{time} = bytesToString($item->{time});
+			$message .= swrite(sprintf("\@%s \@%s \@%s \@%s \@%s \@%s", ('<'x2), ('<'x24), ('<'x48), ('<'x6), ('<'x7), ('<'x20)), [$index, $item->{charName}, itemName($item), $item->{amount}, $action{$item->{action}}, $item->{time}]);
+			$index++;
+		}
 
-        $message .= sprintf("%s\n", ('-'x80));
-        message($message, "list");
+		$message .= sprintf("%s\n", ('-'x80));
+		message($message, "list");
 
-    } elsif ($args->{result} == 2) {
-        message TF("Guild Storage empty.\n"), "info";
-    } elsif ($args->{result} == 3) {
-        message TF("You are not currently using Guild Storage. Please try later.\n"), "info";
-    }
+	} elsif ($args->{result} == 2) {
+		message TF("Guild Storage empty.\n"), "info";
+	} elsif ($args->{result} == 3) {
+		message TF("You are not currently using Guild Storage. Please try later.\n"), "info";
+	}
 }
 
 sub skill_delete {
@@ -9634,13 +9720,13 @@ sub buying_store_items_list {
 	undef $buyerPriceLimit;
 	undef $buyerID;
 	undef $buyingStoreID;
-	
+
 	$buyerItemList->clear;
 
 	$buyerPriceLimit = $args->{zeny};
 	$buyerID = $args->{buyerID};
 	$buyingStoreID = $args->{buyingStoreID};
-	
+
 	my $expireDate = 0;
 	my $player = Actor::get($buyerID);
 	my $index = 0;
@@ -9654,14 +9740,14 @@ sub buying_store_items_list {
 	for (my $i = 0; $i < $item_list_len; $i+=$item_len) {
 		my $item = Actor::Item->new;
 
- 		($item->{price},
+		($item->{price},
 		$item->{amount},
 		$item->{type},
 		$item->{nameID})	= unpack($pack, substr($args->{itemList}, $i, $item_len));
 
 		$item->{name} = itemName($item);
 		$item->{ID} = $i;
-		
+
 		$buyerItemList->add($item);
 
 		debug "Item added to Buying Store: $item->{name} - $item->{price} z\n", "buying_store", 2;
@@ -9685,7 +9771,7 @@ sub buying_store_items_list {
 	$msg .= "\n" . TF("Price limit: %s Zeny\n", formatNumber($buyerPriceLimit)) . ('-'x83) . "\n";
 	message $msg, "list";
 
-	if($args->{expireDate}) {
+	if ($args->{expireDate}) {
 		$expireDate = $args->{expireDate};
 		my $date = int(time) + int($args->{expireDate}/1000);
 		message "Expire Date: ".getFormattedDate($date)."\n";
@@ -9725,10 +9811,10 @@ sub buying_store_fail {
 
 sub buying_store_update {
 	my($self, $args) = @_;
-	if(@selfBuyerItemList) {
+	if (@selfBuyerItemList) {
 		for(my $i = 0; $i < @selfBuyerItemList; $i++) {
 			my $item = $selfBuyerItemList[$i];
-			if($item->{nameID} == $args->{itemID}) {
+			if ($item->{nameID} == $args->{itemID}) {
 				message TF("You bought %s %s\n", $args->{count}, $item->{name});
 				$selfBuyerItemList[$i]->{amount} = $item->{amount} - $args->{count};
 			}
@@ -9737,8 +9823,8 @@ sub buying_store_update {
 }
 
 sub buyer_found {
-    my($self, $args) = @_;
-    my $ID = $args->{ID};
+	my($self, $args) = @_;
+	my $ID = $args->{ID};
 
 	if (!$buyerLists{$ID} || !%{$buyerLists{$ID}}) {
 		binAdd(\@buyerListsID, $ID);
@@ -9762,7 +9848,7 @@ sub buying_buy_fail {
 		error T("Failed to buying (insufficient zeny).\n");
 	} elsif ($args->{result} == 4) {
 		$buyershopstarted = 0;
-		Plugins::callHook("buyer_shop_closed");
+		Plugins::callHook('buyer_shop_closed');
 		message T("Buying up complete.\n");
 	} else {
 		error TF("Failed to buying (unknown error: %s).\n", $args->{result});
@@ -9974,10 +10060,10 @@ sub memo_success {
 	my ($self, $args) = @_;
 	if ($args->{fail}) {
 		warning T("Memo Failed\n");
-		Plugins::callHook('memo_fail', { "field" => $field->baseName });
+		Plugins::callHook('memo_fail', {field => $field->baseName});
 	} else {
 		message T("Memo Succeeded\n"), "success";
-		Plugins::callHook('memo_success', { "field" => $field->baseName });
+		Plugins::callHook('memo_success', {field => $field->baseName});
 	}
 }
 
@@ -10059,15 +10145,32 @@ sub arrowcraft_list {
 
 	my $msg = $args->{RAW_MSG};
 	my $msg_size = $args->{RAW_MSG_SIZE};
+	$char->{selected_craft} = 0;
 
 	undef @arrowCraftID;
 	for (my $i = 4; $i < $msg_size; $i += 2) {
 		my $ID = unpack("v", substr($msg, $i, 2));
 		my $item = $char->inventory->getByNameID($ID);
+		$char->{last_skill_used} = 2027 if ($config{autoPoison} && $item->{name} eq $config{autoPoison});
 		binAdd(\@arrowCraftID, $item->{binID});
 	}
 
-	message T("Received Possible Arrow Craft List - type 'arrowcraft'\n");
+	if ($char->{last_skill_used} == 2027) { # GC_POISONINGWEAPON
+		message T("Received Possible Poison List - type 'poison'\n");
+		if ($config{autoPoison}) {
+			my $item = $char->inventory->getByName($config{autoPoison});
+			if ($item) {
+				$messageSender->sendArrowCraft($item->{nameID});
+				$char->{selected_craft} = 1;
+			} else {
+				error TF("Configured autoPoison (%s) not available.\n", $config{autoSpell});
+			}
+		} else {
+			warning T("Configure autoPoison to automatically select skill for Auto Spell.\n"), 'hint';
+		}
+	} else {
+		message T("Received Possible Item List - type 'arrowcraft' or 'poison'\n");
+	}
 }
 
 # Notifies client of a character parameter change.
@@ -10093,7 +10196,7 @@ sub auction_my_sell_stop {
 	my $flag = $args->{flag};
 
 	if ($flag == 0) {
-     	message T("You have ended the auction.\n"), "info";
+		message T("You have ended the auction.\n"), "info";
 	} elsif ($flag == 1) {
 		message T("You cannot end the auction.\n"), "info";
 	} elsif ($flag == 2) {
@@ -10179,7 +10282,7 @@ sub auction_result {
 	my $flag = $args->{flag};
 
 	if ($flag == 0) {
-     	message T("You have failed to bid into the auction.\n"), "info";
+		message T("You have failed to bid into the auction.\n"), "info";
 	} elsif ($flag == 1) {
 		message T("You have successfully bid in the auction.\n"), "info";
 	} elsif ($flag == 2) {
@@ -10284,9 +10387,9 @@ sub map_change_cell {
 # TODO: the actual status is sent to us in opt3
 sub blade_stop {
 	my ($self, $args) = @_;
-	if($args->{active} == 0) {
+	if ($args->{active} == 0) {
 		message TF("Blade Stop by %s on %s is deactivated.\n", Actor::get($args->{sourceID})->nameString(), Actor::get($args->{targetID})->nameString()), "info";
-	} elsif($args->{active} == 1) {
+	} elsif ($args->{active} == 1) {
 		message TF("Blade Stop by %s on %s is active.\n", Actor::get($args->{sourceID})->nameString(), Actor::get($args->{targetID})->nameString()), "info";
 	}
 }
@@ -10363,9 +10466,9 @@ sub instance_window_leave {
 		debug T("Received Memory Dungeon reservation update\n");
 	} elsif ($args->{flag} == 1) { # TYPE_DESTROY_LIVE_TIMEOUT =  0x1
 		message T("The Memorial Dungeon expired it has been destroyed.\n"), "info";
-	} elsif($args->{flag} == 2) { # TYPE_DESTROY_ENTER_TIMEOUT =  0x2
+	} elsif ($args->{flag} == 2) { # TYPE_DESTROY_ENTER_TIMEOUT =  0x2
 		message T("The Memorial Dungeon's entry time limit expired it has been destroyed.\n"), "info";
-	} elsif($args->{flag} == 3) { # TYPE_DESTROY_USER_REQUEST =  0x3
+	} elsif ($args->{flag} == 3) { # TYPE_DESTROY_USER_REQUEST =  0x3
 		message T("The Memorial Dungeon has been removed.\n"), "info";
 	} elsif ($args->{flag} == 4) { # TYPE_CREATE_FAIL =  0x4
 		message T("The instance windows has been removed, possibly due to party/guild leave.\n"), "info";
@@ -10546,12 +10649,12 @@ sub equip_switch_run_res {
 # Set the full list of items in the equip switch window
 # 0A9B <length>.W { <index>.W <position>.L }*
 sub equip_switch_log {
-    my ($self, $args) = @_;
-    for (my $i = 0; $i < length($args->{log}); $i+= 6) {
-    	my ($index, $position) = unpack('a2 V', substr($args->{log}, $i, 6));
-    	my $item = $char->inventory->getByID($index);
-    	$char->{eqswitch}{$equipSlot_lut{$position}} = $item;
-    }
+	my ($self, $args) = @_;
+	for (my $i = 0; $i < length($args->{log}); $i+= 6) {
+		my ($index, $position) = unpack('a2 V', substr($args->{log}, $i, 6));
+		my $item = $char->inventory->getByID($index);
+		$char->{eqswitch}{$equipSlot_lut{$position}} = $item;
+	}
 }
 
 # 02EF
@@ -10909,11 +11012,11 @@ sub storage_password_result {
 	my ($self, $args) = @_;
 
 	# TODO:
-    # STORE_PASSWORD_EMPTY =  0x0
-    # STORE_PASSWORD_EXIST =  0x1
-    # STORE_PASSWORD_CHANGE =  0x2
-    # STORE_PASSWORD_CHECK =  0x3
-    # STORE_PASSWORD_PANALTY =  0x8
+	# STORE_PASSWORD_EMPTY =  0x0
+	# STORE_PASSWORD_EXIST =  0x1
+	# STORE_PASSWORD_CHANGE =  0x2
+	# STORE_PASSWORD_CHECK =  0x3
+	# STORE_PASSWORD_PANALTY =  0x8
 
 	if ($args->{type} == 4) { # STORE_PASSWORD_CHANGE_OK =  0x4
 		message T("Successfully changed storage password.\n"), "success";
@@ -10979,7 +11082,7 @@ sub mercenary_init {
 sub mercenary_off {
 	#delete $char->{slaves}{$char->{mercenary}{ID}};
 	AI::SlaveManager::removeSlave($char->{mercenary}) if ($char->has_mercenary);
-	
+
 	$slavesList->removeByID($char->{mercenary}{ID});
 	delete $char->{mercenary};
 }
@@ -11099,7 +11202,7 @@ sub pvp_rank {
 	my $rank = $args->{rank};
 	my $num = $args->{num};;
 	if ($rank != $ai_v{temp}{pvp_rank} ||
-	    $num != $ai_v{temp}{pvp_num}) {
+		$num != $ai_v{temp}{pvp_num}) {
 		$ai_v{temp}{pvp_rank} = $rank;
 		$ai_v{temp}{pvp_num} = $num;
 		if ($ai_v{temp}{pvp}) {
@@ -11204,7 +11307,7 @@ sub resurrection {
 			undef $player->{'dead'};
 			$player->{deltaHp} = 0;
 		}
-		
+
 		if (isMySlaveID($targetID)) {
 			my $slave = $slavesList->getByID($targetID);
 			if (defined $slave && ($slave->isa("AI::Slave::Homunculus") || $slave->isa("Actor::Slave::Homunculus"))) {
@@ -11468,7 +11571,10 @@ sub unequip_item {
 				next if $_ == 10; #work around Arrow bug
 				next if $_ == 32768;
 				delete $char->{equipment}{$equipSlot_lut{$_}};
-				Plugins::callHook('unequipped_item', {slot => $equipSlot_lut{$_}, item => $item});
+				Plugins::callHook('unequipped_item', {
+					slot => $equipSlot_lut{$_},
+					item => $item
+				});
 			}
 		}
 	}
@@ -11496,7 +11602,10 @@ sub unequip_item_switch {
 				next if $_ == 32768;
 
 				delete $char->{eqswitch}{$equipSlot_lut{$_}};
-				Plugins::callHook('unequipped_item_sw', {slot => $equipSlot_lut{$_}, item => $item});
+				Plugins::callHook('unequipped_item_sw', {
+					slot => $equipSlot_lut{$_},
+					item => $item
+				});
 			}
 		}
 	}
@@ -11529,7 +11638,10 @@ sub vender_found {
 
 	if (!$venderLists{$ID} || !%{$venderLists{$ID}}) {
 		binAdd(\@venderListsID, $ID);
-		Plugins::callHook('packet_vender', {ID => $ID, title => bytesToString($args->{title})});
+		Plugins::callHook('packet_vender', {
+			ID => $ID,
+			title => bytesToString($args->{title})
+		});
 	}
 	$venderLists{$ID}{title} = bytesToString($args->{title});
 	$venderLists{$ID}{id} = $ID;
@@ -11639,15 +11751,18 @@ sub skill_use_failed {
 	} else {
 		$errorMessage = T('Unknown error');
 	}
-	
+
 	delete $char->{casting};
 
-	warning TF("Skill %s failed: %s (error number %s)\n", Skill->new(idn => $skillID)->getName(), $errorMessage, $type), "skill";
-	Plugins::callHook('packet_skillfail', {
-		skillID     => $skillID,
-		failType    => $type,
-		failMessage => $errorMessage
-	});
+	my %hookArgs;
+	$hookArgs{skillID} = $skillID;
+	$hookArgs{failType} = $type;
+	$hookArgs{failMessage} = $errorMessage;
+	$hookArgs{warn} = 1;
+
+	Plugins::callHook('packet_skillfail', \%hookArgs);
+
+	warning(TF("Skill %s failed: %s (error number %s)\n", Skill->new(idn => $skillID)->getName(), $errorMessage, $type), "skill") if ($hookArgs{warn});
 }
 
 sub open_store_status {
@@ -11694,21 +11809,21 @@ sub open_ui {
 
 	debug TF("Received request from server to open UI: %s\n", $args->{type});
 
-	if($args->{type} == BANK_UI) { # TODO: implement bank system and add Bank open Request
+	if ($args->{type} == BANK_UI) { # TODO: implement bank system and add Bank open Request
 		message T("Server requested to open Bank UI.\n");
-	} elsif($args->{type} == STYLIST_UI) { # TODO: implement Stylist system and add Stylist open Request
+	} elsif ($args->{type} == STYLIST_UI) { # TODO: implement Stylist system and add Stylist open Request
 		message T("Server requested to open Stylist UI.\n");
-	} elsif($args->{type} == CAPTCHA_UI) {
+	} elsif ($args->{type} == CAPTCHA_UI) {
 		message T("Server requested to open Captcha UI.\n");
-	} elsif($args->{type} == MACRO_UI) {
+	} elsif ($args->{type} == MACRO_UI) {
 		message T("Server requested to open Macro Recorder UI.\n");
-	} elsif($args->{type} == UI_UNUSED) {
+	} elsif ($args->{type} == UI_UNUSED) {
 		message T("Server requested to open Unused UI.\n"); # why?
-	} elsif($args->{type} == TIPBOX_UI) {
+	} elsif ($args->{type} == TIPBOX_UI) {
 		message T("Server requested to open Tip Box UI.\n");
-	} elsif($args->{type} == RENEWQUEST_UI) {
+	} elsif ($args->{type} == RENEWQUEST_UI) {
 		message T("Server requested to open Quest UI.\n");
-	} elsif($args->{type} == ATTENDANCE_UI) {
+	} elsif ($args->{type} == ATTENDANCE_UI) {
 		message T("Server requested to open Attendance UI.\n");
 		$self->attendance_ui($args);
 	} else {
@@ -11736,7 +11851,7 @@ sub action_ui {
 sub attendance_ui {
 	my ($self, $args) = @_;
 
-	if(defined $attendance_rewards{period}) {
+	if (defined $attendance_rewards{period}) {
 		my $date = getFormattedDateShort(time, 3);
 
 		if ($date >= $attendance_rewards{period}{start} && $date <= $attendance_rewards{period}{end}) {
@@ -11798,7 +11913,7 @@ sub banking_check {
 	message TF("On Hand : %s z\n", $char->{zeny}), "info";
 	message ('-'x40) . "\n", "info";
 
-	Plugins::callHook("banking_opened");
+	Plugins::callHook('banking_opened');
 }
 
 # Acknowledge of deposit some money in bank
@@ -11814,7 +11929,7 @@ sub banking_deposit {
 	if ($args->{reason} == 0x0) {
 		message T("Bank: Deposit Success.\n"), "success";
 		$char->{zeny} = $args->{balance}; # TODO: check if 'stat_info' is received (if yes, delete this line)
-		Plugins::callHook("banking_deposit_success");
+		Plugins::callHook('banking_deposit_success');
 		return;
 	} elsif ($args->{reason} == 0x1) {
 		error T("Bank: Deposit Error (Try it again).\n");
@@ -11823,7 +11938,7 @@ sub banking_deposit {
 	} elsif ($args->{reason} == 0x3) {
 		error T("Bank: Money in the bank overflow.\n");
 	}
-	Plugins::callHook("banking_deposit_failed", {'reason' => $args->{reason}});
+	Plugins::callHook('banking_deposit_failed', {'reason' => $args->{reason}});
 }
 
 # Acknowledge of withdrawing some money from bank
@@ -11838,14 +11953,14 @@ sub banking_withdraw {
 	if ($args->{reason} == 0x0) {
 		message T("Bank: Withdraw Success \n"),"success";
 		$char->{zeny} = $args->{balance}; # TODO: check if 'stat_info' is received (if yes, delete this line)
-		Plugins::callHook("banking_withdraw_success");
+		Plugins::callHook('banking_withdraw_success');
 		return;
 	} elsif ($args->{reason} == 0x1) {
 		error T("Bank: No Money for Withdraw.\n");
 	} elsif ($args->{reason} == 0x2) {
 		error T("Bank: Money in the bank overflow.\n");
 	}
-	Plugins::callHook("banking_withdraw_failed", {'reason' => $args->{reason}});
+	Plugins::callHook('banking_withdraw_failed', {'reason' => $args->{reason}});
 }
 
 ##
@@ -11858,7 +11973,7 @@ sub banking_withdraw {
 sub navigate_to {
 	my ($self, $args) = @_;
 
-	if( $args->{mob_id} ) {
+	if ($args->{mob_id}) {
 		message TF("Server asked us to navigate to %s map and look for monster with ID %s\n", $args->{map}, $args->{mob_id}), "info";
 	} else {
 		message TF("Server asked us to navigate to %s (%s,%s)\n", $args->{map}, $args->{x}, $args->{y}), "info";
@@ -11880,10 +11995,10 @@ sub roulette_window {
 		$roulette{$_} = $args->{$_};
 	}
 
-	if($args->{result} == 1) {
+	if ($args->{result} == 1) {
 		warning T("Roulette: Something went wrong\n");
 		return;
-	} elsif($args->{result} == 2) {
+	} elsif ($args->{result} == 2) {
 		warning T("Roulette: No enough Point (coin) to roll\n");
 		return;
 	}
@@ -11938,10 +12053,10 @@ sub roulette_window_update {
 		$roulette{$_} = $args->{$_};
 	}
 
-	if($args->{result} == 1) {
+	if ($args->{result} == 1) {
 		warning T("Roulette: Something went wrong\n");
 		return;
-	} elsif($args->{result} == 2) {
+	} elsif ($args->{result} == 2) {
 		warning T("Roulette: No enough Point (coin) to roll\n");
 		return;
 	}
@@ -12032,7 +12147,7 @@ sub captcha_upload_request {
 	my ($self, $args) = @_;
 	if ($args->{status} == 0) {
 		message T("Captcha Register - Now you can upload the image\n");
-	} elsif($args->{status} == 1) {
+	} elsif ($args->{status} == 1) {
 		message T("Captcha Register - Failed to upload the image\n");
 	} else {
 		message TF("Captcha Register - Unknown status: %s\n", $args->{status});
@@ -12053,7 +12168,7 @@ sub macro_reporter_status {
 	my ($self, $args) = @_;
 	my $status = "Unknown";
 
-	if($args->{status} == MCR_MONITORING) {
+	if ($args->{status} == MCR_MONITORING) {
 		$status = "Monitoring";
 	} elsif ($args->{status} == MCR_NO_DATA) {
 		$status = "No Data";
@@ -12081,31 +12196,35 @@ sub macro_detector_image {
 
 	$captcha_image .= $args->{captcha_image};
 
-	if(length($captcha_image) >= $captcha_size) {
+	if (length($captcha_image) >= $captcha_size) {
 		my $image = uncompress($captcha_image);
 		my $imageHex = unpack("H*", $image);
-        my $byte1; my $byte2; my $byte3;
-        for (my $i = 102; $i < 3564; $i += 6) {
-            $byte1 = hex(substr($imageHex, $i, 2));
-            $byte2 = substr($imageHex, $i + 2, 2);
-            $byte3 = hex(substr($imageHex, $i + 4, 2));
+		my $byte1; my $byte2; my $byte3;
+		for (my $i = 102; $i < 3564; $i += 6) {
+			$byte1 = hex(substr($imageHex, $i, 2));
+			$byte2 = substr($imageHex, $i + 2, 2);
+			$byte3 = hex(substr($imageHex, $i + 4, 2));
 
-            if ($byte1 > 250 && $byte2 eq '00' && $byte3 > 250) {
-                substr($imageHex, $i + 2, 2) = 'FF';
-            }
-        }
+			if ($byte1 > 250 && $byte2 eq '00' && $byte3 > 250) {
+				substr($imageHex, $i + 2, 2) = 'FF';
+			}
+		}
 
-        my $file = $Settings::logs_folder . "/captcha_$captcha_key.bmp";
+		my $file = $Settings::logs_folder . "/captcha_$captcha_key.bmp";
 		my $final_image = pack("H*", $imageHex);
-        open my $DUMP, '>:raw', $file;
-        print $DUMP $final_image;
-        close $DUMP;
+		$captcha_image_content = $final_image;
+		open my $DUMP, '>:raw', $file;
+		print $DUMP $final_image;
+		close $DUMP;
+
 
 		my $hookArgs = {captcha_image => $final_image};
 		Plugins::callHook ('captcha_image', $hookArgs);
+		Plugins::callHook ('captcha_file', {file => $file});
 		return 1 if $hookArgs->{return};
 
 		warning TF("Macro Detector - captcha has been saved in: %s, open it, solve it and use the command: captcha <text>\n", $file), "captcha";
+
 		$captcha_image = "";
 		$captcha_size = undef;
 		$captcha_key = undef;
@@ -12129,7 +12248,7 @@ sub macro_detector_status {
 	my ($self, $args) = @_;
 	my $status = "Unknown";
 
-	if($args->{status} == MCD_TIMEOUT) {
+	if ($args->{status} == MCD_TIMEOUT) {
 		$status = "Timeout";
 	} elsif ($args->{status} == MCD_INCORRECT) {
 		$status = "Incorrect";
@@ -12150,7 +12269,7 @@ sub captcha_preview {
 
 	if ($args->{status} == 0) {
 		message T("Captcha Preview - Now you can download the image\n");
-	} elsif($args->{status} == 1) {
+	} elsif ($args->{status} == 1) {
 		message T("Captcha Preview - Failed to Request Captcha (ID is out of range)\n");
 	} else {
 		message TF("Captcha Preview - Unknown status: %s\n", $args->{status});
@@ -12165,24 +12284,14 @@ sub captcha_preview_image {
 
 	$captcha_image .= $args->{captcha_image};
 
-	if(length($captcha_image) >= $captcha_size) {
+	if (length($captcha_image) >= $captcha_size) {
 		my $image = uncompress($captcha_image);
 		my $imageHex = unpack("H*", $image);
-        my $byte1; my $byte2; my $byte3;
-        for (my $i = 102; $i < 3564; $i += 6) {
-            $byte1 = hex(substr($imageHex, $i, 2));
-            $byte2 = substr($imageHex, $i + 2, 2);
-            $byte3 = hex(substr($imageHex, $i + 4, 2));
 
-            if ($byte1 > 250 && $byte2 eq '00' && $byte3 > 250) {
-                substr($imageHex, $i + 2, 2) = 'FF';
-            }
-        }
-
-        my $file = $Settings::logs_folder . "/captcha_preview_$captcha_key.bmp";
-        open my $DUMP, '>:raw', $file;
-        print $DUMP pack("H*", $imageHex);
-        close $DUMP;
+    my $file = $Settings::logs_folder . "/captcha_preview_".$char->{name}."_".$captcha_key.".bmp";
+    open my $DUMP, '>:raw', $file;
+    print $DUMP pack("H*", $imageHex);
+    close $DUMP;
 
 		message TF("Captcha Preview - captcha has been saved in: %s\n", $file), "captcha";
 		$captcha_image = "";
@@ -12201,6 +12310,26 @@ sub macro_reporter_select {
 		my $accID = unpack("a4", substr($args->{account_list}, $i, 4));
 		my $player = $playersList->getByID($accID);
 		message TF("%s\n", $player->{name});
+	}
+}
+
+# 0B8D - PACKET_ZC_REPUTE_INFO
+sub repute_info {
+	my ($self, $args) = @_;
+
+	@reputation_list = ();
+
+	my $unpack = {
+		len => 16,
+		types => 'V4',
+		keys => [qw(type type2 points points2)],
+	};
+	my $length = length $args->{reputeInfo};
+	for (my $i = 0; $i < $length; $i += $unpack->{len}) {
+		my $repute;
+		@{$repute}{@{$unpack->{keys}}} = unpack($unpack->{types}, substr($args->{reputeInfo}, $i, $unpack->{len}));
+
+		push @reputation_list, $repute;
 	}
 }
 
