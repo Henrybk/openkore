@@ -2732,8 +2732,9 @@ sub meetingPosition {
 				} else {
 					$masterPosNow = $realMasterPos;
 				}
-				next unless (blockDistance($spot, $masterPosNow) <= $followDistanceMax);
 				next unless ($spot->{x} != $masterPosNow->{x} || $spot->{y} != $masterPosNow->{y});
+				next unless (blockDistance($spot, $masterPosNow) <= $followDistanceMax);
+				next unless (blockDistance($targetPosInStep, $masterPosNow) <= $followDistanceMax);
 			}
 
 			# 8. We must be able to get to the spot before our target
@@ -4558,14 +4559,22 @@ sub checkSelfCondition {
 	# check skill use SP if this is a 'use skill' condition
 	if ($prefix =~ /skill|attackComboSlot/i) {
 		my $skill = Skill->new(auto => $config{$prefix});
-		return 0 unless ($char->getSkillLevel($skill)
-						|| $config{$prefix."_equip_leftAccessory"}
-						|| $config{$prefix."_equip_rightAccessory"}
-						|| $config{$prefix."_equip_leftHand"}
-						|| $config{$prefix."_equip_rightHand"}
-						|| $config{$prefix."_equip_robe"}
-						);
-		return 0 unless ($char->{sp} >= $skill->getSP($config{$prefix . "_lvl"} || $char->getSkillLevel($skill)));
+		if ($char->checkSkillOwnership ($skill)) {
+			return 0 unless ($char->getSkillLevel($skill)
+							|| $config{$prefix."_equip_leftAccessory"}
+							|| $config{$prefix."_equip_rightAccessory"}
+							|| $config{$prefix."_equip_leftHand"}
+							|| $config{$prefix."_equip_rightHand"}
+							|| $config{$prefix."_equip_robe"}
+							);
+			return 0 unless ($char->{sp} >= $skill->getSP($config{$prefix . "_lvl"} || $char->getSkillLevel($skill)));
+			
+		} elsif ($has_homunculus && $char->{homunculus}->checkSkillOwnership($skill)) {
+			return 0 unless ($char->{homunculus}->getSkillLevel($skill));
+			
+		} elsif ($has_mercenary && $char->{mercenary}->checkSkillOwnership($skill)) {
+			return 0 unless ($char->{mercenary}->getSkillLevel($skill));
+		}
 	}
 
 	if (defined $config{$prefix . "_skill"}) {

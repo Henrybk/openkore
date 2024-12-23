@@ -750,7 +750,10 @@ sub processSkillUse {
 
 				# Give an error if we don't actually possess this skill
 				my $skill = new Skill(handle => $handle);
-				if ($char->{skills}{$handle}{lv} <= 0 && (!$char->{permitSkill} || $char->{permitSkill}->getHandle() ne $handle)) {
+				my $owner = $skill->getOwner();
+				my $lvl = $owner->getSkillLevel($skill);
+
+				if ($lvl <= 0 && (!$char->{permitSkill} || $char->{permitSkill}->getHandle() ne $handle)) {
 					debug "Attempted to use skill (".$skill->getName().") which you do not have.\n";
 				}
 
@@ -2342,7 +2345,10 @@ sub processRandomWalk_stopDuringSlaveAttack {
 		my $slave = AI::SlaveManager::mustStopForAttack();
 		if (defined $slave) {
 			message TF("%s started attacking during randomWalk - Stoping movement for it.\n", $slave), 'slave';
+			# TODO: Since meetingposition takes into account the movement of the character
+			# we shoudl probably not stop it, just not send new move commands after the current one
 			$char->sendAttackStop;
+			# TODO: This should probably just pause route instead of dequeuing it
 			AI::dequeue() while (AI::is(qw/move route mapRoute/) && AI::args()->{isRandomWalk});
 		}
 	}
