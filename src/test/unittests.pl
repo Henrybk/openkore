@@ -30,6 +30,7 @@ my @tests = qw(
 	QuestReceiveTest
 	FieldTest
 	NativeClosestWalkableTest
+	GeneralFastPathsTest
 	XConfTest
 );
 if ($^O eq 'MSWin32') {

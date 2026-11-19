@@ -42,3 +42,4 @@ WhirlpoolTest.pm
 
 NativeClosestWalkableTest.pm
 LogDebugEnabledTest.pm
+GeneralFastPathsTest.pm
