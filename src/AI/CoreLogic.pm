@@ -324,13 +324,13 @@ sub processWipeOldActors {
 }
 
 sub processActorAvoid {
-	my $realMyPos = calcPosFromPathfinding($field, $char);
 	my $max_dist = $config{clientSight} + 1;
 	my $max_to_delete = $max_dist*2;
 
 	my $avoid_distant_actors_timeout = $timeout{'avoidDistantActors'}{'timeout'} || 1;
 	if (timeOut($timeout{'avoidDistantActors'}{'time'}, $avoid_distant_actors_timeout)) {
 		$timeout{'avoidDistantActors'}{'time'} = time;
+		my $realMyPos = calcPosFromPathfinding($field, $char);
 		foreach my $list ($playersList, $monstersList, $npcsList, $petsList, $portalsList, $slavesList, $elementalsList) {
 			for my $actor (@$list) {
 				my $realActorPos = calcPosition($actor);
@@ -3289,6 +3289,9 @@ sub processMonsterSkillUse {
 		$timeout{ai_monsterSkill_check}{time} = time;
 	}
 	return if ($char->{muted});
+	return unless @$monstersList;
+	# The numbered scan starts at zero; without its first entry no skill block can run.
+	return unless exists $config{monsterSkill_0};
 	if (AI::isIdle() || AI::is(qw(route mapRoute follow sitAuto take items_gather items_take attack move))) {
 		for (my $i = 0; exists $config{"monsterSkill_$i"}; $i++) {
 			my $prefix = "monsterSkill_$i";
@@ -3324,6 +3327,12 @@ sub processAutoEquip {
 	Benchmark::begin("ai_autoEquip") if DEBUG;
 	if ((AI::isIdle() || AI::is(qw(route mapRoute follow sitAuto skill_use take items_gather items_take attack)))
 	  && timeOut($timeout{ai_item_equip_auto}) && $char->inventory->isReady()) {
+		# Preserve the existing timer cadence even when no numbered auto-equip block exists.
+		unless (exists $config{equipAuto_0}) {
+			$timeout{ai_item_equip_auto}{time} = time;
+			Benchmark::end("ai_autoEquip") if DEBUG;
+			return;
+		}
 
 		my $ai_index_attack = AI::findAction("attack");
 
@@ -3845,6 +3854,7 @@ sub processAutoTeleport {
 
 ##### ALLOWED MAPS #####
 sub processAllowedMaps {
+	return unless $config{allowedMaps} && $config{allowedMaps_reaction} == 0;
 	# Respawn/disconnect if you're on a map other than the specified
 	# list of maps.
 	# This is to mostly useful on pRO, where GMs warp you to a secret room.
@@ -3852,7 +3862,6 @@ sub processAllowedMaps {
 	# Here, we only check for respawn. (Disconnect is handled in
 	# packets 0091 and 0092.)
 	if ($field->baseName &&
-	    $config{allowedMaps} && $config{allowedMaps_reaction} == 0 &&
 		timeOut($timeout{ai_teleport}) &&
 		!existsInList($config{allowedMaps}, $field->baseName) &&
 		$ai_v{temp}{allowedMapRespawnAttempts} < 3) {
@@ -3909,8 +3918,10 @@ sub processAvoid {
 ##### SEND EMOTICON #####
 sub processSendEmotion {
 	my $ai_sendemotion_index = AI::findAction("sendEmotion");
-	return if (!defined $ai_sendemotion_index || time < AI::args()->{timeout});
-	$messageSender->sendEmotion(AI::args()->{emotion});
+	return unless defined $ai_sendemotion_index;
+	my $args = AI::args($ai_sendemotion_index);
+	return if time < $args->{timeout};
+	$messageSender->sendEmotion($args->{emotion});
 	AI::clear("sendEmotion");
 }
 
@@ -3972,8 +3983,9 @@ sub processAutoBuyerShopOpen {
 }
 
 sub processDcOnPlayer {
+	return unless $config{dcOnPlayer};
 	# Disconnect when a player is detected
-	if (!$field->isCity && !AI::inQueue("storageAuto", "buyAuto") && $config{dcOnPlayer}
+	if (!$field->isCity && !AI::inQueue("storageAuto", "buyAuto")
 		&& ($config{'lockMap'} eq "" || $field->baseName eq $config{'lockMap'})
 		&& !isSafe() && timeOut($AI::Temp::Teleport_allPlayers, 0.75)) {
 			$messageSender->sendQuit();
@@ -4033,6 +4045,7 @@ sub repairAutoSkillHandle {
 }
 	
 sub processRepairAuto {
+	return unless $config{repairAuto} || AI::inQueue("repairAuto");
 	return if ($net->getState() != Network::IN_GAME);
 	
 	if ($config{repairAuto_inTownOnly} && !$field->isCity) {

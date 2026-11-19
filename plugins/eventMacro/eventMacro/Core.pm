@@ -1398,36 +1398,36 @@ sub manage_event_callbacks {
 	my $callback_args = shift;
 	my $check_list_hash = shift;
 
-	my $debug_message = "[eventMacro] Callback Happenned, type: '".$callback_type."'";
-
-	$debug_message .= ", name: '".$callback_name."'";
-
+	my $debug_callback_name = $callback_name;
+	my ($sub_type, $complement);
 	if ($callback_type eq 'variable') {
-		my $sub_type = shift;
-		my $complement = shift;
-		$debug_message .= ", variable type: '".$sub_type."'";
-
+		$sub_type = shift;
+		$complement = shift;
 		if ($sub_type eq 'scalar') {
 			$callback_name = '$'.$callback_name;
-
 		} elsif ($sub_type eq 'array') {
 			$callback_name = '@'.$callback_name;
-
 		} elsif ($sub_type eq 'accessed_array') {
 			$callback_name = '$'.$callback_name.'['.$complement.']';
-			$debug_message .= ", array index: '".$complement."'";
-
 		} elsif ($sub_type eq 'hash') {
 			$callback_name = '%'.$callback_name;
-
 		} elsif ($sub_type eq 'accessed_hash') {
 			$callback_name = '$'.$callback_name.'{'.$complement.'}';
-			$debug_message .= ", hash key: '".$complement."'";
 		}
-		$debug_message .= ", variable value: '".$callback_args."'";
 	}
 
-	debug $debug_message."\n", "eventMacro", 3;
+	# Build the diagnostic only if it has an active consumer (including log hooks).
+	if (Log::debugEnabled('eventMacro', 3)) {
+		my $debug_message = "[eventMacro] Callback Happenned, type: '".$callback_type."'";
+		$debug_message .= ", name: '".$debug_callback_name."'";
+		if ($callback_type eq 'variable') {
+			$debug_message .= ", variable type: '".$sub_type."'";
+			$debug_message .= ", array index: '".$complement."'" if $sub_type eq 'accessed_array';
+			$debug_message .= ", hash key: '".$complement."'" if $sub_type eq 'accessed_hash';
+			$debug_message .= ", variable value: '".$callback_args."'";
+		}
+		debug $debug_message."\n", "eventMacro", 3;
+	}
 
 	my ($event_type_automacro_call_index, $event_type_automacro_call_priority);
 

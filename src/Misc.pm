@@ -4686,7 +4686,7 @@ sub getBestTarget {
 	my @noLOSMonsters;
 	my @noLOSMonsters_pos;
 	# TODO: Is there any situation where we should use calcPosFromPathfinding or calcPosFromTime here?
-	my $actorPos = calcPosFromPathfinding($field, $actor);
+	my $actorPos;
 
 	my ($highestPri, $smallestDist, $bestTarget);
 
@@ -4726,6 +4726,7 @@ sub getBestTarget {
 
 		next if (_targetWillLeaveClientSightSoon($char, $monster));
 
+		$actorPos ||= calcPosFromPathfinding($field, $actor);
 		if (!$field->checkLOS($actorPos, $targetPos, $attackCanSnipe)) {
 			push(@noLOSMonsters, $_);
 			push(@noLOSMonsters_pos, $targetPos);
@@ -5533,11 +5534,12 @@ sub checkSelfCondition {
 	return 0 if ($config{$prefix . "_disabled"});
 	$ai_state = AI::state() unless defined $ai_state;
 
+	if ($config{$prefix . "_timeout"}) { return 0 unless timeOut($ai_v{$prefix . "_time"}, $config{$prefix . "_timeout"}) }
+
 	return 0 if ($config{$prefix."_whenIdle"} && !AI::isIdle());
 
 	return 0 if ($config{$prefix."_whenNotIdle"} && AI::isIdle());
 
-	my $realMyPos = calcPosFromPathfinding($field, $char);
 	
 	# TODO: Is there any situation where we should use calcPosFromPathfinding or calcPosFromTime here in these checks?
 
@@ -5766,7 +5768,6 @@ sub checkSelfCondition {
 	if ($config{$prefix . "_spirit"}) {return 0 unless (inRange(defined $char->{spirits} ? $char->{spirits} : 0, $config{$prefix . "_spirit"})); }
 	if ($config{$prefix . "_amuletType"}) {return 0 unless $config{$prefix . "_amuletType"} eq $char->{amuletType}; }
 
-	if ($config{$prefix . "_timeout"}) { return 0 unless timeOut($ai_v{$prefix . "_time"}, $config{$prefix . "_timeout"}) }
 	if ($config{$prefix . "_inLockOnly"} > 0) { return 0 unless ($field && $field->baseName eq $config{lockMap}); }
 	if ($config{$prefix . "_notWhileSitting"} > 0) { return 0 if ($char->{sitting}); }
 	if ($config{$prefix . "_notWhileCasting"} > 0) { return 0 if (exists $char->{casting}); }
@@ -5807,6 +5808,7 @@ sub checkSelfCondition {
 		my $max_dist = defined $config{$prefix . "_monstersCountDist"} ? $config{$prefix . "_monstersCountDist"} : 0;
 
 		my $found = 0;
+		my $realMyPos;
 		for my $monster (@$monstersList) {
 			if ( $check_not_monsters && (existsInList($config{$prefix . "_notMonsters"}, $monster->{name}) || existsInList($config{$prefix . "_notMonsters"}, $monster->{nameID}))) {
 				next;
@@ -5816,6 +5818,7 @@ sub checkSelfCondition {
 			}
 			if ($max_dist) {
 				my $realMonsterPos = calcPosFromPathfinding($field, $monster);
+				$realMyPos ||= calcPosFromPathfinding($field, $char);
 				my $dist = blockDistance($realMyPos, $realMonsterPos);
 				next if ($dist > $max_dist);
 			}
@@ -6228,7 +6231,8 @@ sub checkPlayerCondition {
 sub checkMonsterCondition {
 	my ($prefix, $monster) = @_;
 
-	my $realMyPos = calcPosFromPathfinding($field, $char);
+	if ($config{$prefix . "_timeout"}) { return 0 unless timeOut($ai_v{$prefix . "_time"}{$monster->{ID}}, $config{$prefix . "_timeout"}) }
+
 	
 	if ($config{$prefix . "_hp"}) {
 		if($config{$prefix . "_hp"} =~ /(\d+)%$/) {
@@ -6250,7 +6254,6 @@ sub checkMonsterCondition {
 		}
 	}
 
-	if ($config{$prefix . "_timeout"}) { return 0 unless timeOut($ai_v{$prefix . "_time"}{$monster->{ID}}, $config{$prefix . "_timeout"}) }
 
 	if (my $misses = $config{$prefix . "_misses"}) {
 		return 0 unless inRange($monster->{atkMiss}, $misses);
@@ -6273,7 +6276,9 @@ sub checkMonsterCondition {
 		return 0 unless actorIsBeingCastedOn($monster, $config{$prefix . "_whileBeingCasted"});
 	}
 
-	my $realMonsterPos = calcPosFromPathfinding($field, $monster);
+	my $realMonsterPos;
+	$realMonsterPos = calcPosFromPathfinding($field, $monster)
+		if $config{$prefix."_whenGround"} || $config{$prefix."_whenNotGround"} || $config{$prefix."_dist"};
 
 	if ($config{$prefix."_whenGround"}) {
 		return 0 unless whenGroundStatus($realMonsterPos, $config{$prefix."_whenGround"});
@@ -6283,6 +6288,7 @@ sub checkMonsterCondition {
 	}
 
 	if ($config{$prefix."_dist"}) {
+		my $realMyPos = calcPosFromPathfinding($field, $char);
 		return 0 unless inRange(blockDistance($realMyPos, $realMonsterPos), $config{$prefix."_dist"});
 	}
 
