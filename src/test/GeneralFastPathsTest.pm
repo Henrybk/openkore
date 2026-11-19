@@ -40,6 +40,30 @@ sub start {
         is($position_calls, 0, 'no path position calculation before timed actor scan');
     };
 
+    subtest 'monster checks and empty targeting avoid unused position calculations' => sub {
+        local %Globals::config;
+        local $Globals::char = bless {}, 'GeneralFastPathsTest::Char';
+        my $monster = bless {ID => pack('V', 1)}, 'GeneralFastPathsTest::Monster';
+        my $position_calls = 0;
+        no warnings 'redefine';
+        local *Plugins::callHook = sub {};
+        local *Misc::calcPosFromPathfinding = sub {
+            $position_calls++;
+            return ref($_[1]) eq 'GeneralFastPathsTest::Char'
+                ? {x => 0, y => 0} : {x => 1, y => 1};
+        };
+        is(Misc::checkMonsterCondition('generalFastPath', $monster), 1,
+            'unrestricted monster condition remains true');
+        is($position_calls, 0, 'unrestricted monster check computes neither position');
+        ok(!defined Misc::getBestTarget([], 0, 0, $Globals::char),
+            'empty target list still produces no target');
+        is($position_calls, 0, 'empty target list does not compute actor position');
+        $Globals::config{generalFastPath_dist} = '1';
+        is(Misc::checkMonsterCondition('generalFastPath', $monster), 1,
+            'distance-restricted monster condition remains true');
+        is($position_calls, 2, 'distance restriction computes both positions once');
+    };
+
     subtest 'inactive automation returns before evaluating expensive prerequisites' => sub {
         local %Globals::config;
         local $Globals::char = bless {muted => 0}, 'GeneralFastPathsTest::Char';
@@ -49,6 +73,9 @@ sub start {
         local *AI::isIdle = sub { die 'unexpected AI state scan' };
         AI::CoreLogic::processMonsterSkillUse();
         pass('monster skill scan skipped with no monsters');
+        $Globals::monstersList = [{}];
+        AI::CoreLogic::processMonsterSkillUse();
+        pass('monster skill scan skipped when no numbered skill configuration exists');
         AI::CoreLogic::processAllowedMaps();
         AI::CoreLogic::processDcOnPlayer();
         AI::CoreLogic::processRepairAuto();
